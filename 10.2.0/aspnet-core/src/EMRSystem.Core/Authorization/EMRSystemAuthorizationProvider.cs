@@ -12,6 +12,9 @@ public class EMRSystemAuthorizationProvider : AuthorizationProvider
         context.CreatePermission(PermissionNames.Pages_Users_Activation, L("UsersActivation"));
         context.CreatePermission(PermissionNames.Pages_Roles, L("Roles"));
         context.CreatePermission(PermissionNames.Pages_Tenants, L("Tenants"), multiTenancySides: MultiTenancySides.Host);
+        context.CreatePermission(PermissionNames.Pages_Tenant_ManagePrescriptions, L("ManagePrescriptions"));
+        context.CreatePermission(PermissionNames.Pages_Tenant_ManageAppointments, L("ManageAppointments"));
+        context.CreatePermission(PermissionNames.Pages_Tenant_ManageVisits, L("ManageVisits"));
     }
 
     private static ILocalizableString L(string name)

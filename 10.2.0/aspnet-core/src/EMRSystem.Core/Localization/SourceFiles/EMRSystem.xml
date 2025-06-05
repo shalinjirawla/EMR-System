@@ -120,5 +120,8 @@
     <text name="403PageHeader">Forbidden</text>
     <text name="403PageDescription">You don't have permission to access this resource. Please contact your administrator.</text>
     <text name="403PageButton">Go back to Dashboard</text>
+    <text name="ManagePrescriptions">Manage Prescriptions</text>
+    <text name="ManageAppointments">Manage Appointments</text>
+    <text name="ManageVisits">Manage Visits</text>
   </texts>
 </localizationDictionary>
