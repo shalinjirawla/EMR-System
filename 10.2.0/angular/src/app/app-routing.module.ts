@@ -27,6 +27,18 @@ import { AppComponent } from './app.component';
                         canActivate: [AppRouteGuard],
                     },
                     {
+                        path: 'doctors',
+                        loadChildren: () => import('./doctors/doctors.module').then((m) => m.DoctorsModule),
+                        // data: { permission: 'Pages.Doctors' },
+                        canActivate: [AppRouteGuard],
+                    },
+                    {
+                        path: 'nurse',
+                        loadChildren: () => import('./nurse/nurse.module').then((m) => m.NurseModule),
+                        // data: { permission: 'Pages.Nurse' },
+                        canActivate: [AppRouteGuard],
+                    },
+                    {
                         path: 'roles',
                         loadChildren: () => import('./roles/roles.module').then((m) => m.RolesModule),
                         data: { permission: 'Pages.Roles' },
