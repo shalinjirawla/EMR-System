@@ -2,6 +2,11 @@
 using Abp.Modules;
 using Abp.Reflection.Extensions;
 using EMRSystem.Authorization;
+using EMRSystem.BillingStaff.Dto;
+using EMRSystem.Doctor.Dto;
+using EMRSystem.LabTechnician.Dto;
+using EMRSystem.Nurse.Dto;
+using EMRSystem.Patients.Dto;
 
 namespace EMRSystem;
 
@@ -25,5 +30,11 @@ public class EMRSystemApplicationModule : AbpModule
             // Scan the assembly for classes which inherit from AutoMapper.Profile
             cfg => cfg.AddMaps(thisAssembly)
         );
+
+        Configuration.Modules.AbpAutoMapper().Configurators.Add(cfg => cfg.AddProfile<BillingMapProfile>());
+        Configuration.Modules.AbpAutoMapper().Configurators.Add(cfg => cfg.AddProfile<DoctorMapProfile>());
+        Configuration.Modules.AbpAutoMapper().Configurators.Add(cfg => cfg.AddProfile<LabMapProfile>());
+        Configuration.Modules.AbpAutoMapper().Configurators.Add(cfg => cfg.AddProfile<NurseMapProfile>());
+        Configuration.Modules.AbpAutoMapper().Configurators.Add(cfg => cfg.AddProfile<PatientMapProfile>());
     }
 }
