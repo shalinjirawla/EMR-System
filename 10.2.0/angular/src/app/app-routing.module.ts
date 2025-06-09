@@ -33,8 +33,32 @@ import { AppComponent } from './app.component';
                         canActivate: [AppRouteGuard],
                     },
                     {
+                        path: 'billing-staff',
+                        loadChildren: () => import('./billing-staff/billing-staff.module').then((m) => m.BillingStaffModule),
+                        // data: { permission: 'Pages.Doctors' },
+                        canActivate: [AppRouteGuard],
+                    },
+                    {
+                        path: 'lab-technician',
+                        loadChildren: () => import('./lab-technician/lab-technician.module').then((m) => m.LabTechnicianModule),
+                        // data: { permission: 'Pages.Doctors' },
+                        canActivate: [AppRouteGuard],
+                    },
+                    {
                         path: 'nurse',
                         loadChildren: () => import('./nurse/nurse.module').then((m) => m.NurseModule),
+                        // data: { permission: 'Pages.Nurse' },
+                        canActivate: [AppRouteGuard],
+                    },
+                    {
+                        path: 'patient',
+                        loadChildren: () => import('./patient/patient.module').then((m) => m.PatientModule),
+                        // data: { permission: 'Pages.Nurse' },
+                        canActivate: [AppRouteGuard],
+                    },
+                    {
+                        path: 'pharmacist',
+                        loadChildren: () => import('./pharmacist/pharmacist.module').then((m) => m.PharmacistModule),
                         // data: { permission: 'Pages.Nurse' },
                         canActivate: [AppRouteGuard],
                     },

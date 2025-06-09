@@ -62,6 +62,7 @@ export class RolesComponent extends PagedListingComponentBase<RoleDto> {
                 })
             )
             .subscribe((result: RoleDtoPagedResultDto) => {
+                debugger
                 this.primengTableHelper.records = result.items;
                 this.primengTableHelper.totalRecordsCount = result.totalCount;
                 this.primengTableHelper.hideLoadingIndicator();

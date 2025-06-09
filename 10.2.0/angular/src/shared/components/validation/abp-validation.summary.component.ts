@@ -58,18 +58,18 @@ export class AbpValidationSummaryComponent extends AppComponentBase implements O
     }
 
     ngOnInit() {
-        if (this.controlEl) {
-            this.control.valueChanges.subscribe(() => {
-                if (this.control.valid && (this.control.dirty || this.control.touched)) {
-                    this._renderer.removeClass(this.controlEl, 'is-invalid');
-                }
-            });
-        }
+ if (this.control && this.controlEl?.nativeElement) {
+        this.control.valueChanges.subscribe(() => {
+            if (this.control.valid && (this.control.dirty || this.control.touched)) {
+                this._renderer.removeClass(this.controlEl.nativeElement, 'is-invalid');
+            }
+        });
+    }
     }
 
     getValidationErrorMessage(error: AbpValidationError): string {
         if (this.controlEl) {
-            this._renderer.addClass(this.controlEl, 'is-invalid');
+            this._renderer.addClass(this.controlEl.nativeElement, 'is-invalid');
         }
 
         const propertyValue = this.control.errors[error.name][error.propertyKey];
