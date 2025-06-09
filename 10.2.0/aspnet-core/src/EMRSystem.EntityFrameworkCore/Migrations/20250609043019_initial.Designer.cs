@@ -7,26 +7,31 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
+#nullable disable
+
 namespace EMRSystem.Migrations
 {
     [DbContext(typeof(EMRSystemDbContext))]
-    [Migration("20200220110527_Upgraded_To_Abp_5_2_0")]
-    partial class Upgraded_To_Abp_5_2_0
+    [Migration("20250609043019_initial")]
+    partial class initial
     {
+        /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.1")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                .HasAnnotation("ProductVersion", "9.0.5")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity("Abp.Application.Editions.Edition", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("datetime2");
@@ -42,8 +47,8 @@ namespace EMRSystem.Migrations
 
                     b.Property<string>("DisplayName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(64)")
-                        .HasMaxLength(64);
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -56,8 +61,8 @@ namespace EMRSystem.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(32)")
-                        .HasMaxLength(32);
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
 
                     b.HasKey("Id");
 
@@ -68,8 +73,9 @@ namespace EMRSystem.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("datetime2");
@@ -79,54 +85,62 @@ namespace EMRSystem.Migrations
 
                     b.Property<string>("Discriminator")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(21)
+                        .HasColumnType("nvarchar(21)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(128)")
-                        .HasMaxLength(128);
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<int?>("TenantId")
                         .HasColumnType("int");
 
                     b.Property<string>("Value")
                         .IsRequired()
-                        .HasColumnType("nvarchar(2000)")
-                        .HasMaxLength(2000);
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
 
                     b.HasKey("Id");
 
                     b.ToTable("AbpFeatures");
 
-                    b.HasDiscriminator<string>("Discriminator").HasValue("FeatureSetting");
+                    b.HasDiscriminator().HasValue("FeatureSetting");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("Abp.Auditing.AuditLog", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("BrowserInfo")
-                        .HasColumnType("nvarchar(512)")
-                        .HasMaxLength(512);
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
 
                     b.Property<string>("ClientIpAddress")
-                        .HasColumnType("nvarchar(64)")
-                        .HasMaxLength(64);
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
 
                     b.Property<string>("ClientName")
-                        .HasColumnType("nvarchar(128)")
-                        .HasMaxLength(128);
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<string>("CustomData")
-                        .HasColumnType("nvarchar(2000)")
-                        .HasMaxLength(2000);
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
 
                     b.Property<string>("Exception")
-                        .HasColumnType("nvarchar(2000)")
-                        .HasMaxLength(2000);
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("ExceptionMessage")
+                        .HasMaxLength(1024)
+                        .HasColumnType("nvarchar(1024)");
 
                     b.Property<int>("ExecutionDuration")
                         .HasColumnType("int");
@@ -141,19 +155,19 @@ namespace EMRSystem.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("MethodName")
-                        .HasColumnType("nvarchar(256)")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("Parameters")
-                        .HasColumnType("nvarchar(1024)")
-                        .HasMaxLength(1024);
+                        .HasMaxLength(4096)
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ReturnValue")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ServiceName")
-                        .HasColumnType("nvarchar(256)")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<int?>("TenantId")
                         .HasColumnType("int");
@@ -176,8 +190,9 @@ namespace EMRSystem.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("datetime2");
@@ -187,15 +202,16 @@ namespace EMRSystem.Migrations
 
                     b.Property<string>("Discriminator")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(21)
+                        .HasColumnType("nvarchar(21)");
 
                     b.Property<bool>("IsGranted")
                         .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(128)")
-                        .HasMaxLength(128);
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<int?>("TenantId")
                         .HasColumnType("int");
@@ -206,19 +222,22 @@ namespace EMRSystem.Migrations
 
                     b.ToTable("AbpPermissions");
 
-                    b.HasDiscriminator<string>("Discriminator").HasValue("PermissionSetting");
+                    b.HasDiscriminator().HasValue("PermissionSetting");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("Abp.Authorization.Roles.RoleClaim", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(256)")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("ClaimValue")
                         .HasColumnType("nvarchar(max)");
@@ -248,8 +267,9 @@ namespace EMRSystem.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("datetime2");
@@ -264,8 +284,8 @@ namespace EMRSystem.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("EmailAddress")
-                        .HasColumnType("nvarchar(256)")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -286,8 +306,8 @@ namespace EMRSystem.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("UserName")
-                        .HasColumnType("nvarchar(256)")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
 
@@ -308,12 +328,13 @@ namespace EMRSystem.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(256)")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("ClaimValue")
                         .HasColumnType("nvarchar(max)");
@@ -343,18 +364,19 @@ namespace EMRSystem.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("LoginProvider")
                         .IsRequired()
-                        .HasColumnType("nvarchar(128)")
-                        .HasMaxLength(128);
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<string>("ProviderKey")
                         .IsRequired()
-                        .HasColumnType("nvarchar(256)")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<int?>("TenantId")
                         .HasColumnType("int");
@@ -365,6 +387,10 @@ namespace EMRSystem.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
+
+                    b.HasIndex("ProviderKey", "TenantId")
+                        .IsUnique()
+                        .HasFilter("[TenantId] IS NOT NULL");
 
                     b.HasIndex("TenantId", "UserId");
 
@@ -377,30 +403,35 @@ namespace EMRSystem.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("BrowserInfo")
-                        .HasColumnType("nvarchar(512)")
-                        .HasMaxLength(512);
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
 
                     b.Property<string>("ClientIpAddress")
-                        .HasColumnType("nvarchar(64)")
-                        .HasMaxLength(64);
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
 
                     b.Property<string>("ClientName")
-                        .HasColumnType("nvarchar(128)")
-                        .HasMaxLength(128);
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("FailReason")
+                        .HasMaxLength(1024)
+                        .HasColumnType("nvarchar(1024)");
 
                     b.Property<byte>("Result")
                         .HasColumnType("tinyint");
 
                     b.Property<string>("TenancyName")
-                        .HasColumnType("nvarchar(64)")
-                        .HasMaxLength(64);
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
 
                     b.Property<int?>("TenantId")
                         .HasColumnType("int");
@@ -409,8 +440,8 @@ namespace EMRSystem.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("UserNameOrEmailAddress")
-                        .HasColumnType("nvarchar(256)")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
 
@@ -425,8 +456,9 @@ namespace EMRSystem.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("datetime2");
@@ -459,8 +491,9 @@ namespace EMRSystem.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("datetime2");
@@ -492,19 +525,20 @@ namespace EMRSystem.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime?>("ExpireDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("nvarchar(128)")
-                        .HasMaxLength(128);
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(128)")
-                        .HasMaxLength(128);
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<int?>("TenantId")
                         .HasColumnType("int");
@@ -513,8 +547,8 @@ namespace EMRSystem.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("Value")
-                        .HasColumnType("nvarchar(512)")
-                        .HasMaxLength(512);
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
 
                     b.HasKey("Id");
 
@@ -529,8 +563,9 @@ namespace EMRSystem.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("datetime2");
@@ -543,13 +578,13 @@ namespace EMRSystem.Migrations
 
                     b.Property<string>("JobArgs")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasMaxLength(1048576);
+                        .HasMaxLength(1048576)
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("JobType")
                         .IsRequired()
-                        .HasColumnType("nvarchar(512)")
-                        .HasMaxLength(512);
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
 
                     b.Property<DateTime?>("LastTryTime")
                         .HasColumnType("datetime2");
@@ -574,8 +609,9 @@ namespace EMRSystem.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("datetime2");
@@ -591,8 +627,8 @@ namespace EMRSystem.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(256)")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<int?>("TenantId")
                         .HasColumnType("int");
@@ -613,12 +649,128 @@ namespace EMRSystem.Migrations
                     b.ToTable("AbpSettings");
                 });
 
+            modelBuilder.Entity("Abp.DynamicEntityProperties.DynamicEntityProperty", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("DynamicPropertyId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("EntityFullName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<int?>("TenantId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DynamicPropertyId");
+
+                    b.HasIndex("EntityFullName", "DynamicPropertyId", "TenantId")
+                        .IsUnique()
+                        .HasFilter("[EntityFullName] IS NOT NULL AND [TenantId] IS NOT NULL");
+
+                    b.ToTable("AbpDynamicEntityProperties");
+                });
+
+            modelBuilder.Entity("Abp.DynamicEntityProperties.DynamicEntityPropertyValue", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("DynamicEntityPropertyId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("EntityId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("TenantId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DynamicEntityPropertyId");
+
+                    b.ToTable("AbpDynamicEntityPropertyValues");
+                });
+
+            modelBuilder.Entity("Abp.DynamicEntityProperties.DynamicProperty", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("DisplayName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("InputType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Permission")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PropertyName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<int?>("TenantId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PropertyName", "TenantId")
+                        .IsUnique()
+                        .HasFilter("[PropertyName] IS NOT NULL AND [TenantId] IS NOT NULL");
+
+                    b.ToTable("AbpDynamicProperties");
+                });
+
+            modelBuilder.Entity("Abp.DynamicEntityProperties.DynamicPropertyValue", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("DynamicPropertyId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TenantId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DynamicPropertyId");
+
+                    b.ToTable("AbpDynamicPropertyValues");
+                });
+
             modelBuilder.Entity("Abp.EntityHistory.EntityChange", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("ChangeTime")
                         .HasColumnType("datetime2");
@@ -630,12 +782,12 @@ namespace EMRSystem.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("EntityId")
-                        .HasColumnType("nvarchar(48)")
-                        .HasMaxLength(48);
+                        .HasMaxLength(48)
+                        .HasColumnType("nvarchar(48)");
 
                     b.Property<string>("EntityTypeFullName")
-                        .HasColumnType("nvarchar(192)")
-                        .HasMaxLength(192);
+                        .HasMaxLength(192)
+                        .HasColumnType("nvarchar(192)");
 
                     b.Property<int?>("TenantId")
                         .HasColumnType("int");
@@ -653,20 +805,21 @@ namespace EMRSystem.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("BrowserInfo")
-                        .HasColumnType("nvarchar(512)")
-                        .HasMaxLength(512);
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
 
                     b.Property<string>("ClientIpAddress")
-                        .HasColumnType("nvarchar(64)")
-                        .HasMaxLength(64);
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
 
                     b.Property<string>("ClientName")
-                        .HasColumnType("nvarchar(128)")
-                        .HasMaxLength(128);
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("datetime2");
@@ -681,8 +834,8 @@ namespace EMRSystem.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("Reason")
-                        .HasColumnType("nvarchar(256)")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<int?>("TenantId")
                         .HasColumnType("int");
@@ -705,27 +858,34 @@ namespace EMRSystem.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<long>("EntityChangeId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("NewValue")
-                        .HasColumnType("nvarchar(512)")
-                        .HasMaxLength(512);
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<string>("NewValueHash")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("OriginalValue")
-                        .HasColumnType("nvarchar(512)")
-                        .HasMaxLength(512);
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<string>("OriginalValueHash")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PropertyName")
-                        .HasColumnType("nvarchar(96)")
-                        .HasMaxLength(96);
+                        .HasMaxLength(96)
+                        .HasColumnType("nvarchar(96)");
 
                     b.Property<string>("PropertyTypeFullName")
-                        .HasColumnType("nvarchar(192)")
-                        .HasMaxLength(192);
+                        .HasMaxLength(192)
+                        .HasColumnType("nvarchar(192)");
 
                     b.Property<int?>("TenantId")
                         .HasColumnType("int");
@@ -741,8 +901,9 @@ namespace EMRSystem.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("datetime2");
@@ -758,12 +919,12 @@ namespace EMRSystem.Migrations
 
                     b.Property<string>("DisplayName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(64)")
-                        .HasMaxLength(64);
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
 
                     b.Property<string>("Icon")
-                        .HasColumnType("nvarchar(128)")
-                        .HasMaxLength(128);
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -779,8 +940,8 @@ namespace EMRSystem.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(128)")
-                        .HasMaxLength(128);
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<int?>("TenantId")
                         .HasColumnType("int");
@@ -796,8 +957,9 @@ namespace EMRSystem.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("datetime2");
@@ -807,13 +969,13 @@ namespace EMRSystem.Migrations
 
                     b.Property<string>("Key")
                         .IsRequired()
-                        .HasColumnType("nvarchar(256)")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("LanguageName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(128)")
-                        .HasMaxLength(128);
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<DateTime?>("LastModificationTime")
                         .HasColumnType("datetime2");
@@ -823,16 +985,16 @@ namespace EMRSystem.Migrations
 
                     b.Property<string>("Source")
                         .IsRequired()
-                        .HasColumnType("nvarchar(128)")
-                        .HasMaxLength(128);
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<int?>("TenantId")
                         .HasColumnType("int");
 
                     b.Property<string>("Value")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasMaxLength(67108864);
+                        .HasMaxLength(67108864)
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -854,44 +1016,48 @@ namespace EMRSystem.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("Data")
-                        .HasColumnType("nvarchar(max)")
-                        .HasMaxLength(1048576);
+                        .HasMaxLength(1048576)
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DataTypeName")
-                        .HasColumnType("nvarchar(512)")
-                        .HasMaxLength(512);
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
 
                     b.Property<string>("EntityId")
-                        .HasColumnType("nvarchar(96)")
-                        .HasMaxLength(96);
+                        .HasMaxLength(96)
+                        .HasColumnType("nvarchar(96)");
 
                     b.Property<string>("EntityTypeAssemblyQualifiedName")
-                        .HasColumnType("nvarchar(512)")
-                        .HasMaxLength(512);
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
 
                     b.Property<string>("EntityTypeName")
-                        .HasColumnType("nvarchar(250)")
-                        .HasMaxLength(250);
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
 
                     b.Property<string>("ExcludedUserIds")
-                        .HasColumnType("nvarchar(max)")
-                        .HasMaxLength(131072);
+                        .HasMaxLength(131072)
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NotificationName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(96)")
-                        .HasMaxLength(96);
+                        .HasMaxLength(96)
+                        .HasColumnType("nvarchar(96)");
 
                     b.Property<byte>("Severity")
                         .HasColumnType("tinyint");
 
+                    b.Property<string>("TargetNotifiers")
+                        .HasMaxLength(1024)
+                        .HasColumnType("nvarchar(1024)");
+
                     b.Property<string>("TenantIds")
-                        .HasColumnType("nvarchar(max)")
-                        .HasMaxLength(131072);
+                        .HasMaxLength(131072)
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserIds")
-                        .HasColumnType("nvarchar(max)")
-                        .HasMaxLength(131072);
+                        .HasMaxLength(131072)
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -911,20 +1077,24 @@ namespace EMRSystem.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("EntityId")
-                        .HasColumnType("nvarchar(96)")
-                        .HasMaxLength(96);
+                        .HasMaxLength(96)
+                        .HasColumnType("nvarchar(96)");
 
                     b.Property<string>("EntityTypeAssemblyQualifiedName")
-                        .HasColumnType("nvarchar(512)")
-                        .HasMaxLength(512);
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
 
                     b.Property<string>("EntityTypeName")
-                        .HasColumnType("nvarchar(250)")
-                        .HasMaxLength(250);
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
 
                     b.Property<string>("NotificationName")
-                        .HasColumnType("nvarchar(96)")
-                        .HasMaxLength(96);
+                        .HasMaxLength(96)
+                        .HasColumnType("nvarchar(96)");
+
+                    b.Property<string>("TargetNotifiers")
+                        .HasMaxLength(1024)
+                        .HasColumnType("nvarchar(1024)");
 
                     b.Property<int?>("TenantId")
                         .HasColumnType("int");
@@ -954,29 +1124,29 @@ namespace EMRSystem.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("Data")
-                        .HasColumnType("nvarchar(max)")
-                        .HasMaxLength(1048576);
+                        .HasMaxLength(1048576)
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DataTypeName")
-                        .HasColumnType("nvarchar(512)")
-                        .HasMaxLength(512);
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
 
                     b.Property<string>("EntityId")
-                        .HasColumnType("nvarchar(96)")
-                        .HasMaxLength(96);
+                        .HasMaxLength(96)
+                        .HasColumnType("nvarchar(96)");
 
                     b.Property<string>("EntityTypeAssemblyQualifiedName")
-                        .HasColumnType("nvarchar(512)")
-                        .HasMaxLength(512);
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
 
                     b.Property<string>("EntityTypeName")
-                        .HasColumnType("nvarchar(250)")
-                        .HasMaxLength(250);
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
 
                     b.Property<string>("NotificationName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(96)")
-                        .HasMaxLength(96);
+                        .HasMaxLength(96)
+                        .HasColumnType("nvarchar(96)");
 
                     b.Property<byte>("Severity")
                         .HasColumnType("tinyint");
@@ -1003,6 +1173,10 @@ namespace EMRSystem.Migrations
                     b.Property<int>("State")
                         .HasColumnType("int");
 
+                    b.Property<string>("TargetNotifiers")
+                        .HasMaxLength(1024)
+                        .HasColumnType("nvarchar(1024)");
+
                     b.Property<int?>("TenantId")
                         .HasColumnType("int");
 
@@ -1023,13 +1197,14 @@ namespace EMRSystem.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasColumnType("nvarchar(95)")
-                        .HasMaxLength(95);
+                        .HasMaxLength(95)
+                        .HasColumnType("nvarchar(95)");
 
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("datetime2");
@@ -1045,8 +1220,8 @@ namespace EMRSystem.Migrations
 
                     b.Property<string>("DisplayName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(128)")
-                        .HasMaxLength(128);
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -1076,8 +1251,9 @@ namespace EMRSystem.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("datetime2");
@@ -1211,13 +1387,14 @@ namespace EMRSystem.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(128)")
-                        .HasMaxLength(128);
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("datetime2");
@@ -1232,13 +1409,13 @@ namespace EMRSystem.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)")
-                        .HasMaxLength(5000);
+                        .HasMaxLength(5000)
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DisplayName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(64)")
-                        .HasMaxLength(64);
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
 
                     b.Property<bool>("IsDefault")
                         .HasColumnType("bit");
@@ -1257,13 +1434,13 @@ namespace EMRSystem.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(32)")
-                        .HasMaxLength(32);
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
 
                     b.Property<string>("NormalizedName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(32)")
-                        .HasMaxLength(32);
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
 
                     b.Property<int?>("TenantId")
                         .HasColumnType("int");
@@ -1285,20 +1462,21 @@ namespace EMRSystem.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
                     b.Property<string>("AuthenticationSource")
-                        .HasColumnType("nvarchar(64)")
-                        .HasMaxLength(64);
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(128)")
-                        .HasMaxLength(128);
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("datetime2");
@@ -1314,12 +1492,12 @@ namespace EMRSystem.Migrations
 
                     b.Property<string>("EmailAddress")
                         .IsRequired()
-                        .HasColumnType("nvarchar(256)")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("EmailConfirmationCode")
-                        .HasColumnType("nvarchar(328)")
-                        .HasMaxLength(328);
+                        .HasMaxLength(328)
+                        .HasColumnType("nvarchar(328)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -1350,48 +1528,48 @@ namespace EMRSystem.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(64)")
-                        .HasMaxLength(64);
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
 
                     b.Property<string>("NormalizedEmailAddress")
                         .IsRequired()
-                        .HasColumnType("nvarchar(256)")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("NormalizedUserName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(256)")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasColumnType("nvarchar(128)")
-                        .HasMaxLength(128);
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<string>("PasswordResetCode")
-                        .HasColumnType("nvarchar(328)")
-                        .HasMaxLength(328);
+                        .HasMaxLength(328)
+                        .HasColumnType("nvarchar(328)");
 
                     b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(32)")
-                        .HasMaxLength(32);
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
 
                     b.Property<string>("SecurityStamp")
-                        .HasColumnType("nvarchar(128)")
-                        .HasMaxLength(128);
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<string>("Surname")
                         .IsRequired()
-                        .HasColumnType("nvarchar(64)")
-                        .HasMaxLength(64);
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
 
                     b.Property<int?>("TenantId")
                         .HasColumnType("int");
 
                     b.Property<string>("UserName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(256)")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
 
@@ -1408,16 +1586,231 @@ namespace EMRSystem.Migrations
                     b.ToTable("AbpUsers");
                 });
 
+            modelBuilder.Entity("EMRSystem.Billings.Bill", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("BillDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("CreatorUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("DeleterUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("GeneratedByUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("LastModifierUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("PatientId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("PaymentMethod")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PaymentStatus")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Billing");
+                });
+
+            modelBuilder.Entity("EMRSystem.Billings.BillItem", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<long>("BillId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BillId");
+
+                    b.ToTable("BillItem");
+                });
+
+            modelBuilder.Entity("EMRSystem.Doctors.Doctor", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("CreatorUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("DeleterUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Department")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Gender")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("LastModifierUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Qualification")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RegistrationNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Specialization")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("YearsOfExperience")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Doctors");
+                });
+
+            modelBuilder.Entity("EMRSystem.LabReports.LabReport", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("CollectedByLabTechId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("CreatorUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("DateConducted")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("DeleterUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FilePath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("LastModifierUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("PatientId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Remarks")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("RequestedByDoctorId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ResultSummary")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TestName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Lab");
+                });
+
             modelBuilder.Entity("EMRSystem.MultiTenancy.Tenant", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ConnectionString")
-                        .HasColumnType("nvarchar(1024)")
-                        .HasMaxLength(1024);
+                        .HasMaxLength(1024)
+                        .HasColumnType("nvarchar(1024)");
 
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("datetime2");
@@ -1448,13 +1841,13 @@ namespace EMRSystem.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(128)")
-                        .HasMaxLength(128);
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<string>("TenancyName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(64)")
-                        .HasMaxLength(64);
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
 
                     b.HasKey("Id");
 
@@ -1469,6 +1862,301 @@ namespace EMRSystem.Migrations
                     b.HasIndex("TenancyName");
 
                     b.ToTable("AbpTenants");
+                });
+
+            modelBuilder.Entity("EMRSystem.Nurses.Nurse", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("CreatorUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("DeleterUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Department")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FullName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Gender")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("LastModifierUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Qualification")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ShiftTiming")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("YearsOfExperience")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Nurses");
+                });
+
+            modelBuilder.Entity("EMRSystem.Patients.Patient", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("AdmissionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("AssignedDoctorId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("AssignedNurseId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("BloodGroup")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("CreatorUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("DateOfBirth")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("DeleterUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DischargeDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EmergencyContactName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EmergencyContactNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FullName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Gender")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("InsurancePolicyNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("InsuranceProvider")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsAdmitted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("LastModifierUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("MedicalRecordNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Patients");
+                });
+
+            modelBuilder.Entity("EMRSystem.Prescriptions.Prescription", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("AppointmentId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("CreatorUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("DateIssued")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("DeleterUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("DoctorId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("LastModifierUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("PatientId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Prescriptions");
+                });
+
+            modelBuilder.Entity("EMRSystem.Prescriptions.PrescriptionItem", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Dosage")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Duration")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Frequency")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MedicineName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("PrescriptionId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PrescriptionId");
+
+                    b.ToTable("PrescriptionItem");
+                });
+
+            modelBuilder.Entity("EMRSystem.Vitals.Vital", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("BloodPressure")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("CreatorUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("DateRecorded")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("DeleterUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("LastModifierUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("NurseId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("OxygenSaturation")
+                        .HasColumnType("int");
+
+                    b.Property<long>("PatientId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Pulse")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RespirationRate")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Temperature")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Vitals");
                 });
 
             modelBuilder.Entity("Abp.Application.Features.EditionFeatureSetting", b =>
@@ -1576,6 +2264,39 @@ namespace EMRSystem.Migrations
                         .HasForeignKey("UserId");
                 });
 
+            modelBuilder.Entity("Abp.DynamicEntityProperties.DynamicEntityProperty", b =>
+                {
+                    b.HasOne("Abp.DynamicEntityProperties.DynamicProperty", "DynamicProperty")
+                        .WithMany()
+                        .HasForeignKey("DynamicPropertyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DynamicProperty");
+                });
+
+            modelBuilder.Entity("Abp.DynamicEntityProperties.DynamicEntityPropertyValue", b =>
+                {
+                    b.HasOne("Abp.DynamicEntityProperties.DynamicEntityProperty", "DynamicEntityProperty")
+                        .WithMany()
+                        .HasForeignKey("DynamicEntityPropertyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DynamicEntityProperty");
+                });
+
+            modelBuilder.Entity("Abp.DynamicEntityProperties.DynamicPropertyValue", b =>
+                {
+                    b.HasOne("Abp.DynamicEntityProperties.DynamicProperty", "DynamicProperty")
+                        .WithMany("DynamicPropertyValues")
+                        .HasForeignKey("DynamicPropertyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DynamicProperty");
+                });
+
             modelBuilder.Entity("Abp.EntityHistory.EntityChange", b =>
                 {
                     b.HasOne("Abp.EntityHistory.EntityChangeSet", null)
@@ -1599,6 +2320,8 @@ namespace EMRSystem.Migrations
                     b.HasOne("Abp.Organizations.OrganizationUnit", "Parent")
                         .WithMany("Children")
                         .HasForeignKey("ParentId");
+
+                    b.Navigation("Parent");
                 });
 
             modelBuilder.Entity("Abp.Webhooks.WebhookSendAttempt", b =>
@@ -1608,6 +2331,8 @@ namespace EMRSystem.Migrations
                         .HasForeignKey("WebhookEventId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("WebhookEvent");
                 });
 
             modelBuilder.Entity("EMRSystem.Authorization.Roles.Role", b =>
@@ -1623,6 +2348,12 @@ namespace EMRSystem.Migrations
                     b.HasOne("EMRSystem.Authorization.Users.User", "LastModifierUser")
                         .WithMany()
                         .HasForeignKey("LastModifierUserId");
+
+                    b.Navigation("CreatorUser");
+
+                    b.Navigation("DeleterUser");
+
+                    b.Navigation("LastModifierUser");
                 });
 
             modelBuilder.Entity("EMRSystem.Authorization.Users.User", b =>
@@ -1638,6 +2369,23 @@ namespace EMRSystem.Migrations
                     b.HasOne("EMRSystem.Authorization.Users.User", "LastModifierUser")
                         .WithMany()
                         .HasForeignKey("LastModifierUserId");
+
+                    b.Navigation("CreatorUser");
+
+                    b.Navigation("DeleterUser");
+
+                    b.Navigation("LastModifierUser");
+                });
+
+            modelBuilder.Entity("EMRSystem.Billings.BillItem", b =>
+                {
+                    b.HasOne("EMRSystem.Billings.Bill", "Bill")
+                        .WithMany("Items")
+                        .HasForeignKey("BillId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Bill");
                 });
 
             modelBuilder.Entity("EMRSystem.MultiTenancy.Tenant", b =>
@@ -1657,6 +2405,23 @@ namespace EMRSystem.Migrations
                     b.HasOne("EMRSystem.Authorization.Users.User", "LastModifierUser")
                         .WithMany()
                         .HasForeignKey("LastModifierUserId");
+
+                    b.Navigation("CreatorUser");
+
+                    b.Navigation("DeleterUser");
+
+                    b.Navigation("Edition");
+
+                    b.Navigation("LastModifierUser");
+                });
+
+            modelBuilder.Entity("EMRSystem.Prescriptions.PrescriptionItem", b =>
+                {
+                    b.HasOne("EMRSystem.Prescriptions.Prescription", null)
+                        .WithMany("Items")
+                        .HasForeignKey("PrescriptionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Abp.Application.Features.EditionFeatureSetting", b =>
@@ -1666,6 +2431,8 @@ namespace EMRSystem.Migrations
                         .HasForeignKey("EditionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Edition");
                 });
 
             modelBuilder.Entity("Abp.Authorization.Roles.RolePermissionSetting", b =>
@@ -1684,6 +2451,58 @@ namespace EMRSystem.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Abp.DynamicEntityProperties.DynamicProperty", b =>
+                {
+                    b.Navigation("DynamicPropertyValues");
+                });
+
+            modelBuilder.Entity("Abp.EntityHistory.EntityChange", b =>
+                {
+                    b.Navigation("PropertyChanges");
+                });
+
+            modelBuilder.Entity("Abp.EntityHistory.EntityChangeSet", b =>
+                {
+                    b.Navigation("EntityChanges");
+                });
+
+            modelBuilder.Entity("Abp.Organizations.OrganizationUnit", b =>
+                {
+                    b.Navigation("Children");
+                });
+
+            modelBuilder.Entity("EMRSystem.Authorization.Roles.Role", b =>
+                {
+                    b.Navigation("Claims");
+
+                    b.Navigation("Permissions");
+                });
+
+            modelBuilder.Entity("EMRSystem.Authorization.Users.User", b =>
+                {
+                    b.Navigation("Claims");
+
+                    b.Navigation("Logins");
+
+                    b.Navigation("Permissions");
+
+                    b.Navigation("Roles");
+
+                    b.Navigation("Settings");
+
+                    b.Navigation("Tokens");
+                });
+
+            modelBuilder.Entity("EMRSystem.Billings.Bill", b =>
+                {
+                    b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("EMRSystem.Prescriptions.Prescription", b =>
+                {
+                    b.Navigation("Items");
                 });
 #pragma warning restore 612, 618
         }
