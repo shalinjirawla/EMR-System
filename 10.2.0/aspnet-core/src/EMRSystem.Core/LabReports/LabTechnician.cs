@@ -1,27 +1,33 @@
 ﻿using Abp.Domain.Entities;
-using Abp.Domain.Entities.Auditing;
 using EMRSystem.Authorization.Users;
-using EMRSystem.Vitals;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EMRSystem.Nurses
+namespace EMRSystem.LabReports
 {
-    public class Nurse : Entity<long>
+    public class LabTechnician : Entity<long>
     {
         public string FullName { get; set; }
         public string Gender { get; set; }
-        public string ShiftTiming { get; set; }
-        public string Department { get; set; }
         public string Qualification { get; set; }
         public int YearsOfExperience { get; set; }
+        public LabDepartment Department { get; set; }
+        public string CertificationNumber { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public long AbpUserId { get; set; }
         public virtual User AbpUser { get; set; }
-        public ICollection<Vital> Vitals { get; set; }
+        public ICollection<LabReport> LabReports { get; set; }
+    }
+
+    public enum LabDepartment
+    {
+        Pathology,
+        Radiology,
+        Biochemistry,
+        Microbiology,
+        Hematology
     }
 }

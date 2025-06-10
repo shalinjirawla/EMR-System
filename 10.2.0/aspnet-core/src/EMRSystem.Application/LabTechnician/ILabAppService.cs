@@ -12,7 +12,7 @@ using EMRSystem.LabTechnician.Dto;
 namespace EMRSystem.LabTechnician
 {
     public interface ILabAppService : IAsyncCrudAppService<
-   LabDto, long, PagedAndSortedResultRequestDto, CreateUpdateLabDto, CreateUpdateLabDto>
+   LabReportDto, long, PagedAndSortedResultRequestDto, CreateUpdateLabReportDto, CreateUpdateLabReportDto>
     {
     }
 }

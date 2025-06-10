@@ -1,11 +1,4 @@
 ﻿using AutoMapper;
-using EMRSystem.Patients.Dto;
-using EMRSystem.Patients;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using EMRSystem.LabReports;
 
 namespace EMRSystem.LabTechnician.Dto
@@ -14,8 +7,10 @@ namespace EMRSystem.LabTechnician.Dto
     {
         public LabMapProfile()
         {
-            CreateMap<LabReport, LabDto>().ReverseMap();
-            CreateMap<LabReport, CreateUpdateLabDto>().ReverseMap();
+            CreateMap<LabReport, CreateUpdateLabReportDto>().ReverseMap();
+            CreateMap<LabReport, LabReportDto>().ReverseMap();
+            CreateMap<EMRSystem.LabReports.LabTechnician, CreateUpdateLabTechnicianDto>().ReverseMap();
+            CreateMap<EMRSystem.LabReports.LabTechnician, LabTechniciansDto>().ReverseMap();
         }
     }
 }

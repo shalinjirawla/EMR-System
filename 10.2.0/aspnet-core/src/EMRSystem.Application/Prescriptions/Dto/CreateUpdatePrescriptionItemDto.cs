@@ -1,13 +1,13 @@
-﻿using Abp.Domain.Entities;
+﻿using Abp.Application.Services.Dto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EMRSystem.Prescriptions
+namespace EMRSystem.Prescriptions.Dto
 {
-    public class PrescriptionItem : Entity<long>
+    class CreateUpdatePrescriptionItemDto : EntityDto<long>
     {
         public string MedicineName { get; set; }
         public string Dosage { get; set; } // e.g. 500mg
@@ -15,6 +15,5 @@ namespace EMRSystem.Prescriptions
         public string Duration { get; set; } // e.g. 5 days
         public string Instructions { get; set; }
         public long PrescriptionId { get; set; }
-        public virtual Prescription Prescription { get; set; }
     }
 }

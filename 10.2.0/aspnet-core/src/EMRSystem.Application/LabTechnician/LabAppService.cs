@@ -15,8 +15,7 @@ using EMRSystem.Authorization;
 
 namespace EMRSystem.LabTechnician
 {
-    [AbpAuthorize(PermissionNames.Pages_LabReports)]
-    public class LabAppService : AsyncCrudAppService<LabReport, LabDto, long, PagedAndSortedResultRequestDto, CreateUpdateLabDto, CreateUpdateLabDto>,
+    public class LabAppService : AsyncCrudAppService<LabReport, LabReportDto, long, PagedAndSortedResultRequestDto, CreateUpdateLabReportDto, CreateUpdateLabReportDto>,
    ILabAppService
     {
         public LabAppService(IRepository<LabReport, long> repository) : base(repository)
