@@ -12,25 +12,28 @@ import { AbpModalFooterComponent } from '../../../shared/components/modal/abp-mo
 import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { CommonModule } from '@node_modules/@angular/common';
 import { CreateDoctorComponent } from '../../doctors/create-doctor/create-doctor.component';
-
+import { CreateNurseComponent } from '../../nurse/create-nurse/create-nurse.component';
 
 
 @Component({
-    templateUrl: './create-user-dialog.component.html',
-    standalone: true,
-    imports: [
-        FormsModule,
-        AbpModalHeaderComponent,
-        AbpValidationSummaryComponent,
-        EqualValidator,
-        AbpModalFooterComponent,
-        LocalizePipe,
-        CreateDoctorComponent,
-        CommonModule
-    ],
+  templateUrl: './create-user-dialog.component.html',
+  standalone: true,
+  imports: [
+    FormsModule,
+    AbpModalHeaderComponent,
+    AbpValidationSummaryComponent,
+    EqualValidator,
+    AbpModalFooterComponent,
+    LocalizePipe,
+    CreateDoctorComponent,
+    CreateNurseComponent,
+    CommonModule
+  ],
 })
 export class CreateUserDialogComponent extends AppComponentBase implements OnInit {
   @ViewChild('createUserModal', { static: true }) createUserModal: NgForm;
+  @ViewChild(CreateDoctorComponent) createDoctorComponent: CreateDoctorComponent;
+  @ViewChild(CreateNurseComponent) createNurseComponent: CreateNurseComponent;
   @Output() onSave = new EventEmitter<void>();
 
   user: CreateUserDto = new CreateUserDto();
@@ -55,6 +58,8 @@ export class CreateUserDialogComponent extends AppComponentBase implements OnIni
 
   // You can hold extra doctor data if needed
   doctorData: any;
+  nurseData: any;
+
 
   constructor(
     injector: Injector,
@@ -72,50 +77,79 @@ export class CreateUserDialogComponent extends AppComponentBase implements OnIni
 
   loadRoles(): void {
     this._userService.getRoles().subscribe(result => {
-        debugger
+      // debugger
       this.roles = result.items;
       this.cd.detectChanges();
     });
   }
   onRoleChange() {
-     console.log('Selected Role:', this.selectedRole);
-  this.cd.detectChanges();  // force change detection on role change
-}
+    console.log('Selected Role:', this.selectedRole);
+    this.cd.detectChanges();  
+  }
 
   onDoctorDataChange(data: any): void {
     this.doctorData = data;
-    // If needed, you can map this.doctorData to user.extraProperties or a dedicated DTO
+
+  }
+  onNurseDataChange(data: any): void {
+    this.nurseData = data;
+
   }
 
-  save(): void {
-    if (!this.createUserModal.form.valid) {
-      return;
-    }
+  get isFormValid(): boolean {
+  const mainFormValid = this.createUserModal?.form?.valid;
+  const doctorFormValid = this.selectedRole === 'DOCTORS'
+    ? this.createDoctorComponent?.doctorForm?.valid
+    : true;
 
-    this.saving = true;
+  // const nurseFormValid = this.selectedRole === 'NURSE'
+  //   ? this.createNurseComponent?.nurseForm?.valid
+  //   : true;
 
-    // Assign selected role
-    this.user.roleNames = [this.selectedRole];
+  //return mainFormValid && doctorFormValid && nurseFormValid;
+  return mainFormValid && doctorFormValid ;
 
-    // Optionally: assign doctor data if role is doctor
-    if (this.selectedRole == 'DOCTORS' && this.doctorData) {
-        debugger
-        console.log(this.doctorData)
-        
-      // Example: you may merge doctorData into user.extraProperties or similar
-      this.user['doctorProfile'] = this.doctorData;
-      console.log(this.user)
-    }
+}
 
-    this._userService.create(this.user).subscribe({
-      next: () => {
-        this.notify.info(this.l('SavedSuccessfully'));
-        this.bsModalRef.hide();
-        this.onSave.emit();
-      },
-      error: () => {
-        this.saving = false;
-      }
-    });
+
+save(): void {
+  if (!this.createUserModal.form.valid) {
+    return;
   }
+
+  // Doctor Form validation
+  // if (this.selectedRole === 'DOCTORS' && this.createDoctorComponent?.doctorForm?.invalid) {
+  //   this.notify.warn(this.l('PleaseFillDoctorFormCorrectly'));
+  //   return;
+  // }
+
+  // Nurse Form validation
+  // if (this.selectedRole === 'NURSE' && this.createNurseComponent?.nurseForm?.invalid) {
+  //   this.notify.warn(this.l('PleaseFillNurseFormCorrectly'));
+  //   return;
+  // }
+
+  this.saving = true;
+  this.user.roleNames = [this.selectedRole];
+
+  if (this.selectedRole === 'DOCTORS' && this.doctorData) {
+    this.user['doctorProfile'] = this.doctorData;
+  }
+
+  if (this.selectedRole === 'NURSE' && this.nurseData) {
+    this.user['nurseProfile'] = this.nurseData;
+  }
+
+  this._userService.create(this.user).subscribe({
+    next: () => {
+      this.notify.info(this.l('SavedSuccessfully'));
+      this.bsModalRef.hide();
+      this.onSave.emit();
+    },
+    error: () => {
+      this.saving = false;
+    }
+  });
+}
+
 }
