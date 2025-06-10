@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace EMRSystem.Migrations
 {
     /// <inheritdoc />
-    public partial class initial : Migration
+    public partial class initt : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -449,211 +449,6 @@ namespace EMRSystem.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Billing",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    TenantId = table.Column<int>(type: "int", nullable: false),
-                    PatientId = table.Column<long>(type: "bigint", nullable: false),
-                    GeneratedByUserId = table.Column<long>(type: "bigint", nullable: true),
-                    BillDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    TotalAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    PaymentStatus = table.Column<int>(type: "int", nullable: false),
-                    PaymentMethod = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreationTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatorUserId = table.Column<long>(type: "bigint", nullable: true),
-                    LastModificationTime = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastModifierUserId = table.Column<long>(type: "bigint", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    DeleterUserId = table.Column<long>(type: "bigint", nullable: true),
-                    DeletionTime = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Billing", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Doctors",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    TenantId = table.Column<int>(type: "int", nullable: false),
-                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Gender = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Specialization = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Qualification = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    YearsOfExperience = table.Column<int>(type: "int", nullable: false),
-                    Department = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    RegistrationNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    UserId = table.Column<long>(type: "bigint", nullable: false),
-                    CreationTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatorUserId = table.Column<long>(type: "bigint", nullable: true),
-                    LastModificationTime = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastModifierUserId = table.Column<long>(type: "bigint", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    DeleterUserId = table.Column<long>(type: "bigint", nullable: true),
-                    DeletionTime = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Doctors", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Lab",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    TenantId = table.Column<int>(type: "int", nullable: false),
-                    PatientId = table.Column<long>(type: "bigint", nullable: false),
-                    TestName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    RequestedByDoctorId = table.Column<long>(type: "bigint", nullable: true),
-                    CollectedByLabTechId = table.Column<long>(type: "bigint", nullable: true),
-                    ResultSummary = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    FilePath = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DateConducted = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    Remarks = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreationTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatorUserId = table.Column<long>(type: "bigint", nullable: true),
-                    LastModificationTime = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastModifierUserId = table.Column<long>(type: "bigint", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    DeleterUserId = table.Column<long>(type: "bigint", nullable: true),
-                    DeletionTime = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Lab", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Nurses",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    TenantId = table.Column<int>(type: "int", nullable: false),
-                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Gender = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ShiftTiming = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Department = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Qualification = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    YearsOfExperience = table.Column<int>(type: "int", nullable: false),
-                    UserId = table.Column<long>(type: "bigint", nullable: false),
-                    CreationTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatorUserId = table.Column<long>(type: "bigint", nullable: true),
-                    LastModificationTime = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastModifierUserId = table.Column<long>(type: "bigint", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    DeleterUserId = table.Column<long>(type: "bigint", nullable: true),
-                    DeletionTime = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Nurses", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Patients",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    TenantId = table.Column<int>(type: "int", nullable: false),
-                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Gender = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    BloodGroup = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    EmergencyContactName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    EmergencyContactNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    AssignedDoctorId = table.Column<long>(type: "bigint", nullable: true),
-                    AssignedNurseId = table.Column<long>(type: "bigint", nullable: true),
-                    IsAdmitted = table.Column<bool>(type: "bit", nullable: false),
-                    AdmissionDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    DischargeDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    MedicalRecordNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    InsuranceProvider = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    InsurancePolicyNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreationTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatorUserId = table.Column<long>(type: "bigint", nullable: true),
-                    LastModificationTime = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastModifierUserId = table.Column<long>(type: "bigint", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    DeleterUserId = table.Column<long>(type: "bigint", nullable: true),
-                    DeletionTime = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Patients", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Prescriptions",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    TenantId = table.Column<int>(type: "int", nullable: false),
-                    DoctorId = table.Column<long>(type: "bigint", nullable: false),
-                    PatientId = table.Column<long>(type: "bigint", nullable: false),
-                    AppointmentId = table.Column<long>(type: "bigint", nullable: false),
-                    DateIssued = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreationTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatorUserId = table.Column<long>(type: "bigint", nullable: true),
-                    LastModificationTime = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastModifierUserId = table.Column<long>(type: "bigint", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    DeleterUserId = table.Column<long>(type: "bigint", nullable: true),
-                    DeletionTime = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Prescriptions", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Vitals",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    TenantId = table.Column<int>(type: "int", nullable: false),
-                    PatientId = table.Column<long>(type: "bigint", nullable: false),
-                    NurseId = table.Column<long>(type: "bigint", nullable: false),
-                    DateRecorded = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Temperature = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Pulse = table.Column<int>(type: "int", nullable: false),
-                    BloodPressure = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    RespirationRate = table.Column<int>(type: "int", nullable: false),
-                    OxygenSaturation = table.Column<int>(type: "int", nullable: false),
-                    CreationTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatorUserId = table.Column<long>(type: "bigint", nullable: true),
-                    LastModificationTime = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastModifierUserId = table.Column<long>(type: "bigint", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    DeleterUserId = table.Column<long>(type: "bigint", nullable: true),
-                    DeletionTime = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Vitals", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "AbpDynamicEntityProperties",
                 columns: table => new
                 {
@@ -968,50 +763,6 @@ namespace EMRSystem.Migrations
                         name: "FK_AbpWebhookSendAttempts_AbpWebhookEvents_WebhookEventId",
                         column: x => x.WebhookEventId,
                         principalTable: "AbpWebhookEvents",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "BillItem",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    BillId = table.Column<long>(type: "bigint", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_BillItem", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_BillItem_Billing_BillId",
-                        column: x => x.BillId,
-                        principalTable: "Billing",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "PrescriptionItem",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    PrescriptionId = table.Column<long>(type: "bigint", nullable: false),
-                    MedicineName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Dosage = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Frequency = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Duration = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PrescriptionItem", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_PrescriptionItem_Prescriptions_PrescriptionId",
-                        column: x => x.PrescriptionId,
-                        principalTable: "Prescriptions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -1471,16 +1222,6 @@ namespace EMRSystem.Migrations
                 name: "IX_AbpWebhookSendAttempts_WebhookEventId",
                 table: "AbpWebhookSendAttempts",
                 column: "WebhookEventId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_BillItem_BillId",
-                table: "BillItem",
-                column: "BillId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_PrescriptionItem_PrescriptionId",
-                table: "PrescriptionItem",
-                column: "PrescriptionId");
         }
 
         /// <inheritdoc />
@@ -1568,27 +1309,6 @@ namespace EMRSystem.Migrations
                 name: "AbpWebhookSubscriptions");
 
             migrationBuilder.DropTable(
-                name: "BillItem");
-
-            migrationBuilder.DropTable(
-                name: "Doctors");
-
-            migrationBuilder.DropTable(
-                name: "Lab");
-
-            migrationBuilder.DropTable(
-                name: "Nurses");
-
-            migrationBuilder.DropTable(
-                name: "Patients");
-
-            migrationBuilder.DropTable(
-                name: "PrescriptionItem");
-
-            migrationBuilder.DropTable(
-                name: "Vitals");
-
-            migrationBuilder.DropTable(
                 name: "AbpDynamicEntityProperties");
 
             migrationBuilder.DropTable(
@@ -1602,12 +1322,6 @@ namespace EMRSystem.Migrations
 
             migrationBuilder.DropTable(
                 name: "AbpWebhookEvents");
-
-            migrationBuilder.DropTable(
-                name: "Billing");
-
-            migrationBuilder.DropTable(
-                name: "Prescriptions");
 
             migrationBuilder.DropTable(
                 name: "AbpDynamicProperties");

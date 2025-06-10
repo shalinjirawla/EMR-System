@@ -36,7 +36,6 @@ namespace EMRSystem.Patients
         {
             CheckCreatePermission();
             var user = ObjectMapper.Map<Patient>(input);
-            user.TenantId = AbpSession.TenantId.Value;
             await _userManager.InitializeOptionsAsync(AbpSession.TenantId);
             await Repository.InsertAsync(user);
             CurrentUnitOfWork.SaveChanges();

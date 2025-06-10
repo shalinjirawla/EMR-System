@@ -1,18 +1,17 @@
-﻿using Abp.Domain.Entities;
-using Abp.Domain.Entities.Auditing;
-using EMRSystem.Nurses;
+﻿using Abp.Application.Services.Dto;
+using EMRSystem.Nurse.Dto;
 using EMRSystem.Patients;
+using EMRSystem.Patients.Dto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EMRSystem.Vitals
+namespace EMRSystem.Vitals.Dto
 {
-    public class Vital : Entity<long>, IMustHaveTenant
+    public class VitalDto : EntityDto<long>
     {
-        public int TenantId { get; set; }
         public DateTime DateRecorded { get; set; }
         public string BloodPressure { get; set; }  // e.g., "120/80 mmHg"
         public string HeartRate { get; set; }
@@ -23,9 +22,7 @@ namespace EMRSystem.Vitals
         public string Weight { get; set; }
         public string BMI { get; set; }
         public string Notes { get; set; }
-        public long PatientId { get; set; }
-        public virtual Patient Patient { get; set; }
-        public long NurseId { get; set; }
-        public virtual Nurse Nurse { get; set; }
+        public PatientDto Patient { get; set; }
+        public NurseDto Nurse { get; set; }
     }
 }

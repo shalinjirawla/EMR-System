@@ -4,6 +4,7 @@ using EMRSystem.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EMRSystem.Migrations
 {
     [DbContext(typeof(EMRSystemDbContext))]
-    partial class EMRSystemDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250610105043_initt")]
+    partial class initt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1380,52 +1383,6 @@ namespace EMRSystem.Migrations
                     b.ToTable("AbpWebhookSubscriptions");
                 });
 
-            modelBuilder.Entity("EMRSystem.Appointments.Appointment", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTime>("AppointmentDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("AppointmentTimeSlot")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long>("DoctorId")
-                        .HasColumnType("bigint");
-
-                    b.Property<bool>("IsFollowUp")
-                        .HasColumnType("bit");
-
-                    b.Property<long?>("NurseId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("PatientId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("ReasonForVisit")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DoctorId");
-
-                    b.HasIndex("NurseId");
-
-                    b.HasIndex("PatientId");
-
-                    b.ToTable("Appointment");
-                });
-
             modelBuilder.Entity("EMRSystem.Authorization.Roles.Role", b =>
                 {
                     b.Property<int>("Id")
@@ -1629,216 +1586,6 @@ namespace EMRSystem.Migrations
                     b.ToTable("AbpUsers");
                 });
 
-            modelBuilder.Entity("EMRSystem.Billings.Bill", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("AbpUserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("AdmissionDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("BillDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("DateOfSurgery")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long>("PatientId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("PaymentMethod")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("PaymentStatus")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("TotalAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AbpUserId");
-
-                    b.ToTable("Billing");
-                });
-
-            modelBuilder.Entity("EMRSystem.Billings.BillItem", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<long>("BillId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Quntity")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("UnitPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BillId");
-
-                    b.ToTable("BillItem");
-                });
-
-            modelBuilder.Entity("EMRSystem.Doctors.Doctor", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("AbpUserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("DateOfBirth")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Department")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FullName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Gender")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Qualification")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("RegistrationNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Specialization")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("YearsOfExperience")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AbpUserId");
-
-                    b.ToTable("Doctors");
-                });
-
-            modelBuilder.Entity("EMRSystem.LabReports.LabReport", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long?>("CreatorUserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long?>("DeleterUserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("DeletionTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<long>("LabTechnicianId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("LastModificationTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long?>("LastModifierUserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("PatientId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Remarks")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ResultSummary")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("TestName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LabTechnicianId");
-
-                    b.ToTable("Lab");
-                });
-
-            modelBuilder.Entity("EMRSystem.LabReports.LabTechnician", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("AbpUserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("CertificationNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("DateOfBirth")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Department")
-                        .HasColumnType("int");
-
-                    b.Property<string>("FullName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Gender")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Qualification")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("YearsOfExperience")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AbpUserId");
-
-                    b.ToTable("LabTechnician");
-                });
-
             modelBuilder.Entity("EMRSystem.MultiTenancy.Tenant", b =>
                 {
                     b.Property<int>("Id")
@@ -1901,239 +1648,6 @@ namespace EMRSystem.Migrations
                     b.HasIndex("TenancyName");
 
                     b.ToTable("AbpTenants");
-                });
-
-            modelBuilder.Entity("EMRSystem.Nurses.Nurse", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("AbpUserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("DateOfBirth")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Department")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FullName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Gender")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Qualification")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ShiftTiming")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("YearsOfExperience")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AbpUserId");
-
-                    b.ToTable("Nurses");
-                });
-
-            modelBuilder.Entity("EMRSystem.Patients.Patient", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("AbpUserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Address")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("AdmissionDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long?>("AssignedDoctorId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long?>("AssignedNurseId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("BloodGroup")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("DateOfBirth")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DischargeDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("EmergencyContactName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("EmergencyContactNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FullName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Gender")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("InsurancePolicyNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("InsuranceProvider")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsAdmitted")
-                        .HasColumnType("bit");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AbpUserId");
-
-                    b.HasIndex("AssignedDoctorId");
-
-                    b.ToTable("Patients");
-                });
-
-            modelBuilder.Entity("EMRSystem.Prescriptions.Prescription", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("AppointmentId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Diagnosis")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long>("DoctorId")
-                        .HasColumnType("bigint");
-
-                    b.Property<bool>("IsFollowUpRequired")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("IssueDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long>("PatientId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AppointmentId");
-
-                    b.HasIndex("DoctorId");
-
-                    b.HasIndex("PatientId");
-
-                    b.ToTable("Prescriptions");
-                });
-
-            modelBuilder.Entity("EMRSystem.Prescriptions.PrescriptionItem", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Dosage")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Duration")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Frequency")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Instructions")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("MedicineName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long>("PrescriptionId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PrescriptionId");
-
-                    b.ToTable("PrescriptionItem");
-                });
-
-            modelBuilder.Entity("EMRSystem.Vitals.Vital", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("BMI")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("BloodPressure")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("DateRecorded")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("HeartRate")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Height")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long>("NurseId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("OxygenSaturation")
-                        .HasColumnType("int");
-
-                    b.Property<long>("PatientId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("RespirationRate")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("Temperature")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Weight")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NurseId");
-
-                    b.HasIndex("PatientId");
-
-                    b.ToTable("Vitals");
                 });
 
             modelBuilder.Entity("Abp.Application.Features.EditionFeatureSetting", b =>
@@ -2312,31 +1826,6 @@ namespace EMRSystem.Migrations
                     b.Navigation("WebhookEvent");
                 });
 
-            modelBuilder.Entity("EMRSystem.Appointments.Appointment", b =>
-                {
-                    b.HasOne("EMRSystem.Doctors.Doctor", "Doctor")
-                        .WithMany()
-                        .HasForeignKey("DoctorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("EMRSystem.Nurses.Nurse", "Nurse")
-                        .WithMany()
-                        .HasForeignKey("NurseId");
-
-                    b.HasOne("EMRSystem.Patients.Patient", "Patient")
-                        .WithMany()
-                        .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Doctor");
-
-                    b.Navigation("Nurse");
-
-                    b.Navigation("Patient");
-                });
-
             modelBuilder.Entity("EMRSystem.Authorization.Roles.Role", b =>
                 {
                     b.HasOne("EMRSystem.Authorization.Users.User", "CreatorUser")
@@ -2379,61 +1868,6 @@ namespace EMRSystem.Migrations
                     b.Navigation("LastModifierUser");
                 });
 
-            modelBuilder.Entity("EMRSystem.Billings.Bill", b =>
-                {
-                    b.HasOne("EMRSystem.Authorization.Users.User", "AbpUser")
-                        .WithMany("Bills")
-                        .HasForeignKey("AbpUserId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("AbpUser");
-                });
-
-            modelBuilder.Entity("EMRSystem.Billings.BillItem", b =>
-                {
-                    b.HasOne("EMRSystem.Billings.Bill", "Bill")
-                        .WithMany("Items")
-                        .HasForeignKey("BillId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Bill");
-                });
-
-            modelBuilder.Entity("EMRSystem.Doctors.Doctor", b =>
-                {
-                    b.HasOne("EMRSystem.Authorization.Users.User", "AbpUser")
-                        .WithMany("Doctors")
-                        .HasForeignKey("AbpUserId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("AbpUser");
-                });
-
-            modelBuilder.Entity("EMRSystem.LabReports.LabReport", b =>
-                {
-                    b.HasOne("EMRSystem.LabReports.LabTechnician", "LabTechnicians")
-                        .WithMany("LabReports")
-                        .HasForeignKey("LabTechnicianId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("LabTechnicians");
-                });
-
-            modelBuilder.Entity("EMRSystem.LabReports.LabTechnician", b =>
-                {
-                    b.HasOne("EMRSystem.Authorization.Users.User", "AbpUser")
-                        .WithMany("LabTechnicians")
-                        .HasForeignKey("AbpUserId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("AbpUser");
-                });
-
             modelBuilder.Entity("EMRSystem.MultiTenancy.Tenant", b =>
                 {
                     b.HasOne("EMRSystem.Authorization.Users.User", "CreatorUser")
@@ -2459,92 +1893,6 @@ namespace EMRSystem.Migrations
                     b.Navigation("Edition");
 
                     b.Navigation("LastModifierUser");
-                });
-
-            modelBuilder.Entity("EMRSystem.Nurses.Nurse", b =>
-                {
-                    b.HasOne("EMRSystem.Authorization.Users.User", "AbpUser")
-                        .WithMany("Nurses")
-                        .HasForeignKey("AbpUserId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("AbpUser");
-                });
-
-            modelBuilder.Entity("EMRSystem.Patients.Patient", b =>
-                {
-                    b.HasOne("EMRSystem.Authorization.Users.User", "AbpUser")
-                        .WithMany("Patients")
-                        .HasForeignKey("AbpUserId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("EMRSystem.Doctors.Doctor", "Doctors")
-                        .WithMany("Patients")
-                        .HasForeignKey("AssignedDoctorId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.Navigation("AbpUser");
-
-                    b.Navigation("Doctors");
-                });
-
-            modelBuilder.Entity("EMRSystem.Prescriptions.Prescription", b =>
-                {
-                    b.HasOne("EMRSystem.Appointments.Appointment", "Appointment")
-                        .WithMany("Prescriptions")
-                        .HasForeignKey("AppointmentId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("EMRSystem.Doctors.Doctor", "Doctor")
-                        .WithMany("Prescriptions")
-                        .HasForeignKey("DoctorId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("EMRSystem.Patients.Patient", "Patient")
-                        .WithMany("Prescriptions")
-                        .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Appointment");
-
-                    b.Navigation("Doctor");
-
-                    b.Navigation("Patient");
-                });
-
-            modelBuilder.Entity("EMRSystem.Prescriptions.PrescriptionItem", b =>
-                {
-                    b.HasOne("EMRSystem.Prescriptions.Prescription", "Prescription")
-                        .WithMany("Items")
-                        .HasForeignKey("PrescriptionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Prescription");
-                });
-
-            modelBuilder.Entity("EMRSystem.Vitals.Vital", b =>
-                {
-                    b.HasOne("EMRSystem.Nurses.Nurse", "Nurse")
-                        .WithMany("Vitals")
-                        .HasForeignKey("NurseId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("EMRSystem.Patients.Patient", "Patient")
-                        .WithMany("Vitals")
-                        .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Nurse");
-
-                    b.Navigation("Patient");
                 });
 
             modelBuilder.Entity("Abp.Application.Features.EditionFeatureSetting", b =>
@@ -2596,11 +1944,6 @@ namespace EMRSystem.Migrations
                     b.Navigation("Children");
                 });
 
-            modelBuilder.Entity("EMRSystem.Appointments.Appointment", b =>
-                {
-                    b.Navigation("Prescriptions");
-                });
-
             modelBuilder.Entity("EMRSystem.Authorization.Roles.Role", b =>
                 {
                     b.Navigation("Claims");
@@ -2610,19 +1953,9 @@ namespace EMRSystem.Migrations
 
             modelBuilder.Entity("EMRSystem.Authorization.Users.User", b =>
                 {
-                    b.Navigation("Bills");
-
                     b.Navigation("Claims");
 
-                    b.Navigation("Doctors");
-
-                    b.Navigation("LabTechnicians");
-
                     b.Navigation("Logins");
-
-                    b.Navigation("Nurses");
-
-                    b.Navigation("Patients");
 
                     b.Navigation("Permissions");
 
@@ -2631,40 +1964,6 @@ namespace EMRSystem.Migrations
                     b.Navigation("Settings");
 
                     b.Navigation("Tokens");
-                });
-
-            modelBuilder.Entity("EMRSystem.Billings.Bill", b =>
-                {
-                    b.Navigation("Items");
-                });
-
-            modelBuilder.Entity("EMRSystem.Doctors.Doctor", b =>
-                {
-                    b.Navigation("Patients");
-
-                    b.Navigation("Prescriptions");
-                });
-
-            modelBuilder.Entity("EMRSystem.LabReports.LabTechnician", b =>
-                {
-                    b.Navigation("LabReports");
-                });
-
-            modelBuilder.Entity("EMRSystem.Nurses.Nurse", b =>
-                {
-                    b.Navigation("Vitals");
-                });
-
-            modelBuilder.Entity("EMRSystem.Patients.Patient", b =>
-                {
-                    b.Navigation("Prescriptions");
-
-                    b.Navigation("Vitals");
-                });
-
-            modelBuilder.Entity("EMRSystem.Prescriptions.Prescription", b =>
-                {
-                    b.Navigation("Items");
                 });
 #pragma warning restore 612, 618
         }
