@@ -1,0 +1,9 @@
+<form class="form-horizontal" autocomplete="off" #createAppoinmentModal="ngForm" (ngSubmit)="save()">
+    <abp-modal-header title="Create New Appoinment" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
+
+    <div class="modal-body">
+
+    </div>
+    <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="!isFormValid || saving"
+        (onCancelClick)="bsModalRef.hide()"></abp-modal-footer>
+</form>

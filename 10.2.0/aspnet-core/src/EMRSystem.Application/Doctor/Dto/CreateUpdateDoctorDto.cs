@@ -5,6 +5,7 @@ using EMRSystem.Users.Dto;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,6 +23,5 @@ namespace EMRSystem.Doctor.Dto
         public string RegistrationNumber { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public long AbpUserId { get; set; }
-        public CreateUserDto AbpUser { get; set; }
     }
 }

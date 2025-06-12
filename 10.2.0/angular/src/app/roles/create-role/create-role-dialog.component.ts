@@ -34,10 +34,9 @@ export class CreateRoleDialogComponent extends AppComponentBase implements OnIni
     role = new RoleDto();
     permissions: PermissionDto[] = [];
     checkedPermissionsMap: { [key: string]: boolean } = {};
-    defaultPermissionCheckedStatus = true;
-
+    defaultPermissionCheckedStatus = false;
+    groupedPermissions: { [key: string]: PermissionDto[] } = {};
     onSave = output<EventEmitter<any>>();
-
     constructor(
         injector: Injector,
         private _roleService: RoleServiceProxy,
