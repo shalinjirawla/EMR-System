@@ -2,7 +2,7 @@ import { Component, Injector, OnInit, EventEmitter, Output, ChangeDetectorRef, V
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { forEach as _forEach, map as _map } from 'lodash-es';
 import { AppComponentBase } from '@shared/app-component-base';
-import { UserServiceProxy, CreateUserDto, RoleDto } from '@shared/service-proxies/service-proxies';
+import { UserServiceProxy, CreateUserDto, RoleDto, CreateUpdateDoctorDto, DoctorServiceProxy, NurseServiceProxy, LapTechnicianServiceProxy } from '@shared/service-proxies/service-proxies';
 import { AbpValidationError } from '@shared/components/validation/abp-validation.api';
 import { FormsModule, NgForm } from '@angular/forms';
 import { AbpModalHeaderComponent } from '../../../shared/components/modal/abp-modal-header.component';
@@ -32,6 +32,7 @@ import { CreateLabTechnicianComponent } from '../../lab-technician/create-lab-te
     CreateLabTechnicianComponent,
     CommonModule
   ],
+  providers: [DoctorServiceProxy, NurseServiceProxy, LapTechnicianServiceProxy]
 })
 export class CreateUserDialogComponent extends AppComponentBase implements OnInit {
   @ViewChild('createUserModal', { static: true }) createUserModal: NgForm;
@@ -64,14 +65,17 @@ export class CreateUserDialogComponent extends AppComponentBase implements OnIni
   // You can hold extra doctor data if needed
   doctorData: any;
   nurseData: any;
-  technicianData:any;
+  technicianData: any;
 
 
   constructor(
     injector: Injector,
     private _userService: UserServiceProxy,
+    private _doctorService: DoctorServiceProxy,
     public bsModalRef: BsModalRef,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
+    private _nurseService: NurseServiceProxy,
+    private _labTechnicianService: LapTechnicianServiceProxy,
   ) {
     super(injector);
   }
@@ -83,7 +87,6 @@ export class CreateUserDialogComponent extends AppComponentBase implements OnIni
 
   loadRoles(): void {
     this._userService.getRoles().subscribe(result => {
-      // debugger
       this.roles = result.items;
       this.cd.detectChanges();
     });
@@ -101,7 +104,7 @@ export class CreateUserDialogComponent extends AppComponentBase implements OnIni
     this.nurseData = data;
   }
   onLabTechnicianDataChange(data: any): void {
-    this.nurseData = data;
+    this.technicianData = data;
   }
 
   get isFormValid(): boolean {
@@ -114,7 +117,7 @@ export class CreateUserDialogComponent extends AppComponentBase implements OnIni
     const nurseFormValid = this.selectedRole === 'NURSE'
       ? this.createNurseComponent?.nurseForm?.valid
       : true;
-    
+
     const labTechnicianFormValid = this.selectedRole === 'LAB TECHNICIAN'
       ? this.createLabTechnicianComponent?.labTechnicianForm?.valid
       : true;
@@ -123,7 +126,7 @@ export class CreateUserDialogComponent extends AppComponentBase implements OnIni
 
   }
 
-
+  newlyCreatedUserId!: number;
   save(): void {
     if (!this.createUserModal.form.valid) {
       return;
@@ -155,7 +158,18 @@ export class CreateUserDialogComponent extends AppComponentBase implements OnIni
       this.user['technicianProfile'] = this.technicianData;
     }
     this._userService.create(this.user).subscribe({
-      next: () => {
+      next: (res) => {
+        this.newlyCreatedUserId = res.id;
+        if (this.selectedRole === 'DOCTORS') {
+          this.CreateDoctor();
+        }
+        if (this.selectedRole === 'NURSE') {
+          this.CreateNurse();
+        }
+        if (this.selectedRole === 'LAB TECHNICIAN') {
+
+          this.CreateLabTechnician();
+        }
         this.notify.info(this.l('SavedSuccessfully'));
         this.bsModalRef.hide();
         this.onSave.emit();
@@ -166,4 +180,39 @@ export class CreateUserDialogComponent extends AppComponentBase implements OnIni
     });
   }
 
+  CreateDoctor() {
+    this.doctorData.fullName = this.user.name + " " + this.user.surname;
+    this.doctorData.abpUserId = this.newlyCreatedUserId;
+    this._doctorService.create(this.doctorData).subscribe({
+      next: (res) => {
+        this.newlyCreatedUserId = 0;
+      },
+      error: (err) => {
+      }
+    })
+  }
+
+  CreateNurse() {
+    this.nurseData.fullName = this.user.name + " " + this.user.surname;
+    this.nurseData.abpUserId = this.newlyCreatedUserId;
+    this._nurseService.create(this.nurseData).subscribe({
+      next: (res) => {
+        this.newlyCreatedUserId = 0;
+      },
+      error: (err) => {
+      }
+    })
+  }
+
+  CreateLabTechnician() {
+    this.technicianData.fullName = this.user.name + " " + this.user.surname;
+    this.technicianData.abpUserId = this.newlyCreatedUserId;
+    this._labTechnicianService.create(this.technicianData).subscribe({
+      next: (res) => {
+        this.newlyCreatedUserId = 0;
+      },
+      error: (err) => {
+      }
+    })
+  }
 }

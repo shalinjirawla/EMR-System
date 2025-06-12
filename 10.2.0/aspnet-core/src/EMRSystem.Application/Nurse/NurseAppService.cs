@@ -14,7 +14,7 @@ using EMRSystem.Authorization;
 
 namespace EMRSystem.Nurse
 {
-    [AbpAuthorize(PermissionNames.Pages_Nurses)]
+    //[AbpAuthorize(PermissionNames.Pages_Nurses)]
     public class NurseAppService : AsyncCrudAppService<EMRSystem.Nurses.Nurse, NurseDto, long, PagedAndSortedResultRequestDto, CreateUpdateNurseDto, CreateUpdateNurseDto>,
    INurseAppService
     {

@@ -21,6 +21,10 @@ using Microsoft.AspNetCore.Identity;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Net.Mail;
 using Castle.Core.Resource;
+using EMRSystem.Authorization.Roles;
+using EMRSystem.Patients.Dto;
+using EMRSystem.Patients;
+using Abp.IdentityFramework;
 
 namespace EMRSystem.Doctor
 {
@@ -28,23 +32,11 @@ namespace EMRSystem.Doctor
     public class DoctorAppService : AsyncCrudAppService<EMRSystem.Doctors.Doctor, DoctorDto, long, PagedAndSortedResultRequestDto, CreateUpdateDoctorDto, CreateUpdateDoctorDto>,
    IDoctorAppService
     {
-        private readonly IUserAppService _userAppService;
-        public DoctorAppService(IRepository<EMRSystem.Doctors.Doctor, long> repository, IUserAppService userAppService) : base(repository)
+        private readonly IRepository<EMRSystem.Doctors.Doctor, long> _doctorRepository;
+        public DoctorAppService(
+            IRepository<EMRSystem.Doctors.Doctor, long> doctorRepository) : base(doctorRepository)
         {
-            _userAppService = userAppService;
         }
 
-        public override async Task<DoctorDto> CreateAsync(CreateUpdateDoctorDto input)
-        {
-            var abpUser = await _userAppService.CreateAsync(input.AbpUser);
-
-            var doctor = ObjectMapper.Map<EMRSystem.Doctors.Doctor>(input);
-            doctor.FullName = input.AbpUser.Name + " " + input.AbpUser.Surname;
-            doctor.AbpUserId = abpUser.Id;
-
-            var result = await Repository.InsertAsync(doctor);
-            var mappedResult = ObjectMapper.Map<DoctorDto>(result);
-            return mappedResult;
-        }
     }
 }
