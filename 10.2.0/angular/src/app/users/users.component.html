@@ -139,7 +139,10 @@
                                         {{ 'EmailAddress' | localize }}
                                         <p-sortIcon field="emailAddress"></p-sortIcon>
                                     </th>
-                                    <th style="min-width: 150px">
+                                    <th style="min-width: 150px" >
+                                        {{ 'Roles' | localize }}
+                                    </th>
+                                    <th style="min-width: 50px">
                                         {{ 'IsActive' | localize }}
                                     </th>
                                     <th style="min-width: 130px">
@@ -163,6 +166,11 @@
                                     <td>
                                         <span>
                                             {{ record.emailAddress }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span>
+                                            {{ record.roleNames }}
                                         </span>
                                     </td>
                                     <td>

@@ -64,12 +64,21 @@
                 </div>
             </div>
         </div>
-        <!-- Doctor Form Conditional -->
+
         <app-edit-doctor *ngIf="selectedRole === 'DOCTORS'" [doctorData]="doctorData"
             (doctorDataChange)="onDoctorDataChange($event)">
         </app-edit-doctor>
+
+        <app-edit-nurse *ngIf="selectedRole === 'NURSE'" [nurseData]="nurseData"
+            (nurseDataChange)="onNurseDataChange($event)">
+        </app-edit-nurse>
+
+        <app-edit-lab-technician *ngIf="selectedRole === 'LAB TECHNICIAN'" [technicianData]="technicianData"
+            (technicianDataChange)="onLabTechnicianDataChange($event)">
+        </app-edit-lab-technician>
+
     </div>
-    <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="!editUserForm.form.valid || saving"
+    <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="!isFormValid || saving"
         (onCancelClick)="bsModalRef.hide()">
     </abp-modal-footer>
 </form>

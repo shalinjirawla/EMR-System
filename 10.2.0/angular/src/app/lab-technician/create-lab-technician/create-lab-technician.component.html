@@ -1,19 +1,4 @@
-<form #doctorForm="ngForm">
-  <!-- Phone Number -->
-  <div class="form-group row required">
-    <label class="col-md-3 col-form-label" for="phoneNumber">Phone Number</label>
-    <div class="col-md-9">
-      <input id="phoneNumber" name="phoneNumber" type="text"
-             class="form-control"
-             required
-             [(ngModel)]="doctorData.phoneNumber"
-             (ngModelChange)="onInputChange()"
-             #phoneModel="ngModel"
-             #phoneEl>
-      <abp-validation-summary [control]="phoneModel" [controlEl]="phoneEl"></abp-validation-summary>
-    </div>
-  </div>
-
+<form #labTechnicianForm="ngForm">
   <!-- Gender -->
   <div class="form-group row required">
     <label class="col-md-3 col-form-label">Gender</label>
@@ -23,7 +8,7 @@
                name="gender"
                [id]="'gender_' + gender"
                [value]="gender"
-               [(ngModel)]="doctorData.gender"
+               [(ngModel)]="technicianData.gender"
                (ngModelChange)="onInputChange()"
                required
                #genderModel="ngModel"
@@ -33,29 +18,13 @@
     </div>
   </div>
 
-  <!-- Specialization -->
-  <div class="form-group row required">
-    <label class="col-md-3 col-form-label" for="specialization">Specialization</label>
-    <div class="col-md-9">
-      <input type="text" id="specialization" name="specialization"
-             class="form-control"
-             required
-             [(ngModel)]="doctorData.specialization"
-             (ngModelChange)="onInputChange()"
-             #specializationModel="ngModel"
-             #specializationEl>
-      <abp-validation-summary [control]="specializationModel" [controlEl]="specializationEl"></abp-validation-summary>
-    </div>
-  </div>
-
-  <!-- Qualification -->
-  <div class="form-group row required">
+    <div class="form-group row required">
     <label class="col-md-3 col-form-label" for="qualification">Qualification</label>
     <div class="col-md-9">
       <input type="text" id="qualification" name="qualification"
              class="form-control"
              required
-             [(ngModel)]="doctorData.qualification"
+             [(ngModel)]="technicianData.qualification"
              (ngModelChange)="onInputChange()"
              #qualificationModel="ngModel"
              #qualificationEl>
@@ -63,14 +32,13 @@
     </div>
   </div>
 
-  <!-- Years of Experience -->
-  <div class="form-group row required">
+   <div class="form-group row required">
     <label class="col-md-3 col-form-label" for="experience">Years of Experience</label>
     <div class="col-md-9">
       <input type="number" id="experience" name="experience"
              class="form-control"
              required min="0"
-             [(ngModel)]="doctorData.yearsOfExperience"
+             [(ngModel)]="technicianData.yearsOfExperience"
              (ngModelChange)="onInputChange()"
              #expModel="ngModel"
              #expEl>
@@ -78,14 +46,13 @@
     </div>
   </div>
 
-  <!-- Department -->
   <div class="form-group row required">
     <label class="col-md-3 col-form-label" for="department">Department</label>
     <div class="col-md-9">
       <input type="text" id="department" name="department"
              class="form-control"
              required
-             [(ngModel)]="doctorData.department"
+             [(ngModel)]="technicianData.department"
              (ngModelChange)="onInputChange()"
              #departmentModel="ngModel"
              #departmentEl>
@@ -93,14 +60,13 @@
     </div>
   </div>
 
-  <!-- Registration Number -->
-  <div class="form-group row required">
-    <label class="col-md-3 col-form-label" for="registration">Registration Number</label>
+    <div class="form-group row required">
+    <label class="col-md-3 col-form-label" for="registration">Certification Number</label>
     <div class="col-md-9">
       <input type="text" id="registration" name="registration"
              class="form-control"
              required
-             [(ngModel)]="doctorData.registrationNumber"
+             [(ngModel)]="technicianData.certificationNumber"
              (ngModelChange)="onInputChange()"
              #regModel="ngModel"
              #regEl>
@@ -108,18 +74,19 @@
     </div>
   </div>
 
-  <!-- Date of Birth -->
+   <!-- Date of Birth -->
   <div class="form-group row required">
     <label class="col-md-3 col-form-label" for="dob">Date of Birth</label>
     <div class="col-md-9">
       <input type="date" id="dob" name="dob"
              class="form-control"
              required
-             [(ngModel)]="doctorData.dateOfBirth"
+             [(ngModel)]="technicianData.dateOfBirth"
              (ngModelChange)="onInputChange()"
              #dobModel="ngModel"
              #dobEl>
       <abp-validation-summary [control]="dobModel" [controlEl]="dobEl"></abp-validation-summary>
     </div>
   </div>
+
 </form>
