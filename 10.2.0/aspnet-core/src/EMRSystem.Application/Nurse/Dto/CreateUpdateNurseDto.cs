@@ -16,6 +16,6 @@ namespace EMRSystem.Nurse.Dto
         public string Qualification { get; set; }
         public int YearsOfExperience { get; set; }
         public DateTime? DateOfBirth { get; set; }
-        public long UserId { get; set; }
+        public long AbpUserId { get; set; }
     }
 }
