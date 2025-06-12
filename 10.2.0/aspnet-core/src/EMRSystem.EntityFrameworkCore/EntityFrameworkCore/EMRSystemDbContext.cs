@@ -6,6 +6,7 @@ using EMRSystem.Doctors;
 using EMRSystem.LabReports;
 using EMRSystem.MultiTenancy;
 using EMRSystem.Nurses;
+using EMRSystem.Pharmacists;
 using EMRSystem.Patients;
 using EMRSystem.Prescriptions;
 using EMRSystem.Vitals;
@@ -24,6 +25,8 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
     public DbSet<LabReport> Lab { get; set; }
     public DbSet<LabTechnician> LabTechnician { get; set; }
     public DbSet<Nurse> Nurses { get; set; }
+    public DbSet<Pharmacist> Pharmacists { get; set; }
+
     public DbSet<Patient> Patients { get; set; }
     public DbSet<Prescription> Prescriptions { get; set; }
     public DbSet<Vital> Vitals { get; set; }
@@ -66,6 +69,12 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
         modelBuilder.Entity<Nurse>()
               .HasOne(s => s.AbpUser)
               .WithMany(e => e.Nurses)
+              .HasForeignKey(s => s.AbpUserId)
+              .OnDelete(DeleteBehavior.NoAction); // or NoAction
+
+        modelBuilder.Entity<Pharmacist>()
+              .HasOne(s => s.AbpUser)
+              .WithMany(e => e.Pharmacists)
               .HasForeignKey(s => s.AbpUserId)
               .OnDelete(DeleteBehavior.NoAction); // or NoAction
 

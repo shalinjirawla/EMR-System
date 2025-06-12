@@ -8,6 +8,7 @@ using EMRSystem.Doctor.Dto;
 using EMRSystem.LabTechnician.Dto;
 using EMRSystem.Nurse.Dto;
 using EMRSystem.Patients.Dto;
+using EMRSystem.Pharmacist.Dto;
 using EMRSystem.Prescriptions.Dto;
 using EMRSystem.Vitals.Dto;
 
@@ -41,6 +42,7 @@ public class EMRSystemApplicationModule : AbpModule
         Configuration.Modules.AbpAutoMapper().Configurators.Add(cfg => cfg.AddProfile<PatientMapProfile>());
         Configuration.Modules.AbpAutoMapper().Configurators.Add(cfg => cfg.AddProfile<PrescriptionMapProfile>());
         Configuration.Modules.AbpAutoMapper().Configurators.Add(cfg => cfg.AddProfile<VitalMapProfile>());
+        Configuration.Modules.AbpAutoMapper().Configurators.Add(cfg => cfg.AddProfile<PharmacistMapProfile>());
         Configuration.Modules.AbpAutoMapper().Configurators.Add(cfg => cfg.AddProfile<AppointmentMapProfile>());
     }
 }

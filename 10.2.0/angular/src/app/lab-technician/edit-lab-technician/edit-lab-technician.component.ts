@@ -9,12 +9,11 @@ import { AbpValidationSummaryComponent } from '../../../shared/components/valida
   templateUrl: './edit-lab-technician.component.html',
   styleUrl: './edit-lab-technician.component.css'
 })
-export class EditLabTechnicianComponent implements ControlValueAccessor {
+export class EditLabTechnicianComponent  {
   @Output() technicianDataChange = new EventEmitter<any>();
   @ViewChild('labTechnicianForm', { static: true }) labTechnicianForm: NgForm; 
 
   technicianData = {
-
     gender: 'Male',
     qualification: '',
     yearsOfExperience: 0,
@@ -22,46 +21,17 @@ export class EditLabTechnicianComponent implements ControlValueAccessor {
     certificationNumber: '',
     dateOfBirth: null
   };
+
   genders = ['Male', 'Female', 'Other'];
 
-  private onChange: any = () => { };
-  private onTouched: any = () => { };
-
-  writeValue(value: any): void {
-    if (value) {
-      this.technicianData = value;
-    }
-  }
-
-  registerOnChange(fn: any): void {
-    this.onChange = fn;
-  }
-
-  registerOnTouched(fn: any): void {
-    this.onTouched = fn;
-  }
 
   onInputChange() {
     this.updateData();
   }
 
   updateData() {
-    this.onChange(this.technicianData);
-    this.onTouched();
     this.technicianDataChange.emit(this.technicianData);
   }
 
-  resetForm() {
-    this.technicianData = {
-
-      gender: 'Male',
-      qualification: '',
-      yearsOfExperience: 0,
-      department: '',
-      certificationNumber: '',
-      dateOfBirth: null
-
-    };
-    this.updateData();
-  }
+  
 }
