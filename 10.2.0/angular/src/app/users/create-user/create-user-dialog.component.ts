@@ -13,6 +13,8 @@ import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { CommonModule } from '@node_modules/@angular/common';
 import { CreateDoctorComponent } from '../../doctors/create-doctor/create-doctor.component';
 import { CreateNurseComponent } from '../../nurse/create-nurse/create-nurse.component';
+import { CreateLabTechnicianComponent } from '../../lab-technician/create-lab-technician/create-lab-technician.component';
+
 
 
 @Component({
@@ -27,6 +29,7 @@ import { CreateNurseComponent } from '../../nurse/create-nurse/create-nurse.comp
     LocalizePipe,
     CreateDoctorComponent,
     CreateNurseComponent,
+    CreateLabTechnicianComponent,
     CommonModule
   ],
 })
@@ -34,6 +37,8 @@ export class CreateUserDialogComponent extends AppComponentBase implements OnIni
   @ViewChild('createUserModal', { static: true }) createUserModal: NgForm;
   @ViewChild(CreateDoctorComponent) createDoctorComponent: CreateDoctorComponent;
   @ViewChild(CreateNurseComponent) createNurseComponent: CreateNurseComponent;
+  @ViewChild(CreateLabTechnicianComponent) createLabTechnicianComponent: CreateLabTechnicianComponent;
+
   @Output() onSave = new EventEmitter<void>();
 
   user: CreateUserDto = new CreateUserDto();
@@ -59,6 +64,7 @@ export class CreateUserDialogComponent extends AppComponentBase implements OnIni
   // You can hold extra doctor data if needed
   doctorData: any;
   nurseData: any;
+  technicianData:any;
 
 
   constructor(
@@ -84,7 +90,7 @@ export class CreateUserDialogComponent extends AppComponentBase implements OnIni
   }
   onRoleChange() {
     console.log('Selected Role:', this.selectedRole);
-    this.cd.detectChanges();  
+    this.cd.detectChanges();
   }
 
   onDoctorDataChange(data: any): void {
@@ -93,63 +99,72 @@ export class CreateUserDialogComponent extends AppComponentBase implements OnIni
   }
   onNurseDataChange(data: any): void {
     this.nurseData = data;
-
+  }
+  onLabTechnicianDataChange(data: any): void {
+    this.nurseData = data;
   }
 
   get isFormValid(): boolean {
-  const mainFormValid = this.createUserModal?.form?.valid;
-  const doctorFormValid = this.selectedRole === 'DOCTORS'
-    ? this.createDoctorComponent?.doctorForm?.valid
-    : true;
 
-  // const nurseFormValid = this.selectedRole === 'NURSE'
-  //   ? this.createNurseComponent?.nurseForm?.valid
-  //   : true;
+    const mainFormValid = this.createUserModal?.form?.valid;
+    const doctorFormValid = this.selectedRole === 'DOCTORS'
+      ? this.createDoctorComponent?.doctorForm?.valid
+      : true;
 
-  //return mainFormValid && doctorFormValid && nurseFormValid;
-  return mainFormValid && doctorFormValid ;
+    const nurseFormValid = this.selectedRole === 'NURSE'
+      ? this.createNurseComponent?.nurseForm?.valid
+      : true;
+    
+    const labTechnicianFormValid = this.selectedRole === 'LAB TECHNICIAN'
+      ? this.createLabTechnicianComponent?.labTechnicianForm?.valid
+      : true;
 
-}
+    return mainFormValid && doctorFormValid && nurseFormValid && labTechnicianFormValid;
 
-
-save(): void {
-  if (!this.createUserModal.form.valid) {
-    return;
   }
 
-  // Doctor Form validation
-  // if (this.selectedRole === 'DOCTORS' && this.createDoctorComponent?.doctorForm?.invalid) {
-  //   this.notify.warn(this.l('PleaseFillDoctorFormCorrectly'));
-  //   return;
-  // }
 
-  // Nurse Form validation
-  // if (this.selectedRole === 'NURSE' && this.createNurseComponent?.nurseForm?.invalid) {
-  //   this.notify.warn(this.l('PleaseFillNurseFormCorrectly'));
-  //   return;
-  // }
-
-  this.saving = true;
-  this.user.roleNames = [this.selectedRole];
-
-  if (this.selectedRole === 'DOCTORS' && this.doctorData) {
-    this.user['doctorProfile'] = this.doctorData;
-  }
-
-  if (this.selectedRole === 'NURSE' && this.nurseData) {
-    this.user['nurseProfile'] = this.nurseData;
-  }
-
-  this._userService.create(this.user).subscribe({
-    next: () => {
-      this.notify.info(this.l('SavedSuccessfully'));
-      this.bsModalRef.hide();
-      this.onSave.emit();
-    },
-    error: () => {
-      this.saving = false;
+  save(): void {
+    if (!this.createUserModal.form.valid) {
+      return;
     }
-  });
-}
+
+    // // Doctor Form validation
+    // if (this.selectedRole === 'DOCTORS' && this.createDoctorComponent?.doctorForm?.invalid) {
+    //   this.notify.warn(this.l('PleaseFillDoctorFormCorrectly'));
+    //   return;
+    // }
+
+    // //Nurse Form validation
+    // if (this.selectedRole === 'NURSE' && this.createNurseComponent?.nurseForm?.invalid) {
+    //   this.notify.warn(this.l('PleaseFillNurseFormCorrectly'));
+    //   return;
+    // }
+
+    this.saving = true;
+    this.user.roleNames = [this.selectedRole];
+
+    if (this.selectedRole === 'DOCTORS' && this.doctorData) {
+      this.user['doctorProfile'] = this.doctorData;
+    }
+
+    if (this.selectedRole === 'NURSE' && this.nurseData) {
+      this.user['nurseProfile'] = this.nurseData;
+    }
+    if (this.selectedRole === 'LAB TECHNICIAN' && this.technicianData) {
+      this.user['technicianProfile'] = this.technicianData;
+    }
+
+    this._userService.create(this.user).subscribe({
+      next: () => {
+        this.notify.info(this.l('SavedSuccessfully'));
+        this.bsModalRef.hide();
+        this.onSave.emit();
+      },
+      error: () => {
+        this.saving = false;
+      }
+    });
+  }
 
 }

@@ -19,7 +19,7 @@ import { fn } from 'moment';
 })
 export class CreateDoctorComponent implements ControlValueAccessor {
   @Output() doctorDataChange = new EventEmitter<any>();
-@ViewChild('doctorForm', { static: true }) doctorForm: NgForm; // or FormGroup if using Reactive Form
+@ViewChild('doctorForm', { static: true }) doctorForm: NgForm; 
 
   doctorData = {
     phoneNumber: '',

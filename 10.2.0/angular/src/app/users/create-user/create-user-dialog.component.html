@@ -100,6 +100,10 @@
         <app-create-nurse *ngIf="selectedRole === 'NURSE'" [nurseData]="nurseData"
             (nurseDataChange)="onNurseDataChange($event)">
         </app-create-nurse>
+        <app-create-lab-technician *ngIf="selectedRole === 'LAB TECHNICIAN'" [technicianData]="technicianData"
+            (technicianDataChange)="onLabTechnicianDataChange($event)">
+
+        </app-create-lab-technician>
 
 
         <!-- Active Status -->
@@ -117,6 +121,6 @@
         </div>
     </div>
     <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="!isFormValid || saving"
-    (onCancelClick)="bsModalRef.hide()"></abp-modal-footer>
+        (onCancelClick)="bsModalRef.hide()"></abp-modal-footer>
 
 </form>
