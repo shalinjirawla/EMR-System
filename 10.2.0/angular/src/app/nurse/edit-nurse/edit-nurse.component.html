@@ -63,4 +63,19 @@
       <abp-validation-summary [control]="expModel" [controlEl]="expEl"></abp-validation-summary>
     </div>
   </div>
+
+   <!-- Date of Birth -->
+  <div class="form-group row required">
+    <label class="col-md-3 col-form-label" for="dob">Date of Birth</label>
+    <div class="col-md-9">
+      <input type="date" id="dob" name="dob"
+             class="form-control"
+             required
+             [(ngModel)]="nurseData.dateOfBirth"
+             (ngModelChange)="onInputChange()"
+             #dobModel="ngModel"
+             #dobEl>
+      <abp-validation-summary [control]="dobModel" [controlEl]="dobEl"></abp-validation-summary>
+    </div>
+  </div>
 </form>

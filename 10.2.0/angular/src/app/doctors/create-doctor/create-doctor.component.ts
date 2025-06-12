@@ -9,15 +9,8 @@ import { fn } from 'moment';
   imports: [FormsModule,CommonModule,AbpValidationSummaryComponent],
   templateUrl: './create-doctor.component.html',
   styleUrl: './create-doctor.component.css',
-   providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => CreateDoctorComponent),
-      multi: true
-    }
-  ]
 })
-export class CreateDoctorComponent implements ControlValueAccessor {
+export class CreateDoctorComponent  {
   @Output() doctorDataChange = new EventEmitter<any>();
 @ViewChild('doctorForm', { static: true }) doctorForm: NgForm; 
 
@@ -34,44 +27,15 @@ export class CreateDoctorComponent implements ControlValueAccessor {
 
   genders = ['Male', 'Female', 'Other'];
 
-  private onChange: any = () => {};
-  private onTouched: any = () => {};
-
-  writeValue(value: any): void {
-    if (value) {
-      this.doctorData = value;
-    }
-  }
-
-  registerOnChange(fn: any): void {
-    this.onChange = fn;
-  }
-
-  registerOnTouched(fn: any): void {
-    this.onTouched = fn;
-  }
+ 
 
   onInputChange() {
     this.updateData();
   }
 
   updateData() {
-    this.onChange(this.doctorData);
-    this.onTouched();
     this.doctorDataChange.emit(this.doctorData);
   }
 
-  resetForm() {
-    this.doctorData = {
-      phoneNumber: '',
-      gender: 'Male',
-      specialization: '',
-      qualification: '',
-      yearsOfExperience: 0,
-      department: '',
-      registrationNumber: '',
-      dateOfBirth: null
-    };
-    this.updateData();
-  }
+  
 }

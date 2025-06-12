@@ -154,7 +154,6 @@ export class CreateUserDialogComponent extends AppComponentBase implements OnIni
     if (this.selectedRole === 'LAB TECHNICIAN' && this.technicianData) {
       this.user['technicianProfile'] = this.technicianData;
     }
-
     this._userService.create(this.user).subscribe({
       next: () => {
         this.notify.info(this.l('SavedSuccessfully'));
