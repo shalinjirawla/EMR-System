@@ -12,8 +12,9 @@ using System.Threading.Tasks;
 namespace EMRSystem.Pharmacists
 
 {
-    public class Pharmacist : Entity<long>
+    public class Pharmacist : Entity<long>, IMustHaveTenant
     {
+        public int TenantId { get; set; }
         public string FullName { get; set; }
         public string Gender { get; set; }
         public string Qualification { get; set; }

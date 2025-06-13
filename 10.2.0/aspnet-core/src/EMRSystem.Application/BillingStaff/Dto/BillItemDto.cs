@@ -9,6 +9,7 @@ namespace EMRSystem.BillingStaff.Dto
 {
     public class BillItemDto : Entity<long>
     {
+        public int TenantId { get; set; }
         public string Description { get; set; }
         public int Quntity { get; set; }
         public decimal UnitPrice { get; set; }

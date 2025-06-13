@@ -8,8 +8,9 @@ using System.Threading.Tasks;
 
 namespace EMRSystem.LabReports
 {
-    public class LabTechnician : Entity<long>
+    public class LabTechnician : Entity<long>, IMustHaveTenant
     {
+        public int TenantId { get; set; }
         public string FullName { get; set; }
         public string Gender { get; set; }
         public string Qualification { get; set; }

@@ -12,6 +12,8 @@ namespace EMRSystem.Vitals.Dto
 {
     public class VitalDto : EntityDto<long>
     {
+        public int TenantId { get; set; }
+
         public DateTime DateRecorded { get; set; }
         public string BloodPressure { get; set; }  // e.g., "120/80 mmHg"
         public string HeartRate { get; set; }

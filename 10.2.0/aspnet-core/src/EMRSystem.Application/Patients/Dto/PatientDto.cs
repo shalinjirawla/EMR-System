@@ -16,6 +16,8 @@ namespace EMRSystem.Patients.Dto
 {
     public class PatientDto : EntityDto<long>
     {
+        public int TenantId { get; set; }
+
         public string FullName { get; set; }
         public DateTime DateOfBirth { get; set; }
         public string Gender { get; set; }

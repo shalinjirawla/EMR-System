@@ -11,8 +11,9 @@ using System.Threading.Tasks;
 
 namespace EMRSystem.Nurses
 {
-    public class Nurse : Entity<long>
+    public class Nurse : Entity<long>, IMustHaveTenant
     {
+        public int TenantId { get; set; }
         public string FullName { get; set; }
         public string Gender { get; set; }
         public string ShiftTiming { get; set; }

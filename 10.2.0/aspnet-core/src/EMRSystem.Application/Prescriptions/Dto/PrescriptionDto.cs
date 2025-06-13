@@ -12,6 +12,8 @@ namespace EMRSystem.Prescriptions.Dto
 {
     public class PrescriptionDto : EntityDto<long>
     {
+        public int TenantId { get; set; }
+
         public string Diagnosis { get; set; }
         public string Notes { get; set; }
         public DateTime IssueDate { get; set; } = DateTime.Now;
