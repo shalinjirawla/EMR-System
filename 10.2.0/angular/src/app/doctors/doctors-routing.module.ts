@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { DoctorsComponent } from './doctors.component';
-import { AppointmentsComponent } from './appointments/appointments.component';
 import { PatientComponent } from './patient/patient.component';
 import { PrescriptionsComponent } from './prescriptions/prescriptions.component';
 import { VisitsComponent } from './visits/visits.component';
@@ -15,10 +14,6 @@ const routes: Routes = [
         component: DoctorsComponent,
           canActivate: [AppRouteGuard],
         children: [
-            {
-                path: 'appointments',
-                component: AppointmentsComponent,
-            },
             {
                 path: 'patients',
                 component: PatientComponent,
@@ -37,7 +32,7 @@ const routes: Routes = [
             },
             {
                 path: '',
-                redirectTo: 'appointments',
+                redirectTo: 'patients',
                 pathMatch: 'full'
             }
         ],

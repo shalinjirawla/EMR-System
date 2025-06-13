@@ -11,10 +11,9 @@ import { EqualValidator } from '../../../shared/directives/equal-validator.direc
 import { AbpModalFooterComponent } from '../../../shared/components/modal/abp-modal-footer.component';
 import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { CommonModule } from '@node_modules/@angular/common';
-import { CreateDoctorComponent } from '../../doctors/create-doctor/create-doctor.component';
-import { CreateNurseComponent } from '../../nurse/create-nurse/create-nurse.component';
-import { CreateLabTechnicianComponent } from '../../lab-technician/create-lab-technician/create-lab-technician.component';
-
+import { SelectDoctorRoleComponent } from '../select-doctor-role/select-doctor-role.component'
+import { SelectNurseRoleComponent } from '../select-nurse-role/select-nurse-role.component'
+import { SelectLabtechnicianRoleComponent } from '../select-labtechnician-role/select-labtechnician-role.component'
 
 
 @Component({
@@ -27,18 +26,18 @@ import { CreateLabTechnicianComponent } from '../../lab-technician/create-lab-te
     EqualValidator,
     AbpModalFooterComponent,
     LocalizePipe,
-    CreateDoctorComponent,
-    CreateNurseComponent,
-    CreateLabTechnicianComponent,
-    CommonModule
+    SelectDoctorRoleComponent,
+    SelectNurseRoleComponent,
+    CommonModule,
+    SelectLabtechnicianRoleComponent,
   ],
   providers: [DoctorServiceProxy, NurseServiceProxy, LapTechnicianServiceProxy]
 })
 export class CreateUserDialogComponent extends AppComponentBase implements OnInit {
   @ViewChild('createUserModal', { static: true }) createUserModal: NgForm;
-  @ViewChild(CreateDoctorComponent) createDoctorComponent: CreateDoctorComponent;
-  @ViewChild(CreateNurseComponent) createNurseComponent: CreateNurseComponent;
-  @ViewChild(CreateLabTechnicianComponent) createLabTechnicianComponent: CreateLabTechnicianComponent;
+  @ViewChild(SelectDoctorRoleComponent) createDoctorComponent: SelectDoctorRoleComponent;
+  @ViewChild(SelectNurseRoleComponent) createNurseComponent: SelectNurseRoleComponent;
+  @ViewChild(SelectLabtechnicianRoleComponent) createLabTechnicianComponent: SelectLabtechnicianRoleComponent;
 
   @Output() onSave = new EventEmitter<void>();
 

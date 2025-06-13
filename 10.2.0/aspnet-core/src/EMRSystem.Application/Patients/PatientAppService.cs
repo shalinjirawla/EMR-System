@@ -7,6 +7,7 @@ using Abp.IdentityFramework;
 using EMRSystem.Authorization;
 using EMRSystem.Authorization.Users;
 using EMRSystem.Patients.Dto;
+using EMRSystem.Roles.Dto;
 using EMRSystem.Users.Dto;
 using Microsoft.AspNetCore.Identity;
 using System;
@@ -56,6 +57,15 @@ namespace EMRSystem.Patients
         {
             var user = await Repository.GetAsync(input.Id);
             await Repository.DeleteAsync(user);
+        }
+
+        public async Task<ListResultDto<PatientDto>> GetAllPatientByTenantID(int tenantId)
+        {
+            var patients = await Repository.GetAllIncludingAsync(x => x.AbpUser);
+            var list = patients.Where(x => x.TenantId == tenantId && !x.AbpUser.IsDeleted);
+            var mapped = ObjectMapper.Map<List<PatientDto>>(list);
+            var resultList = new ListResultDto<PatientDto>(mapped);
+            return resultList;
         }
     }
 }

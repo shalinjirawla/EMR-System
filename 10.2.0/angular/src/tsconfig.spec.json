@@ -15,6 +15,6 @@
         "types": [
             "jasmine"
         ],
-        "composite": true // <-- ADD THIS LINE
-    },
+        "composite": true, // <-- ADD THIS LINE,
+    }
 }

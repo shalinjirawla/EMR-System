@@ -4,12 +4,12 @@ import { ControlValueAccessor, FormsModule, NgForm } from '@angular/forms';
 import { AbpValidationSummaryComponent } from '@shared/components/validation/abp-validation.summary.component';
 
 @Component({
-  selector: 'app-create-nurse',
+  selector: 'app-select-nurse-role',
   imports: [FormsModule, CommonModule, AbpValidationSummaryComponent],
-  templateUrl: './create-nurse.component.html',
-  styleUrl: './create-nurse.component.css'
+  templateUrl: './select-nurse-role.component.html',
+  styleUrl: './select-nurse-role.component.css'
 })
-export class CreateNurseComponent  {
+export class SelectNurseRoleComponent {
   @Output() nurseDataChange = new EventEmitter<any>();
   @ViewChild('nurseForm', { static: true }) nurseForm: NgForm;
 
@@ -20,12 +20,12 @@ export class CreateNurseComponent  {
     department: '',
     qualification: '',
     yearsOfExperience: 0,
-    dateOfBirth:null
+    dateOfBirth: null
   };
 
   genders = ['Male', 'Female', 'Other'];
 
- 
+
   onInputChange() {
     this.updateData();
   }
@@ -33,5 +33,5 @@ export class CreateNurseComponent  {
   updateData() {
     this.nurseDataChange.emit(this.nurseData);
   }
- 
+
 }

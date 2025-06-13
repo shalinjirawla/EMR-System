@@ -4,12 +4,12 @@ import { ControlValueAccessor, FormsModule, NgForm } from '@angular/forms';
 import { AbpValidationSummaryComponent } from '../../../shared/components/validation/abp-validation.summary.component';
 
 @Component({
-  selector: 'app-create-lab-technician',
+  selector: 'app-select-labtechnician-role',
   imports: [CommonModule, FormsModule, AbpValidationSummaryComponent],
-  templateUrl: './create-lab-technician.component.html',
-  styleUrl: './create-lab-technician.component.css'
+  templateUrl: './select-labtechnician-role.component.html',
+  styleUrl: './select-labtechnician-role.component.css'
 })
-export class CreateLabTechnicianComponent {
+export class SelectLabtechnicianRoleComponent {
   @Output() technicianDataChange = new EventEmitter<any>();
   @ViewChild('labTechnicianForm', { static: true }) labTechnicianForm: NgForm;
 

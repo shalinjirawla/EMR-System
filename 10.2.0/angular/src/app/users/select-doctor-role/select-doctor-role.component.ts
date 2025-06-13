@@ -1,18 +1,19 @@
 import { Component, EventEmitter, forwardRef, Output, ViewChild } from '@angular/core';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR, NgForm } from '@angular/forms';
-import { CommonModule } from '@node_modules/@angular/common';
-import { AbpValidationSummaryComponent } from '@shared/components/validation/abp-validation.summary.component';
+import { CommonModule } from '@angular/common';
+import { AbpValidationSummaryComponent } from '../../../shared/components/validation/abp-validation.summary.component';
 import { fn } from 'moment';
 
+
 @Component({
-  selector: 'app-create-doctor',
+  selector: 'app-select-doctor-role',
   imports: [FormsModule,CommonModule,AbpValidationSummaryComponent],
-  templateUrl: './create-doctor.component.html',
-  styleUrl: './create-doctor.component.css',
+  templateUrl: './select-doctor-role.component.html',
+  styleUrl: './select-doctor-role.component.css'
 })
-export class CreateDoctorComponent  {
+export class SelectDoctorRoleComponent {
   @Output() doctorDataChange = new EventEmitter<any>();
-@ViewChild('doctorForm', { static: true }) doctorForm: NgForm; 
+  @ViewChild('doctorForm', { static: true }) doctorForm: NgForm;
 
   doctorData = {
     phoneNumber: '',
@@ -27,7 +28,7 @@ export class CreateDoctorComponent  {
 
   genders = ['Male', 'Female', 'Other'];
 
- 
+
 
   onInputChange() {
     this.updateData();
@@ -36,6 +37,4 @@ export class CreateDoctorComponent  {
   updateData() {
     this.doctorDataChange.emit(this.doctorData);
   }
-
-  
 }
