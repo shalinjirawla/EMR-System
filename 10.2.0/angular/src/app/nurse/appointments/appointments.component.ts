@@ -3,7 +3,7 @@ import { finalize } from 'rxjs/operators';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
 import { PagedListingComponentBase } from 'shared/paged-listing-component-base';
-import { UserServiceProxy, UserDto, UserDtoPagedResultDto, AppointmentDto, AppointmentServiceProxy, AppointmentDtoPagedResultDto } from '@shared/service-proxies/service-proxies';
+import { UserServiceProxy, UserDto, UserDtoPagedResultDto, AppointmentDto, AppointmentServiceProxy, AppointmentDtoPagedResultDto, PatientDto } from '@shared/service-proxies/service-proxies';
 import { Table, TableModule } from 'primeng/table';
 import { LazyLoadEvent, PrimeTemplate } from 'primeng/api';
 import { ActivatedRoute } from '@angular/router';
@@ -19,7 +19,7 @@ import { CreateAppoinmentComponent } from '../create-appoinment/create-appoinmen
     animations: [appModuleAnimation()],
     standalone: true,
     imports: [FormsModule, TableModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe],
-    providers: [AppointmentServiceProxy]
+    providers: [AppointmentServiceProxy, UserServiceProxy]
 })
 export class AppointmentsComponent extends PagedListingComponentBase<AppointmentDto> {
     @ViewChild('dataTable', { static: true }) dataTable: Table;
@@ -29,11 +29,12 @@ export class AppointmentsComponent extends PagedListingComponentBase<Appointment
     keyword = '';
     isActive: boolean | null;
     advancedFiltersVisible = false;
-
+    patients!: UserDto[];
     constructor(
         injector: Injector,
         private _modalService: BsModalService,
         private _activatedRoute: ActivatedRoute,
+        private _userService: UserServiceProxy,
         private _apointMentService: AppointmentServiceProxy,
         cd: ChangeDetectorRef
     ) {
@@ -67,6 +68,7 @@ export class AppointmentsComponent extends PagedListingComponentBase<Appointment
                 })
             )
             .subscribe((result: AppointmentDtoPagedResultDto) => {
+                debugger
                 this.primengTableHelper.records = result.items;
                 this.primengTableHelper.totalRecordsCount = result.totalCount;
                 this.primengTableHelper.hideLoadingIndicator();
@@ -86,17 +88,17 @@ export class AppointmentsComponent extends PagedListingComponentBase<Appointment
     createAppoinment(): void {
         this.showCreateOrEditAppoinmentDialog();
     }
-
     editAppoinment(dto: AppointmentDto): void {
         this.showCreateOrEditAppoinmentDialog(dto.id);
     }
     showCreateOrEditAppoinmentDialog(id?: number): void {
         let createOrEditUserDialog: BsModalRef;
-        // if (!id) {
-        //     createOrEditUserDialog = this._modalService.show(CreateAppoinmentComponent, {
-        //         class: 'modal-lg',
-        //     });
-        // } else {
+        if (!id) {
+            createOrEditUserDialog = this._modalService.show(CreateAppoinmentComponent, {
+                class: 'modal-lg',
+            });
+        }
+        //  else {
         //     createOrEditUserDialog = this._modalService.show(CreateAppoinmentComponent, {
         //         class: 'modal-lg',
         //         initialState: {
@@ -105,8 +107,9 @@ export class AppointmentsComponent extends PagedListingComponentBase<Appointment
         //     });
         // }
 
-        createOrEditUserDialog.content.onSave.subscribe(() => {
-            this.refresh();
-        });
+        // createOrEditUserDialog.content.onSave.subscribe(() => {
+        //     this.refresh();
+        // });
     }
+
 }

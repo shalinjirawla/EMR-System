@@ -1,0 +1,80 @@
+<form #nurseForm="ngForm">
+    <!-- Phone Number -->
+
+    <div class="form-group row required">
+        <label class="col-md-3 col-form-label" for="nursePhone">Phone Number</label>
+        <div class="col-md-9">
+            <input id="nursePhone" name="phoneNumber" type="text" class="form-control" required
+                [(ngModel)]="nurseData.phoneNumber" (ngModelChange)="updateData()" #phoneModel="ngModel" #phoneEl>
+            <abp-validation-summary [control]="phoneModel" [controlEl]="phoneEl"></abp-validation-summary>
+        </div>
+    </div>
+
+    <!-- Gender -->
+    <div class="form-group row required">
+        <label class="col-md-3 col-form-label">Gender</label>
+        <div class="col-md-9">
+            <div *ngFor="let gender of genders" class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="gender" [id]="'nurse_gender_' + gender"
+                    [value]="gender" [(ngModel)]="nurseData.gender" (ngModelChange)="updateData()" required
+                    #genderModel="ngModel" #genderEl>
+                <label class="form-check-label" [for]="'nurse_gender_' + gender">
+                    {{ gender }}
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shift Timing -->
+    <div class="form-group row required">
+        <label class="col-md-3 col-form-label" for="shiftTiming">Shift Timing</label>
+        <div class="col-md-9">
+            <input type="time" id="shiftTiming" name="shiftTiming" class="form-control" required
+                [(ngModel)]="nurseData.shiftTiming" (ngModelChange)="updateData()" #shiftModel="ngModel" #shiftEl>
+            <abp-validation-summary [control]="shiftModel" [controlEl]="shiftEl"></abp-validation-summary>
+        </div>
+    </div>
+
+    <!-- Department -->
+    <div class="form-group row required">
+        <label class="col-md-3 col-form-label" for="nurseDepartment">Department</label>
+        <div class="col-md-9">
+            <input type="text" id="nurseDepartment" name="department" class="form-control" required
+                [(ngModel)]="nurseData.department" (ngModelChange)="updateData()" #departmentModel="ngModel"
+                #departmentEl>
+            <abp-validation-summary [control]="departmentModel" [controlEl]="departmentEl"></abp-validation-summary>
+        </div>
+    </div>
+
+    <!-- Qualification -->
+    <div class="form-group row required">
+        <label class="col-md-3 col-form-label" for="nurseQualification">Qualification</label>
+        <div class="col-md-9">
+            <input type="text" id="nurseQualification" name="qualification" class="form-control" required
+                [(ngModel)]="nurseData.qualification" (ngModelChange)="updateData()" #qualificationModel="ngModel"
+                #qualificationEl>
+            <abp-validation-summary [control]="qualificationModel"
+                [controlEl]="qualificationEl"></abp-validation-summary>
+        </div>
+    </div>
+
+    <!-- Years of Experience -->
+    <div class="form-group row required">
+        <label class="col-md-3 col-form-label" for="nurseExperience">Years of Experience</label>
+        <div class="col-md-9">
+            <input type="number" id="nurseExperience" name="experience" class="form-control" required min="0"
+                [(ngModel)]="nurseData.yearsOfExperience" (ngModelChange)="updateData()" #expModel="ngModel" #expEl>
+            <abp-validation-summary [control]="expModel" [controlEl]="expEl"></abp-validation-summary>
+        </div>
+    </div>
+
+    <!-- Date of Birth -->
+    <div class="form-group row required">
+        <label class="col-md-3 col-form-label" for="dob">Date of Birth</label>
+        <div class="col-md-9">
+            <input type="date" id="dob" name="dob" class="form-control" required [(ngModel)]="nurseData.dateOfBirth"
+                (ngModelChange)="onInputChange()" #dobModel="ngModel" #dobEl>
+            <abp-validation-summary [control]="dobModel" [controlEl]="dobEl"></abp-validation-summary>
+        </div>
+    </div>
+</form>

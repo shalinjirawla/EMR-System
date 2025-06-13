@@ -95,7 +95,7 @@
                     <div class="primeng-datatable-container">
                         <p-table #dataTable sortMode="multiple" [value]="primengTableHelper.records"
                             rows="{{ primengTableHelper.defaultRecordsCountPerPage }}" [paginator]="false" [lazy]="true"
-                            [tableStyle]="{ 'min-width': '50rem' }">
+                            [tableStyle]="{ 'min-width': '50rem' }"  (onLazyLoad)="list($event)">
                             <ng-template pTemplate="header">
                                 <tr>
                                     <th style="min-width: 150px" pSortableColumn="userName">

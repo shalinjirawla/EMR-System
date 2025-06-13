@@ -61,7 +61,7 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
 
             // Nurse Section
             new MenuItem(this.l('Nurse'), '', 'fas fa-user-nurse', 'Pages.Nurse', [
-                new MenuItem(this.l('Create Appointment'), '/app/nurse/assigned-patients', 'fas fa-procedures', 'Pages.Doctors.Appointments.Schedule'),
+                new MenuItem(this.l('Appointments'), '/app/nurse/appointments', 'fas fa-procedures', 'Pages.Doctors.Appointments.Schedule'),
                 new MenuItem(this.l('Assigned Patients'), '/app/nurse/assigned-patients', 'fas fa-procedures', 'Pages.Nurse.Patients.View'),
                 new MenuItem(this.l('Vitals'), '/app/nurse/vitals-notes', 'fas fa-notes-medical', 'Pages.Nurse.Vitals.View'),
                 new MenuItem(this.l('Add Vitals'), '/app/nurse/vitals-notes/add', 'fas fa-plus-circle', 'Pages.Nurse.Vitals.Create'),

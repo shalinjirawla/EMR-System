@@ -91,19 +91,15 @@
             </div>
         </div>
 
+        <app-select-doctor-role *ngIf="selectedRole === 'DOCTORS'" [doctorData]="doctorData"
+            (doctorDataChange)="onDoctorDataChange($event)"></app-select-doctor-role>
 
+        <app-select-nurse-role *ngIf="selectedRole === 'NURSE'" [nurseData]="nurseData"
+            (nurseDataChange)="onNurseDataChange($event)"></app-select-nurse-role>
 
-        <!-- Doctor Component (shown only when Doctor role is selected) -->
-        <app-create-doctor *ngIf="selectedRole === 'DOCTORS'" [doctorData]="doctorData"
-            (doctorDataChange)="onDoctorDataChange($event)">
-        </app-create-doctor>
-        <app-create-nurse *ngIf="selectedRole === 'NURSE'" [nurseData]="nurseData"
-            (nurseDataChange)="onNurseDataChange($event)">
-        </app-create-nurse>
-        <app-create-lab-technician *ngIf="selectedRole === 'LAB TECHNICIAN'" [technicianData]="technicianData"
+        <app-select-labtechnician-role *ngIf="selectedRole === 'LAB TECHNICIAN'" [technicianData]="technicianData"
             (technicianDataChange)="onLabTechnicianDataChange($event)">
-        </app-create-lab-technician>
-
+        </app-select-labtechnician-role>
 
         <!-- Active Status -->
         <div class="form-group row mb-0">

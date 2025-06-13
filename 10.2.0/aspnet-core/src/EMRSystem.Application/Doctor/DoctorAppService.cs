@@ -28,7 +28,7 @@ using Abp.IdentityFramework;
 
 namespace EMRSystem.Doctor
 {
-    [AbpAuthorize(PermissionNames.Pages_Doctors)]
+    //[AbpAuthorize(PermissionNames.Pages_Doctors)]
     public class DoctorAppService : AsyncCrudAppService<EMRSystem.Doctors.Doctor, DoctorDto, long, PagedAndSortedResultRequestDto, CreateUpdateDoctorDto, CreateUpdateDoctorDto>,
    IDoctorAppService
     {
@@ -38,5 +38,13 @@ namespace EMRSystem.Doctor
         {
         }
 
+        public async Task<ListResultDto<DoctorDto>> GetAllDoctorsByTenantID(int tenantId)
+        {
+            var doctorDto = await Repository.GetAllIncludingAsync(x => x.AbpUser);
+            var list = doctorDto.Where(x => x.TenantId == tenantId && !x.AbpUser.IsDeleted);
+            var mapped = ObjectMapper.Map<List<DoctorDto>>(list);
+            var resultList = new ListResultDto<DoctorDto>(mapped);
+            return resultList;
+        }
     }
 }
