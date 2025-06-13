@@ -10,6 +10,7 @@ namespace EMRSystem.Appointments.Dto
 {
     public class CreateUpdateAppointmentDto : EntityDto<long>
     {
+        public int TenantId { get; set; }
         public DateTime AppointmentDate { get; set; }
         public string AppointmentTimeSlot { get; set; }
         public string ReasonForVisit { get; set; }

@@ -12,6 +12,7 @@ namespace EMRSystem.BillingStaff.Dto
 {
     public class BillingDto : EntityDto<long>
     {
+        public int TenantId { get; set; }
         public long PatientId { get; set; }
         public long? GeneratedByUserId { get; set; } // Billing staff
         public DateTime BillDate { get; set; }

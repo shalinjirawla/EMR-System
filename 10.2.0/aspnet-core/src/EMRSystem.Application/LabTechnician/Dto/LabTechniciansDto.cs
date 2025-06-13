@@ -12,6 +12,8 @@ namespace EMRSystem.LabTechnician.Dto
 {
     public class LabTechniciansDto : EntityDto<long>
     {
+        public int TenantId { get; set; }
+
         public string FullName { get; set; }
         public string Gender { get; set; }
         public string Qualification { get; set; }

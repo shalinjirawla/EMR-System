@@ -9,6 +9,8 @@ namespace EMRSystem.Prescriptions.Dto
 {
     class CreateUpdatePrescriptionItemDto : EntityDto<long>
     {
+        public int TenantId { get; set; }
+
         public string MedicineName { get; set; }
         public string Dosage { get; set; } // e.g. 500mg
         public string Frequency { get; set; } // e.g. Twice a day

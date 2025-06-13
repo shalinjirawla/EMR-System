@@ -10,6 +10,8 @@ namespace EMRSystem.LabTechnician.Dto
 {
     public class LabReportDto : EntityDto<long>
     {
+        public int TenantId { get; set; }
+
         public long PatientId { get; set; }
         public string TestName { get; set; }
         public string ResultSummary { get; set; }

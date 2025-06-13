@@ -18,9 +18,9 @@ import { LabOrdersComponent } from './lab-orders/lab-orders.component';
         DoctorsComponent,
         AppointmentsComponent,
         PatientComponent,
-        PrescriptionsComponent,
         VisitsComponent,
-        LabOrdersComponent
+        LabOrdersComponent,
+        PrescriptionsComponent
       
     ],
 })
