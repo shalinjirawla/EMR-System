@@ -1,4 +1,5 @@
 ﻿using Abp.Zero.EntityFrameworkCore;
+using EMRSystem.Appointments;
 using EMRSystem.Authorization.Roles;
 using EMRSystem.Authorization.Users;
 using EMRSystem.Billings;
@@ -6,8 +7,8 @@ using EMRSystem.Doctors;
 using EMRSystem.LabReports;
 using EMRSystem.MultiTenancy;
 using EMRSystem.Nurses;
-using EMRSystem.Pharmacists;
 using EMRSystem.Patients;
+using EMRSystem.Pharmacists;
 using EMRSystem.Prescriptions;
 using EMRSystem.Vitals;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +27,8 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
     public DbSet<LabTechnician> LabTechnician { get; set; }
     public DbSet<Nurse> Nurses { get; set; }
     public DbSet<Pharmacist> Pharmacists { get; set; }
+    public DbSet<Appointment> Appointments { get; set; }
+
 
     public DbSet<Patient> Patients { get; set; }
     public DbSet<Prescription> Prescriptions { get; set; }
@@ -120,6 +123,25 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
           .WithMany(e => e.Vitals)
           .HasForeignKey(s => s.NurseId)
           .OnDelete(DeleteBehavior.NoAction); // or NoAction
+
+        modelBuilder.Entity<Appointment>()
+    .HasOne(a => a.Patient)
+    .WithMany(p => p.Appointments)
+    .HasForeignKey(a => a.PatientId)
+    .OnDelete(DeleteBehavior.NoAction); // OR Restrict
+
+        modelBuilder.Entity<Appointment>()
+            .HasOne(a => a.Doctor)
+            .WithMany(d => d.Appointments)
+            .HasForeignKey(a => a.DoctorId)
+            .OnDelete(DeleteBehavior.NoAction); // OR Restrict
+
+        modelBuilder.Entity<Appointment>()
+            .HasOne(a => a.Nurse)
+            .WithMany(n => n.Appointments)
+            .HasForeignKey(a => a.NurseId)
+            .OnDelete(DeleteBehavior.NoAction); // OR Restrict
+
 
     }
 }
