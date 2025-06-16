@@ -12,10 +12,13 @@ import { AppComponentBase } from '@shared/app-component-base';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
-import { AppointmentDto, AppointmentStatus, DoctorDto, DoctorServiceProxy, NurseDto, NurseServiceProxy, PatientDto, PatientServiceProxy } from '@shared/service-proxies/service-proxies';
+import { AppointmentDto, AppointmentStatus, CreateUpdateAppointmentDto, DoctorDto, DoctorServiceProxy, NurseDto, NurseServiceProxy, PatientDto, PatientServiceProxy } from '@shared/service-proxies/service-proxies';
 import { DatePickerModule } from 'primeng/datepicker';
 import { CheckboxModule } from 'primeng/checkbox';
 import { TextareaModule } from 'primeng/textarea';
+import { CreateUserDialogComponent } from '@app/users/create-user/create-user-dialog.component';
+import { PermissionCheckerService } from '@node_modules/abp-ng2-module';
+import moment from 'moment';
 
 @Component({
   selector: 'app-create-appoinment',
@@ -34,12 +37,22 @@ import { TextareaModule } from 'primeng/textarea';
 export class CreateAppoinmentComponent extends AppComponentBase implements OnInit {
   @ViewChild('createAppoinmentModal', { static: true }) createAppoinmentModal: NgForm;
   saving = false;
-  patients: PatientDto[] | undefined;
-  nurse: NurseDto[] | undefined;
-  doctors: DoctorDto[] | undefined;
-  statusOptions: any[] | undefined;
-  appointment: AppointmentDto = new AppointmentDto();
-
+  patients!: PatientDto[];
+  nurse!: NurseDto[];
+  doctors!: DoctorDto[];
+  statusOptions!: any[];
+  showAddPatientButton = false;
+  appointment: any = {
+    patientId: null,
+    doctorId: null,
+    nurseId: null,
+    status: null,
+    isFollowUp: false,
+    appointmentDate: null,
+    startTime: null,
+    endTime: null,
+    reason: ''
+  };
   get isFormValid(): boolean {
     const mainFormValid = this.createAppoinmentModal?.form?.valid;
     return mainFormValid;
@@ -51,20 +64,20 @@ export class CreateAppoinmentComponent extends AppComponentBase implements OnIni
     private _doctorService: DoctorServiceProxy,
     private _nurseService: NurseServiceProxy,
     private _patientService: PatientServiceProxy,
-    private _sessionService: AppSessionService
+    private _sessionService: AppSessionService,
+    private _modalService: BsModalService,
+    private permissionChecker: PermissionCheckerService
   ) {
     super(injector);
   }
 
   ngOnInit(): void {
+    this.showAddPatientButton = this.permissionChecker.isGranted('Pages.Users');
     this.LoadDoctors();
     this.LoadNurse();
     this.LoadPatients();
     this.LoadStatus();
   }
-
-  save(): void { }
-
   LoadPatients() {
     this._patientService.getAllPatientByTenantID(abp.session.tenantId).subscribe({
       next: (res) => {
@@ -93,10 +106,31 @@ export class CreateAppoinmentComponent extends AppComponentBase implements OnIni
   LoadNurse() {
     this._nurseService.getAllNursesByTenantID(abp.session.tenantId).subscribe({
       next: (res) => {
-        debugger
         this.nurse = res.items;
       }, error: (err) => {
       }
     })
+  }
+  showCreatePatientDialog(id?: number): void {
+    let createOrEditPatientDialog: BsModalRef;
+    if (!id) {
+      createOrEditPatientDialog = this._modalService.show(CreateUserDialogComponent, {
+        class: 'modal-lg',
+        initialState: {
+          defaultRole: 'Patient',
+          disableRoleSelection: true
+        }
+      });
+    }
+  }
+  save(): void {
+    if (!this.appointment.patientId || !this.appointment.doctorId || !this.appointment.status || !this.appointment.appointmentDate) {
+      console.warn("Form is invalid");
+      return;
+    }
+    // this.saving = true;
+    console.log('Saving appointment', this.appointment);
+
+
   }
 }

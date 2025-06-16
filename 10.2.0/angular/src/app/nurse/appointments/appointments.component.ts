@@ -12,6 +12,7 @@ import { FormsModule } from '@angular/forms';
 import { NgIf } from '@angular/common';
 import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { CreateAppoinmentComponent } from '../create-appoinment/create-appoinment.component';
+import { CreateUserDialogComponent } from '@app/users/create-user/create-user-dialog.component';
 @Component({
     selector: 'app-appointments',
     templateUrl: './appointments.component.html',
@@ -111,5 +112,4 @@ export class AppointmentsComponent extends PagedListingComponentBase<Appointment
         //     this.refresh();
         // });
     }
-
 }

@@ -18,6 +18,8 @@ namespace EMRSystem.Appointments.Dto
         public DateTime AppointmentDate { get; set; }
         public string AppointmentTimeSlot { get; set; }
         public string ReasonForVisit { get; set; }
+        public string PatientName { get; set; }
+        public string DoctorName { get; set; }
         public AppointmentStatus Status { get; set; }
         public bool IsFollowUp { get; set; }
         public PatientDto Patient { get; set; }

@@ -5,20 +5,23 @@
             <div class="col-md-12">
                 <div class="d-flex justify-content-between align-items-center">
                     <b>Select Patient</b>
-                    <p-button label="Add New Patient" variant="text" severity="info" />
+                    <p-button label="Add New Patient" variant="text" severity="info" *ngIf="showAddPatientButton"
+                        (onClick)="showCreatePatientDialog()" />
                 </div>
-                <p-select [options]="patients" id="name" optionLabel="fullName" placeholder="Select a patient"
-                    class="w-100" />
+                <p-select [options]="patients" optionLabel="fullName" placeholder="Select a patient"
+                    [optionValue]="'id'" [(ngModel)]="appointment.patientId" name="patientId" class="w-100" />
             </div>
         </div>
         <div class="row mt-3">
             <div class="col-md-6 d-flex flex-column">
                 <label for="buttondisplay"> Select Doctor </label>
-                <p-select [options]="doctors" id="name" optionLabel="fullName" placeholder="Select doctor" class="w-100" />
+                <p-select [(ngModel)]="appointment.doctorId" [optionValue]="'id'" name="doctorId" [options]="doctors"
+                    optionLabel="fullName" placeholder="Select doctor" class="w-100" required />
             </div>
             <div class="col-md-6 d-flex flex-column">
                 <label for="buttondisplay"> Select Nurse </label>
-                <p-select [options]="nurse" id="name" optionLabel="fullName" placeholder="Select nurse" class="w-100" />
+                <p-select [(ngModel)]="appointment.nurseId" [optionValue]="'id'" name="nurseId" [options]="nurse"
+                    optionLabel="fullName" placeholder="Select nurse" class="w-100" />
             </div>
         </div>
         <div class="row mt-3">
@@ -29,11 +32,12 @@
                 <div>
                     <div class="row">
                         <div class="col-md-9">
-                            <p-select [options]="statusOptions" id="name" optionLabel="label" placeholder="Appointment Status"
-                                class="w-100" />
+                            <p-select [(ngModel)]="appointment.status" name="status" [options]="statusOptions"
+                                [optionValue]="'value'" optionLabel="label" placeholder="Appointment Status"
+                                class="w-100" required />
                         </div>
                         <div class="col-md-3">
-                            <p-checkbox value="New York" inputId="ny" />
+                            <p-checkbox [(ngModel)]="appointment.isFollowUp" name="isFollowUp" binary="true" />
                             <span class="ml-2"><b>Is FollowUp</b></span>
                         </div>
                     </div>
@@ -43,18 +47,20 @@
         <div class="row mt-3">
             <div class="col-md-6 d-flex flex-column">
                 <label for="buttondisplay"> Appointment Date </label>
-                <p-datepicker [showIcon]="true" inputId="buttondisplay" [showOnFocus]="false"
-                    placeholder="Select appoinment date" />
+                <p-datepicker [(ngModel)]="appointment.appointmentDate" name="appointmentDate" [showIcon]="true"
+                    placeholder="Select appointment date" required />
             </div>
             <div class="col-md-6">
                 <div class="row">
                     <div class="col-md-6 d-flex flex-column">
                         <label for="buttondisplay"> Start Time </label>
-                        <p-datepicker inputId="calendar-timeonly" [timeOnly]="true" placeholder="Select start time" />
+                        <p-datepicker [(ngModel)]="appointment.startTime" name="startTime" [timeOnly]="true"
+                            placeholder="Select start time" required />
                     </div>
                     <div class="col-md-6 d-flex flex-column">
                         <label for="buttondisplay"> End Time </label>
-                        <p-datepicker inputId="calendar-timeonly" [timeOnly]="true" placeholder="Select end time" />
+                        <p-datepicker [(ngModel)]="appointment.endTime" name="endTime" [timeOnly]="true"
+                            placeholder="Select end time" required />
                     </div>
                 </div>
 
@@ -63,7 +69,8 @@
         <div class="row mt-3">
             <div class="col-md-12 d-flex flex-column">
                 <label for="buttondisplay"> Reason </label>
-                <textarea pTextarea pSize="large" placeholder="Reason for visit" rows="3" class="w-100"></textarea>
+                <textarea pTextarea [(ngModel)]="appointment.reason" name="reason" placeholder="Reason for visit"
+                    rows="3" class="w-100" required></textarea>
             </div>
         </div>
     </div>

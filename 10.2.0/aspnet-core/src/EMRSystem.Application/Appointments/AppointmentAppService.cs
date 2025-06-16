@@ -1,5 +1,4 @@
-﻿using Abp.Application.Services.Dto;
-using Abp.Application.Services;
+﻿using Abp.Application.Services;
 using Abp.Domain.Repositories;
 using EMRSystem.Authorization;
 using EMRSystem.Billings;
@@ -13,6 +12,13 @@ using System.Threading.Tasks;
 using EMRSystem.Appointments.Dto;
 using EMRSystem.Nurse.Dto;
 using EMRSystem.Nurse;
+using Abp.Application.Services.Dto;
+using EMRSystem.Patients.Dto;
+using Microsoft.EntityFrameworkCore;
+using EMRSystem.Authorization.Users;
+using EMRSystem.Users.Dto;
+using EMRSystem.Patients;
+using Abp.Extensions;
 
 namespace EMRSystem.Appointments
 {

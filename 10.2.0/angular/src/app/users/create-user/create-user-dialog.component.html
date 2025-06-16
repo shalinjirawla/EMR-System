@@ -8,7 +8,7 @@
                 {{ 'Role' | localize }}
             </label>
             <div class="col-md-9">
-                <select class="form-control" name="userRole" id="userRole" required [(ngModel)]="selectedRole"
+                <select class="form-control" name="userRole" id="userRole" required [(ngModel)]="selectedRole" [disabled]="disableRoleSelection"
                     (ngModelChange)="onRoleChange()" #roleModel="ngModel">
                     <option *ngFor="let role of roles" [value]="role.normalizedName">
                         {{ role.normalizedName | localize }}

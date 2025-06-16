@@ -1,4 +1,4 @@
-import { Component, Injector, OnInit, EventEmitter, Output, ChangeDetectorRef, ViewChild } from '@angular/core';
+import { Component, Injector, OnInit, EventEmitter, Output, ChangeDetectorRef, ViewChild, Input } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { forEach as _forEach, map as _map } from 'lodash-es';
 import { AppComponentBase } from '@shared/app-component-base';
@@ -33,7 +33,7 @@ import { SelectPatientRoleComponent } from '../select-patient-role/select-patien
     SelectLabtechnicianRoleComponent,
     SelectPatientRoleComponent
   ],
-  providers: [DoctorServiceProxy, NurseServiceProxy, LapTechnicianServiceProxy,PatientServiceProxy]
+  providers: [DoctorServiceProxy, NurseServiceProxy, LapTechnicianServiceProxy, PatientServiceProxy]
 })
 export class CreateUserDialogComponent extends AppComponentBase implements OnInit {
   @ViewChild('createUserModal', { static: true }) createUserModal: NgForm;
@@ -44,7 +44,8 @@ export class CreateUserDialogComponent extends AppComponentBase implements OnIni
 
 
   @Output() onSave = new EventEmitter<void>();
-
+  @Input() defaultRole: string = '';
+  @Input() disableRoleSelection: boolean = false;
   user: CreateUserDto = new CreateUserDto();
   roles: RoleDto[] = [];
   selectedRole: string = '';
@@ -82,7 +83,7 @@ export class CreateUserDialogComponent extends AppComponentBase implements OnIni
     private _nurseService: NurseServiceProxy,
     private _labTechnicianService: LapTechnicianServiceProxy,
     private _patientService: PatientServiceProxy,
-    
+
   ) {
     super(injector);
   }
@@ -90,6 +91,9 @@ export class CreateUserDialogComponent extends AppComponentBase implements OnIni
   ngOnInit(): void {
     this.user.isActive = true;
     this.loadRoles();
+    if (this.defaultRole) {
+      this.selectedRole = 'PATIENT';
+    }
   }
 
   loadRoles(): void {
@@ -131,7 +135,7 @@ export class CreateUserDialogComponent extends AppComponentBase implements OnIni
     const labTechnicianFormValid = this.selectedRole === 'LAB TECHNICIAN'
       ? this.createLabTechnicianComponent?.labTechnicianForm?.valid
       : true;
-    
+
     const patientFormValid = this.selectedRole === 'PATIENT'
       ? this.createPatientComponent?.patientForm?.valid
       : true;
@@ -159,7 +163,7 @@ export class CreateUserDialogComponent extends AppComponentBase implements OnIni
       this.user['technicianProfile'] = this.technicianData;
     }
     if (this.selectedRole === 'PATIENT' && this.patientData) {
-      
+
       this.user['patientProfile'] = this.patientData;
     }
     debugger
