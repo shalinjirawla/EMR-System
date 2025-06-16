@@ -1,5 +1,6 @@
 ﻿using Abp.Domain.Entities;
 using Abp.Domain.Entities.Auditing;
+using EMRSystem.Appointments;
 using EMRSystem.Authorization.Users;
 using EMRSystem.Doctors;
 using EMRSystem.Prescriptions;
@@ -35,5 +36,7 @@ namespace EMRSystem.Patients
         public virtual Doctor Doctors { get; set; }
         public ICollection<Prescription> Prescriptions { get; set; }
         public ICollection<Vital> Vitals { get; set; }
+        public virtual ICollection<Appointment> Appointments { get; set; }
+
     }
 }
