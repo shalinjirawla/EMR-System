@@ -101,6 +101,10 @@
             (technicianDataChange)="onLabTechnicianDataChange($event)">
         </app-select-labtechnician-role>
 
+        <app-select-patient-role *ngIf="selectedRole === 'PATIENT'" [patientData]="patientData"
+            (patientDataChange)="onPatientDataChange($event)">
+        </app-select-patient-role>
+
         <!-- Active Status -->
         <div class="form-group row mb-0">
             <label class="col-md-3 col-form-label">

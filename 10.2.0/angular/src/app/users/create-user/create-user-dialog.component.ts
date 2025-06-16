@@ -2,7 +2,7 @@ import { Component, Injector, OnInit, EventEmitter, Output, ChangeDetectorRef, V
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { forEach as _forEach, map as _map } from 'lodash-es';
 import { AppComponentBase } from '@shared/app-component-base';
-import { UserServiceProxy, CreateUserDto, RoleDto, CreateUpdateDoctorDto, DoctorServiceProxy, NurseServiceProxy, LapTechnicianServiceProxy } from '@shared/service-proxies/service-proxies';
+import { UserServiceProxy, CreateUserDto, RoleDto, CreateUpdateDoctorDto, DoctorServiceProxy, NurseServiceProxy, LapTechnicianServiceProxy, PatientServiceProxy } from '@shared/service-proxies/service-proxies';
 import { AbpValidationError } from '@shared/components/validation/abp-validation.api';
 import { FormsModule, NgForm } from '@angular/forms';
 import { AbpModalHeaderComponent } from '../../../shared/components/modal/abp-modal-header.component';
@@ -14,6 +14,7 @@ import { CommonModule } from '@node_modules/@angular/common';
 import { SelectDoctorRoleComponent } from '../select-doctor-role/select-doctor-role.component'
 import { SelectNurseRoleComponent } from '../select-nurse-role/select-nurse-role.component'
 import { SelectLabtechnicianRoleComponent } from '../select-labtechnician-role/select-labtechnician-role.component'
+import { SelectPatientRoleComponent } from '../select-patient-role/select-patient-role.component'
 
 
 @Component({
@@ -30,14 +31,17 @@ import { SelectLabtechnicianRoleComponent } from '../select-labtechnician-role/s
     SelectNurseRoleComponent,
     CommonModule,
     SelectLabtechnicianRoleComponent,
+    SelectPatientRoleComponent
   ],
-  providers: [DoctorServiceProxy, NurseServiceProxy, LapTechnicianServiceProxy]
+  providers: [DoctorServiceProxy, NurseServiceProxy, LapTechnicianServiceProxy,PatientServiceProxy]
 })
 export class CreateUserDialogComponent extends AppComponentBase implements OnInit {
   @ViewChild('createUserModal', { static: true }) createUserModal: NgForm;
   @ViewChild(SelectDoctorRoleComponent) createDoctorComponent: SelectDoctorRoleComponent;
   @ViewChild(SelectNurseRoleComponent) createNurseComponent: SelectNurseRoleComponent;
   @ViewChild(SelectLabtechnicianRoleComponent) createLabTechnicianComponent: SelectLabtechnicianRoleComponent;
+  @ViewChild(SelectPatientRoleComponent) createPatientComponent: SelectPatientRoleComponent;
+
 
   @Output() onSave = new EventEmitter<void>();
 
@@ -65,6 +69,8 @@ export class CreateUserDialogComponent extends AppComponentBase implements OnIni
   doctorData: any;
   nurseData: any;
   technicianData: any;
+  patientData: any;
+
 
 
   constructor(
@@ -75,6 +81,8 @@ export class CreateUserDialogComponent extends AppComponentBase implements OnIni
     private cd: ChangeDetectorRef,
     private _nurseService: NurseServiceProxy,
     private _labTechnicianService: LapTechnicianServiceProxy,
+    private _patientService: PatientServiceProxy,
+    
   ) {
     super(injector);
   }
@@ -105,6 +113,9 @@ export class CreateUserDialogComponent extends AppComponentBase implements OnIni
   onLabTechnicianDataChange(data: any): void {
     this.technicianData = data;
   }
+  onPatientDataChange(data: any): void {
+    this.patientData = data;
+  }
 
   get isFormValid(): boolean {
 
@@ -120,8 +131,12 @@ export class CreateUserDialogComponent extends AppComponentBase implements OnIni
     const labTechnicianFormValid = this.selectedRole === 'LAB TECHNICIAN'
       ? this.createLabTechnicianComponent?.labTechnicianForm?.valid
       : true;
+    
+    const patientFormValid = this.selectedRole === 'PATIENT'
+      ? this.createPatientComponent?.patientForm?.valid
+      : true;
 
-    return mainFormValid && doctorFormValid && nurseFormValid && labTechnicianFormValid;
+    return mainFormValid && doctorFormValid && nurseFormValid && labTechnicianFormValid && patientFormValid;
 
   }
 
@@ -130,19 +145,6 @@ export class CreateUserDialogComponent extends AppComponentBase implements OnIni
     if (!this.createUserModal.form.valid) {
       return;
     }
-
-    // // Doctor Form validation
-    // if (this.selectedRole === 'DOCTORS' && this.createDoctorComponent?.doctorForm?.invalid) {
-    //   this.notify.warn(this.l('PleaseFillDoctorFormCorrectly'));
-    //   return;
-    // }
-
-    // //Nurse Form validation
-    // if (this.selectedRole === 'NURSE' && this.createNurseComponent?.nurseForm?.invalid) {
-    //   this.notify.warn(this.l('PleaseFillNurseFormCorrectly'));
-    //   return;
-    // }
-
     this.saving = true;
     this.user.roleNames = [this.selectedRole];
 
@@ -156,6 +158,11 @@ export class CreateUserDialogComponent extends AppComponentBase implements OnIni
     if (this.selectedRole === 'LAB TECHNICIAN' && this.technicianData) {
       this.user['technicianProfile'] = this.technicianData;
     }
+    if (this.selectedRole === 'PATIENT' && this.patientData) {
+      
+      this.user['patientProfile'] = this.patientData;
+    }
+    debugger
     this._userService.create(this.user).subscribe({
       next: (res) => {
         this.newlyCreatedUserId = res.id;
@@ -168,6 +175,10 @@ export class CreateUserDialogComponent extends AppComponentBase implements OnIni
         if (this.selectedRole === 'LAB TECHNICIAN') {
 
           this.CreateLabTechnician();
+        }
+        if (this.selectedRole === 'PATIENT') {
+
+          this.CreatePatient();
         }
         this.notify.info(this.l('SavedSuccessfully'));
         this.bsModalRef.hide();
@@ -207,6 +218,18 @@ export class CreateUserDialogComponent extends AppComponentBase implements OnIni
     this.technicianData.fullName = this.user.name + " " + this.user.surname;
     this.technicianData.abpUserId = this.newlyCreatedUserId;
     this._labTechnicianService.create(this.technicianData).subscribe({
+      next: (res) => {
+        this.newlyCreatedUserId = 0;
+      },
+      error: (err) => {
+      }
+    })
+  }
+
+  CreatePatient() {
+    this.patientData.fullName = this.user.name + " " + this.user.surname;
+    this.patientData.abpUserId = this.newlyCreatedUserId;
+    this._patientService.create(this.patientData).subscribe({
       next: (res) => {
         this.newlyCreatedUserId = 0;
       },
