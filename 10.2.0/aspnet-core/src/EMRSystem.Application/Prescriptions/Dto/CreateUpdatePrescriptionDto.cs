@@ -10,7 +10,6 @@ namespace EMRSystem.Prescriptions.Dto
     public class CreateUpdatePrescriptionDto : EntityDto<long>
     {
         public int TenantId { get; set; }
-
         public string Diagnosis { get; set; }
         public string Notes { get; set; }
         public DateTime IssueDate { get; set; } = DateTime.Now;
@@ -18,5 +17,6 @@ namespace EMRSystem.Prescriptions.Dto
         public long AppointmentId { get; set; }
         public long DoctorId { get; set; }
         public long PatientId { get; set; }
+        public List<PrescriptionItemDto> Items { get; set; }
     }
 }

@@ -2,18 +2,10 @@
 using Abp.Application.Services.Dto;
 using Abp.Authorization;
 using Abp.Domain.Repositories;
-using Abp.Extensions;
-using Abp.IdentityFramework;
-using EMRSystem.Authorization;
 using EMRSystem.Authorization.Users;
 using EMRSystem.Patients.Dto;
-using EMRSystem.Roles.Dto;
-using EMRSystem.Users.Dto;
-using Microsoft.AspNetCore.Identity;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace EMRSystem.Patients
@@ -61,9 +53,10 @@ namespace EMRSystem.Patients
 
         public async Task<ListResultDto<PatientDto>> GetAllPatientByTenantID(int tenantId)
         {
-            var patients = await Repository.GetAllIncludingAsync(x => x.AbpUser);
-            var list = patients.Where(x => x.TenantId == tenantId && !x.AbpUser.IsDeleted);
-            var mapped = ObjectMapper.Map<List<PatientDto>>(list);
+            var patientsData = await Repository.GetAllAsync();
+            var patients = patientsData.Where(x => x.TenantId == tenantId).ToList();
+
+            var mapped = ObjectMapper.Map<List<PatientDto>>(patients);
             var resultList = new ListResultDto<PatientDto>(mapped);
             return resultList;
         }

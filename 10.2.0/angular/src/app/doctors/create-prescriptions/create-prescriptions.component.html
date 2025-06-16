@@ -10,17 +10,8 @@
           <b>Select Patient</b>
           <p-button label="Add New Patient" variant="text" severity="info" />
         </div>
-        <p-select [(ngModel)]="prescription.patientId" name="patientId" [options]="patients" optionLabel="name"
-          placeholder="Select a patient" class="w-100" required />
-      </div>
-    </div>
-
-    <!-- Doctor Selection -->
-    <div class="row mt-3">
-      <div class="col-md-12">
-        <label><b>Select Doctor</b></label>
-        <p-select [(ngModel)]="prescription.doctorId" name="doctorId" [options]="doctors" optionLabel="fullName"
-          placeholder="Select a doctor" class="w-100" required />
+        <p-select [(ngModel)]="prescription.patientId" name="patientId" [options]="patients" [optionValue]="'id'"
+          optionLabel="fullName" placeholder="Select a patient" class="w-100" required (onChange)="LoadAppoinments()" />
       </div>
     </div>
 
@@ -37,7 +28,8 @@
     <div class="row mt-3">
       <div class="col-md-12 d-flex flex-column">
         <label>Diagnosis</label>
-        <input type="text" pInputText [(ngModel)]="prescription.diagnosis" name="diagnosis" required />
+        <input type="text" pInputText [(ngModel)]="prescription.diagnosis" name="diagnosis" required
+          placeholder="Enter diagnosis" />
       </div>
     </div>
 
@@ -45,19 +37,22 @@
     <div class="row mt-3">
       <div class="col-md-12 d-flex flex-column">
         <label>Notes</label>
-        <textarea pTextarea [(ngModel)]="prescription.notes" name="notes" rows="3" class="w-100"></textarea>
+        <textarea pTextarea [(ngModel)]="prescription.notes" name="notes" rows="3" class="w-100"
+          placeholder="Enter notes"></textarea>
       </div>
     </div>
 
     <!-- Issue Date & Follow-up -->
     <div class="row mt-3">
-      <div class="col-md-6 d-flex flex-column">
+      <!-- <div class="col-md-6 d-flex flex-column">
         <label>Issue Date</label>
-        <p-calendar [(ngModel)]="prescription" [showIcon]="true" [showOnFocus]="true"></p-calendar>
+        <p-calendar [(ngModel)]="prescription.issueDate" [showIcon]="true" [showOnFocus]="true" name="issueDate"
+          dateFormat="dd/mm/yy"></p-calendar>
 
-      </div>
+      </div> -->
       <div class="col-md-6 d-flex align-items-center mt-4">
-        <p-checkbox [(ngModel)]="prescription.isFollowUpRequired" name="isFollowUpRequired" inputId="followup" />
+        <p-checkbox [(ngModel)]="prescription.isFollowUpRequired" name="isFollowUpRequired" inputId="followup"
+          value="isFollowUpRequired" />
         <label for="followup" class="ml-2"><b>Follow-up Required</b></label>
       </div>
     </div>
@@ -65,16 +60,27 @@
     <!-- Prescription Items Placeholder -->
     <div class="row mt-4">
       <div class="col-md-12">
-        <label><b>Prescription Items</b></label>
+        <div class="d-flex justify-content-between align-items-center">
+          <div><b>Prescription Items</b>
+          </div>
+          <div>
+            <p-button label="Add Item" variant="text" severity="info" (click)="addItem()" icon="fa-solid fa-plus" />
+          </div>
+        </div>
         <!-- You can dynamically render prescription items list here -->
-        <p-button label="Add Item" icon="pi pi-plus" class="p-button-sm" (click)="addItem()" />
         <div *ngFor="let item of prescription.items; let i = index" class="mt-2">
           <div class="d-flex">
-            <input type="text" pInputText [(ngModel)]="item.name" name="itemName{{i}}" class="w-50 mr-2"
+            <input type="text" pInputText [(ngModel)]="item.medicineName" name="itemName{{i}}" class="w-50 mr-2"
               placeholder="Medicine Name" />
             <input type="text" pInputText [(ngModel)]="item.dosage" name="itemDosage{{i}}" class="w-25 mr-2"
               placeholder="Dosage" />
-            <p-button icon="pi pi-trash" severity="danger" class="p-button-sm" (click)="removeItem(i)" />
+            <input type="text" pInputText [(ngModel)]="item.frequency" name="itemDosage{{i}}" class="w-25 mr-2"
+              placeholder="Frequency" />
+            <input type="text" pInputText [(ngModel)]="item.duration" name="itemDosage{{i}}" class="w-25 mr-2"
+              placeholder="Duration" />
+            <input type="text" pInputText [(ngModel)]="item.instructions" name="itemDosage{{i}}" class="w-25 mr-2"
+              placeholder="Instructions" />
+            <p-button variant="text" severity="danger" (click)="removeItem(i)" icon="fa-solid fa-xmark" />
           </div>
         </div>
       </div>

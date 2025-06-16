@@ -4956,6 +4956,8 @@ export class AppointmentDto implements IAppointmentDto {
     appointmentDate: moment.Moment;
     appointmentTimeSlot: string | undefined;
     reasonForVisit: string | undefined;
+    patientName: string | undefined;
+    doctorName: string | undefined;
     status: AppointmentStatus;
     isFollowUp: boolean;
     patient: PatientDto;
@@ -4979,6 +4981,8 @@ export class AppointmentDto implements IAppointmentDto {
             this.appointmentDate = _data["appointmentDate"] ? moment(_data["appointmentDate"].toString()) : <any>undefined;
             this.appointmentTimeSlot = _data["appointmentTimeSlot"];
             this.reasonForVisit = _data["reasonForVisit"];
+            this.patientName = _data["patientName"];
+            this.doctorName = _data["doctorName"];
             this.status = _data["status"];
             this.isFollowUp = _data["isFollowUp"];
             this.patient = _data["patient"] ? PatientDto.fromJS(_data["patient"]) : <any>undefined;
@@ -5006,6 +5010,8 @@ export class AppointmentDto implements IAppointmentDto {
         data["appointmentDate"] = this.appointmentDate ? this.appointmentDate.toISOString() : <any>undefined;
         data["appointmentTimeSlot"] = this.appointmentTimeSlot;
         data["reasonForVisit"] = this.reasonForVisit;
+        data["patientName"] = this.patientName;
+        data["doctorName"] = this.doctorName;
         data["status"] = this.status;
         data["isFollowUp"] = this.isFollowUp;
         data["patient"] = this.patient ? this.patient.toJSON() : <any>undefined;
@@ -5033,6 +5039,8 @@ export interface IAppointmentDto {
     appointmentDate: moment.Moment;
     appointmentTimeSlot: string | undefined;
     reasonForVisit: string | undefined;
+    patientName: string | undefined;
+    doctorName: string | undefined;
     status: AppointmentStatus;
     isFollowUp: boolean;
     patient: PatientDto;
@@ -6364,6 +6372,7 @@ export class CreateUpdatePrescriptionDto implements ICreateUpdatePrescriptionDto
     appointmentId: number;
     doctorId: number;
     patientId: number;
+    items: PrescriptionItemDto[] | undefined;
 
     constructor(data?: ICreateUpdatePrescriptionDto) {
         if (data) {
@@ -6385,6 +6394,11 @@ export class CreateUpdatePrescriptionDto implements ICreateUpdatePrescriptionDto
             this.appointmentId = _data["appointmentId"];
             this.doctorId = _data["doctorId"];
             this.patientId = _data["patientId"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(PrescriptionItemDto.fromJS(item));
+            }
         }
     }
 
@@ -6406,6 +6420,11 @@ export class CreateUpdatePrescriptionDto implements ICreateUpdatePrescriptionDto
         data["appointmentId"] = this.appointmentId;
         data["doctorId"] = this.doctorId;
         data["patientId"] = this.patientId;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
         return data;
     }
 
@@ -6427,6 +6446,7 @@ export interface ICreateUpdatePrescriptionDto {
     appointmentId: number;
     doctorId: number;
     patientId: number;
+    items: PrescriptionItemDto[] | undefined;
 }
 
 export class CreateUpdateVitalDto implements ICreateUpdateVitalDto {
@@ -8090,6 +8110,7 @@ export class PrescriptionDto implements IPrescriptionDto {
     notes: string | undefined;
     issueDate: moment.Moment;
     isFollowUpRequired: boolean;
+    appointment: AppointmentDto;
     doctor: DoctorDto;
     patient: PatientDto;
     items: PrescriptionItemDto[] | undefined;
@@ -8111,6 +8132,7 @@ export class PrescriptionDto implements IPrescriptionDto {
             this.notes = _data["notes"];
             this.issueDate = _data["issueDate"] ? moment(_data["issueDate"].toString()) : <any>undefined;
             this.isFollowUpRequired = _data["isFollowUpRequired"];
+            this.appointment = _data["appointment"] ? AppointmentDto.fromJS(_data["appointment"]) : <any>undefined;
             this.doctor = _data["doctor"] ? DoctorDto.fromJS(_data["doctor"]) : <any>undefined;
             this.patient = _data["patient"] ? PatientDto.fromJS(_data["patient"]) : <any>undefined;
             if (Array.isArray(_data["items"])) {
@@ -8136,6 +8158,7 @@ export class PrescriptionDto implements IPrescriptionDto {
         data["notes"] = this.notes;
         data["issueDate"] = this.issueDate ? this.issueDate.toISOString() : <any>undefined;
         data["isFollowUpRequired"] = this.isFollowUpRequired;
+        data["appointment"] = this.appointment ? this.appointment.toJSON() : <any>undefined;
         data["doctor"] = this.doctor ? this.doctor.toJSON() : <any>undefined;
         data["patient"] = this.patient ? this.patient.toJSON() : <any>undefined;
         if (Array.isArray(this.items)) {
@@ -8161,6 +8184,7 @@ export interface IPrescriptionDto {
     notes: string | undefined;
     issueDate: moment.Moment;
     isFollowUpRequired: boolean;
+    appointment: AppointmentDto;
     doctor: DoctorDto;
     patient: PatientDto;
     items: PrescriptionItemDto[] | undefined;
