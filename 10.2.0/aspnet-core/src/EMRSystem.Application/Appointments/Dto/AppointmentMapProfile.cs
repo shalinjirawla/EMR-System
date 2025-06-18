@@ -15,11 +15,7 @@ namespace EMRSystem.Appointments.Dto
     {
         public AppointmentMapProfile()
         {
-            CreateMap<Appointment, AppointmentDto>()
-    .ForMember(x => x.PatientName, opt => opt.MapFrom(x => x.Patient != null ? x.Patient.FullName : ""))
-    .ForMember(x => x.DoctorName, opt => opt.MapFrom(x => x.Doctor != null ? x.Doctor.FullName : ""))
-    .ReverseMap();
-
+            CreateMap<Appointment, AppointmentDto>().ReverseMap();
             CreateMap<Appointment, CreateUpdateAppointmentDto>().ReverseMap();
         }
     }

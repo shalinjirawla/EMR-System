@@ -166,7 +166,6 @@ export class CreateUserDialogComponent extends AppComponentBase implements OnIni
 
       this.user['patientProfile'] = this.patientData;
     }
-    debugger
     this._userService.create(this.user).subscribe({
       next: (res) => {
         this.newlyCreatedUserId = res.id;

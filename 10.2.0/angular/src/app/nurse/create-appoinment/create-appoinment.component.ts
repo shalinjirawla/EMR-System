@@ -130,7 +130,5 @@ export class CreateAppoinmentComponent extends AppComponentBase implements OnIni
     }
     // this.saving = true;
     console.log('Saving appointment', this.appointment);
-
-
   }
 }

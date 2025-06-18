@@ -25,6 +25,7 @@ using EMRSystem.Authorization.Roles;
 using EMRSystem.Patients.Dto;
 using EMRSystem.Patients;
 using Abp.IdentityFramework;
+using Abp.Domain.Entities;
 
 namespace EMRSystem.Doctor
 {
@@ -32,7 +33,6 @@ namespace EMRSystem.Doctor
     public class DoctorAppService : AsyncCrudAppService<EMRSystem.Doctors.Doctor, DoctorDto, long, PagedAndSortedResultRequestDto, CreateUpdateDoctorDto, CreateUpdateDoctorDto>,
    IDoctorAppService
     {
-        private readonly IRepository<EMRSystem.Doctors.Doctor, long> _doctorRepository;
         public DoctorAppService(
             IRepository<EMRSystem.Doctors.Doctor, long> doctorRepository) : base(doctorRepository)
         {
@@ -45,6 +45,17 @@ namespace EMRSystem.Doctor
             var mapped = ObjectMapper.Map<List<DoctorDto>>(list);
             var resultList = new ListResultDto<DoctorDto>(mapped);
             return resultList;
+        }
+
+        public EMRSystem.Doctors.Doctor GetDoctorDetailsByAbpUserID(long abpUserId)
+        {
+            var doctor = Repository.GetAll().FirstOrDefault(x => x.AbpUserId == abpUserId);
+
+            if (doctor == null)
+            {
+                throw new EntityNotFoundException(typeof(EMRSystem.Doctors.Doctor), abpUserId);
+            }
+            return doctor;
         }
     }
 }
