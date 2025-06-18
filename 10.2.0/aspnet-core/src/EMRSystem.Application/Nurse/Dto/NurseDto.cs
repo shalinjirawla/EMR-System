@@ -25,6 +25,6 @@ namespace EMRSystem.Nurse.Dto
         public int YearsOfExperience { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public UserDto AbpUser { get; set; }
-        public List<VitalDto> Vitals { get; set; }
+        //public List<VitalDto> Vitals { get; set; }
     }
 }

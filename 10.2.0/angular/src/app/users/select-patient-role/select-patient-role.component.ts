@@ -2,6 +2,7 @@ import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
 import { AbpValidationSummaryComponent } from "../../../shared/components/validation/abp-validation.summary.component";
 import { FormsModule, NgForm } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { NurseDto, DoctorDto, DoctorServiceProxy, NurseServiceProxy } from '@shared/service-proxies/service-proxies';
 
 @Component({
   selector: 'app-select-patient-role',
@@ -15,7 +16,8 @@ export class SelectPatientRoleComponent {
 
   genders = ['Male', 'Female', 'Other'];
 bloodGroups = ['A+', 'A−', 'B+', 'B−', 'AB+', 'AB−', 'O+', 'O−'];
-
+  nurseList!: NurseDto[];
+  doctorList!: DoctorDto[];
 patient = {
   gender: '',
   dateOfBirth: null,
@@ -32,15 +34,39 @@ patient = {
   assignedDoctorId: null
 };
 
-nurseList = [
-  { id: 1, name: 'Nurse A' },
-  { id: 2, name: 'Nurse B' }
-];
+constructor(
+    private _doctorService: DoctorServiceProxy,
+    private _nurseService: NurseServiceProxy,)
+    {
+      this.LoadDoctors();
+      this.LoadNurse();
+    }
 
-doctorList = [
-  { id: 101, name: 'Dr. John' },
-  { id: 102, name: 'Dr. Smith' }
-];
+LoadDoctors() {
+    this._doctorService.getAllDoctorsByTenantID(abp.session.tenantId).subscribe({
+      next: (res) => {
+        this.doctorList = res.items;
+      }, error: (err) => {
+      }
+    })
+  }
+  LoadNurse() {
+    this._nurseService.getAllNursesByTenantID(abp.session.tenantId).subscribe({
+      next: (res) => {
+        this.nurseList = res.items;
+      }, error: (err) => {
+      }
+    })
+  }
+// nurseList = [
+//   { id: 1, name: 'Nurse A' },
+//   { id: 2, name: 'Nurse B' }
+// ];
+
+// doctorList = [
+//   { id: 101, name: 'Dr. John' },
+//   { id: 102, name: 'Dr. Smith' }
+// ];
 
  onInputChange() {
     this.patientDataChange.emit(this.patient);

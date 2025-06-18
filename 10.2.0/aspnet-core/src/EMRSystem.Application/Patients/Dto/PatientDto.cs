@@ -34,6 +34,6 @@ namespace EMRSystem.Patients.Dto
         public UserDto AbpUser { get; set; }
         public DoctorDto Doctors { get; set; }
         public List<PrescriptionDto> Prescriptions { get; set; }
-        public List<VitalDto> Vitals { get; set; }
+        //public List<VitalDto> Vitals { get; set; }
     }
 }
