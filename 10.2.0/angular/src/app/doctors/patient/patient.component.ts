@@ -68,7 +68,6 @@ export class PatientComponent extends PagedListingComponentBase<PatientDto> {
                 })
             )
             .subscribe((result: PatientDtoPagedResultDto) => {
-                debugger
                 this.primengTableHelper.records = result.items;
                 this.primengTableHelper.totalRecordsCount = result.totalCount;
                 this.primengTableHelper.hideLoadingIndicator();

@@ -68,7 +68,6 @@ export class VitalsNotesComponent extends PagedListingComponentBase<VitalDto> {
                 })
             )
             .subscribe((result: VitalDtoPagedResultDto) => {
-                debugger
                 this.primengTableHelper.records = result.items;
                 this.primengTableHelper.totalRecordsCount = result.totalCount;
                 this.primengTableHelper.hideLoadingIndicator();

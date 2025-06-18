@@ -153,6 +153,67 @@ export class AppointmentServiceProxy {
     }
 
     /**
+     * @param patientId (optional) 
+     * @param doctorId (optional) 
+     * @return OK
+     */
+    getPatientAppointment(patientId: number | undefined, doctorId: number | undefined): Observable<AppointmentDtoListResultDto> {
+        let url_ = this.baseUrl + "/api/services/app/Appointment/GetPatientAppointment?";
+        if (patientId === null)
+            throw new Error("The parameter 'patientId' cannot be null.");
+        else if (patientId !== undefined)
+            url_ += "patientId=" + encodeURIComponent("" + patientId) + "&";
+        if (doctorId === null)
+            throw new Error("The parameter 'doctorId' cannot be null.");
+        else if (doctorId !== undefined)
+            url_ += "doctorId=" + encodeURIComponent("" + doctorId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetPatientAppointment(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetPatientAppointment(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<AppointmentDtoListResultDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<AppointmentDtoListResultDto>;
+        }));
+    }
+
+    protected processGetPatientAppointment(response: HttpResponseBase): Observable<AppointmentDtoListResultDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = AppointmentDtoListResultDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * @param id (optional) 
      * @return OK
      */
@@ -858,6 +919,62 @@ export class DoctorServiceProxy {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = DoctorDtoListResultDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param abpUserId (optional) 
+     * @return OK
+     */
+    getDoctorDetailsByAbpUserID(abpUserId: number | undefined): Observable<Doctor> {
+        let url_ = this.baseUrl + "/api/services/app/Doctor/GetDoctorDetailsByAbpUserID?";
+        if (abpUserId === null)
+            throw new Error("The parameter 'abpUserId' cannot be null.");
+        else if (abpUserId !== undefined)
+            url_ += "abpUserId=" + encodeURIComponent("" + abpUserId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetDoctorDetailsByAbpUserID(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetDoctorDetailsByAbpUserID(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<Doctor>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<Doctor>;
+        }));
+    }
+
+    protected processGetDoctorDetailsByAbpUserID(response: HttpResponseBase): Observable<Doctor> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Doctor.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -3056,6 +3173,304 @@ export class PrescriptionServiceProxy {
 }
 
 @Injectable()
+export class PrescriptionItemsServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    get(id: number | undefined): Observable<PrescriptionItemDto> {
+        let url_ = this.baseUrl + "/api/services/app/PrescriptionItems/Get?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGet(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PrescriptionItemDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PrescriptionItemDto>;
+        }));
+    }
+
+    protected processGet(response: HttpResponseBase): Observable<PrescriptionItemDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PrescriptionItemDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param sorting (optional) 
+     * @param skipCount (optional) 
+     * @param maxResultCount (optional) 
+     * @return OK
+     */
+    getAll(sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<PrescriptionItemDtoPagedResultDto> {
+        let url_ = this.baseUrl + "/api/services/app/PrescriptionItems/GetAll?";
+        if (sorting === null)
+            throw new Error("The parameter 'sorting' cannot be null.");
+        else if (sorting !== undefined)
+            url_ += "Sorting=" + encodeURIComponent("" + sorting) + "&";
+        if (skipCount === null)
+            throw new Error("The parameter 'skipCount' cannot be null.");
+        else if (skipCount !== undefined)
+            url_ += "SkipCount=" + encodeURIComponent("" + skipCount) + "&";
+        if (maxResultCount === null)
+            throw new Error("The parameter 'maxResultCount' cannot be null.");
+        else if (maxResultCount !== undefined)
+            url_ += "MaxResultCount=" + encodeURIComponent("" + maxResultCount) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAll(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAll(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PrescriptionItemDtoPagedResultDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PrescriptionItemDtoPagedResultDto>;
+        }));
+    }
+
+    protected processGetAll(response: HttpResponseBase): Observable<PrescriptionItemDtoPagedResultDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PrescriptionItemDtoPagedResultDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    create(body: CreateUpdatePrescriptionItemDto | undefined): Observable<PrescriptionItemDto> {
+        let url_ = this.baseUrl + "/api/services/app/PrescriptionItems/Create";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PrescriptionItemDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PrescriptionItemDto>;
+        }));
+    }
+
+    protected processCreate(response: HttpResponseBase): Observable<PrescriptionItemDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PrescriptionItemDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    update(body: CreateUpdatePrescriptionItemDto | undefined): Observable<PrescriptionItemDto> {
+        let url_ = this.baseUrl + "/api/services/app/PrescriptionItems/Update";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PrescriptionItemDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PrescriptionItemDto>;
+        }));
+    }
+
+    protected processUpdate(response: HttpResponseBase): Observable<PrescriptionItemDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PrescriptionItemDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    delete(id: number | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/PrescriptionItems/Delete?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDelete(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDelete(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDelete(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
 export class RoleServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -4950,14 +5365,115 @@ export interface IApplicationInfoDto {
     features: { [key: string]: boolean; } | undefined;
 }
 
+export class Appointment implements IAppointment {
+    id: number;
+    tenantId: number;
+    appointmentDate: moment.Moment;
+    appointmentTimeSlot: string | undefined;
+    reasonForVisit: string | undefined;
+    status: AppointmentStatus;
+    isFollowUp: boolean;
+    patientId: number;
+    patient: Patient;
+    doctorId: number;
+    doctor: Doctor;
+    nurseId: number | undefined;
+    nurse: Nurse;
+    prescriptions: Prescription[] | undefined;
+
+    constructor(data?: IAppointment) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.appointmentDate = _data["appointmentDate"] ? moment(_data["appointmentDate"].toString()) : <any>undefined;
+            this.appointmentTimeSlot = _data["appointmentTimeSlot"];
+            this.reasonForVisit = _data["reasonForVisit"];
+            this.status = _data["status"];
+            this.isFollowUp = _data["isFollowUp"];
+            this.patientId = _data["patientId"];
+            this.patient = _data["patient"] ? Patient.fromJS(_data["patient"]) : <any>undefined;
+            this.doctorId = _data["doctorId"];
+            this.doctor = _data["doctor"] ? Doctor.fromJS(_data["doctor"]) : <any>undefined;
+            this.nurseId = _data["nurseId"];
+            this.nurse = _data["nurse"] ? Nurse.fromJS(_data["nurse"]) : <any>undefined;
+            if (Array.isArray(_data["prescriptions"])) {
+                this.prescriptions = [] as any;
+                for (let item of _data["prescriptions"])
+                    this.prescriptions.push(Prescription.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): Appointment {
+        data = typeof data === 'object' ? data : {};
+        let result = new Appointment();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["appointmentDate"] = this.appointmentDate ? this.appointmentDate.toISOString() : <any>undefined;
+        data["appointmentTimeSlot"] = this.appointmentTimeSlot;
+        data["reasonForVisit"] = this.reasonForVisit;
+        data["status"] = this.status;
+        data["isFollowUp"] = this.isFollowUp;
+        data["patientId"] = this.patientId;
+        data["patient"] = this.patient ? this.patient.toJSON() : <any>undefined;
+        data["doctorId"] = this.doctorId;
+        data["doctor"] = this.doctor ? this.doctor.toJSON() : <any>undefined;
+        data["nurseId"] = this.nurseId;
+        data["nurse"] = this.nurse ? this.nurse.toJSON() : <any>undefined;
+        if (Array.isArray(this.prescriptions)) {
+            data["prescriptions"] = [];
+            for (let item of this.prescriptions)
+                data["prescriptions"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): Appointment {
+        const json = this.toJSON();
+        let result = new Appointment();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IAppointment {
+    id: number;
+    tenantId: number;
+    appointmentDate: moment.Moment;
+    appointmentTimeSlot: string | undefined;
+    reasonForVisit: string | undefined;
+    status: AppointmentStatus;
+    isFollowUp: boolean;
+    patientId: number;
+    patient: Patient;
+    doctorId: number;
+    doctor: Doctor;
+    nurseId: number | undefined;
+    nurse: Nurse;
+    prescriptions: Prescription[] | undefined;
+}
+
 export class AppointmentDto implements IAppointmentDto {
     id: number;
     tenantId: number;
     appointmentDate: moment.Moment;
     appointmentTimeSlot: string | undefined;
     reasonForVisit: string | undefined;
-    patientName: string | undefined;
-    doctorName: string | undefined;
     status: AppointmentStatus;
     isFollowUp: boolean;
     patient: PatientDto;
@@ -4981,8 +5497,6 @@ export class AppointmentDto implements IAppointmentDto {
             this.appointmentDate = _data["appointmentDate"] ? moment(_data["appointmentDate"].toString()) : <any>undefined;
             this.appointmentTimeSlot = _data["appointmentTimeSlot"];
             this.reasonForVisit = _data["reasonForVisit"];
-            this.patientName = _data["patientName"];
-            this.doctorName = _data["doctorName"];
             this.status = _data["status"];
             this.isFollowUp = _data["isFollowUp"];
             this.patient = _data["patient"] ? PatientDto.fromJS(_data["patient"]) : <any>undefined;
@@ -5010,8 +5524,6 @@ export class AppointmentDto implements IAppointmentDto {
         data["appointmentDate"] = this.appointmentDate ? this.appointmentDate.toISOString() : <any>undefined;
         data["appointmentTimeSlot"] = this.appointmentTimeSlot;
         data["reasonForVisit"] = this.reasonForVisit;
-        data["patientName"] = this.patientName;
-        data["doctorName"] = this.doctorName;
         data["status"] = this.status;
         data["isFollowUp"] = this.isFollowUp;
         data["patient"] = this.patient ? this.patient.toJSON() : <any>undefined;
@@ -5039,14 +5551,63 @@ export interface IAppointmentDto {
     appointmentDate: moment.Moment;
     appointmentTimeSlot: string | undefined;
     reasonForVisit: string | undefined;
-    patientName: string | undefined;
-    doctorName: string | undefined;
     status: AppointmentStatus;
     isFollowUp: boolean;
     patient: PatientDto;
     doctor: DoctorDto;
     nurse: NurseDto;
     prescriptions: PrescriptionDto[] | undefined;
+}
+
+export class AppointmentDtoListResultDto implements IAppointmentDtoListResultDto {
+    items: AppointmentDto[] | undefined;
+
+    constructor(data?: IAppointmentDtoListResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(AppointmentDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): AppointmentDtoListResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new AppointmentDtoListResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): AppointmentDtoListResultDto {
+        const json = this.toJSON();
+        let result = new AppointmentDtoListResultDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IAppointmentDtoListResultDto {
+    items: AppointmentDto[] | undefined;
 }
 
 export class AppointmentDtoPagedResultDto implements IAppointmentDtoPagedResultDto {
@@ -5216,6 +5777,168 @@ export interface IAuthenticateResultModel {
     encryptedAccessToken: string | undefined;
     expireInSeconds: number;
     userId: number;
+}
+
+export class Bill implements IBill {
+    id: number;
+    tenantId: number;
+    patientId: number;
+    billDate: moment.Moment;
+    admissionDate: moment.Moment;
+    dateOfSurgery: moment.Moment;
+    totalAmount: number;
+    paymentStatus: PaymentStatus;
+    paymentMethod: string | undefined;
+    items: BillItem[] | undefined;
+    abpUserId: number;
+    abpUser: User;
+
+    constructor(data?: IBill) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.patientId = _data["patientId"];
+            this.billDate = _data["billDate"] ? moment(_data["billDate"].toString()) : <any>undefined;
+            this.admissionDate = _data["admissionDate"] ? moment(_data["admissionDate"].toString()) : <any>undefined;
+            this.dateOfSurgery = _data["dateOfSurgery"] ? moment(_data["dateOfSurgery"].toString()) : <any>undefined;
+            this.totalAmount = _data["totalAmount"];
+            this.paymentStatus = _data["paymentStatus"];
+            this.paymentMethod = _data["paymentMethod"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(BillItem.fromJS(item));
+            }
+            this.abpUserId = _data["abpUserId"];
+            this.abpUser = _data["abpUser"] ? User.fromJS(_data["abpUser"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): Bill {
+        data = typeof data === 'object' ? data : {};
+        let result = new Bill();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["patientId"] = this.patientId;
+        data["billDate"] = this.billDate ? this.billDate.toISOString() : <any>undefined;
+        data["admissionDate"] = this.admissionDate ? this.admissionDate.toISOString() : <any>undefined;
+        data["dateOfSurgery"] = this.dateOfSurgery ? this.dateOfSurgery.toISOString() : <any>undefined;
+        data["totalAmount"] = this.totalAmount;
+        data["paymentStatus"] = this.paymentStatus;
+        data["paymentMethod"] = this.paymentMethod;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["abpUserId"] = this.abpUserId;
+        data["abpUser"] = this.abpUser ? this.abpUser.toJSON() : <any>undefined;
+        return data;
+    }
+
+    clone(): Bill {
+        const json = this.toJSON();
+        let result = new Bill();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IBill {
+    id: number;
+    tenantId: number;
+    patientId: number;
+    billDate: moment.Moment;
+    admissionDate: moment.Moment;
+    dateOfSurgery: moment.Moment;
+    totalAmount: number;
+    paymentStatus: PaymentStatus;
+    paymentMethod: string | undefined;
+    items: BillItem[] | undefined;
+    abpUserId: number;
+    abpUser: User;
+}
+
+export class BillItem implements IBillItem {
+    id: number;
+    description: string | undefined;
+    quntity: number;
+    unitPrice: number;
+    amount: number;
+    billId: number;
+    bill: Bill;
+
+    constructor(data?: IBillItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.description = _data["description"];
+            this.quntity = _data["quntity"];
+            this.unitPrice = _data["unitPrice"];
+            this.amount = _data["amount"];
+            this.billId = _data["billId"];
+            this.bill = _data["bill"] ? Bill.fromJS(_data["bill"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): BillItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new BillItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["description"] = this.description;
+        data["quntity"] = this.quntity;
+        data["unitPrice"] = this.unitPrice;
+        data["amount"] = this.amount;
+        data["billId"] = this.billId;
+        data["bill"] = this.bill ? this.bill.toJSON() : <any>undefined;
+        return data;
+    }
+
+    clone(): BillItem {
+        const json = this.toJSON();
+        let result = new BillItem();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IBillItem {
+    id: number;
+    description: string | undefined;
+    quntity: number;
+    unitPrice: number;
+    amount: number;
+    billId: number;
+    bill: Bill;
 }
 
 export class BillItemDto implements IBillItemDto {
@@ -6449,6 +7172,77 @@ export interface ICreateUpdatePrescriptionDto {
     items: PrescriptionItemDto[] | undefined;
 }
 
+export class CreateUpdatePrescriptionItemDto implements ICreateUpdatePrescriptionItemDto {
+    id: number;
+    tenantId: number;
+    medicineName: string | undefined;
+    dosage: string | undefined;
+    frequency: string | undefined;
+    duration: string | undefined;
+    instructions: string | undefined;
+    prescriptionId: number;
+
+    constructor(data?: ICreateUpdatePrescriptionItemDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.medicineName = _data["medicineName"];
+            this.dosage = _data["dosage"];
+            this.frequency = _data["frequency"];
+            this.duration = _data["duration"];
+            this.instructions = _data["instructions"];
+            this.prescriptionId = _data["prescriptionId"];
+        }
+    }
+
+    static fromJS(data: any): CreateUpdatePrescriptionItemDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateUpdatePrescriptionItemDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["medicineName"] = this.medicineName;
+        data["dosage"] = this.dosage;
+        data["frequency"] = this.frequency;
+        data["duration"] = this.duration;
+        data["instructions"] = this.instructions;
+        data["prescriptionId"] = this.prescriptionId;
+        return data;
+    }
+
+    clone(): CreateUpdatePrescriptionItemDto {
+        const json = this.toJSON();
+        let result = new CreateUpdatePrescriptionItemDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ICreateUpdatePrescriptionItemDto {
+    id: number;
+    tenantId: number;
+    medicineName: string | undefined;
+    dosage: string | undefined;
+    frequency: string | undefined;
+    duration: string | undefined;
+    instructions: string | undefined;
+    prescriptionId: number;
+}
+
 export class CreateUpdateVitalDto implements ICreateUpdateVitalDto {
     id: number;
     tenantId: number;
@@ -6617,6 +7411,129 @@ export interface ICreateUserDto {
     isActive: boolean;
     roleNames: string[] | undefined;
     password: string;
+}
+
+export class Doctor implements IDoctor {
+    id: number;
+    tenantId: number;
+    fullName: string | undefined;
+    gender: string | undefined;
+    specialization: string | undefined;
+    qualification: string | undefined;
+    yearsOfExperience: number;
+    department: string | undefined;
+    registrationNumber: string | undefined;
+    dateOfBirth: moment.Moment | undefined;
+    abpUserId: number;
+    abpUser: User;
+    patients: Patient[] | undefined;
+    prescriptions: Prescription[] | undefined;
+    appointments: Appointment[] | undefined;
+
+    constructor(data?: IDoctor) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.fullName = _data["fullName"];
+            this.gender = _data["gender"];
+            this.specialization = _data["specialization"];
+            this.qualification = _data["qualification"];
+            this.yearsOfExperience = _data["yearsOfExperience"];
+            this.department = _data["department"];
+            this.registrationNumber = _data["registrationNumber"];
+            this.dateOfBirth = _data["dateOfBirth"] ? moment(_data["dateOfBirth"].toString()) : <any>undefined;
+            this.abpUserId = _data["abpUserId"];
+            this.abpUser = _data["abpUser"] ? User.fromJS(_data["abpUser"]) : <any>undefined;
+            if (Array.isArray(_data["patients"])) {
+                this.patients = [] as any;
+                for (let item of _data["patients"])
+                    this.patients.push(Patient.fromJS(item));
+            }
+            if (Array.isArray(_data["prescriptions"])) {
+                this.prescriptions = [] as any;
+                for (let item of _data["prescriptions"])
+                    this.prescriptions.push(Prescription.fromJS(item));
+            }
+            if (Array.isArray(_data["appointments"])) {
+                this.appointments = [] as any;
+                for (let item of _data["appointments"])
+                    this.appointments.push(Appointment.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): Doctor {
+        data = typeof data === 'object' ? data : {};
+        let result = new Doctor();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["fullName"] = this.fullName;
+        data["gender"] = this.gender;
+        data["specialization"] = this.specialization;
+        data["qualification"] = this.qualification;
+        data["yearsOfExperience"] = this.yearsOfExperience;
+        data["department"] = this.department;
+        data["registrationNumber"] = this.registrationNumber;
+        data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
+        data["abpUserId"] = this.abpUserId;
+        data["abpUser"] = this.abpUser ? this.abpUser.toJSON() : <any>undefined;
+        if (Array.isArray(this.patients)) {
+            data["patients"] = [];
+            for (let item of this.patients)
+                data["patients"].push(item.toJSON());
+        }
+        if (Array.isArray(this.prescriptions)) {
+            data["prescriptions"] = [];
+            for (let item of this.prescriptions)
+                data["prescriptions"].push(item.toJSON());
+        }
+        if (Array.isArray(this.appointments)) {
+            data["appointments"] = [];
+            for (let item of this.appointments)
+                data["appointments"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): Doctor {
+        const json = this.toJSON();
+        let result = new Doctor();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IDoctor {
+    id: number;
+    tenantId: number;
+    fullName: string | undefined;
+    gender: string | undefined;
+    specialization: string | undefined;
+    qualification: string | undefined;
+    yearsOfExperience: number;
+    department: string | undefined;
+    registrationNumber: string | undefined;
+    dateOfBirth: moment.Moment | undefined;
+    abpUserId: number;
+    abpUser: User;
+    patients: Patient[] | undefined;
+    prescriptions: Prescription[] | undefined;
+    appointments: Appointment[] | undefined;
 }
 
 export class DoctorDto implements IDoctorDto {
@@ -7142,6 +8059,109 @@ export enum LabDepartment {
     _4 = 4,
 }
 
+export class LabReport implements ILabReport {
+    id: number;
+    creationTime: moment.Moment;
+    creatorUserId: number | undefined;
+    lastModificationTime: moment.Moment | undefined;
+    lastModifierUserId: number | undefined;
+    isDeleted: boolean;
+    deleterUserId: number | undefined;
+    deletionTime: moment.Moment | undefined;
+    tenantId: number;
+    patientId: number;
+    testName: string | undefined;
+    resultSummary: string | undefined;
+    remarks: string | undefined;
+    status: LabReportStatus;
+    labTechnicianId: number;
+    labTechnicians: LabTechnician;
+
+    constructor(data?: ILabReport) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.creationTime = _data["creationTime"] ? moment(_data["creationTime"].toString()) : <any>undefined;
+            this.creatorUserId = _data["creatorUserId"];
+            this.lastModificationTime = _data["lastModificationTime"] ? moment(_data["lastModificationTime"].toString()) : <any>undefined;
+            this.lastModifierUserId = _data["lastModifierUserId"];
+            this.isDeleted = _data["isDeleted"];
+            this.deleterUserId = _data["deleterUserId"];
+            this.deletionTime = _data["deletionTime"] ? moment(_data["deletionTime"].toString()) : <any>undefined;
+            this.tenantId = _data["tenantId"];
+            this.patientId = _data["patientId"];
+            this.testName = _data["testName"];
+            this.resultSummary = _data["resultSummary"];
+            this.remarks = _data["remarks"];
+            this.status = _data["status"];
+            this.labTechnicianId = _data["labTechnicianId"];
+            this.labTechnicians = _data["labTechnicians"] ? LabTechnician.fromJS(_data["labTechnicians"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): LabReport {
+        data = typeof data === 'object' ? data : {};
+        let result = new LabReport();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["creationTime"] = this.creationTime ? this.creationTime.toISOString() : <any>undefined;
+        data["creatorUserId"] = this.creatorUserId;
+        data["lastModificationTime"] = this.lastModificationTime ? this.lastModificationTime.toISOString() : <any>undefined;
+        data["lastModifierUserId"] = this.lastModifierUserId;
+        data["isDeleted"] = this.isDeleted;
+        data["deleterUserId"] = this.deleterUserId;
+        data["deletionTime"] = this.deletionTime ? this.deletionTime.toISOString() : <any>undefined;
+        data["tenantId"] = this.tenantId;
+        data["patientId"] = this.patientId;
+        data["testName"] = this.testName;
+        data["resultSummary"] = this.resultSummary;
+        data["remarks"] = this.remarks;
+        data["status"] = this.status;
+        data["labTechnicianId"] = this.labTechnicianId;
+        data["labTechnicians"] = this.labTechnicians ? this.labTechnicians.toJSON() : <any>undefined;
+        return data;
+    }
+
+    clone(): LabReport {
+        const json = this.toJSON();
+        let result = new LabReport();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ILabReport {
+    id: number;
+    creationTime: moment.Moment;
+    creatorUserId: number | undefined;
+    lastModificationTime: moment.Moment | undefined;
+    lastModifierUserId: number | undefined;
+    isDeleted: boolean;
+    deleterUserId: number | undefined;
+    deletionTime: moment.Moment | undefined;
+    tenantId: number;
+    patientId: number;
+    testName: string | undefined;
+    resultSummary: string | undefined;
+    remarks: string | undefined;
+    status: LabReportStatus;
+    labTechnicianId: number;
+    labTechnicians: LabTechnician;
+}
+
 export class LabReportDto implements ILabReportDto {
     id: number;
     tenantId: number;
@@ -7271,6 +8291,101 @@ export interface ILabReportDtoPagedResultDto {
 export enum LabReportStatus {
     _0 = 0,
     _1 = 1,
+}
+
+export class LabTechnician implements ILabTechnician {
+    id: number;
+    tenantId: number;
+    fullName: string | undefined;
+    gender: string | undefined;
+    qualification: string | undefined;
+    yearsOfExperience: number;
+    department: LabDepartment;
+    certificationNumber: string | undefined;
+    dateOfBirth: moment.Moment | undefined;
+    abpUserId: number;
+    abpUser: User;
+    labReports: LabReport[] | undefined;
+
+    constructor(data?: ILabTechnician) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.fullName = _data["fullName"];
+            this.gender = _data["gender"];
+            this.qualification = _data["qualification"];
+            this.yearsOfExperience = _data["yearsOfExperience"];
+            this.department = _data["department"];
+            this.certificationNumber = _data["certificationNumber"];
+            this.dateOfBirth = _data["dateOfBirth"] ? moment(_data["dateOfBirth"].toString()) : <any>undefined;
+            this.abpUserId = _data["abpUserId"];
+            this.abpUser = _data["abpUser"] ? User.fromJS(_data["abpUser"]) : <any>undefined;
+            if (Array.isArray(_data["labReports"])) {
+                this.labReports = [] as any;
+                for (let item of _data["labReports"])
+                    this.labReports.push(LabReport.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): LabTechnician {
+        data = typeof data === 'object' ? data : {};
+        let result = new LabTechnician();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["fullName"] = this.fullName;
+        data["gender"] = this.gender;
+        data["qualification"] = this.qualification;
+        data["yearsOfExperience"] = this.yearsOfExperience;
+        data["department"] = this.department;
+        data["certificationNumber"] = this.certificationNumber;
+        data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
+        data["abpUserId"] = this.abpUserId;
+        data["abpUser"] = this.abpUser ? this.abpUser.toJSON() : <any>undefined;
+        if (Array.isArray(this.labReports)) {
+            data["labReports"] = [];
+            for (let item of this.labReports)
+                data["labReports"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): LabTechnician {
+        const json = this.toJSON();
+        let result = new LabTechnician();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ILabTechnician {
+    id: number;
+    tenantId: number;
+    fullName: string | undefined;
+    gender: string | undefined;
+    qualification: string | undefined;
+    yearsOfExperience: number;
+    department: LabDepartment;
+    certificationNumber: string | undefined;
+    dateOfBirth: moment.Moment | undefined;
+    abpUserId: number;
+    abpUser: User;
+    labReports: LabReport[] | undefined;
 }
 
 export class LabTechniciansDto implements ILabTechniciansDto {
@@ -7417,6 +8532,113 @@ export class LabTechniciansDtoPagedResultDto implements ILabTechniciansDtoPagedR
 export interface ILabTechniciansDtoPagedResultDto {
     items: LabTechniciansDto[] | undefined;
     totalCount: number;
+}
+
+export class Nurse implements INurse {
+    id: number;
+    tenantId: number;
+    fullName: string | undefined;
+    gender: string | undefined;
+    shiftTiming: string | undefined;
+    department: string | undefined;
+    qualification: string | undefined;
+    yearsOfExperience: number;
+    dateOfBirth: moment.Moment | undefined;
+    abpUserId: number;
+    abpUser: User;
+    vitals: Vital[] | undefined;
+    appointments: Appointment[] | undefined;
+
+    constructor(data?: INurse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.fullName = _data["fullName"];
+            this.gender = _data["gender"];
+            this.shiftTiming = _data["shiftTiming"];
+            this.department = _data["department"];
+            this.qualification = _data["qualification"];
+            this.yearsOfExperience = _data["yearsOfExperience"];
+            this.dateOfBirth = _data["dateOfBirth"] ? moment(_data["dateOfBirth"].toString()) : <any>undefined;
+            this.abpUserId = _data["abpUserId"];
+            this.abpUser = _data["abpUser"] ? User.fromJS(_data["abpUser"]) : <any>undefined;
+            if (Array.isArray(_data["vitals"])) {
+                this.vitals = [] as any;
+                for (let item of _data["vitals"])
+                    this.vitals.push(Vital.fromJS(item));
+            }
+            if (Array.isArray(_data["appointments"])) {
+                this.appointments = [] as any;
+                for (let item of _data["appointments"])
+                    this.appointments.push(Appointment.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): Nurse {
+        data = typeof data === 'object' ? data : {};
+        let result = new Nurse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["fullName"] = this.fullName;
+        data["gender"] = this.gender;
+        data["shiftTiming"] = this.shiftTiming;
+        data["department"] = this.department;
+        data["qualification"] = this.qualification;
+        data["yearsOfExperience"] = this.yearsOfExperience;
+        data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
+        data["abpUserId"] = this.abpUserId;
+        data["abpUser"] = this.abpUser ? this.abpUser.toJSON() : <any>undefined;
+        if (Array.isArray(this.vitals)) {
+            data["vitals"] = [];
+            for (let item of this.vitals)
+                data["vitals"].push(item.toJSON());
+        }
+        if (Array.isArray(this.appointments)) {
+            data["appointments"] = [];
+            for (let item of this.appointments)
+                data["appointments"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): Nurse {
+        const json = this.toJSON();
+        let result = new Nurse();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface INurse {
+    id: number;
+    tenantId: number;
+    fullName: string | undefined;
+    gender: string | undefined;
+    shiftTiming: string | undefined;
+    department: string | undefined;
+    qualification: string | undefined;
+    yearsOfExperience: number;
+    dateOfBirth: moment.Moment | undefined;
+    abpUserId: number;
+    abpUser: User;
+    vitals: Vital[] | undefined;
+    appointments: Appointment[] | undefined;
 }
 
 export class NurseDto implements INurseDto {
@@ -7622,6 +8844,157 @@ export class NurseDtoPagedResultDto implements INurseDtoPagedResultDto {
 export interface INurseDtoPagedResultDto {
     items: NurseDto[] | undefined;
     totalCount: number;
+}
+
+export class Patient implements IPatient {
+    id: number;
+    tenantId: number;
+    fullName: string | undefined;
+    dateOfBirth: moment.Moment;
+    gender: string | undefined;
+    address: string | undefined;
+    bloodGroup: string | undefined;
+    emergencyContactName: string | undefined;
+    emergencyContactNumber: string | undefined;
+    assignedNurseId: number | undefined;
+    isAdmitted: boolean;
+    admissionDate: moment.Moment | undefined;
+    dischargeDate: moment.Moment | undefined;
+    insuranceProvider: string | undefined;
+    insurancePolicyNumber: string | undefined;
+    abpUserId: number;
+    abpUser: User;
+    assignedDoctorId: number | undefined;
+    doctors: Doctor;
+    prescriptions: Prescription[] | undefined;
+    vitals: Vital[] | undefined;
+    appointments: Appointment[] | undefined;
+
+    constructor(data?: IPatient) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.fullName = _data["fullName"];
+            this.dateOfBirth = _data["dateOfBirth"] ? moment(_data["dateOfBirth"].toString()) : <any>undefined;
+            this.gender = _data["gender"];
+            this.address = _data["address"];
+            this.bloodGroup = _data["bloodGroup"];
+            this.emergencyContactName = _data["emergencyContactName"];
+            this.emergencyContactNumber = _data["emergencyContactNumber"];
+            this.assignedNurseId = _data["assignedNurseId"];
+            this.isAdmitted = _data["isAdmitted"];
+            this.admissionDate = _data["admissionDate"] ? moment(_data["admissionDate"].toString()) : <any>undefined;
+            this.dischargeDate = _data["dischargeDate"] ? moment(_data["dischargeDate"].toString()) : <any>undefined;
+            this.insuranceProvider = _data["insuranceProvider"];
+            this.insurancePolicyNumber = _data["insurancePolicyNumber"];
+            this.abpUserId = _data["abpUserId"];
+            this.abpUser = _data["abpUser"] ? User.fromJS(_data["abpUser"]) : <any>undefined;
+            this.assignedDoctorId = _data["assignedDoctorId"];
+            this.doctors = _data["doctors"] ? Doctor.fromJS(_data["doctors"]) : <any>undefined;
+            if (Array.isArray(_data["prescriptions"])) {
+                this.prescriptions = [] as any;
+                for (let item of _data["prescriptions"])
+                    this.prescriptions.push(Prescription.fromJS(item));
+            }
+            if (Array.isArray(_data["vitals"])) {
+                this.vitals = [] as any;
+                for (let item of _data["vitals"])
+                    this.vitals.push(Vital.fromJS(item));
+            }
+            if (Array.isArray(_data["appointments"])) {
+                this.appointments = [] as any;
+                for (let item of _data["appointments"])
+                    this.appointments.push(Appointment.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): Patient {
+        data = typeof data === 'object' ? data : {};
+        let result = new Patient();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["fullName"] = this.fullName;
+        data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
+        data["gender"] = this.gender;
+        data["address"] = this.address;
+        data["bloodGroup"] = this.bloodGroup;
+        data["emergencyContactName"] = this.emergencyContactName;
+        data["emergencyContactNumber"] = this.emergencyContactNumber;
+        data["assignedNurseId"] = this.assignedNurseId;
+        data["isAdmitted"] = this.isAdmitted;
+        data["admissionDate"] = this.admissionDate ? this.admissionDate.toISOString() : <any>undefined;
+        data["dischargeDate"] = this.dischargeDate ? this.dischargeDate.toISOString() : <any>undefined;
+        data["insuranceProvider"] = this.insuranceProvider;
+        data["insurancePolicyNumber"] = this.insurancePolicyNumber;
+        data["abpUserId"] = this.abpUserId;
+        data["abpUser"] = this.abpUser ? this.abpUser.toJSON() : <any>undefined;
+        data["assignedDoctorId"] = this.assignedDoctorId;
+        data["doctors"] = this.doctors ? this.doctors.toJSON() : <any>undefined;
+        if (Array.isArray(this.prescriptions)) {
+            data["prescriptions"] = [];
+            for (let item of this.prescriptions)
+                data["prescriptions"].push(item.toJSON());
+        }
+        if (Array.isArray(this.vitals)) {
+            data["vitals"] = [];
+            for (let item of this.vitals)
+                data["vitals"].push(item.toJSON());
+        }
+        if (Array.isArray(this.appointments)) {
+            data["appointments"] = [];
+            for (let item of this.appointments)
+                data["appointments"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): Patient {
+        const json = this.toJSON();
+        let result = new Patient();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IPatient {
+    id: number;
+    tenantId: number;
+    fullName: string | undefined;
+    dateOfBirth: moment.Moment;
+    gender: string | undefined;
+    address: string | undefined;
+    bloodGroup: string | undefined;
+    emergencyContactName: string | undefined;
+    emergencyContactNumber: string | undefined;
+    assignedNurseId: number | undefined;
+    isAdmitted: boolean;
+    admissionDate: moment.Moment | undefined;
+    dischargeDate: moment.Moment | undefined;
+    insuranceProvider: string | undefined;
+    insurancePolicyNumber: string | undefined;
+    abpUserId: number;
+    abpUser: User;
+    assignedDoctorId: number | undefined;
+    doctors: Doctor;
+    prescriptions: Prescription[] | undefined;
+    vitals: Vital[] | undefined;
+    appointments: Appointment[] | undefined;
 }
 
 export class PatientDto implements IPatientDto {
@@ -7973,6 +9346,85 @@ export interface IPermissionDtoListResultDto {
     items: PermissionDto[] | undefined;
 }
 
+export class Pharmacist implements IPharmacist {
+    id: number;
+    tenantId: number;
+    fullName: string | undefined;
+    gender: string | undefined;
+    qualification: string | undefined;
+    dateOfBirth: moment.Moment | undefined;
+    licenseNumber: string | undefined;
+    licenseExpiryDate: moment.Moment;
+    abpUserId: number;
+    abpUser: User;
+
+    constructor(data?: IPharmacist) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.fullName = _data["fullName"];
+            this.gender = _data["gender"];
+            this.qualification = _data["qualification"];
+            this.dateOfBirth = _data["dateOfBirth"] ? moment(_data["dateOfBirth"].toString()) : <any>undefined;
+            this.licenseNumber = _data["licenseNumber"];
+            this.licenseExpiryDate = _data["licenseExpiryDate"] ? moment(_data["licenseExpiryDate"].toString()) : <any>undefined;
+            this.abpUserId = _data["abpUserId"];
+            this.abpUser = _data["abpUser"] ? User.fromJS(_data["abpUser"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): Pharmacist {
+        data = typeof data === 'object' ? data : {};
+        let result = new Pharmacist();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["fullName"] = this.fullName;
+        data["gender"] = this.gender;
+        data["qualification"] = this.qualification;
+        data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
+        data["licenseNumber"] = this.licenseNumber;
+        data["licenseExpiryDate"] = this.licenseExpiryDate ? this.licenseExpiryDate.toISOString() : <any>undefined;
+        data["abpUserId"] = this.abpUserId;
+        data["abpUser"] = this.abpUser ? this.abpUser.toJSON() : <any>undefined;
+        return data;
+    }
+
+    clone(): Pharmacist {
+        const json = this.toJSON();
+        let result = new Pharmacist();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IPharmacist {
+    id: number;
+    tenantId: number;
+    fullName: string | undefined;
+    gender: string | undefined;
+    qualification: string | undefined;
+    dateOfBirth: moment.Moment | undefined;
+    licenseNumber: string | undefined;
+    licenseExpiryDate: moment.Moment;
+    abpUserId: number;
+    abpUser: User;
+}
+
 export class PharmacistDto implements IPharmacistDto {
     id: number;
     tenantId: number;
@@ -8101,6 +9553,105 @@ export class PharmacistDtoPagedResultDto implements IPharmacistDtoPagedResultDto
 export interface IPharmacistDtoPagedResultDto {
     items: PharmacistDto[] | undefined;
     totalCount: number;
+}
+
+export class Prescription implements IPrescription {
+    id: number;
+    tenantId: number;
+    diagnosis: string | undefined;
+    notes: string | undefined;
+    issueDate: moment.Moment;
+    isFollowUpRequired: boolean;
+    appointmentId: number;
+    appointment: Appointment;
+    doctorId: number;
+    doctor: Doctor;
+    patientId: number;
+    patient: Patient;
+    items: PrescriptionItem[] | undefined;
+
+    constructor(data?: IPrescription) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.diagnosis = _data["diagnosis"];
+            this.notes = _data["notes"];
+            this.issueDate = _data["issueDate"] ? moment(_data["issueDate"].toString()) : <any>undefined;
+            this.isFollowUpRequired = _data["isFollowUpRequired"];
+            this.appointmentId = _data["appointmentId"];
+            this.appointment = _data["appointment"] ? Appointment.fromJS(_data["appointment"]) : <any>undefined;
+            this.doctorId = _data["doctorId"];
+            this.doctor = _data["doctor"] ? Doctor.fromJS(_data["doctor"]) : <any>undefined;
+            this.patientId = _data["patientId"];
+            this.patient = _data["patient"] ? Patient.fromJS(_data["patient"]) : <any>undefined;
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(PrescriptionItem.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): Prescription {
+        data = typeof data === 'object' ? data : {};
+        let result = new Prescription();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["diagnosis"] = this.diagnosis;
+        data["notes"] = this.notes;
+        data["issueDate"] = this.issueDate ? this.issueDate.toISOString() : <any>undefined;
+        data["isFollowUpRequired"] = this.isFollowUpRequired;
+        data["appointmentId"] = this.appointmentId;
+        data["appointment"] = this.appointment ? this.appointment.toJSON() : <any>undefined;
+        data["doctorId"] = this.doctorId;
+        data["doctor"] = this.doctor ? this.doctor.toJSON() : <any>undefined;
+        data["patientId"] = this.patientId;
+        data["patient"] = this.patient ? this.patient.toJSON() : <any>undefined;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): Prescription {
+        const json = this.toJSON();
+        let result = new Prescription();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IPrescription {
+    id: number;
+    tenantId: number;
+    diagnosis: string | undefined;
+    notes: string | undefined;
+    issueDate: moment.Moment;
+    isFollowUpRequired: boolean;
+    appointmentId: number;
+    appointment: Appointment;
+    doctorId: number;
+    doctor: Doctor;
+    patientId: number;
+    patient: Patient;
+    items: PrescriptionItem[] | undefined;
 }
 
 export class PrescriptionDto implements IPrescriptionDto {
@@ -8245,6 +9796,77 @@ export interface IPrescriptionDtoPagedResultDto {
     totalCount: number;
 }
 
+export class PrescriptionItem implements IPrescriptionItem {
+    id: number;
+    medicineName: string | undefined;
+    dosage: string | undefined;
+    frequency: string | undefined;
+    duration: string | undefined;
+    instructions: string | undefined;
+    prescriptionId: number;
+    prescription: Prescription;
+
+    constructor(data?: IPrescriptionItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.medicineName = _data["medicineName"];
+            this.dosage = _data["dosage"];
+            this.frequency = _data["frequency"];
+            this.duration = _data["duration"];
+            this.instructions = _data["instructions"];
+            this.prescriptionId = _data["prescriptionId"];
+            this.prescription = _data["prescription"] ? Prescription.fromJS(_data["prescription"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): PrescriptionItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new PrescriptionItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["medicineName"] = this.medicineName;
+        data["dosage"] = this.dosage;
+        data["frequency"] = this.frequency;
+        data["duration"] = this.duration;
+        data["instructions"] = this.instructions;
+        data["prescriptionId"] = this.prescriptionId;
+        data["prescription"] = this.prescription ? this.prescription.toJSON() : <any>undefined;
+        return data;
+    }
+
+    clone(): PrescriptionItem {
+        const json = this.toJSON();
+        let result = new PrescriptionItem();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IPrescriptionItem {
+    id: number;
+    medicineName: string | undefined;
+    dosage: string | undefined;
+    frequency: string | undefined;
+    duration: string | undefined;
+    instructions: string | undefined;
+    prescriptionId: number;
+    prescription: Prescription;
+}
+
 export class PrescriptionItemDto implements IPrescriptionItemDto {
     id: number;
     tenantId: number;
@@ -8314,6 +9936,61 @@ export interface IPrescriptionItemDto {
     duration: string | undefined;
     instructions: string | undefined;
     prescription: PrescriptionDto;
+}
+
+export class PrescriptionItemDtoPagedResultDto implements IPrescriptionItemDtoPagedResultDto {
+    items: PrescriptionItemDto[] | undefined;
+    totalCount: number;
+
+    constructor(data?: IPrescriptionItemDtoPagedResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(PrescriptionItemDto.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): PrescriptionItemDtoPagedResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PrescriptionItemDtoPagedResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+
+    clone(): PrescriptionItemDtoPagedResultDto {
+        const json = this.toJSON();
+        let result = new PrescriptionItemDtoPagedResultDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IPrescriptionItemDtoPagedResultDto {
+    items: PrescriptionItemDto[] | undefined;
+    totalCount: number;
 }
 
 export class RegisterInput implements IRegisterInput {
@@ -8823,6 +10500,81 @@ export interface IRoleListDtoListResultDto {
     items: RoleListDto[] | undefined;
 }
 
+export class Setting implements ISetting {
+    id: number;
+    creationTime: moment.Moment;
+    creatorUserId: number | undefined;
+    lastModificationTime: moment.Moment | undefined;
+    lastModifierUserId: number | undefined;
+    tenantId: number | undefined;
+    userId: number | undefined;
+    name: string;
+    value: string | undefined;
+
+    constructor(data?: ISetting) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.creationTime = _data["creationTime"] ? moment(_data["creationTime"].toString()) : <any>undefined;
+            this.creatorUserId = _data["creatorUserId"];
+            this.lastModificationTime = _data["lastModificationTime"] ? moment(_data["lastModificationTime"].toString()) : <any>undefined;
+            this.lastModifierUserId = _data["lastModifierUserId"];
+            this.tenantId = _data["tenantId"];
+            this.userId = _data["userId"];
+            this.name = _data["name"];
+            this.value = _data["value"];
+        }
+    }
+
+    static fromJS(data: any): Setting {
+        data = typeof data === 'object' ? data : {};
+        let result = new Setting();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["creationTime"] = this.creationTime ? this.creationTime.toISOString() : <any>undefined;
+        data["creatorUserId"] = this.creatorUserId;
+        data["lastModificationTime"] = this.lastModificationTime ? this.lastModificationTime.toISOString() : <any>undefined;
+        data["lastModifierUserId"] = this.lastModifierUserId;
+        data["tenantId"] = this.tenantId;
+        data["userId"] = this.userId;
+        data["name"] = this.name;
+        data["value"] = this.value;
+        return data;
+    }
+
+    clone(): Setting {
+        const json = this.toJSON();
+        let result = new Setting();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ISetting {
+    id: number;
+    creationTime: moment.Moment;
+    creatorUserId: number | undefined;
+    lastModificationTime: moment.Moment | undefined;
+    lastModifierUserId: number | undefined;
+    tenantId: number | undefined;
+    userId: number | undefined;
+    name: string;
+    value: string | undefined;
+}
+
 export enum TenantAvailabilityState {
     _1 = 1,
     _2 = 2,
@@ -8990,6 +10742,388 @@ export interface ITenantLoginInfoDto {
     name: string | undefined;
 }
 
+export class User implements IUser {
+    id: number;
+    creationTime: moment.Moment;
+    creatorUserId: number | undefined;
+    lastModificationTime: moment.Moment | undefined;
+    lastModifierUserId: number | undefined;
+    isDeleted: boolean;
+    deleterUserId: number | undefined;
+    deletionTime: moment.Moment | undefined;
+    authenticationSource: string | undefined;
+    userName: string;
+    tenantId: number | undefined;
+    emailAddress: string;
+    name: string;
+    surname: string;
+    readonly fullName: string | undefined;
+    password: string;
+    emailConfirmationCode: string | undefined;
+    passwordResetCode: string | undefined;
+    lockoutEndDateUtc: moment.Moment | undefined;
+    accessFailedCount: number;
+    isLockoutEnabled: boolean;
+    phoneNumber: string | undefined;
+    isPhoneNumberConfirmed: boolean;
+    securityStamp: string | undefined;
+    isTwoFactorEnabled: boolean;
+    logins: UserLogin[] | undefined;
+    roles: UserRole[] | undefined;
+    claims: UserClaim[] | undefined;
+    permissions: UserPermissionSetting[] | undefined;
+    settings: Setting[] | undefined;
+    isEmailConfirmed: boolean;
+    isActive: boolean;
+    normalizedUserName: string;
+    normalizedEmailAddress: string;
+    concurrencyStamp: string | undefined;
+    tokens: UserToken[] | undefined;
+    deleterUser: User;
+    creatorUser: User;
+    lastModifierUser: User;
+    patients: Patient[] | undefined;
+    bills: Bill[] | undefined;
+    doctors: Doctor[] | undefined;
+    nurses: Nurse[] | undefined;
+    pharmacists: Pharmacist[] | undefined;
+    labTechnicians: LabTechnician[] | undefined;
+
+    constructor(data?: IUser) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.creationTime = _data["creationTime"] ? moment(_data["creationTime"].toString()) : <any>undefined;
+            this.creatorUserId = _data["creatorUserId"];
+            this.lastModificationTime = _data["lastModificationTime"] ? moment(_data["lastModificationTime"].toString()) : <any>undefined;
+            this.lastModifierUserId = _data["lastModifierUserId"];
+            this.isDeleted = _data["isDeleted"];
+            this.deleterUserId = _data["deleterUserId"];
+            this.deletionTime = _data["deletionTime"] ? moment(_data["deletionTime"].toString()) : <any>undefined;
+            this.authenticationSource = _data["authenticationSource"];
+            this.userName = _data["userName"];
+            this.tenantId = _data["tenantId"];
+            this.emailAddress = _data["emailAddress"];
+            this.name = _data["name"];
+            this.surname = _data["surname"];
+            (<any>this).fullName = _data["fullName"];
+            this.password = _data["password"];
+            this.emailConfirmationCode = _data["emailConfirmationCode"];
+            this.passwordResetCode = _data["passwordResetCode"];
+            this.lockoutEndDateUtc = _data["lockoutEndDateUtc"] ? moment(_data["lockoutEndDateUtc"].toString()) : <any>undefined;
+            this.accessFailedCount = _data["accessFailedCount"];
+            this.isLockoutEnabled = _data["isLockoutEnabled"];
+            this.phoneNumber = _data["phoneNumber"];
+            this.isPhoneNumberConfirmed = _data["isPhoneNumberConfirmed"];
+            this.securityStamp = _data["securityStamp"];
+            this.isTwoFactorEnabled = _data["isTwoFactorEnabled"];
+            if (Array.isArray(_data["logins"])) {
+                this.logins = [] as any;
+                for (let item of _data["logins"])
+                    this.logins.push(UserLogin.fromJS(item));
+            }
+            if (Array.isArray(_data["roles"])) {
+                this.roles = [] as any;
+                for (let item of _data["roles"])
+                    this.roles.push(UserRole.fromJS(item));
+            }
+            if (Array.isArray(_data["claims"])) {
+                this.claims = [] as any;
+                for (let item of _data["claims"])
+                    this.claims.push(UserClaim.fromJS(item));
+            }
+            if (Array.isArray(_data["permissions"])) {
+                this.permissions = [] as any;
+                for (let item of _data["permissions"])
+                    this.permissions.push(UserPermissionSetting.fromJS(item));
+            }
+            if (Array.isArray(_data["settings"])) {
+                this.settings = [] as any;
+                for (let item of _data["settings"])
+                    this.settings.push(Setting.fromJS(item));
+            }
+            this.isEmailConfirmed = _data["isEmailConfirmed"];
+            this.isActive = _data["isActive"];
+            this.normalizedUserName = _data["normalizedUserName"];
+            this.normalizedEmailAddress = _data["normalizedEmailAddress"];
+            this.concurrencyStamp = _data["concurrencyStamp"];
+            if (Array.isArray(_data["tokens"])) {
+                this.tokens = [] as any;
+                for (let item of _data["tokens"])
+                    this.tokens.push(UserToken.fromJS(item));
+            }
+            this.deleterUser = _data["deleterUser"] ? User.fromJS(_data["deleterUser"]) : <any>undefined;
+            this.creatorUser = _data["creatorUser"] ? User.fromJS(_data["creatorUser"]) : <any>undefined;
+            this.lastModifierUser = _data["lastModifierUser"] ? User.fromJS(_data["lastModifierUser"]) : <any>undefined;
+            if (Array.isArray(_data["patients"])) {
+                this.patients = [] as any;
+                for (let item of _data["patients"])
+                    this.patients.push(Patient.fromJS(item));
+            }
+            if (Array.isArray(_data["bills"])) {
+                this.bills = [] as any;
+                for (let item of _data["bills"])
+                    this.bills.push(Bill.fromJS(item));
+            }
+            if (Array.isArray(_data["doctors"])) {
+                this.doctors = [] as any;
+                for (let item of _data["doctors"])
+                    this.doctors.push(Doctor.fromJS(item));
+            }
+            if (Array.isArray(_data["nurses"])) {
+                this.nurses = [] as any;
+                for (let item of _data["nurses"])
+                    this.nurses.push(Nurse.fromJS(item));
+            }
+            if (Array.isArray(_data["pharmacists"])) {
+                this.pharmacists = [] as any;
+                for (let item of _data["pharmacists"])
+                    this.pharmacists.push(Pharmacist.fromJS(item));
+            }
+            if (Array.isArray(_data["labTechnicians"])) {
+                this.labTechnicians = [] as any;
+                for (let item of _data["labTechnicians"])
+                    this.labTechnicians.push(LabTechnician.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): User {
+        data = typeof data === 'object' ? data : {};
+        let result = new User();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["creationTime"] = this.creationTime ? this.creationTime.toISOString() : <any>undefined;
+        data["creatorUserId"] = this.creatorUserId;
+        data["lastModificationTime"] = this.lastModificationTime ? this.lastModificationTime.toISOString() : <any>undefined;
+        data["lastModifierUserId"] = this.lastModifierUserId;
+        data["isDeleted"] = this.isDeleted;
+        data["deleterUserId"] = this.deleterUserId;
+        data["deletionTime"] = this.deletionTime ? this.deletionTime.toISOString() : <any>undefined;
+        data["authenticationSource"] = this.authenticationSource;
+        data["userName"] = this.userName;
+        data["tenantId"] = this.tenantId;
+        data["emailAddress"] = this.emailAddress;
+        data["name"] = this.name;
+        data["surname"] = this.surname;
+        data["fullName"] = this.fullName;
+        data["password"] = this.password;
+        data["emailConfirmationCode"] = this.emailConfirmationCode;
+        data["passwordResetCode"] = this.passwordResetCode;
+        data["lockoutEndDateUtc"] = this.lockoutEndDateUtc ? this.lockoutEndDateUtc.toISOString() : <any>undefined;
+        data["accessFailedCount"] = this.accessFailedCount;
+        data["isLockoutEnabled"] = this.isLockoutEnabled;
+        data["phoneNumber"] = this.phoneNumber;
+        data["isPhoneNumberConfirmed"] = this.isPhoneNumberConfirmed;
+        data["securityStamp"] = this.securityStamp;
+        data["isTwoFactorEnabled"] = this.isTwoFactorEnabled;
+        if (Array.isArray(this.logins)) {
+            data["logins"] = [];
+            for (let item of this.logins)
+                data["logins"].push(item.toJSON());
+        }
+        if (Array.isArray(this.roles)) {
+            data["roles"] = [];
+            for (let item of this.roles)
+                data["roles"].push(item.toJSON());
+        }
+        if (Array.isArray(this.claims)) {
+            data["claims"] = [];
+            for (let item of this.claims)
+                data["claims"].push(item.toJSON());
+        }
+        if (Array.isArray(this.permissions)) {
+            data["permissions"] = [];
+            for (let item of this.permissions)
+                data["permissions"].push(item.toJSON());
+        }
+        if (Array.isArray(this.settings)) {
+            data["settings"] = [];
+            for (let item of this.settings)
+                data["settings"].push(item.toJSON());
+        }
+        data["isEmailConfirmed"] = this.isEmailConfirmed;
+        data["isActive"] = this.isActive;
+        data["normalizedUserName"] = this.normalizedUserName;
+        data["normalizedEmailAddress"] = this.normalizedEmailAddress;
+        data["concurrencyStamp"] = this.concurrencyStamp;
+        if (Array.isArray(this.tokens)) {
+            data["tokens"] = [];
+            for (let item of this.tokens)
+                data["tokens"].push(item.toJSON());
+        }
+        data["deleterUser"] = this.deleterUser ? this.deleterUser.toJSON() : <any>undefined;
+        data["creatorUser"] = this.creatorUser ? this.creatorUser.toJSON() : <any>undefined;
+        data["lastModifierUser"] = this.lastModifierUser ? this.lastModifierUser.toJSON() : <any>undefined;
+        if (Array.isArray(this.patients)) {
+            data["patients"] = [];
+            for (let item of this.patients)
+                data["patients"].push(item.toJSON());
+        }
+        if (Array.isArray(this.bills)) {
+            data["bills"] = [];
+            for (let item of this.bills)
+                data["bills"].push(item.toJSON());
+        }
+        if (Array.isArray(this.doctors)) {
+            data["doctors"] = [];
+            for (let item of this.doctors)
+                data["doctors"].push(item.toJSON());
+        }
+        if (Array.isArray(this.nurses)) {
+            data["nurses"] = [];
+            for (let item of this.nurses)
+                data["nurses"].push(item.toJSON());
+        }
+        if (Array.isArray(this.pharmacists)) {
+            data["pharmacists"] = [];
+            for (let item of this.pharmacists)
+                data["pharmacists"].push(item.toJSON());
+        }
+        if (Array.isArray(this.labTechnicians)) {
+            data["labTechnicians"] = [];
+            for (let item of this.labTechnicians)
+                data["labTechnicians"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): User {
+        const json = this.toJSON();
+        let result = new User();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IUser {
+    id: number;
+    creationTime: moment.Moment;
+    creatorUserId: number | undefined;
+    lastModificationTime: moment.Moment | undefined;
+    lastModifierUserId: number | undefined;
+    isDeleted: boolean;
+    deleterUserId: number | undefined;
+    deletionTime: moment.Moment | undefined;
+    authenticationSource: string | undefined;
+    userName: string;
+    tenantId: number | undefined;
+    emailAddress: string;
+    name: string;
+    surname: string;
+    fullName: string | undefined;
+    password: string;
+    emailConfirmationCode: string | undefined;
+    passwordResetCode: string | undefined;
+    lockoutEndDateUtc: moment.Moment | undefined;
+    accessFailedCount: number;
+    isLockoutEnabled: boolean;
+    phoneNumber: string | undefined;
+    isPhoneNumberConfirmed: boolean;
+    securityStamp: string | undefined;
+    isTwoFactorEnabled: boolean;
+    logins: UserLogin[] | undefined;
+    roles: UserRole[] | undefined;
+    claims: UserClaim[] | undefined;
+    permissions: UserPermissionSetting[] | undefined;
+    settings: Setting[] | undefined;
+    isEmailConfirmed: boolean;
+    isActive: boolean;
+    normalizedUserName: string;
+    normalizedEmailAddress: string;
+    concurrencyStamp: string | undefined;
+    tokens: UserToken[] | undefined;
+    deleterUser: User;
+    creatorUser: User;
+    lastModifierUser: User;
+    patients: Patient[] | undefined;
+    bills: Bill[] | undefined;
+    doctors: Doctor[] | undefined;
+    nurses: Nurse[] | undefined;
+    pharmacists: Pharmacist[] | undefined;
+    labTechnicians: LabTechnician[] | undefined;
+}
+
+export class UserClaim implements IUserClaim {
+    id: number;
+    creationTime: moment.Moment;
+    creatorUserId: number | undefined;
+    tenantId: number | undefined;
+    userId: number;
+    claimType: string | undefined;
+    claimValue: string | undefined;
+
+    constructor(data?: IUserClaim) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.creationTime = _data["creationTime"] ? moment(_data["creationTime"].toString()) : <any>undefined;
+            this.creatorUserId = _data["creatorUserId"];
+            this.tenantId = _data["tenantId"];
+            this.userId = _data["userId"];
+            this.claimType = _data["claimType"];
+            this.claimValue = _data["claimValue"];
+        }
+    }
+
+    static fromJS(data: any): UserClaim {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserClaim();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["creationTime"] = this.creationTime ? this.creationTime.toISOString() : <any>undefined;
+        data["creatorUserId"] = this.creatorUserId;
+        data["tenantId"] = this.tenantId;
+        data["userId"] = this.userId;
+        data["claimType"] = this.claimType;
+        data["claimValue"] = this.claimValue;
+        return data;
+    }
+
+    clone(): UserClaim {
+        const json = this.toJSON();
+        let result = new UserClaim();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IUserClaim {
+    id: number;
+    creationTime: moment.Moment;
+    creatorUserId: number | undefined;
+    tenantId: number | undefined;
+    userId: number;
+    claimType: string | undefined;
+    claimValue: string | undefined;
+}
+
 export class UserDto implements IUserDto {
     id: number;
     userName: string;
@@ -9132,6 +11266,65 @@ export interface IUserDtoPagedResultDto {
     totalCount: number;
 }
 
+export class UserLogin implements IUserLogin {
+    id: number;
+    tenantId: number | undefined;
+    userId: number;
+    loginProvider: string;
+    providerKey: string;
+
+    constructor(data?: IUserLogin) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.userId = _data["userId"];
+            this.loginProvider = _data["loginProvider"];
+            this.providerKey = _data["providerKey"];
+        }
+    }
+
+    static fromJS(data: any): UserLogin {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserLogin();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["userId"] = this.userId;
+        data["loginProvider"] = this.loginProvider;
+        data["providerKey"] = this.providerKey;
+        return data;
+    }
+
+    clone(): UserLogin {
+        const json = this.toJSON();
+        let result = new UserLogin();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IUserLogin {
+    id: number;
+    tenantId: number | undefined;
+    userId: number;
+    loginProvider: string;
+    providerKey: string;
+}
+
 export class UserLoginInfoDto implements IUserLoginInfoDto {
     id: number;
     name: string | undefined;
@@ -9189,6 +11382,306 @@ export interface IUserLoginInfoDto {
     surname: string | undefined;
     userName: string | undefined;
     emailAddress: string | undefined;
+}
+
+export class UserPermissionSetting implements IUserPermissionSetting {
+    id: number;
+    creationTime: moment.Moment;
+    creatorUserId: number | undefined;
+    tenantId: number | undefined;
+    name: string;
+    isGranted: boolean;
+    userId: number;
+
+    constructor(data?: IUserPermissionSetting) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.creationTime = _data["creationTime"] ? moment(_data["creationTime"].toString()) : <any>undefined;
+            this.creatorUserId = _data["creatorUserId"];
+            this.tenantId = _data["tenantId"];
+            this.name = _data["name"];
+            this.isGranted = _data["isGranted"];
+            this.userId = _data["userId"];
+        }
+    }
+
+    static fromJS(data: any): UserPermissionSetting {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserPermissionSetting();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["creationTime"] = this.creationTime ? this.creationTime.toISOString() : <any>undefined;
+        data["creatorUserId"] = this.creatorUserId;
+        data["tenantId"] = this.tenantId;
+        data["name"] = this.name;
+        data["isGranted"] = this.isGranted;
+        data["userId"] = this.userId;
+        return data;
+    }
+
+    clone(): UserPermissionSetting {
+        const json = this.toJSON();
+        let result = new UserPermissionSetting();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IUserPermissionSetting {
+    id: number;
+    creationTime: moment.Moment;
+    creatorUserId: number | undefined;
+    tenantId: number | undefined;
+    name: string;
+    isGranted: boolean;
+    userId: number;
+}
+
+export class UserRole implements IUserRole {
+    id: number;
+    creationTime: moment.Moment;
+    creatorUserId: number | undefined;
+    tenantId: number | undefined;
+    userId: number;
+    roleId: number;
+
+    constructor(data?: IUserRole) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.creationTime = _data["creationTime"] ? moment(_data["creationTime"].toString()) : <any>undefined;
+            this.creatorUserId = _data["creatorUserId"];
+            this.tenantId = _data["tenantId"];
+            this.userId = _data["userId"];
+            this.roleId = _data["roleId"];
+        }
+    }
+
+    static fromJS(data: any): UserRole {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserRole();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["creationTime"] = this.creationTime ? this.creationTime.toISOString() : <any>undefined;
+        data["creatorUserId"] = this.creatorUserId;
+        data["tenantId"] = this.tenantId;
+        data["userId"] = this.userId;
+        data["roleId"] = this.roleId;
+        return data;
+    }
+
+    clone(): UserRole {
+        const json = this.toJSON();
+        let result = new UserRole();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IUserRole {
+    id: number;
+    creationTime: moment.Moment;
+    creatorUserId: number | undefined;
+    tenantId: number | undefined;
+    userId: number;
+    roleId: number;
+}
+
+export class UserToken implements IUserToken {
+    id: number;
+    tenantId: number | undefined;
+    userId: number;
+    loginProvider: string | undefined;
+    name: string | undefined;
+    value: string | undefined;
+    expireDate: moment.Moment | undefined;
+
+    constructor(data?: IUserToken) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.userId = _data["userId"];
+            this.loginProvider = _data["loginProvider"];
+            this.name = _data["name"];
+            this.value = _data["value"];
+            this.expireDate = _data["expireDate"] ? moment(_data["expireDate"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): UserToken {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserToken();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["userId"] = this.userId;
+        data["loginProvider"] = this.loginProvider;
+        data["name"] = this.name;
+        data["value"] = this.value;
+        data["expireDate"] = this.expireDate ? this.expireDate.toISOString() : <any>undefined;
+        return data;
+    }
+
+    clone(): UserToken {
+        const json = this.toJSON();
+        let result = new UserToken();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IUserToken {
+    id: number;
+    tenantId: number | undefined;
+    userId: number;
+    loginProvider: string | undefined;
+    name: string | undefined;
+    value: string | undefined;
+    expireDate: moment.Moment | undefined;
+}
+
+export class Vital implements IVital {
+    id: number;
+    tenantId: number;
+    dateRecorded: moment.Moment;
+    bloodPressure: string | undefined;
+    heartRate: string | undefined;
+    respirationRate: number;
+    temperature: number;
+    oxygenSaturation: number;
+    height: string | undefined;
+    weight: string | undefined;
+    bmi: string | undefined;
+    notes: string | undefined;
+    patientId: number;
+    patient: Patient;
+    nurseId: number;
+    nurse: Nurse;
+
+    constructor(data?: IVital) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.dateRecorded = _data["dateRecorded"] ? moment(_data["dateRecorded"].toString()) : <any>undefined;
+            this.bloodPressure = _data["bloodPressure"];
+            this.heartRate = _data["heartRate"];
+            this.respirationRate = _data["respirationRate"];
+            this.temperature = _data["temperature"];
+            this.oxygenSaturation = _data["oxygenSaturation"];
+            this.height = _data["height"];
+            this.weight = _data["weight"];
+            this.bmi = _data["bmi"];
+            this.notes = _data["notes"];
+            this.patientId = _data["patientId"];
+            this.patient = _data["patient"] ? Patient.fromJS(_data["patient"]) : <any>undefined;
+            this.nurseId = _data["nurseId"];
+            this.nurse = _data["nurse"] ? Nurse.fromJS(_data["nurse"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): Vital {
+        data = typeof data === 'object' ? data : {};
+        let result = new Vital();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["dateRecorded"] = this.dateRecorded ? this.dateRecorded.toISOString() : <any>undefined;
+        data["bloodPressure"] = this.bloodPressure;
+        data["heartRate"] = this.heartRate;
+        data["respirationRate"] = this.respirationRate;
+        data["temperature"] = this.temperature;
+        data["oxygenSaturation"] = this.oxygenSaturation;
+        data["height"] = this.height;
+        data["weight"] = this.weight;
+        data["bmi"] = this.bmi;
+        data["notes"] = this.notes;
+        data["patientId"] = this.patientId;
+        data["patient"] = this.patient ? this.patient.toJSON() : <any>undefined;
+        data["nurseId"] = this.nurseId;
+        data["nurse"] = this.nurse ? this.nurse.toJSON() : <any>undefined;
+        return data;
+    }
+
+    clone(): Vital {
+        const json = this.toJSON();
+        let result = new Vital();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IVital {
+    id: number;
+    tenantId: number;
+    dateRecorded: moment.Moment;
+    bloodPressure: string | undefined;
+    heartRate: string | undefined;
+    respirationRate: number;
+    temperature: number;
+    oxygenSaturation: number;
+    height: string | undefined;
+    weight: string | undefined;
+    bmi: string | undefined;
+    notes: string | undefined;
+    patientId: number;
+    patient: Patient;
+    nurseId: number;
+    nurse: Nurse;
 }
 
 export class VitalDto implements IVitalDto {

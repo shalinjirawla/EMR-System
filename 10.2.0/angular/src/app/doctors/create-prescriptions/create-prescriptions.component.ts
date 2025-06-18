@@ -1,11 +1,11 @@
-import { ChangeDetectorRef, Component, Injector, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, Injector, OnInit, Output, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { BsModalRef } from 'ngx-bootstrap/modal';
-import { AppointmentServiceProxy, PrescriptionItemDto } from '@shared/service-proxies/service-proxies';
+import { AppointmentServiceProxy, PrescriptionItemDto, PrescriptionServiceProxy } from '@shared/service-proxies/service-proxies';
 import { AbpModalHeaderComponent } from '../../../shared/components/modal/abp-modal-header.component';
 import { AbpModalFooterComponent } from '../../../shared/components/modal/abp-modal-footer.component';
 import { AppComponentBase } from '../../../shared/app-component-base';
@@ -17,6 +17,7 @@ import { AppointmentDto, CreateUpdatePrescriptionDto, DoctorDto, DoctorServicePr
 import moment from 'moment';
 import { TextareaModule } from 'primeng/textarea';
 import { AppSessionService } from '@shared/session/app-session.service';
+import { EventEmitter } from 'stream';
 @Component({
   selector: 'app-create-prescriptions',
   standalone: true,
@@ -26,14 +27,14 @@ import { AppSessionService } from '@shared/session/app-session.service';
   ],
   templateUrl: './create-prescriptions.component.html',
   styleUrls: ['./create-prescriptions.component.css'],
-  providers: [DoctorServiceProxy, PatientServiceProxy, AppointmentServiceProxy, AppSessionService]
+  providers: [DoctorServiceProxy, PatientServiceProxy, AppointmentServiceProxy, AppSessionService, PrescriptionServiceProxy]
 })
 export class CreatePrescriptionsComponent extends AppComponentBase implements OnInit {
   @ViewChild('prescriptionForm', { static: true }) prescriptionForm: NgForm;
   saving = false;
   patients!: PatientDto[];
   appointments!: AppointmentDto[];
-  // prescription: CreateUpdatePrescriptionDto = new CreateUpdatePrescriptionDto();
+  doctorID!: number;
   prescription: CreateUpdatePrescriptionDto = {
     id: 0,
     tenantId: abp.session.tenantId,
@@ -63,15 +64,15 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
     private _patientService: PatientServiceProxy,
     private _appointmentService: AppointmentServiceProxy,
     private _sessionService: AppSessionService,
+    private _prescriptionService: PrescriptionServiceProxy,
   ) {
     super(injector);
   }
 
   ngOnInit(): void {
-    // this.LoadAppoinments();
+    this.FetchDoctorID();
     this.LoadPatients();
   }
-
   LoadPatients() {
     this._patientService.getAllPatientByTenantID(abp.session.tenantId).subscribe({
       next: (res) => {
@@ -82,18 +83,19 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
   }
   LoadAppoinments() {
     const patientId = this.prescription.patientId;
+    const doctorId = this.doctorID;
     if (!patientId) return;
-
-    // this._appointmentService.getAllAppointmentsByPatientID(patientId, abp.session.tenantId).subscribe({
-    //   next: (res) => {
-    //     debugger
-    //     this.appointments = res.items;
-    //   }, error: (err) => {
-    //     debugger
-    //   }
-    // })
+    if (!doctorId) return;
+    this._appointmentService.getPatientAppointment(patientId, doctorId).subscribe({
+      next: (res) => {
+        this.appointments = res.items;
+        this.appointments.forEach(app => {
+          app['title'] = `${app.appointmentTimeSlot} - ${app.patient?.fullName}`;
+        });
+      }, error: (err) => {
+      }
+    })
   }
-
   addItem(): void {
     const item = new PrescriptionItemDto();
     item.id = 0;
@@ -111,25 +113,53 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
 
     this.prescription.items.push(item);
   }
-
   removeItem(index: number): void {
     this.prescription.items.splice(index, 1);
   }
+  FetchDoctorID() {
+    this._doctorService.getDoctorDetailsByAbpUserID(abp.session.userId).subscribe({
+      next: (res) => {
+        this.doctorID = res.id;
+      }, error: (err) => {
 
-  save(): void {
-    debugger
-    if (!this.prescriptionForm.valid) {
-      this.notify.warn('Please fill all required fields');
-      return;
+      }
+    })
+  }
+  isSaveDisabled(): boolean {
+    if (!this.prescriptionForm.valid || this.saving) {
+      return true;
     }
-    const input = {
-      ...this.prescription,
-      issueDate: this.prescription.issueDate?.toISOString()
-    };
-    setTimeout(() => {
-      this.notify.success('Prescription saved successfully!');
-      this.saving = false;
-      this.bsModalRef.hide();
-    }, 1000);
+    if (!this.prescription.items || this.prescription.items.length === 0) {
+      return true;
+    }
+
+    return this.prescription.items.some(item =>
+      !item.medicineName?.trim() ||
+      !item.dosage?.trim() ||
+      !item.frequency?.trim() ||
+      !item.duration?.trim() ||
+      !item.instructions?.trim()
+    );
+  }
+  save(): void {
+    const input = new CreateUpdatePrescriptionDto();
+    input.tenantId = this.prescription.tenantId;
+    input.diagnosis = this.prescription.diagnosis;
+    input.notes = this.prescription.notes;
+    input.issueDate = this.prescription.issueDate;
+    input.isFollowUpRequired = this.prescription.isFollowUpRequired;
+    input.appointmentId = this.prescription.appointmentId;
+    input.doctorId = this.doctorID;
+    input.patientId = this.prescription.patientId;
+    input.items = this.prescription.items;
+    this._prescriptionService.create(input).subscribe({
+      next: (res) => {
+        this.notify.info(this.l('SavedSuccessfully'));
+        this.bsModalRef.hide();
+      },
+      error: (err) => {
+        this.saving = false;
+      }
+    });
   }
 }

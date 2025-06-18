@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace EMRSystem.Prescriptions.Dto
 {
-    class CreateUpdatePrescriptionItemDto : EntityDto<long>
+    public class CreateUpdatePrescriptionItemDto : EntityDto<long>
     {
         public int TenantId { get; set; }
 
