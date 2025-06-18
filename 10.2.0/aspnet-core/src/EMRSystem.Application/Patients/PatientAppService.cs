@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace EMRSystem.Patients
 {
-    [AbpAuthorize("Pages.Doctors.Patients")]
+    //[AbpAuthorize("Pages.Doctors.Patients")]
 
     public class PatientAppService : AsyncCrudAppService<Patient, PatientDto, long, PagedAndSortedResultRequestDto, CreateUpdatePatientDto, CreateUpdatePatientDto>,
     IPatientAppService

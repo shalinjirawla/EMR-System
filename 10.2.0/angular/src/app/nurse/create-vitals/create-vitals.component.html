@@ -1,0 +1,74 @@
+<form class="form-horizontal" autocomplete="off" #createVitalForm="ngForm" (ngSubmit)="save()">
+  <abp-modal-header title="Record Vitals" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
+  <div class="modal-body">
+
+    <div class="row">
+      <div class="col-md-6 d-flex flex-column">
+        <label>Select Patient</label>
+        <p-select [options]="patients" optionLabel="fullName" [optionValue]="'id'" [(ngModel)]="vital.patientId"
+          name="patientId" placeholder="Select a patient" required class="w-100" />
+      </div>
+
+      <div class="col-md-6 d-flex flex-column">
+        <label>Select Nurse</label>
+        <p-select [options]="nurses" optionLabel="fullName" [optionValue]="'id'" [(ngModel)]="vital.nurseId"
+          name="nurseId" placeholder="Select nurse" required class="w-100" />
+      </div>
+    </div>
+
+    <div class="row mt-3">
+      <div class="col-md-6 d-flex flex-column">
+        <label>Blood Pressure (mmHg)</label>
+        <input type="text" pInputText [(ngModel)]="vital.bloodPressure" name="bloodPressure" required />
+      </div>
+      <div class="col-md-6 d-flex flex-column">
+        <label>Heart Rate (bpm)</label>
+        <input type="text" pInputText [(ngModel)]="vital.heartRate" name="heartRate" required />
+      </div>
+    </div>
+
+    <div class="row mt-3">
+      <div class="col-md-6 d-flex flex-column">
+        <label>Respiration Rate (breaths/min)</label>
+        <input type="number" pInputText [(ngModel)]="vital.respirationRate" name="respirationRate" required />
+      </div>
+      <div class="col-md-6 d-flex flex-column">
+        <label>Temperature (°C)</label>
+        <input type="number" pInputText [(ngModel)]="vital.temperature" name="temperature" step="0.1" required />
+      </div>
+    </div>
+
+    <div class="row mt-3">
+      <div class="col-md-6 d-flex flex-column">
+        <label>Oxygen Saturation (%)</label>
+        <input type="number" pInputText [(ngModel)]="vital.oxygenSaturation" name="oxygenSaturation" required />
+      </div>
+      <div class="col-md-6 d-flex flex-column">
+        <label>BMI</label>
+        <input type="text" pInputText [(ngModel)]="vital.bmi" name="bmi" />
+      </div>
+    </div>
+
+    <div class="row mt-3">
+      <div class="col-md-6 d-flex flex-column">
+        <label>Height (cm)</label>
+        <input type="text" pInputText [(ngModel)]="vital.height" name="height" />
+      </div>
+      <div class="col-md-6 d-flex flex-column">
+        <label>Weight (kg)</label>
+        <input type="text" pInputText [(ngModel)]="vital.weight" name="weight" />
+      </div>
+
+    </div>
+
+    <div class="row mt-3">
+      <div class="col-md-12 d-flex flex-column">
+        <label>Notes</label>
+        <textarea pTextarea [(ngModel)]="vital.notes" name="notes" rows="3" class="w-100"></textarea>
+      </div>
+    </div>
+
+  </div>
+  <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="!createVitalForm.valid || saving"
+    (onCancelClick)="bsModalRef.hide()"></abp-modal-footer>
+</form>
