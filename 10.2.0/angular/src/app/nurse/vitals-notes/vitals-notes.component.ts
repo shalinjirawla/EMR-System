@@ -11,6 +11,8 @@ import { NgIf } from '@node_modules/@angular/common';
 import { ChangeDetectorRef, Component, Injector, ViewChild } from '@angular/core';
 import { PatientServiceProxy, UserServiceProxy, VitalDto, VitalDtoPagedResultDto, VitalServiceProxy } from '@shared/service-proxies/service-proxies';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
+import{CreateVitalsComponent}from '../create-vitals/create-vitals.component'
+import{EditVitalsComponent}from '../edit-vitals/edit-vitals.component'
 
 @Component({
   selector: 'app-vitals-notes',
@@ -84,30 +86,34 @@ export class VitalsNotesComponent extends PagedListingComponentBase<VitalDto> {
             }
         });
     }
+    editAppoinment(record: any): void {
+  this.showCreateOrEditPrescriptionDialog(record.id);
+}
 
-    createPrescription(): void {
-    //this.showCreateOrEditPrescriptionDialog();
+    createVitals(): void {
+    this.showCreateOrEditPrescriptionDialog();
   }
 
-  // showCreateOrEditPrescriptionDialog(id?: number): void {
-  //     let createOrEditUserDialog: BsModalRef;
-  //     if (!id) {
-  //       createOrEditUserDialog = this._modalService.show(CreateUserDialogComponent, {
-  //         class: 'modal-lg',
-  //       });
-  //     }
-  //     //  else {
-  //     //     createOrEditUserDialog = this._modalService.show(CreateAppoinmentComponent, {
-  //     //         class: 'modal-lg',
-  //     //         initialState: {
-  //     //             id: id,
-  //     //         },
-  //     //     });
-  //     // }
-  
-  //     createOrEditUserDialog.content.onSave.subscribe(() => {
-  //       //this.refresh();
-  //     });
-  //   }
+  showCreateOrEditPrescriptionDialog(id?: number): void {
+    let createOrEditUserDialog: BsModalRef;
+
+    if (!id) {
+        createOrEditUserDialog = this._modalService.show(CreateVitalsComponent, {
+            class: 'modal-lg',
+        });
+    } else {
+        createOrEditUserDialog = this._modalService.show(EditVitalsComponent, {
+            class: 'modal-lg',
+            initialState: {
+                vitalId: id  // ✅ Pass the id to modal
+            },
+        });
+    }
+
+    createOrEditUserDialog.content.onSave.subscribe(() => {
+        this.refresh();
+    });
+}
+
 
 }

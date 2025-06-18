@@ -66,7 +66,6 @@ export class CreateUserDialogComponent extends AppComponentBase implements OnIni
     }
   ];
 
-  // You can hold extra doctor data if needed
   doctorData: any;
   nurseData: any;
   technicianData: any;

@@ -11,7 +11,7 @@ namespace EMRSystem.Vitals.Dto
     {
         public int TenantId { get; set; }
 
-        public DateTime DateRecorded { get; set; }
+        public DateTime? DateRecorded { get; set; } = DateTime.Now;
         public string BloodPressure { get; set; }  // e.g., "120/80 mmHg"
         public string HeartRate { get; set; }
         public int RespirationRate { get; set; }

@@ -89,7 +89,7 @@
       <select id="nurse" name="nurse" class="form-control"
               [(ngModel)]="patient.assignedNurseId" (ngModelChange)="onInputChange()">
         <option [ngValue]="null">-- Select Nurse --</option>
-        <option *ngFor="let nurse of nurseList" [ngValue]="nurse.id">{{ nurse.name }}</option>
+        <option *ngFor="let nurse of nurseList" [ngValue]="nurse.id">{{ nurse.fullName }}</option>
       </select>
     </div>
   </div>
@@ -100,7 +100,7 @@
       <select id="doctor" name="doctor" class="form-control" 
               [(ngModel)]="patient.assignedDoctorId" (ngModelChange)="onInputChange()">
         <option [ngValue]="null">-- Select Doctor --</option>
-        <option *ngFor="let doctor of doctorList" [ngValue]="doctor.id">{{ doctor.name }}</option>
+        <option *ngFor="let doctor of doctorList" [ngValue]="doctor.id">{{ doctor.fullName }}</option>
       </select>
     </div>
   </div>

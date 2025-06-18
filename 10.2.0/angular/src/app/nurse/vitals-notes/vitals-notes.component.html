@@ -6,7 +6,7 @@
                     <h1>Vitals</h1>
                 </div>
                 <div class="col-6 text-right">
-                    <a href="javascript:;" class="btn bg-blue" (click)="createPrescription()">
+                    <a href="javascript:;" class="btn bg-blue" (click)="createVitals()">
                         <i class="fa fa-plus-square"></i>
                         {{ 'Create' | localize }}
                     </a>
@@ -107,7 +107,7 @@
                                         <p-sortIcon field="nurseName"></p-sortIcon>
                                     </th>
                                     <th style="min-width: 100px" >
-                                        {{ 'Date' | localize }}
+                                        {{ 'Temperature' | localize }}
                                     </th>
                                     <th style="min-width: 150px" >
                                         {{ 'BloodPressure' | localize }}
@@ -117,9 +117,6 @@
                                     </th>
                                     <th style="min-width: 80px">
                                         {{ 'OxygenSaturation' | localize }}
-                                    </th>
-                                    <th style="min-width: 50px">
-                                        {{ 'IsActive' | localize }}
                                     </th>
                                     <th style="min-width: 130px">
                                         {{ 'Actions' | localize }}
@@ -131,17 +128,17 @@
                                 <tr>
                                     <td>
                                         <span>
-                                            {{ record.patientname }}
+                                            {{ record.patient.fullName }}
                                         </span>
                                     </td>
                                     <td>
                                         <span>
-                                            {{ record.nursename }}
+                                            {{ record.nurse.fullName }}
                                         </span>
                                     </td>
                                     <td>
                                         <span>
-                                            {{ record.date }}
+                                            {{ record.temperature }}
                                         </span>
                                     </td>
                                     <td>
@@ -151,17 +148,12 @@
                                     </td>
                                     <td>
                                         <span>
-                                            {{ record.RespirationRate }}
+                                            {{ record.respirationRate }}
                                         </span>
                                     </td>
                                     <td>
                                         <span>
-                                            {{ record.OxygenSaturation }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span>
-                                            {{ record.isActive }}
+                                            {{ record.oxygenSaturation }}
                                         </span>
                                     </td>
                                     <td>

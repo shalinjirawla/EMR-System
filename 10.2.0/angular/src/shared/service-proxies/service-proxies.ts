@@ -5016,6 +5016,62 @@ export class VitalServiceProxy {
     }
 
     /**
+     * @param body (optional) 
+     * @return OK
+     */
+    create(body: CreateUpdateVitalDto | undefined): Observable<VitalDto> {
+        let url_ = this.baseUrl + "/api/services/app/Vital/Create";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<VitalDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<VitalDto>;
+        }));
+    }
+
+    protected processCreate(response: HttpResponseBase): Observable<VitalDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = VitalDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * @param id (optional) 
      * @return OK
      */
@@ -5127,62 +5183,6 @@ export class VitalServiceProxy {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = VitalDtoPagedResultDto.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    /**
-     * @param body (optional) 
-     * @return OK
-     */
-    create(body: CreateUpdateVitalDto | undefined): Observable<VitalDto> {
-        let url_ = this.baseUrl + "/api/services/app/Vital/Create";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(body);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-                "Accept": "text/plain"
-            })
-        };
-
-        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processCreate(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processCreate(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<VitalDto>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<VitalDto>;
-        }));
-    }
-
-    protected processCreate(response: HttpResponseBase): Observable<VitalDto> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = VitalDto.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -7246,7 +7246,7 @@ export interface ICreateUpdatePrescriptionItemDto {
 export class CreateUpdateVitalDto implements ICreateUpdateVitalDto {
     id: number;
     tenantId: number;
-    dateRecorded: moment.Moment;
+    dateRecorded: moment.Moment | undefined;
     bloodPressure: string | undefined;
     heartRate: string | undefined;
     respirationRate: number;
@@ -7324,7 +7324,7 @@ export class CreateUpdateVitalDto implements ICreateUpdateVitalDto {
 export interface ICreateUpdateVitalDto {
     id: number;
     tenantId: number;
-    dateRecorded: moment.Moment;
+    dateRecorded: moment.Moment | undefined;
     bloodPressure: string | undefined;
     heartRate: string | undefined;
     respirationRate: number;
@@ -8654,7 +8654,6 @@ export class NurseDto implements INurseDto {
     yearsOfExperience: number;
     dateOfBirth: moment.Moment | undefined;
     abpUser: UserDto;
-    vitals: VitalDto[] | undefined;
 
     constructor(data?: INurseDto) {
         if (data) {
@@ -8679,11 +8678,6 @@ export class NurseDto implements INurseDto {
             this.yearsOfExperience = _data["yearsOfExperience"];
             this.dateOfBirth = _data["dateOfBirth"] ? moment(_data["dateOfBirth"].toString()) : <any>undefined;
             this.abpUser = _data["abpUser"] ? UserDto.fromJS(_data["abpUser"]) : <any>undefined;
-            if (Array.isArray(_data["vitals"])) {
-                this.vitals = [] as any;
-                for (let item of _data["vitals"])
-                    this.vitals.push(VitalDto.fromJS(item));
-            }
         }
     }
 
@@ -8708,11 +8702,6 @@ export class NurseDto implements INurseDto {
         data["yearsOfExperience"] = this.yearsOfExperience;
         data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
         data["abpUser"] = this.abpUser ? this.abpUser.toJSON() : <any>undefined;
-        if (Array.isArray(this.vitals)) {
-            data["vitals"] = [];
-            for (let item of this.vitals)
-                data["vitals"].push(item.toJSON());
-        }
         return data;
     }
 
@@ -8737,7 +8726,6 @@ export interface INurseDto {
     yearsOfExperience: number;
     dateOfBirth: moment.Moment | undefined;
     abpUser: UserDto;
-    vitals: VitalDto[] | undefined;
 }
 
 export class NurseDtoListResultDto implements INurseDtoListResultDto {
@@ -9016,7 +9004,6 @@ export class PatientDto implements IPatientDto {
     abpUser: UserDto;
     doctors: DoctorDto;
     prescriptions: PrescriptionDto[] | undefined;
-    vitals: VitalDto[] | undefined;
 
     constructor(data?: IPatientDto) {
         if (data) {
@@ -9050,11 +9037,6 @@ export class PatientDto implements IPatientDto {
                 this.prescriptions = [] as any;
                 for (let item of _data["prescriptions"])
                     this.prescriptions.push(PrescriptionDto.fromJS(item));
-            }
-            if (Array.isArray(_data["vitals"])) {
-                this.vitals = [] as any;
-                for (let item of _data["vitals"])
-                    this.vitals.push(VitalDto.fromJS(item));
             }
         }
     }
@@ -9090,11 +9072,6 @@ export class PatientDto implements IPatientDto {
             for (let item of this.prescriptions)
                 data["prescriptions"].push(item.toJSON());
         }
-        if (Array.isArray(this.vitals)) {
-            data["vitals"] = [];
-            for (let item of this.vitals)
-                data["vitals"].push(item.toJSON());
-        }
         return data;
     }
 
@@ -9125,7 +9102,6 @@ export interface IPatientDto {
     abpUser: UserDto;
     doctors: DoctorDto;
     prescriptions: PrescriptionDto[] | undefined;
-    vitals: VitalDto[] | undefined;
 }
 
 export class PatientDtoListResultDto implements IPatientDtoListResultDto {
@@ -11584,7 +11560,7 @@ export interface IUserToken {
 export class Vital implements IVital {
     id: number;
     tenantId: number;
-    dateRecorded: moment.Moment;
+    dateRecorded: moment.Moment | undefined;
     bloodPressure: string | undefined;
     heartRate: string | undefined;
     respirationRate: number;
@@ -11668,7 +11644,7 @@ export class Vital implements IVital {
 export interface IVital {
     id: number;
     tenantId: number;
-    dateRecorded: moment.Moment;
+    dateRecorded: moment.Moment | undefined;
     bloodPressure: string | undefined;
     heartRate: string | undefined;
     respirationRate: number;
@@ -11687,7 +11663,7 @@ export interface IVital {
 export class VitalDto implements IVitalDto {
     id: number;
     tenantId: number;
-    dateRecorded: moment.Moment;
+    dateRecorded: moment.Moment | undefined;
     bloodPressure: string | undefined;
     heartRate: string | undefined;
     respirationRate: number;
@@ -11765,7 +11741,7 @@ export class VitalDto implements IVitalDto {
 export interface IVitalDto {
     id: number;
     tenantId: number;
-    dateRecorded: moment.Moment;
+    dateRecorded: moment.Moment | undefined;
     bloodPressure: string | undefined;
     heartRate: string | undefined;
     respirationRate: number;
