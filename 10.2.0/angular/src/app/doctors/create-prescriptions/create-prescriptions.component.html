@@ -20,7 +20,7 @@
       <div class="col-md-12">
         <label><b>Appointment</b></label>
         <p-select [(ngModel)]="prescription.appointmentId" name="appointmentId" [options]="appointments"
-          optionLabel="title" placeholder="Select appointment" class="w-100" />
+          optionLabel="title" optionValue="id" placeholder="Select appointment" class="w-100" />
       </div>
     </div>
 
@@ -44,15 +44,9 @@
 
     <!-- Issue Date & Follow-up -->
     <div class="row mt-3">
-      <!-- <div class="col-md-6 d-flex flex-column">
-        <label>Issue Date</label>
-        <p-calendar [(ngModel)]="prescription.issueDate" [showIcon]="true" [showOnFocus]="true" name="issueDate"
-          dateFormat="dd/mm/yy"></p-calendar>
-
-      </div> -->
       <div class="col-md-6 d-flex align-items-center mt-4">
         <p-checkbox [(ngModel)]="prescription.isFollowUpRequired" name="isFollowUpRequired" inputId="followup"
-          value="isFollowUpRequired" />
+          [binary]="true" />
         <label for="followup" class="ml-2"><b>Follow-up Required</b></label>
       </div>
     </div>
@@ -88,7 +82,6 @@
 
   </div>
 
-  <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="!prescriptionForm.valid || saving"
-    (onCancelClick)="bsModalRef.hide()">
+  <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="isSaveDisabled()" (onCancelClick)="bsModalRef.hide()">
   </abp-modal-footer>
 </form>

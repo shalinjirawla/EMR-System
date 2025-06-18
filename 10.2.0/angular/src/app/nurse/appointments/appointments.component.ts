@@ -69,7 +69,6 @@ export class AppointmentsComponent extends PagedListingComponentBase<Appointment
                 })
             )
             .subscribe((result: AppointmentDtoPagedResultDto) => {
-                debugger
                 this.primengTableHelper.records = result.items;
                 this.primengTableHelper.totalRecordsCount = result.totalCount;
                 this.primengTableHelper.hideLoadingIndicator();

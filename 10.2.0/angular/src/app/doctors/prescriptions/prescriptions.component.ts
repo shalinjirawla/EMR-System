@@ -12,11 +12,11 @@ import { PagedListingComponentBase } from "@shared/paged-listing-component-base"
 import { LazyLoadEvent, PrimeTemplate } from 'primeng/api';
 import { finalize } from 'rxjs/operators';
 import { NgIf } from '@angular/common';
-
+import { DatePipe } from "@angular/common";
 @Component({
   selector: 'app-prescriptions',
   animations: [appModuleAnimation()],
-  imports: [FormsModule, TableModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe],
+  imports: [FormsModule, TableModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe,DatePipe],
   templateUrl: './prescriptions.component.html',
   styleUrl: './prescriptions.component.css',
   providers: [PrescriptionServiceProxy]
@@ -71,6 +71,7 @@ export class PrescriptionsComponent extends PagedListingComponentBase<Prescripti
         })
       )
       .subscribe((result: PrescriptionDtoPagedResultDto) => {
+        debugger
         this.primengTableHelper.records = result.items;
         this.primengTableHelper.totalRecordsCount = result.totalCount;
         this.primengTableHelper.hideLoadingIndicator();

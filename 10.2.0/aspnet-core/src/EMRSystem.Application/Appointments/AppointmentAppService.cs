@@ -1,24 +1,10 @@
 ﻿using Abp.Application.Services;
 using Abp.Domain.Repositories;
-using EMRSystem.Authorization;
-using EMRSystem.Billings;
-using EMRSystem.BillingStaff.Dto;
-using EMRSystem.BillingStaff;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using EMRSystem.Appointments.Dto;
-using EMRSystem.Nurse.Dto;
-using EMRSystem.Nurse;
 using Abp.Application.Services.Dto;
-using EMRSystem.Patients.Dto;
 using Microsoft.EntityFrameworkCore;
-using EMRSystem.Authorization.Users;
-using EMRSystem.Users.Dto;
-using EMRSystem.Patients;
-using Abp.Extensions;
 
 namespace EMRSystem.Appointments
 {
@@ -28,6 +14,16 @@ namespace EMRSystem.Appointments
     {
         public AppointmentAppService(IRepository<EMRSystem.Appointments.Appointment, long> repository) : base(repository)
         {
+        }
+
+        public ListResultDto<AppointmentDto> GetPatientAppointment(long patientId, long doctorId)
+        {
+            var appointments =  Repository.GetAllIncluding(x => x.Patient)
+                 .Where(x => x.PatientId == patientId && x.DoctorId == doctorId)
+                 .ToList();
+
+            var mapped = ObjectMapper.Map<List<AppointmentDto>>(appointments);
+            return new ListResultDto<AppointmentDto>(mapped);
         }
     }
 

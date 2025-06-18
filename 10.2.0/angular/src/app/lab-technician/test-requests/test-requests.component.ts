@@ -67,7 +67,6 @@ export class TestRequestsComponent extends PagedListingComponentBase<LabReportDt
                 })
             )
             .subscribe((result: LabReportDtoPagedResultDto) => {
-                debugger
                 this.primengTableHelper.records = result.items;
                 this.primengTableHelper.totalRecordsCount = result.totalCount;
                 this.primengTableHelper.hideLoadingIndicator();
