@@ -98,7 +98,7 @@
                             [tableStyle]="{ 'min-width': '50rem' }" (onLazyLoad)="list($event)">
                             <ng-template pTemplate="header">
                                 <tr>
-                                    <th style="min-width: 80px"  pSortableColumn="patientName">
+                                    <th style="min-width: 80px" pSortableColumn="patientName">
                                         {{ 'Patient Name' | localize }}
                                         <p-sortIcon field="patientName"></p-sortIcon>
                                     </th>
@@ -106,10 +106,10 @@
                                         {{ 'Nurse Name' | localize }}
                                         <p-sortIcon field="nurseName"></p-sortIcon>
                                     </th>
-                                    <th style="min-width: 100px" >
+                                    <th style="min-width: 100px">
                                         {{ 'Temperature' | localize }}
                                     </th>
-                                    <th style="min-width: 150px" >
+                                    <th style="min-width: 150px">
                                         {{ 'BloodPressure' | localize }}
                                     </th>
                                     <th style="min-width: 30px">
@@ -157,16 +157,19 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <button type="button" class="btn btn-sm bg-secondary"
-                                            (click)="editAppoinment(record)">
-                                            <i class="fas fa-pencil-alt"></i>
-                                            {{ 'Edit' | localize }}
+                                        <button type="button" pButton icon="pi pi-ellipsis-v" class="p-button-text"
+                                            (click)="rowMenu.toggle($event); selectedRecord = record">
                                         </button>
-                                        <button type="button" class="btn btn-sm bg-danger mx-2"
-                                            (click)="delete(record)">
-                                            <i class="fas fa-trash"></i>
-                                            {{ 'Delete' | localize }}
-                                        </button>
+                                        <p-overlayPanel #rowMenu class="custom-overlay" [dismissable]="true">
+                                            <ul class="custom-overlay-menu">
+                                                <li (click)="editAppoinment(selectedRecord)">   
+                                                    <i class="pi pi-pencil"></i> Edit
+                                                </li>
+                                                <li (click)="delete(selectedRecord)">
+                                                    <i class="pi pi-trash"></i> Delete
+                                                </li>
+                                            </ul>
+                                        </p-overlayPanel>
                                     </td>
                                 </tr>
                             </ng-template>

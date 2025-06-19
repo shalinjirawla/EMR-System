@@ -1,13 +1,4 @@
 <form #nurseForm="ngForm">
-  <!-- Phone Number -->
-  <div class="form-group row required">
-    <label class="col-md-3 col-form-label" for="nursePhone">Phone Number</label>
-    <div class="col-md-9">
-      <input id="nursePhone" name="phoneNumber" type="text" class="form-control" required
-        [(ngModel)]="nurseData.phoneNumber" (ngModelChange)="updateData()" #phoneModel="ngModel" #phoneEl>
-      <abp-validation-summary [control]="phoneModel" [controlEl]="phoneEl"></abp-validation-summary>
-    </div>
-  </div>
 
   <!-- Gender -->
   <div class="form-group row required">
