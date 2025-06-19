@@ -8,24 +8,26 @@ import { finalize } from 'rxjs/operators';
 import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { FormsModule } from '@node_modules/@angular/forms';
 import { NgIf } from '@node_modules/@angular/common';
-import { ChangeDetectorRef, Component, Injector, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, Injector, ViewChild } from '@angular/core';
 import { PatientServiceProxy, UserServiceProxy, VitalDto, VitalDtoPagedResultDto, VitalServiceProxy } from '@shared/service-proxies/service-proxies';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
-import{CreateVitalsComponent}from '../create-vitals/create-vitals.component'
-import{EditVitalsComponent}from '../edit-vitals/edit-vitals.component'
-
+import { CreateVitalsComponent } from '../create-vitals/create-vitals.component'
+import { EditVitalsComponent } from '../edit-vitals/edit-vitals.component'
+import { OverlayPanel, OverlayPanelModule } from 'primeng/overlaypanel';
+import { MenuModule } from 'primeng/menu';
 @Component({
-  selector: 'app-vitals-notes',
-  imports: [FormsModule, TableModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe],
-  animations: [appModuleAnimation()],
-  templateUrl: './vitals-notes.component.html',
-  styleUrl: './vitals-notes.component.css',
-  providers:[UserServiceProxy,VitalServiceProxy]
+    selector: 'app-vitals-notes',
+    imports: [FormsModule, TableModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, OverlayPanelModule,MenuModule],
+    animations: [appModuleAnimation()],
+    templateUrl: './vitals-notes.component.html',
+    styleUrl: './vitals-notes.component.css',
+    providers: [UserServiceProxy, VitalServiceProxy]
 })
 export class VitalsNotesComponent extends PagedListingComponentBase<VitalDto> {
     @ViewChild('dataTable', { static: true }) dataTable: Table;
     @ViewChild('paginator', { static: true }) paginator: Paginator;
 
+    // selectedRecord: VitalDto;
     patients: VitalDto[] = [];
     keyword = '';
     isActive: boolean | null;
@@ -42,6 +44,9 @@ export class VitalsNotesComponent extends PagedListingComponentBase<VitalDto> {
         super(injector, cd);
         this.keyword = this._activatedRoute.snapshot.queryParams['filterText'] || '';
     }
+
+    
+
 
     clearFilters(): void {
         this.keyword = '';
@@ -77,7 +82,7 @@ export class VitalsNotesComponent extends PagedListingComponentBase<VitalDto> {
             });
     }
     delete(vital: VitalDto): void {
-        abp.message.confirm(this.l('UserDeleteWarningMessage'), undefined, (result: boolean) => {
+        abp.message.confirm(this.l('UserDeleteWarningMessage',vital.patient.fullName), undefined, (result: boolean) => {
             if (result) {
                 this._vitalService.delete(vital.id).subscribe(() => {
                     abp.notify.success(this.l('SuccessfullyDeleted'));
@@ -87,33 +92,33 @@ export class VitalsNotesComponent extends PagedListingComponentBase<VitalDto> {
         });
     }
     editAppoinment(record: any): void {
-  this.showCreateOrEditPrescriptionDialog(record.id);
-}
-
-    createVitals(): void {
-    this.showCreateOrEditPrescriptionDialog();
-  }
-
-  showCreateOrEditPrescriptionDialog(id?: number): void {
-    let createOrEditUserDialog: BsModalRef;
-
-    if (!id) {
-        createOrEditUserDialog = this._modalService.show(CreateVitalsComponent, {
-            class: 'modal-lg',
-        });
-    } else {
-        createOrEditUserDialog = this._modalService.show(EditVitalsComponent, {
-            class: 'modal-lg',
-            initialState: {
-                vitalId: id  // ✅ Pass the id to modal
-            },
-        });
+        this.showCreateOrEditPrescriptionDialog(record.id);
     }
 
-    createOrEditUserDialog.content.onSave.subscribe(() => {
-        this.refresh();
-    });
-}
+    createVitals(): void {
+        this.showCreateOrEditPrescriptionDialog();
+    }
+
+    showCreateOrEditPrescriptionDialog(id?: number): void {
+        let createOrEditUserDialog: BsModalRef;
+
+        if (!id) {
+            createOrEditUserDialog = this._modalService.show(CreateVitalsComponent, {
+                class: 'modal-lg',
+            });
+        } else {
+            createOrEditUserDialog = this._modalService.show(EditVitalsComponent, {
+                class: 'modal-lg',
+                initialState: {
+                    vitalId: id  // ✅ Pass the id to modal
+                },
+            });
+        }
+
+        // createOrEditUserDialog.content.onSave.subscribe(() => {
+        //     this.refresh();
+        // });
+    }
 
 
 }

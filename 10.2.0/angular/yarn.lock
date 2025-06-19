@@ -7015,6 +7015,16 @@
   dependencies:
     "fast-diff" "^1.1.2"
 
+"prettier@>=3.0.0":
+  "integrity" "sha512-QQtaxnoDJeAkDvDKWCLiwIXkTgRhwYDEQCghU9Z6q03iyek/rxRh/2lC3HB7P8sWT2xC/y5JDctPLBIGzHKbhw=="
+  "resolved" "https://registry.npmjs.org/prettier/-/prettier-3.5.3.tgz"
+  "version" "3.5.3"
+
+"primeicons@^7.0.0":
+  "integrity" "sha512-jK3Et9UzwzTsd6tzl2RmwrVY/b8raJ3QZLzoDACj+oTJ0oX7L9Hy+XnVwgo4QVKlKpnP/Ur13SXV/pVh4LzaDw=="
+  "resolved" "https://registry.npmjs.org/primeicons/-/primeicons-7.0.0.tgz"
+  "version" "7.0.0"
+
 "primeng@^19.0.9":
   "integrity" "sha512-Y994f4JDsdjwe1uK1J8Gvq94Mk2qQfV+M1zdW+XClXHK8EXzZp7kvBzfrlk607valJmUhLr/5DxSkVfVQGZhxA=="
   "resolved" "https://registry.npmjs.org/primeng/-/primeng-19.0.9.tgz"
@@ -9217,3 +9227,8 @@
   "integrity" "sha512-OdqJE9UDRPwWsrHjLN2F8bPxvwJBK22EHLWtanu0LSYr5YqzsaaW3RMgmjwr8Rypg5k+meEJdSPXJZXE/yqOMg=="
   "resolved" "https://registry.npmjs.org/zod/-/zod-3.24.4.tgz"
   "version" "3.24.4"
+
+"zone.js@~0.15.0":
+  "integrity" "sha512-XE96n56IQpJM7NAoXswY3XRLcWFW83xe0BiAOeMD7K5k5xecOeul3Qcpx6GqEeeHNkW5DWL5zOyTbEfB4eti8w=="
+  "resolved" "https://registry.npmjs.org/zone.js/-/zone.js-0.15.1.tgz"
+  "version" "0.15.1"

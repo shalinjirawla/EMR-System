@@ -15,7 +15,7 @@ import moment from 'moment';
 @Component({
   selector: 'app-create-vitals',
   imports: [CommonModule, FormsModule, AbpModalHeaderComponent, AbpModalFooterComponent, SelectModule, DatePickerModule, InputTextModule, TextareaModule],
-  providers: [PatientServiceProxy, NurseServiceProxy,VitalServiceProxy],
+  providers: [PatientServiceProxy, NurseServiceProxy, VitalServiceProxy],
   templateUrl: './create-vitals.component.html',
   styleUrl: './create-vitals.component.css'
 })
