@@ -104,6 +104,10 @@
                                         Patient
                                         <!-- <p-sortIcon field="userName"></p-sortIcon> -->
                                     </th>
+                                    <th style="min-width: 150px" pSortableColumn="userName">
+                                        Doctor
+                                        <!-- <p-sortIcon field="userName"></p-sortIcon> -->
+                                    </th>
                                     <th style="min-width: 150px" pSortableColumn="name">
                                         Date
                                         <!-- <p-sortIcon field="name"></p-sortIcon> -->
@@ -121,7 +125,12 @@
                                 <tr>
                                     <td>
                                         <span>
-                                            {{ record.patient }}
+                                            {{ record.patient.fullName }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span>
+                                            Dr. {{ record.doctor.fullName }}
                                         </span>
                                     </td>
                                     <td>
@@ -130,20 +139,18 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <span>
-                                            {{ record.items }}
-                                        </span>
+                                        <div *ngFor="let itm of record.items">
+                                            <span>{{ itm.medicineName}} {{itm.dosage}} ({{itm.frequency}})</span>
+                                        </div>
                                     </td>
                                     <td>
                                         <button type="button" class="btn btn-sm bg-secondary"
-                                            (click)="editUser(record)">
+                                            (click)="editPrescription(record)">
                                             <i class="fas fa-pencil-alt"></i>
-                                            {{ 'Edit' | localize }}
                                         </button>
                                         <button type="button" class="btn btn-sm bg-danger mx-2"
                                             (click)="delete(record)">
                                             <i class="fas fa-trash"></i>
-                                            {{ 'Delete' | localize }}
                                         </button>
                                     </td>
                                 </tr>

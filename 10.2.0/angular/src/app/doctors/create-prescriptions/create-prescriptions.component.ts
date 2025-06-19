@@ -1,11 +1,11 @@
-import { ChangeDetectorRef, Component, Injector, OnInit, Output, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, Injector, OnInit, Output, ViewChild,EventEmitter } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { BsModalRef } from 'ngx-bootstrap/modal';
-import { AppointmentServiceProxy, PrescriptionItemDto, PrescriptionServiceProxy } from '@shared/service-proxies/service-proxies';
+import { AppointmentServiceProxy, CreateUpdatePrescriptionItemDto, PrescriptionItemDto, PrescriptionServiceProxy } from '@shared/service-proxies/service-proxies';
 import { AbpModalHeaderComponent } from '../../../shared/components/modal/abp-modal-header.component';
 import { AbpModalFooterComponent } from '../../../shared/components/modal/abp-modal-footer.component';
 import { AppComponentBase } from '../../../shared/app-component-base';
@@ -17,7 +17,7 @@ import { AppointmentDto, CreateUpdatePrescriptionDto, DoctorDto, DoctorServicePr
 import moment from 'moment';
 import { TextareaModule } from 'primeng/textarea';
 import { AppSessionService } from '@shared/session/app-session.service';
-import { EventEmitter } from 'stream';
+
 @Component({
   selector: 'app-create-prescriptions',
   standalone: true,
@@ -31,6 +31,7 @@ import { EventEmitter } from 'stream';
 })
 export class CreatePrescriptionsComponent extends AppComponentBase implements OnInit {
   @ViewChild('prescriptionForm', { static: true }) prescriptionForm: NgForm;
+  @Output() onSave = new EventEmitter<void>();
   saving = false;
   patients!: PatientDto[];
   appointments!: AppointmentDto[];
@@ -97,7 +98,7 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
     })
   }
   addItem(): void {
-    const item = new PrescriptionItemDto();
+    const item = new CreateUpdatePrescriptionItemDto();
     item.id = 0;
     item.tenantId = abp.session.tenantId;
     item.medicineName = '';
@@ -105,7 +106,7 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
     item.frequency = '';
     item.duration = '';
     item.instructions = '';
-    item.prescription = undefined;
+    item.prescriptionId = 0;
 
     if (!this.prescription.items) {
       this.prescription.items = [];
@@ -152,10 +153,11 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
     input.doctorId = this.doctorID;
     input.patientId = this.prescription.patientId;
     input.items = this.prescription.items;
-    this._prescriptionService.create(input).subscribe({
+    this._prescriptionService.createPrescriptionWithItem(input).subscribe({
       next: (res) => {
         this.notify.info(this.l('SavedSuccessfully'));
         this.bsModalRef.hide();
+        this.onSave.emit();
       },
       error: (err) => {
         this.saving = false;
