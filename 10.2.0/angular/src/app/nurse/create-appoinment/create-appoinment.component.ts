@@ -124,7 +124,6 @@ export class CreateAppoinmentComponent extends AppComponentBase implements OnIni
     }
   }
   save(): void {
-    debugger
     if (!this.appointment.patientId || !this.appointment.doctorId || !this.appointment.status || !this.appointment.appointmentDate) {
       console.warn("Form is invalid");
       return;

@@ -41,6 +41,5 @@ public class User : AbpUser<User>
     public ICollection<Doctor> Doctors { get; set; }
     public ICollection<Nurse> Nurses { get; set; }
     public ICollection<Pharmacist> Pharmacists{ get; set; }
-
     public ICollection<LabTechnician> LabTechnicians { get; set; }
 }

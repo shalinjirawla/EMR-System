@@ -2,7 +2,9 @@ using Abp.Application.Services.Dto;
 using Abp.Authorization.Users;
 using Abp.AutoMapper;
 using EMRSystem.Authorization.Users;
+using EMRSystem.Patients;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace EMRSystem.Users.Dto;
@@ -36,4 +38,5 @@ public class UserDto : EntityDto<long>
     public DateTime CreationTime { get; set; }
 
     public string[] RoleNames { get; set; }
+
 }

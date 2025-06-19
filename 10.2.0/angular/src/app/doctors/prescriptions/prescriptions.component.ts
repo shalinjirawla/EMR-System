@@ -8,15 +8,16 @@ import { appModuleAnimation } from "../../../shared/animations/routerTransition"
 import { LocalizePipe } from "../../../shared/pipes/localize.pipe";
 import { PrescriptionServiceProxy, PrescriptionDto, PrescriptionDtoPagedResultDto } from "../../../shared/service-proxies/service-proxies";
 import { CreatePrescriptionsComponent } from "../create-prescriptions/create-prescriptions.component";
+import { EditPrescriptionsComponent } from "../edit-prescriptions/edit-prescriptions.component";
 import { PagedListingComponentBase } from "@shared/paged-listing-component-base";
 import { LazyLoadEvent, PrimeTemplate } from 'primeng/api';
 import { finalize } from 'rxjs/operators';
-import { NgIf } from '@angular/common';
+import { CommonModule, NgIf } from '@angular/common';
 import { DatePipe } from "@angular/common";
 @Component({
   selector: 'app-prescriptions',
   animations: [appModuleAnimation()],
-  imports: [FormsModule, TableModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe,DatePipe],
+  imports: [FormsModule, TableModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, DatePipe, CommonModule],
   templateUrl: './prescriptions.component.html',
   styleUrl: './prescriptions.component.css',
   providers: [PrescriptionServiceProxy]
@@ -71,7 +72,6 @@ export class PrescriptionsComponent extends PagedListingComponentBase<Prescripti
         })
       )
       .subscribe((result: PrescriptionDtoPagedResultDto) => {
-        debugger
         this.primengTableHelper.records = result.items;
         this.primengTableHelper.totalRecordsCount = result.totalCount;
         this.primengTableHelper.hideLoadingIndicator();
@@ -102,5 +102,17 @@ export class PrescriptionsComponent extends PagedListingComponentBase<Prescripti
         class: 'modal-lg',
       });
     }
+    else {
+      createOrEditUserDialog = this._modalService.show(EditPrescriptionsComponent, {
+        class: 'modal-lg',
+        initialState: {
+          id: id,
+        },
+      });
+    }
+
+    createOrEditUserDialog.content.onSave.subscribe(() => {
+      this.refresh();
+    });
   }
 }

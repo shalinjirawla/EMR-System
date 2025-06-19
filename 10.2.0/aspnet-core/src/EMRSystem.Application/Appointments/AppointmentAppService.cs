@@ -5,6 +5,11 @@ using System.Linq;
 using EMRSystem.Appointments.Dto;
 using Abp.Application.Services.Dto;
 using Microsoft.EntityFrameworkCore;
+using EMRSystem.Patients;
+using EMRSystem.Prescriptions;
+using Abp.Domain.Entities;
+using EMRSystem.Prescriptions.Dto;
+using System.Threading.Tasks;
 
 namespace EMRSystem.Appointments
 {
@@ -16,14 +21,91 @@ namespace EMRSystem.Appointments
         {
         }
 
+        protected override IQueryable<Appointment> CreateFilteredQuery(PagedAndSortedResultRequestDto input)
+        {
+            return Repository
+                .GetAll()
+                .Include(x => x.Patient)
+                .Include(x => x.Doctor)
+                .Include(x => x.Nurse)
+                .Select(x => new Appointment
+                {
+                    Id = x.Id,
+                    TenantId = x.TenantId,
+                    AppointmentDate = x.AppointmentDate,
+                    AppointmentTimeSlot = x.AppointmentTimeSlot,
+                    ReasonForVisit = x.ReasonForVisit,
+                    Status = x.Status,
+                    IsFollowUp = x.IsFollowUp,
+                    PatientId = x.PatientId,
+                    DoctorId = x.DoctorId,
+                    NurseId = x.NurseId,
+                    Patient = x.Patient == null ? null : new Patient
+                    {
+                        Id = x.Patient.Id,
+                        FullName = x.Patient.FullName
+                    },
+                    Doctor = x.Doctor == null ? null : new EMRSystem.Doctors.Doctor
+                    {
+                        Id = x.Doctor.Id,
+                        FullName = x.Doctor.FullName
+                    },
+                    Nurse = x.Nurse == null ? null : new EMRSystem.Nurses.Nurse
+                    {
+                        Id = x.Nurse.Id,
+                        FullName = x.Nurse.FullName
+                    },
+                });
+        }
         public ListResultDto<AppointmentDto> GetPatientAppointment(long patientId, long doctorId)
         {
-            var appointments =  Repository.GetAllIncluding(x => x.Patient)
+            var appointments = Repository.GetAllIncluding(x => x.Patient)
                  .Where(x => x.PatientId == patientId && x.DoctorId == doctorId)
                  .ToList();
 
             var mapped = ObjectMapper.Map<List<AppointmentDto>>(appointments);
             return new ListResultDto<AppointmentDto>(mapped);
+        }
+
+        public async Task<CreateUpdateAppointmentDto> GetAppointmentDetailsById(long id)
+        {
+            var details = await Repository.GetAllIncludingAsync(x => x.Patient, x => x.Doctor, x => x.Nurse).Result
+              .Select(x => new Appointment
+              {
+                  Id = x.Id,
+                  TenantId = x.TenantId,
+                  AppointmentDate = x.AppointmentDate,
+                  AppointmentTimeSlot = x.AppointmentTimeSlot,
+                  ReasonForVisit = x.ReasonForVisit,
+                  Status = x.Status,
+                  IsFollowUp = x.IsFollowUp,
+                  PatientId = x.PatientId,
+                  DoctorId = x.DoctorId,
+                  NurseId = x.NurseId,
+                  Patient = x.Patient == null ? null : new Patient
+                  {
+                      Id = x.Patient.Id,
+                      FullName = x.Patient.FullName
+                  },
+                  Doctor = x.Doctor == null ? null : new EMRSystem.Doctors.Doctor
+                  {
+                      Id = x.Doctor.Id,
+                      FullName = x.Doctor.FullName
+                  },
+                  Nurse = x.Nurse == null ? null : new EMRSystem.Nurses.Nurse
+                  {
+                      Id = x.Nurse.Id,
+                      FullName = x.Nurse.FullName
+                  },
+              })
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (details == null)
+            {
+                throw new EntityNotFoundException(typeof(Appointment), id);
+            }
+            var prescription = ObjectMapper.Map<CreateUpdateAppointmentDto>(details);
+            return prescription;
         }
     }
 

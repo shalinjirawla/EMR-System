@@ -61,10 +61,18 @@
             <p-button label="Add Item" variant="text" severity="info" (click)="addItem()" icon="fa-solid fa-plus" />
           </div>
         </div>
+
+        <div class="d-flex" *ngIf="prescription.items.length>0">
+          <p class="w-25 m-0">Medicine Name</p>
+          <p class="w-25 m-0">Dosage</p>
+          <p class="w-25 m-0">Frequency</p>
+          <p class="w-25 m-0">Duration</p>
+          <p class="w-25 m-0">Instructions</p>
+        </div>
         <!-- You can dynamically render prescription items list here -->
         <div *ngFor="let item of prescription.items; let i = index" class="mt-2">
           <div class="d-flex">
-            <input type="text" pInputText [(ngModel)]="item.medicineName" name="itemName{{i}}" class="w-50 mr-2"
+            <input type="text" pInputText [(ngModel)]="item.medicineName" name="itemName{{i}}" class="w-25 mr-2"
               placeholder="Medicine Name" />
             <input type="text" pInputText [(ngModel)]="item.dosage" name="itemDosage{{i}}" class="w-25 mr-2"
               placeholder="Dosage" />
