@@ -37,6 +37,7 @@
     "moment-timezone": "0.5.47",
     "ngx-bootstrap": "^19.0.2",
     "ngx-pagination": "^6.0.3",
+    "primeicons": "^7.0.0",
     "primeng": "^19.0.9",
     "push.js": "1.0.12",
     "rtl-detect": "^1.1.2",

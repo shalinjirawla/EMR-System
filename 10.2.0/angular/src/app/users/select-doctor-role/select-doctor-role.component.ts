@@ -16,7 +16,6 @@ export class SelectDoctorRoleComponent {
   @ViewChild('doctorForm', { static: true }) doctorForm: NgForm;
 
   doctorData = {
-    phoneNumber: '',
     gender: 'Male',
     specialization: '',
     qualification: '',
