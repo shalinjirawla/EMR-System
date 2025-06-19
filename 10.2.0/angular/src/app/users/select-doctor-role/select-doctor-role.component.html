@@ -1,0 +1,81 @@
+<form #doctorForm="ngForm">
+
+    <!-- Gender -->
+    <div class="form-group row required">
+        <label class="col-md-3 col-form-label">Gender</label>
+        <div class="col-md-9">
+            <div *ngFor="let gender of genders" class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="gender" [id]="'gender_' + gender" [value]="gender"
+                    [(ngModel)]="doctorData.gender" (ngModelChange)="onInputChange()" required #genderModel="ngModel"
+                    #genderEl>
+                <label class="form-check-label" [for]="'gender_' + gender">{{ gender }}</label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Specialization -->
+    <div class="form-group row required">
+        <label class="col-md-3 col-form-label" for="specialization">Specialization</label>
+        <div class="col-md-9">
+            <input type="text" id="specialization" name="specialization" class="form-control" required
+                [(ngModel)]="doctorData.specialization" (ngModelChange)="onInputChange()" #specializationModel="ngModel"
+                #specializationEl>
+            <abp-validation-summary [control]="specializationModel"
+                [controlEl]="specializationEl"></abp-validation-summary>
+        </div>
+    </div>
+
+    <!-- Qualification -->
+    <div class="form-group row required">
+        <label class="col-md-3 col-form-label" for="qualification">Qualification</label>
+        <div class="col-md-9">
+            <input type="text" id="qualification" name="qualification" class="form-control" required
+                [(ngModel)]="doctorData.qualification" (ngModelChange)="onInputChange()" #qualificationModel="ngModel"
+                #qualificationEl>
+            <abp-validation-summary [control]="qualificationModel"
+                [controlEl]="qualificationEl"></abp-validation-summary>
+        </div>
+    </div>
+
+    <!-- Years of Experience -->
+    <div class="form-group row required">
+        <label class="col-md-3 col-form-label" for="experience">Years of Experience</label>
+        <div class="col-md-9">
+            <input type="number" id="experience" name="experience" class="form-control" required min="0"
+                [(ngModel)]="doctorData.yearsOfExperience" (ngModelChange)="onInputChange()" #expModel="ngModel" #expEl>
+            <abp-validation-summary [control]="expModel" [controlEl]="expEl"></abp-validation-summary>
+        </div>
+    </div>
+
+    <!-- Department -->
+    <div class="form-group row required">
+        <label class="col-md-3 col-form-label" for="department">Department</label>
+        <div class="col-md-9">
+            <input type="text" id="department" name="department" class="form-control" required
+                [(ngModel)]="doctorData.department" (ngModelChange)="onInputChange()" #departmentModel="ngModel"
+                #departmentEl>
+            <abp-validation-summary [control]="departmentModel" [controlEl]="departmentEl"></abp-validation-summary>
+        </div>
+    </div>
+
+    <!-- Registration Number -->
+    <div class="form-group row required">
+        <label class="col-md-3 col-form-label" for="registration">Registration Number</label>
+        <div class="col-md-9">
+            <input type="text" id="registration" name="registration" class="form-control" required
+                [(ngModel)]="doctorData.registrationNumber" (ngModelChange)="onInputChange()" #regModel="ngModel"
+                #regEl>
+            <abp-validation-summary [control]="regModel" [controlEl]="regEl"></abp-validation-summary>
+        </div>
+    </div>
+
+    <!-- Date of Birth -->
+    <div class="form-group row required">
+        <label class="col-md-3 col-form-label" for="dob">Date of Birth</label>
+        <div class="col-md-9">
+            <input type="date" id="dob" name="dob" class="form-control" required [(ngModel)]="doctorData.dateOfBirth"
+                (ngModelChange)="onInputChange()" #dobModel="ngModel" #dobEl>
+            <abp-validation-summary [control]="dobModel" [controlEl]="dobEl"></abp-validation-summary>
+        </div>
+    </div>
+</form>

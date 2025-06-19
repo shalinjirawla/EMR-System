@@ -1,5 +1,20 @@
 {
     "extends": "./tsconfig.json",
-    "files": ["test.ts", "polyfills.ts"],
-    "include": ["src/**/*.d.ts", "typings.d.ts", "src/**/*.spec.ts", "**/*.spec.ts"]
+    "files": [
+        "test.ts",
+        "polyfills.ts"
+    ],
+    "include": [
+        "src/**/*.d.ts",
+        "typings.d.ts",
+        "src/**/*.spec.ts",
+        "**/*.spec.ts"
+    ],
+    "compilerOptions": {
+        "outDir": "./out-tsc/spec",
+        "types": [
+            "jasmine"
+        ],
+        "composite": true, // <-- ADD THIS LINE,
+    }
 }

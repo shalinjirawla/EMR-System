@@ -139,7 +139,10 @@
                                         {{ 'EmailAddress' | localize }}
                                         <p-sortIcon field="emailAddress"></p-sortIcon>
                                     </th>
-                                    <th style="min-width: 150px">
+                                    <th style="min-width: 150px" >
+                                        {{ 'Roles' | localize }}
+                                    </th>
+                                    <th style="min-width: 50px">
                                         {{ 'IsActive' | localize }}
                                     </th>
                                     <th style="min-width: 130px">
@@ -167,31 +170,31 @@
                                     </td>
                                     <td>
                                         <span>
+                                            {{ record.roleNames }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span>
                                             {{ record.isActive }}
                                         </span>
                                     </td>
                                     <td>
-                                        <button
-                                            type="button"
-                                            class="btn btn-sm bg-secondary"
-                                            (click)="editUser(record)">
-                                            <i class="fas fa-pencil-alt"></i>
-                                            {{ 'Edit' | localize }}
+                                        <button type="button" pButton icon="pi pi-ellipsis-v" class="p-button-text"
+                                            (click)="rowMenu.toggle($event); selectedRecord = record">
                                         </button>
-                                        <button
-                                            type="button"
-                                            class="btn btn-sm bg-danger mx-2"
-                                            (click)="delete(record)">
-                                            <i class="fas fa-trash"></i>
-                                            {{ 'Delete' | localize }}
-                                        </button>
-                                        <button
-                                            type="button"
-                                            class="btn btn-sm bg-secondary"
-                                            (click)="resetPassword(record)">
-                                            <i class="fas fa-lock"></i>
-                                            {{ 'ResetPassword' | localize }}
-                                        </button>
+                                        <p-overlayPanel #rowMenu class="custom-overlay" [dismissable]="true">
+                                            <ul class="custom-overlay-menu">
+                                                <li (click)="editUser(selectedRecord)">   
+                                                    <i class="pi pi-pencil"></i> Edit
+                                                </li>
+                                                <li (click)="delete(selectedRecord)">
+                                                    <i class="pi pi-trash"></i> Delete
+                                                </li>
+                                                <li (click)="resetPassword(selectedRecord)">   
+                                                    <i class="fas fa-lock"></i> ResetPassword
+                                                </li>
+                                            </ul>
+                                        </p-overlayPanel>
                                     </td>
                                 </tr>
                             </ng-template>

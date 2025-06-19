@@ -13,15 +13,49 @@ using EMRSystem.Doctors;
 using EMRSystem.Doctor.Dto;
 using Abp.Authorization;
 using EMRSystem.Authorization;
+using EMRSystem.Authorization.Users;
+using EMRSystem.Users.Dto;
+using EMRSystem.Users;
+using Abp.UI;
+using Microsoft.AspNetCore.Identity;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Net.Mail;
+using Castle.Core.Resource;
+using EMRSystem.Authorization.Roles;
+using EMRSystem.Patients.Dto;
+using EMRSystem.Patients;
+using Abp.IdentityFramework;
+using Abp.Domain.Entities;
 
 namespace EMRSystem.Doctor
 {
-    [AbpAuthorize(PermissionNames.Pages_Doctors)]
+    //[AbpAuthorize(PermissionNames.Pages_Doctors)]
     public class DoctorAppService : AsyncCrudAppService<EMRSystem.Doctors.Doctor, DoctorDto, long, PagedAndSortedResultRequestDto, CreateUpdateDoctorDto, CreateUpdateDoctorDto>,
    IDoctorAppService
     {
-        public DoctorAppService(IRepository<EMRSystem.Doctors.Doctor, long> repository) : base(repository)
+        public DoctorAppService(
+            IRepository<EMRSystem.Doctors.Doctor, long> doctorRepository) : base(doctorRepository)
         {
+        }
+
+        public async Task<ListResultDto<DoctorDto>> GetAllDoctorsByTenantID(int tenantId)
+        {
+            var doctorDto = await Repository.GetAllIncludingAsync(x => x.AbpUser);
+            var list = doctorDto.Where(x => x.TenantId == tenantId && !x.AbpUser.IsDeleted);
+            var mapped = ObjectMapper.Map<List<DoctorDto>>(list);
+            var resultList = new ListResultDto<DoctorDto>(mapped);
+            return resultList;
+        }
+
+        public EMRSystem.Doctors.Doctor GetDoctorDetailsByAbpUserID(long abpUserId)
+        {
+            var doctor = Repository.GetAll().FirstOrDefault(x => x.AbpUserId == abpUserId);
+
+            if (doctor == null)
+            {
+                throw new EntityNotFoundException(typeof(EMRSystem.Doctors.Doctor), abpUserId);
+            }
+            return doctor;
         }
     }
 }

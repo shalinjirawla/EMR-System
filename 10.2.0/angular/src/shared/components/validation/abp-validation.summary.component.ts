@@ -67,12 +67,15 @@ export class AbpValidationSummaryComponent extends AppComponentBase implements O
     }
     }
 
-    getValidationErrorMessage(error: AbpValidationError): string {
-        if (this.controlEl) {
-            this._renderer.addClass(this.controlEl.nativeElement, 'is-invalid');
-        }
-
-        const propertyValue = this.control.errors[error.name][error.propertyKey];
-        return propertyValue ? this.l(error.localizationKey, propertyValue) : this.l(error.localizationKey);
+   getValidationErrorMessage(error: AbpValidationError): string {
+    if (this.controlEl?.nativeElement) {
+        this._renderer.addClass(this.controlEl.nativeElement, 'is-invalid');
     }
+
+    const errorDetails = this.control.errors?.[error.name];
+    const propertyValue = errorDetails?.[error.propertyKey];
+
+    return propertyValue ? this.l(error.localizationKey, propertyValue) : this.l(error.localizationKey);
+}
+
 }

@@ -1,0 +1,87 @@
+<form class="form-horizontal" autocomplete="off" #prescriptionForm="ngForm" (ngSubmit)="save()">
+  <abp-modal-header title="Create New Prescription" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
+
+  <div class="modal-body">
+
+    <!-- Patient Selection -->
+    <div class="row">
+      <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center">
+          <b>Select Patient</b>
+          <p-button label="Add New Patient" variant="text" severity="info" />
+        </div>
+        <p-select [(ngModel)]="prescription.patientId" name="patientId" [options]="patients" [optionValue]="'id'"
+          optionLabel="fullName" placeholder="Select a patient" class="w-100" required (onChange)="LoadAppoinments()" />
+      </div>
+    </div>
+
+    <!-- Appointment Selection -->
+    <div class="row mt-3">
+      <div class="col-md-12">
+        <label><b>Appointment</b></label>
+        <p-select [(ngModel)]="prescription.appointmentId" name="appointmentId" [options]="appointments"
+          optionLabel="title" optionValue="id" placeholder="Select appointment" class="w-100" />
+      </div>
+    </div>
+
+    <!-- Diagnosis -->
+    <div class="row mt-3">
+      <div class="col-md-12 d-flex flex-column">
+        <label>Diagnosis</label>
+        <input type="text" pInputText [(ngModel)]="prescription.diagnosis" name="diagnosis" required
+          placeholder="Enter diagnosis" />
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div class="row mt-3">
+      <div class="col-md-12 d-flex flex-column">
+        <label>Notes</label>
+        <textarea pTextarea [(ngModel)]="prescription.notes" name="notes" rows="3" class="w-100"
+          placeholder="Enter notes"></textarea>
+      </div>
+    </div>
+
+    <!-- Issue Date & Follow-up -->
+    <div class="row mt-3">
+      <div class="col-md-6 d-flex align-items-center mt-4">
+        <p-checkbox [(ngModel)]="prescription.isFollowUpRequired" name="isFollowUpRequired" inputId="followup"
+          [binary]="true" />
+        <label for="followup" class="ml-2"><b>Follow-up Required</b></label>
+      </div>
+    </div>
+
+    <!-- Prescription Items Placeholder -->
+    <div class="row mt-4">
+      <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center">
+          <div><b>Prescription Items</b>
+          </div>
+          <div>
+            <p-button label="Add Item" variant="text" severity="info" (click)="addItem()" icon="fa-solid fa-plus" />
+          </div>
+        </div>
+        <!-- You can dynamically render prescription items list here -->
+        <div *ngFor="let item of prescription.items; let i = index" class="mt-2">
+          <div class="d-flex">
+            <input type="text" pInputText [(ngModel)]="item.medicineName" name="itemName{{i}}" class="w-50 mr-2"
+              placeholder="Medicine Name" />
+            <input type="text" pInputText [(ngModel)]="item.dosage" name="itemDosage{{i}}" class="w-25 mr-2"
+              placeholder="Dosage" />
+            <input type="text" pInputText [(ngModel)]="item.frequency" name="itemDosage{{i}}" class="w-25 mr-2"
+              placeholder="Frequency" />
+            <input type="text" pInputText [(ngModel)]="item.duration" name="itemDosage{{i}}" class="w-25 mr-2"
+              placeholder="Duration" />
+            <input type="text" pInputText [(ngModel)]="item.instructions" name="itemDosage{{i}}" class="w-25 mr-2"
+              placeholder="Instructions" />
+            <p-button variant="text" severity="danger" (click)="removeItem(i)" icon="fa-solid fa-xmark" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="isSaveDisabled()" (onCancelClick)="bsModalRef.hide()">
+  </abp-modal-footer>
+</form>

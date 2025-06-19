@@ -14,12 +14,16 @@ import { Paginator, PaginatorModule } from 'primeng/paginator';
 import { FormsModule } from '@angular/forms';
 import { NgIf } from '@angular/common';
 import { LocalizePipe } from '@shared/pipes/localize.pipe';
+import { OverlayPanel, OverlayPanelModule } from 'primeng/overlaypanel';
+import { MenuModule } from 'primeng/menu';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
     templateUrl: './users.component.html',
+    styleUrl:'./users.component.css',
     animations: [appModuleAnimation()],
     standalone: true,
-    imports: [FormsModule, TableModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe],
+    imports: [FormsModule, TableModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe,OverlayPanelModule,MenuModule, ButtonModule,],
 })
 export class UsersComponent extends PagedListingComponentBase<UserDto> {
     @ViewChild('dataTable', { static: true }) dataTable: Table;

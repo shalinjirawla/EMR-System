@@ -13,5 +13,6 @@ namespace EMRSystem.Doctor
     public interface IDoctorAppService : IAsyncCrudAppService<
     DoctorDto, long, PagedAndSortedResultRequestDto, CreateUpdateDoctorDto, CreateUpdateDoctorDto>
     {
+        Task<DoctorDto> CreateAsync(CreateUpdateDoctorDto input);
     }
 }

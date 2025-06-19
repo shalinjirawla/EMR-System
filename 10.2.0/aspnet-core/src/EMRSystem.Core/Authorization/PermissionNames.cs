@@ -17,7 +17,9 @@ public static class PermissionNames
     public const string Pages_Billing = "Pages.BillingStaff";
     public const string Pages_LabReports = "Pages.LabTechnician";
     public const string Pages_Nurses = "Pages.Nurse";
-    public const string Pages_Patients = "Pages.Patient";
+    //public const string Pages_Patients = "Pages.Patient";
+    public const string Pages_Patients = "Pages.Doctors.Patients";
+
     public const string Pages_Pharmacist = "Pages.Pharmacist";
     //public const string Pages_Appointments = "Pages.Appointments";
     //public const string Pages_Prescriptions = "Pages.Prescriptions";

@@ -1,7 +1,7 @@
-@if (control.invalid && (control.dirty || control.touched)) {
+@if (control?.invalid && (control?.dirty || control?.touched)) {
     @for (validationError of validationErrors; track validationError) {
-        @if (!!this.control.errors[validationError.name]) {
-            <span class="error invalid-feedback" [class.d-block]="!!this.control.errors[validationError.name]">
+        @if (control?.errors?.[validationError.name]) {
+            <span class="error invalid-feedback" [class.d-block]="true">
                 {{ getValidationErrorMessage(validationError) }}
             </span>
         }

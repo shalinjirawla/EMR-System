@@ -5,17 +5,17 @@ import { AppRouteGuard } from '@shared/auth/auth-route-guard';
 import { AssignedPatientsComponent } from './assigned-patients/assigned-patients.component';
 import { MedicationLogComponent } from './medication-log/medication-log.component';
 import { VitalsNotesComponent } from './vitals-notes/vitals-notes.component';
-
-
-
-
-
+import { AppointmentsComponent } from './appointments/appointments.component'
 const routes: Routes = [
     {
         path: '',
         component: NurseComponent,
-          canActivate: [AppRouteGuard],
+        canActivate: [AppRouteGuard],
         children: [
+            {
+                path: 'appointments',
+                component: AppointmentsComponent,
+            },
             {
                 path: 'assigned-patients',
                 component: AssignedPatientsComponent,
@@ -41,4 +41,4 @@ const routes: Routes = [
     imports: [RouterModule.forChild(routes)],
     exports: [RouterModule],
 })
-export class NurseRoutingModule {}
+export class NurseRoutingModule { }

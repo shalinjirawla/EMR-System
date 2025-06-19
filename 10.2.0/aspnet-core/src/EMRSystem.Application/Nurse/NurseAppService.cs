@@ -14,12 +14,21 @@ using EMRSystem.Authorization;
 
 namespace EMRSystem.Nurse
 {
-    [AbpAuthorize(PermissionNames.Pages_Nurses)]
+    //[AbpAuthorize(PermissionNames.Pages_Nurses)]
     public class NurseAppService : AsyncCrudAppService<EMRSystem.Nurses.Nurse, NurseDto, long, PagedAndSortedResultRequestDto, CreateUpdateNurseDto, CreateUpdateNurseDto>,
    INurseAppService
     {
         public NurseAppService(IRepository<EMRSystem.Nurses.Nurse, long> repository) : base(repository)
         {
+        }
+
+        public async Task<ListResultDto<NurseDto>> GetAllNursesByTenantID(int tenantId)
+        {
+            var doctorDto = await Repository.GetAllIncludingAsync(x => x.AbpUser);
+            var list = doctorDto.Where(x => x.TenantId == tenantId && !x.AbpUser.IsDeleted);
+            var mapped = ObjectMapper.Map<List<NurseDto>>(list);
+            var resultList = new ListResultDto<NurseDto>(mapped);
+            return resultList;
         }
     }
 }

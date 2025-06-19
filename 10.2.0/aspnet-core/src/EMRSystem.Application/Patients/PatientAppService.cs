@@ -2,22 +2,16 @@
 using Abp.Application.Services.Dto;
 using Abp.Authorization;
 using Abp.Domain.Repositories;
-using Abp.Extensions;
-using Abp.IdentityFramework;
-using EMRSystem.Authorization;
 using EMRSystem.Authorization.Users;
 using EMRSystem.Patients.Dto;
-using EMRSystem.Users.Dto;
-using Microsoft.AspNetCore.Identity;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace EMRSystem.Patients
 {
-    [AbpAuthorize(PermissionNames.Pages_Patients)]
+    //[AbpAuthorize("Pages.Doctors.Patients")]
+
     public class PatientAppService : AsyncCrudAppService<Patient, PatientDto, long, PagedAndSortedResultRequestDto, CreateUpdatePatientDto, CreateUpdatePatientDto>,
     IPatientAppService
     {
@@ -36,7 +30,6 @@ namespace EMRSystem.Patients
         {
             CheckCreatePermission();
             var user = ObjectMapper.Map<Patient>(input);
-            user.TenantId = AbpSession.TenantId.Value;
             await _userManager.InitializeOptionsAsync(AbpSession.TenantId);
             await Repository.InsertAsync(user);
             CurrentUnitOfWork.SaveChanges();
@@ -56,6 +49,16 @@ namespace EMRSystem.Patients
         {
             var user = await Repository.GetAsync(input.Id);
             await Repository.DeleteAsync(user);
+        }
+
+        public async Task<ListResultDto<PatientDto>> GetAllPatientByTenantID(int tenantId)
+        {
+            var patientsData = await Repository.GetAllAsync();
+            var patients = patientsData.Where(x => x.TenantId == tenantId).ToList();
+
+            var mapped = ObjectMapper.Map<List<PatientDto>>(patients);
+            var resultList = new ListResultDto<PatientDto>(mapped);
+            return resultList;
         }
     }
 }

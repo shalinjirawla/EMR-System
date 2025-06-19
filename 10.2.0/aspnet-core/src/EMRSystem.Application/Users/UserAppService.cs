@@ -245,5 +245,103 @@ public class UserAppService : AsyncCrudAppService<User, UserDto, long, PagedUser
 
         return true;
     }
+
+    public async Task<User> GetUserDetailsById(long id)
+    {
+        var details = await Repository.GetAllIncludingAsync(x => x.Patients, x => x.Doctors, x => x.Nurses, x => x.LabTechnicians).Result
+             .Select(x => new User
+             {
+                 Id = x.Id,
+                 TenantId = x.TenantId,
+                 UserName = x.UserName,
+                 Name = x.Name,
+                 Surname = x.Surname,
+                 EmailAddress = x.EmailAddress,
+                 Roles = x.Roles,
+                 Patients = x.Patients.Select(i => new EMRSystem.Patients.Patient
+                 {
+                     Id = i.Id,
+                     FullName = i.FullName,
+                     DateOfBirth = i.DateOfBirth,
+                     Gender = i.Gender,
+                     Address = i.Address,
+                     BloodGroup = i.BloodGroup,
+                     EmergencyContactName = i.EmergencyContactName,
+                     EmergencyContactNumber = i.EmergencyContactNumber,
+                     AssignedNurseId = i.AssignedNurseId,
+                     IsAdmitted = i.IsAdmitted,
+                     AdmissionDate = i.AdmissionDate,
+                     DischargeDate = i.DischargeDate,
+                     InsuranceProvider = i.InsuranceProvider,
+                     InsurancePolicyNumber = i.InsurancePolicyNumber,
+                     AbpUserId = i.AbpUserId,
+                     AssignedDoctorId = i.AssignedDoctorId,
+                 }).ToList(),
+                 Nurses = x.Nurses.Select(i => new EMRSystem.Nurses.Nurse
+                 {
+                     Id = i.Id,
+                     FullName = i.FullName,
+                     Gender = i.Gender,
+                     ShiftTiming = i.ShiftTiming,
+                     Department = i.Department,
+                     Qualification = i.Qualification,
+                     YearsOfExperience = i.YearsOfExperience,
+                     DateOfBirth = i.DateOfBirth,
+                     AbpUserId = i.AbpUserId,
+                 }).ToList(),
+                 Doctors = x.Doctors.Select(i => new EMRSystem.Doctors.Doctor
+                 {
+                     Id = i.Id,
+                     FullName = i.FullName,
+                     Gender = i.Gender,
+                     Specialization = i.Specialization,
+                     Qualification = i.Qualification,
+                     YearsOfExperience = i.YearsOfExperience,
+                     Department = i.Department,
+                     RegistrationNumber = i.RegistrationNumber,
+                     DateOfBirth = i.DateOfBirth,
+                     AbpUserId = i.AbpUserId,
+                 }).ToList(),
+                 LabTechnicians = x.LabTechnicians.Select(i => new EMRSystem.LabReports.LabTechnician
+                 {
+                     Id = i.Id,
+                     FullName = i.FullName,
+                     Gender = i.Gender,
+                     Qualification = i.Qualification,
+                     YearsOfExperience = i.YearsOfExperience,
+                     Department = i.Department,
+                     CertificationNumber = i.CertificationNumber,
+                     DateOfBirth = i.DateOfBirth,
+                     AbpUserId = i.AbpUserId,
+                 }).ToList(),
+                 //Pharmacists = x.Pharmacists.Select(i => new EMRSystem.Pharmacists.Pharmacist
+                 //{
+                 //    Id = i.Id,
+                 //    FullName = i.FullName,
+                 //    Gender = i.Gender,
+                 //    Qualification = i.Qualification,
+                 //    DateOfBirth = i.DateOfBirth,
+                 //    LicenseNumber = i.LicenseNumber,
+                 //    LicenseExpiryDate = i.LicenseExpiryDate,
+                 //    AbpUserId = i.AbpUserId,
+                 //}).ToList(),
+                 //Bills = x.Bills.Select(i => new EMRSystem.Billings.Bill
+                 //{
+                 //    Id = i.Id,
+                 //    PatientId = i.PatientId,
+                 //    BillDate = i.BillDate,
+                 //    AdmissionDate = i.AdmissionDate,
+                 //    DateOfSurgery = i.DateOfSurgery,
+                 //    TotalAmount = i.TotalAmount,
+                 //    PaymentStatus = i.PaymentStatus,
+                 //    PaymentMethod = i.PaymentMethod,
+                 //    AbpUserId = i.AbpUserId,
+                 //}).ToList(),
+             })
+            .FirstOrDefaultAsync(x => x.Id == id);
+        return details;
+    }
+
+
 }
 
