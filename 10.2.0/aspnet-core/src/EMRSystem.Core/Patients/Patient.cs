@@ -3,6 +3,7 @@ using Abp.Domain.Entities.Auditing;
 using EMRSystem.Appointments;
 using EMRSystem.Authorization.Users;
 using EMRSystem.Doctors;
+using EMRSystem.Nurses;
 using EMRSystem.Prescriptions;
 using EMRSystem.Vitals;
 using System;
@@ -24,15 +25,16 @@ namespace EMRSystem.Patients
         public string BloodGroup { get; set; }
         public string EmergencyContactName { get; set; }
         public string EmergencyContactNumber { get; set; }
-        public long? AssignedNurseId { get; set; }
         public bool IsAdmitted { get; set; }
         public DateTime? AdmissionDate { get; set; }
         public DateTime? DischargeDate { get; set; }
         public string? InsuranceProvider { get; set; }
         public string? InsurancePolicyNumber { get; set; }
         public long AbpUserId { get; set; }
-        public virtual User AbpUser { get; set; }
+        public long? AssignedNurseId { get; set; }
         public long? AssignedDoctorId { get; set; }
+        public virtual User AbpUser { get; set; }
+        public virtual Nurse Nurses { get; set; }
         public virtual Doctor Doctors { get; set; }
         public ICollection<Prescription> Prescriptions { get; set; }
         public ICollection<Vital> Vitals { get; set; }

@@ -91,7 +91,7 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
       next: (res) => {
         this.appointments = res.items;
         this.appointments.forEach(app => {
-          app['title'] = `${app.appointmentTimeSlot} - ${app.patient?.fullName}`;
+          app['title'] = `${app.startTime} - ${app.endTime} -${app.patient?.fullName}`;
         });
       }, error: (err) => {
       }

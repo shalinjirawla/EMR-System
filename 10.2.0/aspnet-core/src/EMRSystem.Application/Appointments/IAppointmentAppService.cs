@@ -12,7 +12,7 @@ using EMRSystem.Nurse.Dto;
 namespace EMRSystem.Appointments
 {
     public interface IAppointmentAppService : IAsyncCrudAppService<
-   AppointmentDto, long, PagedAndSortedResultRequestDto, CreateUpdateAppointmentDto, CreateUpdateAppointmentDto>
+   AppointmentDto, long, PagedAppoinmentResultRequestDto, CreateUpdateAppointmentDto, CreateUpdateAppointmentDto>
     {
     }
 }

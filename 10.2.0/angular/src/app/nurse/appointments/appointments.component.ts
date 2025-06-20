@@ -13,15 +13,17 @@ import { DatePipe, NgIf } from '@angular/common';
 import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { CreateAppoinmentComponent } from '../create-appoinment/create-appoinment.component';
 import { EditAppoinmentComponent } from '../edit-appoinment/edit-appoinment.component';
-import { CreateUserDialogComponent } from '@app/users/create-user/create-user-dialog.component';
+import { SelectModule } from 'primeng/select';
 import { ChipModule } from 'primeng/chip';
+import { OverlayPanel, OverlayPanelModule } from 'primeng/overlaypanel';
+import { MenuModule } from 'primeng/menu';
 @Component({
     selector: 'app-appointments',
     templateUrl: './appointments.component.html',
     styleUrl: './appointments.component.css',
     animations: [appModuleAnimation()],
     standalone: true,
-    imports: [FormsModule, TableModule, ChipModule,PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, DatePipe],
+    imports: [FormsModule, TableModule, ChipModule, SelectModule,MenuModule, OverlayPanelModule,PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, DatePipe],
     providers: [AppointmentServiceProxy, UserServiceProxy]
 })
 export class AppointmentsComponent extends PagedListingComponentBase<AppointmentDto> {
@@ -29,8 +31,9 @@ export class AppointmentsComponent extends PagedListingComponentBase<Appointment
     @ViewChild('paginator', { static: true }) paginator: Paginator;
 
     appointMents: AppointmentDto[] = [];
+    AppointmentStatus = AppointmentStatus;
     keyword = '';
-    isActive: boolean | null;
+    status!: number;
     advancedFiltersVisible = false;
     patients!: UserDto[];
     statusOptions = [
@@ -40,6 +43,7 @@ export class AppointmentsComponent extends PagedListingComponentBase<Appointment
         { label: 'Cancelled', value: AppointmentStatus._3 },
         { label: 'Rescheduled', value: AppointmentStatus._4 },
     ];
+    appointmentStatus!: any;
     constructor(
         injector: Injector,
         private _modalService: BsModalService,
@@ -51,10 +55,9 @@ export class AppointmentsComponent extends PagedListingComponentBase<Appointment
         super(injector, cd);
         this.keyword = this._activatedRoute.snapshot.queryParams['filterText'] || '';
     }
-
     clearFilters(): void {
         this.keyword = '';
-        this.isActive = undefined;
+        this.status = null;
     }
     list(event?: LazyLoadEvent): void {
         if (this.primengTableHelper.shouldResetPaging(event)) {
@@ -65,9 +68,10 @@ export class AppointmentsComponent extends PagedListingComponentBase<Appointment
             }
         }
         this.primengTableHelper.showLoadingIndicator();
-
         this._apointMentService
             .getAll(
+                this.keyword,
+                this.status,
                 this.primengTableHelper.getSorting(this.dataTable),
                 this.primengTableHelper.getSkipCount(this.paginator, event),
                 this.primengTableHelper.getMaxResultCount(this.paginator, event)

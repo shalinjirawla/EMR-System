@@ -18,11 +18,11 @@ namespace EMRSystem.Appointments.Dto
         public AppointmentMapProfile()
         {
             CreateMap<Appointment, AppointmentDto>().ReverseMap();
+            CreateMap<CreateUpdateAppointmentDto, Appointment>();
             CreateMap<Appointment, CreateUpdateAppointmentDto>()
-              .ForMember(dest => dest.NurseId, opt => opt.MapFrom(src => src.Nurse.Id))
+             .ForMember(dest => dest.NurseId, opt => opt.MapFrom(src => src.Nurse.Id))
              .ForMember(dest => dest.DoctorId, opt => opt.MapFrom(src => src.Doctor.Id))
-             .ForMember(dest => dest.PatientId, opt => opt.MapFrom(src => src.Patient.Id))
-            .ReverseMap();
+             .ForMember(dest => dest.PatientId, opt => opt.MapFrom(src => src.Patient.Id));
         }
     }
 }
