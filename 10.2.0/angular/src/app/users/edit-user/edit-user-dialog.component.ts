@@ -2,7 +2,7 @@ import { Component, Injector, OnInit, EventEmitter, Output, ChangeDetectorRef, V
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { forEach as _forEach, includes as _includes, map as _map } from 'lodash-es';
 import { AppComponentBase } from '@shared/app-component-base';
-import { UserServiceProxy, UserDto, RoleDto } from '@shared/service-proxies/service-proxies';
+import { UserServiceProxy, UserDto, RoleDto, DoctorServiceProxy, LapTechnicianServiceProxy, NurseServiceProxy, PatientServiceProxy } from '@shared/service-proxies/service-proxies';
 import { FormsModule, NgForm } from '@angular/forms';
 import { AbpModalHeaderComponent } from '../../../shared/components/modal/abp-modal-header.component';
 import { AbpValidationSummaryComponent } from '../../../shared/components/validation/abp-validation.summary.component';
@@ -12,6 +12,7 @@ import { CommonModule } from '@node_modules/@angular/common';
 import { EditDoctorComponent } from '@app/doctors/edit-doctor/edit-doctor.component';
 import { EditNurseComponent } from '@app/nurse/edit-nurse/edit-nurse.component';
 import { EditLabTechnicianComponent } from '@app/lab-technician/edit-lab-technician/edit-lab-technician.component';
+import { EditPatientsComponent } from '../../patient/edit-patients/edit-patients.component'
 import { forkJoin } from 'rxjs';
 
 
@@ -28,8 +29,10 @@ import { forkJoin } from 'rxjs';
         LocalizePipe,
         EditDoctorComponent,
         EditNurseComponent,
-        EditLabTechnicianComponent
+        EditLabTechnicianComponent,
+        EditPatientsComponent
     ],
+    providers: [DoctorServiceProxy,NurseServiceProxy,LapTechnicianServiceProxy,PatientServiceProxy]
 })
 export class EditUserDialogComponent extends AppComponentBase implements OnInit {
     @Output() onSave = new EventEmitter<any>();
@@ -38,6 +41,8 @@ export class EditUserDialogComponent extends AppComponentBase implements OnInit 
     @ViewChild(EditDoctorComponent) editDoctorComponent: EditDoctorComponent;
     @ViewChild(EditNurseComponent) editNurseComponent: EditNurseComponent;
     @ViewChild(EditLabTechnicianComponent) editLabTechnicianComponent: EditLabTechnicianComponent;
+    @ViewChild(EditPatientsComponent) editPatientsComponent: EditPatientsComponent;
+
 
     saving = false;
     id: number;
@@ -48,10 +53,15 @@ export class EditUserDialogComponent extends AppComponentBase implements OnInit 
     doctorData: any = {};
     nurseData: any = {};
     technicianData: any = {};
+    patientData: any = {};
 
     constructor(
         injector: Injector,
         private _userService: UserServiceProxy,
+        private _doctorService: DoctorServiceProxy,
+        private _nurseService: NurseServiceProxy,
+        private _labTechnicianService: LapTechnicianServiceProxy,
+        private _patientService: PatientServiceProxy,
         public bsModalRef: BsModalRef,
         private cd: ChangeDetectorRef
     ) {
@@ -66,6 +76,8 @@ export class EditUserDialogComponent extends AppComponentBase implements OnInit 
             this.roles = rolesRes.items;
             this.fillUserInfo(userRes);
             this.cd.detectChanges();
+
+            console.log(userRes)
         });
     }
 
@@ -77,6 +89,8 @@ export class EditUserDialogComponent extends AppComponentBase implements OnInit 
         this.user.surname = surname;
         this.user.emailAddress = emailAddress;
         this.user.isActive = isActive;
+        this.user.id = data.id
+
 
         const roleMap = data.roles?.[0];
         const role = this.roles.find(r => r.id === roleMap?.roleId);
@@ -96,10 +110,12 @@ export class EditUserDialogComponent extends AppComponentBase implements OnInit 
             case 'LAB TECHNICIAN':
                 this.setLabTechnicianData(data);
                 break;
+            case 'PATIENT':
+                this.setPatientData(data);
+                break;
         }
     }
 
-    // 🔽 Separate methods to keep fillUserInfo clean and readable
 
     private setDoctorData(data: any): void {
         const doc = data.doctors?.[0];
@@ -112,7 +128,11 @@ export class EditUserDialogComponent extends AppComponentBase implements OnInit 
             yearsOfExperience: doc.yearsOfExperience,
             department: doc.department,
             registrationNumber: doc.registrationNumber,
-            dateOfBirth: doc.dateOfBirth?.format('YYYY-MM-DD') ?? null
+            dateOfBirth: doc.dateOfBirth?.format('YYYY-MM-DD') ?? null,
+            abpUserId: doc.abpUserId,
+            id: doc.id,
+            tenantId: data.tenantId
+
         };
     }
 
@@ -126,7 +146,10 @@ export class EditUserDialogComponent extends AppComponentBase implements OnInit 
             department: nurse.department,
             qualification: nurse.qualification,
             yearsOfExperience: nurse.yearsOfExperience,
-            dateOfBirth: nurse.dateOfBirth?.format('YYYY-MM-DD') ?? null
+            dateOfBirth: nurse.dateOfBirth?.format('YYYY-MM-DD') ?? null,
+            abpUserId: nurse.abpUserId,
+            id: nurse.id,
+            tenantId: data.tenantId
         };
     }
 
@@ -138,8 +161,36 @@ export class EditUserDialogComponent extends AppComponentBase implements OnInit 
             gender: tech.gender,
             department: tech.department,
             yearsOfExperience: tech.yearsOfExperience,
-            dateOfBirth: tech.dateOfBirth?.format('YYYY-MM-DD') ?? null
+            dateOfBirth: tech.dateOfBirth?.format('YYYY-MM-DD') ?? null,
+            abpUserId: tech.abpUserId,
+            id: tech.id,
+            tenantId: data.tenantId
         };
+    }
+
+    private setPatientData(data: any): void {
+        const patient = data.patients?.[0];
+        if (!patient) return;
+
+
+        this.patientData = {
+            gender: patient.gender,
+            dateOfBirth: patient.dateOfBirth?.format('YYYY-MM-DD') ?? null,
+            address: patient.address,
+            bloodGroup: patient.bloodGroup,
+            emergencyContactName: patient.emergencyContactName,
+            emergencyContactNumber: patient.emergencyContactNumber,
+            assignedNurseId: patient.assignedNurseId,
+            isAdmitted: patient.isAdmitted,
+            admissionDate: patient.admissionDate?.format('YYYY-MM-DD') ?? null,
+            dischargeDate: patient.dischargeDate?.format('YYYY-MM-DD') ?? null,
+            insuranceProvider: patient.insuranceProvider,
+            insurancePolicyNumber: patient.insurancePolicyNumber,
+            assignedDoctorId: patient.assignedDoctorId,
+            abpUserId: patient.abpUserId,
+            id: patient.id,
+            tenantId: data.tenantId
+        }
     }
 
 
@@ -158,14 +209,18 @@ export class EditUserDialogComponent extends AppComponentBase implements OnInit 
     onLabTechnicianDataChange(data: any): void {
         this.technicianData = data;
     }
+    onPatientDataChange(data: any): void {
+        this.patientData = data;
+    }
 
     get isFormValid(): boolean {
         const isMainValid = this.editUserForm?.form?.valid ?? false;
         const isDoctorValid = this.selectedRole === 'DOCTORS' ? this.editDoctorComponent?.doctorForm?.valid : true;
         const isNurseValid = this.selectedRole === 'NURSE' ? this.editNurseComponent?.nurseForm?.valid : true;
         const isTechValid = this.selectedRole === 'LAB TECHNICIAN' ? this.editLabTechnicianComponent?.labTechnicianForm?.valid : true;
+        const isPatientValid = this.selectedRole === 'PATIENT' ? this.editPatientsComponent?.patientForm?.valid : true;
 
-        return isMainValid && isDoctorValid && isNurseValid && isTechValid;
+        return isMainValid && isDoctorValid && isNurseValid && isTechValid && isPatientValid;
     }
 
     save(): void {
@@ -173,12 +228,27 @@ export class EditUserDialogComponent extends AppComponentBase implements OnInit 
             this.notify.warn(this.l('FormIsInvalid'));
             return;
         }
-
+        debugger
         this.saving = true;
         this.user.roleNames = [this.selectedRole];
+        this.user.id = this.id;
 
         this._userService.update(this.user).subscribe({
             next: () => {
+                switch (this.selectedRole) {
+                    case 'DOCTORS':
+                        this.updateDoctor();
+                        break;
+                    case 'NURSE':
+                        this.updateNurse();
+                        break;
+                    case 'LAB TECHNICIAN':
+                        this.updateTechnician();
+                        break;
+                    case 'PATIENT':
+                        this.updatePatient();
+                        break;
+                }
                 this.notify.info(this.l('SavedSuccessfully'));
                 this.bsModalRef.hide();
                 this.onSave.emit();
@@ -187,5 +257,24 @@ export class EditUserDialogComponent extends AppComponentBase implements OnInit 
                 this.saving = false;
             }
         });
+    }
+
+    updateDoctor(): void {
+        debugger
+        this.doctorData.fullName = `${this.user.name} ${this.user.surname}`;
+        this._doctorService.update(this.doctorData).subscribe();
+    }
+    updateNurse(): void {
+        this.nurseData.fullName = `${this.user.name} ${this.user.surname}`;
+        this._nurseService.update(this.nurseData).subscribe();
+    }
+
+    updateTechnician(): void {
+        // Add lab technician update logic here if applicable
+    }
+
+    updatePatient(): void {
+         this.patientData.fullName = `${this.user.name} ${this.user.surname}`;
+        this._patientService.update(this.patientData).subscribe();
     }
 }

@@ -77,6 +77,10 @@
             (technicianDataChange)="onLabTechnicianDataChange($event)">
         </app-edit-lab-technician>
 
+        <app-edit-patients *ngIf="selectedRole==='PATIENT'" [patientData]="patientData"
+            (patientDataChange)="onPatientDataChange($event)">
+        </app-edit-patients>
+
     </div>
     <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="!isFormValid || saving"
         (onCancelClick)="bsModalRef.hide()">
