@@ -4,6 +4,7 @@ using EMRSystem.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EMRSystem.Migrations
 {
     [DbContext(typeof(EMRSystemDbContext))]
-    partial class EMRSystemDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250620053755_ChangeTotimespan")]
+    partial class ChangeTotimespan
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2016,8 +2019,6 @@ namespace EMRSystem.Migrations
 
                     b.HasIndex("AssignedDoctorId");
 
-                    b.HasIndex("AssignedNurseId");
-
                     b.ToTable("Patients");
                 });
 
@@ -2542,16 +2543,9 @@ namespace EMRSystem.Migrations
                         .HasForeignKey("AssignedDoctorId")
                         .OnDelete(DeleteBehavior.NoAction);
 
-                    b.HasOne("EMRSystem.Nurses.Nurse", "Nurses")
-                        .WithMany("Patients")
-                        .HasForeignKey("AssignedNurseId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
                     b.Navigation("AbpUser");
 
                     b.Navigation("Doctors");
-
-                    b.Navigation("Nurses");
                 });
 
             modelBuilder.Entity("EMRSystem.Pharmacists.Pharmacist", b =>
@@ -2732,8 +2726,6 @@ namespace EMRSystem.Migrations
             modelBuilder.Entity("EMRSystem.Nurses.Nurse", b =>
                 {
                     b.Navigation("Appointments");
-
-                    b.Navigation("Patients");
 
                     b.Navigation("Vitals");
                 });

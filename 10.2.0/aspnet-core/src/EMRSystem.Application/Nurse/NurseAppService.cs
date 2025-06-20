@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using EMRSystem.Nurse.Dto;
 using Abp.Authorization;
 using EMRSystem.Authorization;
+using Abp.Domain.Entities;
 
 namespace EMRSystem.Nurse
 {
@@ -29,6 +30,16 @@ namespace EMRSystem.Nurse
             var mapped = ObjectMapper.Map<List<NurseDto>>(list);
             var resultList = new ListResultDto<NurseDto>(mapped);
             return resultList;
+        }
+        public EMRSystem.Nurses.Nurse GetNurseDetailsByAbpUserID(long abpUserId)
+        {
+            var doctor = Repository.GetAll().FirstOrDefault(x => x.AbpUserId == abpUserId);
+
+            if (doctor == null)
+            {
+                return null;
+            }
+            return doctor;
         }
     }
 }

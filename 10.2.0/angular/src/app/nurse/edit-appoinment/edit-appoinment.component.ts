@@ -8,7 +8,7 @@ import { AbpValidationSummaryComponent } from '../../../shared/components/valida
 import { AbpModalFooterComponent } from '../../../shared/components/modal/abp-modal-footer.component';
 import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { CommonModule } from '@node_modules/@angular/common';
-import { AppointmentDto, AppointmentServiceProxy, AppointmentStatus, CreateUpdatePrescriptionDto, CreateUpdatePrescriptionItemDto, DoctorDto, DoctorServiceProxy, NurseDto, NurseServiceProxy, PatientDto, PatientServiceProxy, PrescriptionServiceProxy } from '@shared/service-proxies/service-proxies';
+import { AppointmentDto, AppointmentServiceProxy, AppointmentStatus, CreateUpdateAppointmentDto, CreateUpdatePrescriptionDto, CreateUpdatePrescriptionItemDto, DoctorDto, DoctorServiceProxy, NurseDto, NurseServiceProxy, PatientDto, PatientServiceProxy, PrescriptionServiceProxy } from '@shared/service-proxies/service-proxies';
 import moment from 'moment';
 import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
@@ -38,6 +38,7 @@ export class EditAppoinmentComponent extends AppComponentBase implements OnInit 
   id: number;
   saving = false;
   appointment: any = {
+    id: null,
     patientId: null,
     doctorId: null,
     nurseId: null,
@@ -46,7 +47,8 @@ export class EditAppoinmentComponent extends AppComponentBase implements OnInit 
     appointmentDate: null,
     startTime: null,
     endTime: null,
-    reason: ''
+    reasonForVisit: '',
+    tenantId: 0,
   };
   patients!: PatientDto[];
   nurse!: NurseDto[];
@@ -76,18 +78,18 @@ export class EditAppoinmentComponent extends AppComponentBase implements OnInit 
     this.FillForm();
   }
   FillForm() {
-    debugger
     this._appointmentService.getAppointmentDetailsById(this.id).subscribe((result) => {
-      debugger
-      this.appointment.patientId=result.patientId;
-      this.appointment.doctorId=result.doctorId;
-      this.appointment.nurseId=result.nurseId;
-      this.appointment.status=result.status;
-      this.appointment.isFollowUp=result.isFollowUp;
-      this.appointment.appointmentDate=result.appointmentDate;
-      // this.appointment.startTime=result.patient.id;
-      // this.appointment.endTime=result.patient.id;
-      this.appointment.reason=result.reasonForVisit;
+      this.appointment.id = result.id;
+      this.appointment.tenantId = result.tenantId;
+      this.appointment.patientId = result.patientId;
+      this.appointment.doctorId = result.doctorId;
+      this.appointment.nurseId = result.nurseId;
+      this.appointment.status = result.status;
+      this.appointment.isFollowUp = result.isFollowUp;
+      this.appointment.appointmentDate = result.appointmentDate ? moment(result.appointmentDate).toDate() : null;
+      this.appointment.startTime = result.startTime ? this.convertTimeToDate(result.startTime) : null;
+      this.appointment.endTime = result.endTime ? this.convertTimeToDate(result.endTime) : null;
+      this.appointment.reasonForVisit = result.reasonForVisit;
       this.cd.detectChanges();
     });
   }
@@ -124,5 +126,75 @@ export class EditAppoinmentComponent extends AppComponentBase implements OnInit 
       }
     })
   }
-  save() { }
+  convertTimeToDate(timeStr: string): Date {
+    const [hours, minutes, seconds] = timeStr.split(':').map(Number);
+    const now = new Date();
+    now.setHours(hours, minutes, seconds || 0, 0);
+    return now;
+  }
+  isSaveDisabled() {
+    if (!this.editAppoinmentForm.valid || this.saving) {
+      return true;
+    }
+  }
+  save() {
+    this.saving = true;
+    if (!this.validateStartEndTime()) {
+      return;
+    }
+    if (!this.validateAppointmentDate()) {
+      return;
+    }
+    this.appointment.startTime = this.dateToTimeString(this.appointment.startTime);
+    this.appointment.endTime = this.dateToTimeString(this.appointment.endTime);
+    this._appointmentService.updateAppoinment(this.appointment).subscribe({
+      next: (res) => {
+        this.notify.info(this.l('SavedSuccessfully'));
+        this.bsModalRef.hide();
+        this.onSave.emit();
+      }, error: (err) => {
+        this.notify.info(this.l('SavedSuccessfully'));
+        this.bsModalRef.hide();
+        this.onSave.emit();
+      }
+    })
+  }
+  validateStartEndTime(): boolean {
+    if (!this.appointment.startTime || !this.appointment.endTime) {
+      this.message.warn('Please select both Start Time and End Time.');
+      return false;
+    }
+
+    const start = moment(this.appointment.startTime);
+    const end = moment(this.appointment.endTime);
+
+    if (start.isSameOrAfter(end)) {
+      this.message.warn('Start Time must be earlier than End Time.');
+      return false;
+    }
+
+    return true;
+  }
+  validateAppointmentDate(): boolean {
+    if (!this.appointment.appointmentDate) {
+      this.message.warn("Please select an appointment date.");
+      return false;
+    }
+
+    const selectedDate = moment(this.appointment.appointmentDate).startOf('day');
+    const today = moment().startOf('day');
+
+    if (!selectedDate.isAfter(today)) {
+      this.message.warn("Appointment date must be in the future (not today).");
+      return false;
+    }
+
+    return true;
+  }
+  dateToTimeString(date: Date): string {
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const seconds = date.getSeconds().toString().padStart(2, '0');
+    return `${hours}:${minutes}:${seconds}`;
+  }
 }

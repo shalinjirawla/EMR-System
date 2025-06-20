@@ -4,6 +4,7 @@ using EMRSystem.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EMRSystem.Migrations
 {
     [DbContext(typeof(EMRSystemDbContext))]
-    partial class EMRSystemDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250620065313_ChangePatientModel")]
+    partial class ChangePatientModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2007,6 +2010,9 @@ namespace EMRSystem.Migrations
                     b.Property<bool>("IsAdmitted")
                         .HasColumnType("bit");
 
+                    b.Property<long?>("NursesId")
+                        .HasColumnType("bigint");
+
                     b.Property<int>("TenantId")
                         .HasColumnType("int");
 
@@ -2016,7 +2022,7 @@ namespace EMRSystem.Migrations
 
                     b.HasIndex("AssignedDoctorId");
 
-                    b.HasIndex("AssignedNurseId");
+                    b.HasIndex("NursesId");
 
                     b.ToTable("Patients");
                 });
@@ -2543,9 +2549,8 @@ namespace EMRSystem.Migrations
                         .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("EMRSystem.Nurses.Nurse", "Nurses")
-                        .WithMany("Patients")
-                        .HasForeignKey("AssignedNurseId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .WithMany()
+                        .HasForeignKey("NursesId");
 
                     b.Navigation("AbpUser");
 
@@ -2732,8 +2737,6 @@ namespace EMRSystem.Migrations
             modelBuilder.Entity("EMRSystem.Nurses.Nurse", b =>
                 {
                     b.Navigation("Appointments");
-
-                    b.Navigation("Patients");
 
                     b.Navigation("Vitals");
                 });

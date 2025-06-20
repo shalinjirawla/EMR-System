@@ -97,7 +97,8 @@ namespace EMRSystem.Prescriptions
                     {
                         Id = x.Appointment.Id,
                         AppointmentDate = x.Appointment.AppointmentDate,
-                        AppointmentTimeSlot = x.Appointment.AppointmentTimeSlot,
+                        StartTime = x.Appointment.StartTime,
+                        EndTime = x.Appointment.EndTime,
                     },
                     Items = x.Items.Select(i => new PrescriptionItem
                     {

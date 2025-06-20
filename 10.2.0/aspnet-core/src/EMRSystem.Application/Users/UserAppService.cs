@@ -342,6 +342,5 @@ public class UserAppService : AsyncCrudAppService<User, UserDto, long, PagedUser
         return details;
     }
 
-
 }
 

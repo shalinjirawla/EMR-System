@@ -48,7 +48,7 @@
             <div class="col-md-6 d-flex flex-column">
                 <label for="buttondisplay"> Appointment Date </label>
                 <p-datepicker [(ngModel)]="appointment.appointmentDate" name="appointmentDate" [showIcon]="true"
-                    placeholder="Select appointment date" required />
+                    placeholder="Select appointment date"  [minDate]="tomorrow" required />
             </div>
             <div class="col-md-6">
                 <div class="row">
@@ -69,7 +69,7 @@
         <div class="row mt-3">
             <div class="col-md-12 d-flex flex-column">
                 <label for="buttondisplay"> Reason </label>
-                <textarea pTextarea [(ngModel)]="appointment.reason" name="reason" placeholder="Reason for visit"
+                <textarea pTextarea [(ngModel)]="appointment.reasonForVisit" name="reason" placeholder="Reason for visit"
                     rows="3" class="w-100" required></textarea>
             </div>
         </div>

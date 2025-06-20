@@ -1,4 +1,4 @@
-<form class="form-horizontal" autocomplete="off" #createAppoinmentModal="ngForm" (ngSubmit)="save()">
+<form class="form-horizontal" autocomplete="off" #editAppoinmentForm="ngForm" (ngSubmit)="save()">
     <abp-modal-header title="Edit Appoinment" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
     <div class="modal-body">
         <div class="row">
@@ -65,11 +65,11 @@
         <div class="row mt-3">
             <div class="col-md-12 d-flex flex-column">
                 <label for="buttondisplay"> Reason </label>
-                <textarea pTextarea [(ngModel)]="appointment.reason" name="reason" placeholder="Reason for visit"
+                <textarea pTextarea [(ngModel)]="appointment.reasonForVisit" name="reasonForVisit" placeholder="Reason for visit"
                     rows="3" class="w-100" required></textarea>
             </div>
         </div>
     </div>
-    <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="!isFormValid || saving"
+    <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="isSaveDisabled()"
         (onCancelClick)="bsModalRef.hide()"></abp-modal-footer>
 </form>

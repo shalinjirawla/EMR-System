@@ -270,6 +270,110 @@ export class AppointmentServiceProxy {
     }
 
     /**
+     * @param body (optional) 
+     * @return OK
+     */
+    createAppoinment(body: CreateUpdateAppointmentDto | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/Appointment/CreateAppoinment";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreateAppoinment(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreateAppoinment(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processCreateAppoinment(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    updateAppoinment(body: CreateUpdateAppointmentDto | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/Appointment/UpdateAppoinment";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateAppoinment(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateAppoinment(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processUpdateAppoinment(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * @param id (optional) 
      * @return OK
      */
@@ -326,13 +430,23 @@ export class AppointmentServiceProxy {
     }
 
     /**
+     * @param keyword (optional) 
+     * @param status (optional) 
      * @param sorting (optional) 
      * @param skipCount (optional) 
      * @param maxResultCount (optional) 
      * @return OK
      */
-    getAll(sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<AppointmentDtoPagedResultDto> {
+    getAll(keyword: string | undefined, status: AppointmentStatus | undefined, sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<AppointmentDtoPagedResultDto> {
         let url_ = this.baseUrl + "/api/services/app/Appointment/GetAll?";
+        if (keyword === null)
+            throw new Error("The parameter 'keyword' cannot be null.");
+        else if (keyword !== undefined)
+            url_ += "Keyword=" + encodeURIComponent("" + keyword) + "&";
+        if (status === null)
+            throw new Error("The parameter 'status' cannot be null.");
+        else if (status !== undefined)
+            url_ += "Status=" + encodeURIComponent("" + status) + "&";
         if (sorting === null)
             throw new Error("The parameter 'sorting' cannot be null.");
         else if (sorting !== undefined)
@@ -1981,6 +2095,62 @@ export class NurseServiceProxy {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = NurseDtoListResultDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param abpUserId (optional) 
+     * @return OK
+     */
+    getNurseDetailsByAbpUserID(abpUserId: number | undefined): Observable<Nurse> {
+        let url_ = this.baseUrl + "/api/services/app/Nurse/GetNurseDetailsByAbpUserID?";
+        if (abpUserId === null)
+            throw new Error("The parameter 'abpUserId' cannot be null.");
+        else if (abpUserId !== undefined)
+            url_ += "abpUserId=" + encodeURIComponent("" + abpUserId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetNurseDetailsByAbpUserID(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetNurseDetailsByAbpUserID(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<Nurse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<Nurse>;
+        }));
+    }
+
+    protected processGetNurseDetailsByAbpUserID(response: HttpResponseBase): Observable<Nurse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Nurse.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -5641,7 +5811,8 @@ export class Appointment implements IAppointment {
     id: number;
     tenantId: number;
     appointmentDate: moment.Moment;
-    appointmentTimeSlot: string | undefined;
+    startTime: string;
+    endTime: string;
     reasonForVisit: string | undefined;
     status: AppointmentStatus;
     isFollowUp: boolean;
@@ -5667,7 +5838,8 @@ export class Appointment implements IAppointment {
             this.id = _data["id"];
             this.tenantId = _data["tenantId"];
             this.appointmentDate = _data["appointmentDate"] ? moment(_data["appointmentDate"].toString()) : <any>undefined;
-            this.appointmentTimeSlot = _data["appointmentTimeSlot"];
+            this.startTime = _data["startTime"];
+            this.endTime = _data["endTime"];
             this.reasonForVisit = _data["reasonForVisit"];
             this.status = _data["status"];
             this.isFollowUp = _data["isFollowUp"];
@@ -5697,7 +5869,8 @@ export class Appointment implements IAppointment {
         data["id"] = this.id;
         data["tenantId"] = this.tenantId;
         data["appointmentDate"] = this.appointmentDate ? this.appointmentDate.toISOString() : <any>undefined;
-        data["appointmentTimeSlot"] = this.appointmentTimeSlot;
+        data["startTime"] = this.startTime;
+        data["endTime"] = this.endTime;
         data["reasonForVisit"] = this.reasonForVisit;
         data["status"] = this.status;
         data["isFollowUp"] = this.isFollowUp;
@@ -5727,7 +5900,8 @@ export interface IAppointment {
     id: number;
     tenantId: number;
     appointmentDate: moment.Moment;
-    appointmentTimeSlot: string | undefined;
+    startTime: string;
+    endTime: string;
     reasonForVisit: string | undefined;
     status: AppointmentStatus;
     isFollowUp: boolean;
@@ -5744,7 +5918,8 @@ export class AppointmentDto implements IAppointmentDto {
     id: number;
     tenantId: number;
     appointmentDate: moment.Moment;
-    appointmentTimeSlot: string | undefined;
+    startTime: string;
+    endTime: string;
     reasonForVisit: string | undefined;
     status: AppointmentStatus;
     isFollowUp: boolean;
@@ -5767,7 +5942,8 @@ export class AppointmentDto implements IAppointmentDto {
             this.id = _data["id"];
             this.tenantId = _data["tenantId"];
             this.appointmentDate = _data["appointmentDate"] ? moment(_data["appointmentDate"].toString()) : <any>undefined;
-            this.appointmentTimeSlot = _data["appointmentTimeSlot"];
+            this.startTime = _data["startTime"];
+            this.endTime = _data["endTime"];
             this.reasonForVisit = _data["reasonForVisit"];
             this.status = _data["status"];
             this.isFollowUp = _data["isFollowUp"];
@@ -5794,7 +5970,8 @@ export class AppointmentDto implements IAppointmentDto {
         data["id"] = this.id;
         data["tenantId"] = this.tenantId;
         data["appointmentDate"] = this.appointmentDate ? this.appointmentDate.toISOString() : <any>undefined;
-        data["appointmentTimeSlot"] = this.appointmentTimeSlot;
+        data["startTime"] = this.startTime;
+        data["endTime"] = this.endTime;
         data["reasonForVisit"] = this.reasonForVisit;
         data["status"] = this.status;
         data["isFollowUp"] = this.isFollowUp;
@@ -5821,7 +5998,8 @@ export interface IAppointmentDto {
     id: number;
     tenantId: number;
     appointmentDate: moment.Moment;
-    appointmentTimeSlot: string | undefined;
+    startTime: string;
+    endTime: string;
     reasonForVisit: string | undefined;
     status: AppointmentStatus;
     isFollowUp: boolean;
@@ -6697,7 +6875,8 @@ export class CreateUpdateAppointmentDto implements ICreateUpdateAppointmentDto {
     id: number;
     tenantId: number;
     appointmentDate: moment.Moment;
-    appointmentTimeSlot: string | undefined;
+    startTime: string;
+    endTime: string;
     reasonForVisit: string | undefined;
     status: AppointmentStatus;
     isFollowUp: boolean;
@@ -6719,7 +6898,8 @@ export class CreateUpdateAppointmentDto implements ICreateUpdateAppointmentDto {
             this.id = _data["id"];
             this.tenantId = _data["tenantId"];
             this.appointmentDate = _data["appointmentDate"] ? moment(_data["appointmentDate"].toString()) : <any>undefined;
-            this.appointmentTimeSlot = _data["appointmentTimeSlot"];
+            this.startTime = _data["startTime"];
+            this.endTime = _data["endTime"];
             this.reasonForVisit = _data["reasonForVisit"];
             this.status = _data["status"];
             this.isFollowUp = _data["isFollowUp"];
@@ -6741,7 +6921,8 @@ export class CreateUpdateAppointmentDto implements ICreateUpdateAppointmentDto {
         data["id"] = this.id;
         data["tenantId"] = this.tenantId;
         data["appointmentDate"] = this.appointmentDate ? this.appointmentDate.toISOString() : <any>undefined;
-        data["appointmentTimeSlot"] = this.appointmentTimeSlot;
+        data["startTime"] = this.startTime;
+        data["endTime"] = this.endTime;
         data["reasonForVisit"] = this.reasonForVisit;
         data["status"] = this.status;
         data["isFollowUp"] = this.isFollowUp;
@@ -6763,7 +6944,8 @@ export interface ICreateUpdateAppointmentDto {
     id: number;
     tenantId: number;
     appointmentDate: moment.Moment;
-    appointmentTimeSlot: string | undefined;
+    startTime: string;
+    endTime: string;
     reasonForVisit: string | undefined;
     status: AppointmentStatus;
     isFollowUp: boolean;
@@ -8819,6 +9001,7 @@ export class Nurse implements INurse {
     abpUserId: number;
     abpUser: User;
     vitals: Vital[] | undefined;
+    patients: Patient[] | undefined;
     appointments: Appointment[] | undefined;
 
     constructor(data?: INurse) {
@@ -8847,6 +9030,11 @@ export class Nurse implements INurse {
                 this.vitals = [] as any;
                 for (let item of _data["vitals"])
                     this.vitals.push(Vital.fromJS(item));
+            }
+            if (Array.isArray(_data["patients"])) {
+                this.patients = [] as any;
+                for (let item of _data["patients"])
+                    this.patients.push(Patient.fromJS(item));
             }
             if (Array.isArray(_data["appointments"])) {
                 this.appointments = [] as any;
@@ -8881,6 +9069,11 @@ export class Nurse implements INurse {
             for (let item of this.vitals)
                 data["vitals"].push(item.toJSON());
         }
+        if (Array.isArray(this.patients)) {
+            data["patients"] = [];
+            for (let item of this.patients)
+                data["patients"].push(item.toJSON());
+        }
         if (Array.isArray(this.appointments)) {
             data["appointments"] = [];
             for (let item of this.appointments)
@@ -8910,6 +9103,7 @@ export interface INurse {
     abpUserId: number;
     abpUser: User;
     vitals: Vital[] | undefined;
+    patients: Patient[] | undefined;
     appointments: Appointment[] | undefined;
 }
 
@@ -9116,15 +9310,16 @@ export class Patient implements IPatient {
     bloodGroup: string | undefined;
     emergencyContactName: string | undefined;
     emergencyContactNumber: string | undefined;
-    assignedNurseId: number | undefined;
     isAdmitted: boolean;
     admissionDate: moment.Moment | undefined;
     dischargeDate: moment.Moment | undefined;
     insuranceProvider: string | undefined;
     insurancePolicyNumber: string | undefined;
     abpUserId: number;
-    abpUser: User;
+    assignedNurseId: number | undefined;
     assignedDoctorId: number | undefined;
+    abpUser: User;
+    nurses: Nurse;
     doctors: Doctor;
     prescriptions: Prescription[] | undefined;
     vitals: Vital[] | undefined;
@@ -9150,15 +9345,16 @@ export class Patient implements IPatient {
             this.bloodGroup = _data["bloodGroup"];
             this.emergencyContactName = _data["emergencyContactName"];
             this.emergencyContactNumber = _data["emergencyContactNumber"];
-            this.assignedNurseId = _data["assignedNurseId"];
             this.isAdmitted = _data["isAdmitted"];
             this.admissionDate = _data["admissionDate"] ? moment(_data["admissionDate"].toString()) : <any>undefined;
             this.dischargeDate = _data["dischargeDate"] ? moment(_data["dischargeDate"].toString()) : <any>undefined;
             this.insuranceProvider = _data["insuranceProvider"];
             this.insurancePolicyNumber = _data["insurancePolicyNumber"];
             this.abpUserId = _data["abpUserId"];
-            this.abpUser = _data["abpUser"] ? User.fromJS(_data["abpUser"]) : <any>undefined;
+            this.assignedNurseId = _data["assignedNurseId"];
             this.assignedDoctorId = _data["assignedDoctorId"];
+            this.abpUser = _data["abpUser"] ? User.fromJS(_data["abpUser"]) : <any>undefined;
+            this.nurses = _data["nurses"] ? Nurse.fromJS(_data["nurses"]) : <any>undefined;
             this.doctors = _data["doctors"] ? Doctor.fromJS(_data["doctors"]) : <any>undefined;
             if (Array.isArray(_data["prescriptions"])) {
                 this.prescriptions = [] as any;
@@ -9196,15 +9392,16 @@ export class Patient implements IPatient {
         data["bloodGroup"] = this.bloodGroup;
         data["emergencyContactName"] = this.emergencyContactName;
         data["emergencyContactNumber"] = this.emergencyContactNumber;
-        data["assignedNurseId"] = this.assignedNurseId;
         data["isAdmitted"] = this.isAdmitted;
         data["admissionDate"] = this.admissionDate ? this.admissionDate.toISOString() : <any>undefined;
         data["dischargeDate"] = this.dischargeDate ? this.dischargeDate.toISOString() : <any>undefined;
         data["insuranceProvider"] = this.insuranceProvider;
         data["insurancePolicyNumber"] = this.insurancePolicyNumber;
         data["abpUserId"] = this.abpUserId;
-        data["abpUser"] = this.abpUser ? this.abpUser.toJSON() : <any>undefined;
+        data["assignedNurseId"] = this.assignedNurseId;
         data["assignedDoctorId"] = this.assignedDoctorId;
+        data["abpUser"] = this.abpUser ? this.abpUser.toJSON() : <any>undefined;
+        data["nurses"] = this.nurses ? this.nurses.toJSON() : <any>undefined;
         data["doctors"] = this.doctors ? this.doctors.toJSON() : <any>undefined;
         if (Array.isArray(this.prescriptions)) {
             data["prescriptions"] = [];
@@ -9242,15 +9439,16 @@ export interface IPatient {
     bloodGroup: string | undefined;
     emergencyContactName: string | undefined;
     emergencyContactNumber: string | undefined;
-    assignedNurseId: number | undefined;
     isAdmitted: boolean;
     admissionDate: moment.Moment | undefined;
     dischargeDate: moment.Moment | undefined;
     insuranceProvider: string | undefined;
     insurancePolicyNumber: string | undefined;
     abpUserId: number;
-    abpUser: User;
+    assignedNurseId: number | undefined;
     assignedDoctorId: number | undefined;
+    abpUser: User;
+    nurses: Nurse;
     doctors: Doctor;
     prescriptions: Prescription[] | undefined;
     vitals: Vital[] | undefined;

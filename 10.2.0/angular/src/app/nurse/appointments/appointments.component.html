@@ -41,39 +41,25 @@
                         </div>
                     </div>
                     @if (advancedFiltersVisible) {
-                    <div class="card mb-0 mt-1">
+                    <div class="card mb-0 mt-4">
                         <div class="card-body">
                             <form class="form-horizontal">
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group row mb-0">
-                                            <label class="col-md-3 col-form-label">
-                                                {{ 'IsActive' | localize }}
+                                            <label class="col-md-2 col-form-label">
+                                                Status
                                             </label>
-                                            <div class="col-md-9 pt-2">
-                                                <div class="custom-control custom-radio d-inline">
-                                                    <input type="radio" class="custom-control-input" id="isActiveAll"
-                                                        name="isActive" [(ngModel)]="isActive" [value]="undefined"
-                                                        checked />
-                                                    <label class="custom-control-label" for="isActiveAll">
-                                                        {{ 'All' | localize }}
-                                                    </label>
-                                                </div>
-                                                <div class="custom-control custom-radio d-inline mx-3">
-                                                    <input type="radio" class="custom-control-input" id="isActiveActive"
-                                                        name="isActive" [(ngModel)]="isActive" [value]="true" />
-                                                    <label class="custom-control-label" for="isActiveActive">
-                                                        {{ 'Yes' | localize }}
-                                                    </label>
-                                                </div>
-                                                <div class="custom-control custom-radio d-inline">
-                                                    <input type="radio" class="custom-control-input"
-                                                        id="isActivePassive" name="isActive" [(ngModel)]="isActive"
-                                                        [value]="false" />
-                                                    <label class="custom-control-label" for="isActivePassive">
-                                                        {{ 'No' | localize }}
-                                                    </label>
-                                                </div>
+                                            <div class="col-md-10 pt-2">
+                                                <select class="form-control form-select w-50" [(ngModel)]="status"
+                                                    name="status">
+                                                    <option [ngValue]="null">All</option>
+                                                    <option [ngValue]="0">Scheduled</option>
+                                                    <option [ngValue]="1">Checked In</option>
+                                                    <option [ngValue]="2">Completed</option>
+                                                    <option [ngValue]="3">Cancelled</option>
+                                                    <option [ngValue]="4">Rescheduled</option>
+                                                </select>
                                             </div>
                                         </div>
                                     </div>
@@ -144,14 +130,29 @@
                                             [class]="getStatusClass(record.status)" />
                                     </td>
                                     <td>
-                                        <button type="button" class="btn btn-sm bg-secondary"
+                                        <!-- <button
+                                            *ngIf="record.status !== AppointmentStatus?._2 && record.status !== AppointmentStatus?._3"
+                                            type="button" class="btn btn-sm bg-secondary"
                                             (click)="editAppoinment(record)">
                                             <i class="fas fa-pencil-alt"></i>
                                         </button>
                                         <button type="button" class="btn btn-sm bg-danger mx-2"
                                             (click)="delete(record)">
                                             <i class="fas fa-trash"></i>
+                                        </button> -->
+                                        <button type="button" pButton icon="pi pi-ellipsis-v" class="p-button-text"
+                                            (click)="rowMenu.toggle($event); selectedRecord = record">
                                         </button>
+                                        <p-overlayPanel #rowMenu class="custom-overlay" [dismissable]="true">
+                                            <ul class="custom-overlay-menu">
+                                                <li (click)="editAppoinment(record)">
+                                                    <i class="pi pi-pencil"></i> Edit
+                                                </li>
+                                                <li (click)="delete(record)">
+                                                    <i class="pi pi-trash"></i> Delete
+                                                </li>
+                                            </ul>
+                                        </p-overlayPanel>
                                     </td>
                                 </tr>
                             </ng-template>

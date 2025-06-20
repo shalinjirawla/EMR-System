@@ -93,6 +93,12 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
                 .HasForeignKey(s => s.AssignedDoctorId)
                 .OnDelete(DeleteBehavior.NoAction); // or NoAction
 
+        modelBuilder.Entity<Patient>()
+               .HasOne(s => s.Nurses)
+               .WithMany(e => e.Patients)
+               .HasForeignKey(s =>s.AssignedNurseId )
+               .OnDelete(DeleteBehavior.NoAction); // or NoAction
+
         modelBuilder.Entity<Prescription>()
               .HasOne(s => s.Appointment)
               .WithMany(e => e.Prescriptions)

@@ -13,5 +13,6 @@ namespace EMRSystem.Nurse
     public interface INurseAppService : IAsyncCrudAppService<
     NurseDto, long, PagedAndSortedResultRequestDto, CreateUpdateNurseDto, CreateUpdateNurseDto>
     {
+        EMRSystem.Nurses.Nurse GetNurseDetailsByAbpUserID(long abpUserId);
     }
 }
