@@ -2680,6 +2680,138 @@ export class PatientServiceProxy {
     }
 
     /**
+     * @param sorting (optional) 
+     * @param skipCount (optional) 
+     * @param maxResultCount (optional) 
+     * @return OK
+     */
+    patientsForNurse(sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<PatientsForDoctorAndNurseDtoPagedResultDto> {
+        let url_ = this.baseUrl + "/api/services/app/Patient/PatientsForNurse?";
+        if (sorting === null)
+            throw new Error("The parameter 'sorting' cannot be null.");
+        else if (sorting !== undefined)
+            url_ += "Sorting=" + encodeURIComponent("" + sorting) + "&";
+        if (skipCount === null)
+            throw new Error("The parameter 'skipCount' cannot be null.");
+        else if (skipCount !== undefined)
+            url_ += "SkipCount=" + encodeURIComponent("" + skipCount) + "&";
+        if (maxResultCount === null)
+            throw new Error("The parameter 'maxResultCount' cannot be null.");
+        else if (maxResultCount !== undefined)
+            url_ += "MaxResultCount=" + encodeURIComponent("" + maxResultCount) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processPatientsForNurse(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processPatientsForNurse(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PatientsForDoctorAndNurseDtoPagedResultDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PatientsForDoctorAndNurseDtoPagedResultDto>;
+        }));
+    }
+
+    protected processPatientsForNurse(response: HttpResponseBase): Observable<PatientsForDoctorAndNurseDtoPagedResultDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PatientsForDoctorAndNurseDtoPagedResultDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param sorting (optional) 
+     * @param skipCount (optional) 
+     * @param maxResultCount (optional) 
+     * @return OK
+     */
+    patientsForDoctor(sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<PatientsForDoctorAndNurseDtoPagedResultDto> {
+        let url_ = this.baseUrl + "/api/services/app/Patient/PatientsForDoctor?";
+        if (sorting === null)
+            throw new Error("The parameter 'sorting' cannot be null.");
+        else if (sorting !== undefined)
+            url_ += "Sorting=" + encodeURIComponent("" + sorting) + "&";
+        if (skipCount === null)
+            throw new Error("The parameter 'skipCount' cannot be null.");
+        else if (skipCount !== undefined)
+            url_ += "SkipCount=" + encodeURIComponent("" + skipCount) + "&";
+        if (maxResultCount === null)
+            throw new Error("The parameter 'maxResultCount' cannot be null.");
+        else if (maxResultCount !== undefined)
+            url_ += "MaxResultCount=" + encodeURIComponent("" + maxResultCount) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processPatientsForDoctor(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processPatientsForDoctor(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PatientsForDoctorAndNurseDtoPagedResultDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PatientsForDoctorAndNurseDtoPagedResultDto>;
+        }));
+    }
+
+    protected processPatientsForDoctor(response: HttpResponseBase): Observable<PatientsForDoctorAndNurseDtoPagedResultDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PatientsForDoctorAndNurseDtoPagedResultDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * @param id (optional) 
      * @return OK
      */
@@ -9677,6 +9809,184 @@ export class PatientDtoPagedResultDto implements IPatientDtoPagedResultDto {
 
 export interface IPatientDtoPagedResultDto {
     items: PatientDto[] | undefined;
+    totalCount: number;
+}
+
+export class PatientsForDoctorAndNurseDto implements IPatientsForDoctorAndNurseDto {
+    id: number;
+    tenantId: number;
+    fullName: string | undefined;
+    dateOfBirth: moment.Moment;
+    emailAddress: string | undefined;
+    gender: string | undefined;
+    address: string | undefined;
+    bloodGroup: string | undefined;
+    emergencyContactName: string | undefined;
+    emergencyContactNumber: string | undefined;
+    assignedNurseId: number | undefined;
+    nurseName: string | undefined;
+    assignedDoctorId: number | undefined;
+    doctorName: string | undefined;
+    abpUserId: number;
+    isAdmitted: boolean;
+    isActive: boolean;
+    admissionDate: moment.Moment | undefined;
+    dischargeDate: moment.Moment | undefined;
+    insuranceProvider: string | undefined;
+    insurancePolicyNumber: string | undefined;
+
+    constructor(data?: IPatientsForDoctorAndNurseDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.fullName = _data["fullName"];
+            this.dateOfBirth = _data["dateOfBirth"] ? moment(_data["dateOfBirth"].toString()) : <any>undefined;
+            this.emailAddress = _data["emailAddress"];
+            this.gender = _data["gender"];
+            this.address = _data["address"];
+            this.bloodGroup = _data["bloodGroup"];
+            this.emergencyContactName = _data["emergencyContactName"];
+            this.emergencyContactNumber = _data["emergencyContactNumber"];
+            this.assignedNurseId = _data["assignedNurseId"];
+            this.nurseName = _data["nurseName"];
+            this.assignedDoctorId = _data["assignedDoctorId"];
+            this.doctorName = _data["doctorName"];
+            this.abpUserId = _data["abpUserId"];
+            this.isAdmitted = _data["isAdmitted"];
+            this.isActive = _data["isActive"];
+            this.admissionDate = _data["admissionDate"] ? moment(_data["admissionDate"].toString()) : <any>undefined;
+            this.dischargeDate = _data["dischargeDate"] ? moment(_data["dischargeDate"].toString()) : <any>undefined;
+            this.insuranceProvider = _data["insuranceProvider"];
+            this.insurancePolicyNumber = _data["insurancePolicyNumber"];
+        }
+    }
+
+    static fromJS(data: any): PatientsForDoctorAndNurseDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PatientsForDoctorAndNurseDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["fullName"] = this.fullName;
+        data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
+        data["emailAddress"] = this.emailAddress;
+        data["gender"] = this.gender;
+        data["address"] = this.address;
+        data["bloodGroup"] = this.bloodGroup;
+        data["emergencyContactName"] = this.emergencyContactName;
+        data["emergencyContactNumber"] = this.emergencyContactNumber;
+        data["assignedNurseId"] = this.assignedNurseId;
+        data["nurseName"] = this.nurseName;
+        data["assignedDoctorId"] = this.assignedDoctorId;
+        data["doctorName"] = this.doctorName;
+        data["abpUserId"] = this.abpUserId;
+        data["isAdmitted"] = this.isAdmitted;
+        data["isActive"] = this.isActive;
+        data["admissionDate"] = this.admissionDate ? this.admissionDate.toISOString() : <any>undefined;
+        data["dischargeDate"] = this.dischargeDate ? this.dischargeDate.toISOString() : <any>undefined;
+        data["insuranceProvider"] = this.insuranceProvider;
+        data["insurancePolicyNumber"] = this.insurancePolicyNumber;
+        return data;
+    }
+
+    clone(): PatientsForDoctorAndNurseDto {
+        const json = this.toJSON();
+        let result = new PatientsForDoctorAndNurseDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IPatientsForDoctorAndNurseDto {
+    id: number;
+    tenantId: number;
+    fullName: string | undefined;
+    dateOfBirth: moment.Moment;
+    emailAddress: string | undefined;
+    gender: string | undefined;
+    address: string | undefined;
+    bloodGroup: string | undefined;
+    emergencyContactName: string | undefined;
+    emergencyContactNumber: string | undefined;
+    assignedNurseId: number | undefined;
+    nurseName: string | undefined;
+    assignedDoctorId: number | undefined;
+    doctorName: string | undefined;
+    abpUserId: number;
+    isAdmitted: boolean;
+    isActive: boolean;
+    admissionDate: moment.Moment | undefined;
+    dischargeDate: moment.Moment | undefined;
+    insuranceProvider: string | undefined;
+    insurancePolicyNumber: string | undefined;
+}
+
+export class PatientsForDoctorAndNurseDtoPagedResultDto implements IPatientsForDoctorAndNurseDtoPagedResultDto {
+    items: PatientsForDoctorAndNurseDto[] | undefined;
+    totalCount: number;
+
+    constructor(data?: IPatientsForDoctorAndNurseDtoPagedResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(PatientsForDoctorAndNurseDto.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): PatientsForDoctorAndNurseDtoPagedResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PatientsForDoctorAndNurseDtoPagedResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+
+    clone(): PatientsForDoctorAndNurseDtoPagedResultDto {
+        const json = this.toJSON();
+        let result = new PatientsForDoctorAndNurseDtoPagedResultDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IPatientsForDoctorAndNurseDtoPagedResultDto {
+    items: PatientsForDoctorAndNurseDto[] | undefined;
     totalCount: number;
 }
 

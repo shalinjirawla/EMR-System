@@ -3,7 +3,7 @@ import { finalize } from 'rxjs/operators';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
 import { PagedListingComponentBase } from 'shared/paged-listing-component-base';
-import { UserServiceProxy, UserDto, UserDtoPagedResultDto, PatientDto, PatientServiceProxy, PatientDtoPagedResultDto, NurseServiceProxy } from '@shared/service-proxies/service-proxies';
+import { UserServiceProxy, UserDto, UserDtoPagedResultDto, PatientDto, PatientServiceProxy, PatientDtoPagedResultDto, NurseServiceProxy, PatientsForDoctorAndNurseDtoPagedResultDto } from '@shared/service-proxies/service-proxies';
 import { Table, TableModule } from 'primeng/table';
 import { LazyLoadEvent, PrimeTemplate } from 'primeng/api';
 import { ActivatedRoute } from '@angular/router';
@@ -21,7 +21,7 @@ import { ButtonModule } from 'primeng/button';
   styleUrl: './assigned-patients.component.css',
   animations: [appModuleAnimation()],
   imports: [FormsModule, TableModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, OverlayPanelModule, MenuModule, ButtonModule,],
-  providers: [PatientServiceProxy,NurseServiceProxy],
+  providers: [PatientServiceProxy, NurseServiceProxy],
 })
 export class AssignedPatientsComponent extends PagedListingComponentBase<PatientDto> {
   @ViewChild('dataTable', { static: true }) dataTable: Table;
@@ -62,9 +62,7 @@ export class AssignedPatientsComponent extends PagedListingComponentBase<Patient
     this.primengTableHelper.showLoadingIndicator();
 
     this._patientService
-      .getAll(
-        // this.keyword,
-        // this.isActive,
+      .patientsForNurse(
         this.primengTableHelper.getSorting(this.dataTable),
         this.primengTableHelper.getSkipCount(this.paginator, event),
         this.primengTableHelper.getMaxResultCount(this.paginator, event)
@@ -74,7 +72,7 @@ export class AssignedPatientsComponent extends PagedListingComponentBase<Patient
           this.primengTableHelper.hideLoadingIndicator();
         })
       )
-      .subscribe((result: PatientDtoPagedResultDto) => {
+      .subscribe((result: PatientsForDoctorAndNurseDtoPagedResultDto) => {
         this.primengTableHelper.records = result.items;
         this.primengTableHelper.totalRecordsCount = result.totalCount;
         this.primengTableHelper.hideLoadingIndicator();
@@ -101,6 +99,23 @@ export class AssignedPatientsComponent extends PagedListingComponentBase<Patient
 
       }
     })
+  }
+
+  calculateAge(dob: string | Date): number {
+    const birthDate = new Date(dob);
+    const today = new Date();
+
+    let age = today.getFullYear() - birthDate.getFullYear();
+
+    const hasBirthdayPassedThisYear =
+      today.getMonth() > birthDate.getMonth() ||
+      (today.getMonth() === birthDate.getMonth() && today.getDate() >= birthDate.getDate());
+
+    if (!hasBirthdayPassedThisYear) {
+      age--;
+    }
+
+    return age;
   }
 
 }

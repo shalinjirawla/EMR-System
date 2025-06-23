@@ -100,10 +100,6 @@
                             [tableStyle]="{ 'min-width': '50rem' }">
                             <ng-template pTemplate="header">
                                 <tr>
-                                    <th style="min-width: 150px" pSortableColumn="userName">
-                                        {{ 'UserName' | localize }}
-                                        <p-sortIcon field="userName"></p-sortIcon>
-                                    </th>
                                     <th style="min-width: 150px" pSortableColumn="name">
                                         {{ 'FullName' | localize }}
                                         <p-sortIcon field="name"></p-sortIcon>
@@ -112,8 +108,11 @@
                                         {{ 'EmailAddress' | localize }}
                                         <p-sortIcon field="emailAddress"></p-sortIcon>
                                     </th>
-                                    <th style="min-width: 150px">
-                                        {{ 'Roles' | localize }}
+                                    <th>
+                                        Age/Gender
+                                    </th>
+                                    <th style="min-width: 80px">
+                                        Assigned Doctor
                                     </th>
                                     <th style="min-width: 50px">
                                         {{ 'IsActive' | localize }}
@@ -128,11 +127,6 @@
                                 <tr>
                                     <td>
                                         <span>
-                                            {{ record.userName }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span>
                                             {{ record.fullName }}
                                         </span>
                                     </td>
@@ -143,7 +137,12 @@
                                     </td>
                                     <td>
                                         <span>
-                                            {{ record.roleNames }}
+                                            {{calculateAge(record.dateOfBirth)}} • {{record.gender}}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span>
+                                            {{ record.doctorName }}
                                         </span>
                                     </td>
                                     <td>
@@ -152,7 +151,7 @@
                                         </span>
                                     </td>
                                     <td>
-                                       
+
                                     </td>
                                 </tr>
                             </ng-template>

@@ -14,7 +14,10 @@ using System.Threading.Tasks;
 using Abp.Collections.Extensions;
 using EMRSystem.Appointments.Dto;
 using EMRSystem.Appointments;
-
+using Microsoft.AspNetCore.Mvc;
+using EMRSystem.Doctor;
+using Abp.Linq.Extensions;
+using System.Linq.Dynamic.Core;
 namespace EMRSystem.Patients
 {
     //[AbpAuthorize("Pages.Doctors.Patients")]
@@ -23,10 +26,12 @@ namespace EMRSystem.Patients
     IPatientAppService
     {
         private readonly UserManager _userManager;
+        private readonly IDoctorAppService _doctorAppService;
         private readonly INurseAppService _nurseAppService;
-        public PatientAppService(IRepository<Patient, long> repository, UserManager userManager, INurseAppService nurseAppService) : base(repository)
+        public PatientAppService(IRepository<Patient, long> repository, UserManager userManager, IDoctorAppService doctorAppService, INurseAppService nurseAppService) : base(repository)
         {
             _userManager = userManager;
+            _doctorAppService = doctorAppService;
             _nurseAppService = nurseAppService;
         }
 
@@ -70,55 +75,66 @@ namespace EMRSystem.Patients
             return resultList;
         }
 
-        public IQueryable<Patient> GetAllAssignedPatientForNurse(PagedAndSortedResultRequestDto input)
+        [HttpGet]
+        public async Task<PagedResultDto<PatientsForDoctorAndNurseDto>> PatientsForNurse(PagedAndSortedResultRequestDto input)
         {
-            //long nurseID = 0;
-            //if (AbpSession.UserId.HasValue)
-            //{
-            //    var nurse = _nurseAppService.GetNurseDetailsByAbpUserID(AbpSession.UserId.Value);
-            //    if (nurse != null)
-            //        nurseID = nurse.Id;
-            //}
 
-            var patients = Repository.GetAll()
-                            .Include(x => x.Nurses)
-                            .Include(x => x.Doctors)
-                            .Include(x => x.AbpUser)
-                            .Select(x => new Patient
-                            {
-                                Id = x.Id,
-                                TenantId = x.TenantId,
-                                FullName = x.FullName,
-                                Gender = x.Gender,
-                                DateOfBirth = x.DateOfBirth,
-                                Address = x.Address,
-                                BloodGroup = x.BloodGroup,
-                                EmergencyContactName = x.EmergencyContactName,
-                                EmergencyContactNumber = x.EmergencyContactNumber,
-                                IsAdmitted = x.IsAdmitted,
-                                AdmissionDate = x.AdmissionDate,
-                                DischargeDate = x.DischargeDate,
-                                InsuranceProvider = x.InsuranceProvider,
-                                InsurancePolicyNumber = x.InsurancePolicyNumber,
-                                AssignedNurseId = x.AssignedNurseId,
-                                AssignedDoctorId = x.AssignedDoctorId,
-                                AbpUserId = x.AbpUserId,
-                                Nurses = x.Nurses == null ? null : new EMRSystem.Nurses.Nurse
-                                {
-                                    Id = x.Nurses.Id,
-                                    FullName = x.Nurses.FullName
-                                },
-                                Doctors = x.Doctors == null ? null : new EMRSystem.Doctors.Doctor
-                                {
-                                    Id = x.Doctors.Id,
-                                    FullName = x.Doctors.FullName
-                                },
-                                AbpUser = x.AbpUser == null ? null : new EMRSystem.Authorization.Users.User
-                                {
-                                    Id = x.AbpUser.Id
-                                }
-                            });
-            return patients;
+            long nurseID = 0;
+            if (AbpSession.UserId.HasValue)
+            {
+                var nurse = _nurseAppService.GetNurseDetailsByAbpUserID(AbpSession.UserId.Value);
+                if (nurse != null)
+                    nurseID = nurse.Id;
+            }
+
+
+            var patients = Repository.GetAll().Include(x => x.Doctors).Include(x => x.AbpUser)
+                        .WhereIf(nurseID > 0, i => i.AssignedNurseId == nurseID);
+
+            var patientList = patients.ToList();
+            var totalCount = patientList.Count();
+
+            var query =await patients
+                    .OrderBy(input.Sorting ?? "Id DESC") 
+                    .PageBy(input)                      
+                    .ToListAsync();
+
+            var mapped = ObjectMapper.Map<List<PatientsForDoctorAndNurseDto>>(patients);
+            return new PagedResultDto<PatientsForDoctorAndNurseDto>(
+                 totalCount,
+                 mapped
+             );
+        }
+
+        [HttpGet]
+        public async Task<PagedResultDto<PatientsForDoctorAndNurseDto>> PatientsForDoctor(PagedAndSortedResultRequestDto input)
+        {
+
+            long doctorID = 0;
+            if (AbpSession.UserId.HasValue)
+            {
+                var nurse = _doctorAppService.GetDoctorDetailsByAbpUserID(AbpSession.UserId.Value);
+                if (nurse != null)
+                    doctorID = nurse.Id;
+            }
+
+
+            var patients = Repository.GetAll().Include(x => x.Nurses).Include(x=>x.AbpUser)
+                        .WhereIf(doctorID > 0, i => i.AssignedDoctorId == doctorID);
+
+            var patientList = patients.ToList();
+            var totalCount = patientList.Count();
+
+            var query = await patients
+                   .OrderBy(input.Sorting ?? "Id DESC")
+                   .PageBy(input)
+                   .ToListAsync();
+
+            var mapped = ObjectMapper.Map<List<PatientsForDoctorAndNurseDto>>(patients);
+            return new PagedResultDto<PatientsForDoctorAndNurseDto>(
+                 totalCount,
+                 mapped
+             );
         }
     }
 }

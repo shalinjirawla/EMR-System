@@ -1,0 +1,500 @@
+<div>
+    <abp-modal-header title="Patient Details" (onCloseClick)="bsModalRef.hide()">
+    </abp-modal-header>
+    <div class="modal-body">
+        <div class="card p-3">
+            <div class="Patient-details text-center">
+                <img class="rounded-circle" src="https://medixpro.vercel.app/colorful-abstract-shapes.png" />
+                <h2 class="font-patient-name">John Smith</h2>
+                <p class="text-muted-foreground">45 years • Male</p>
+                <div class="d-flex justify-content-center align-items-center">
+                    <p class="patient-status pl-2 pr-2">Active</p>
+                    <p class="patient-blood-group ml-2 pl-2 pr-2">O+</p>
+                </div>
+            </div>
+            <div class="Patient-info">
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <div class="card p-3">
+                            <table class="table">
+                                <thead>
+                                    <tr class="text-center">
+                                        <th colspan="2">
+                                            Personal Information
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tr>
+                                    <th>Date of Birth</th>
+                                    <td> 1978-05-15</td>
+                                </tr>
+                                <tr>
+                                    <th>Phone</th>
+                                    <td>+1 (555) 123-4567</td>
+                                </tr>
+                                <tr>
+                                    <th>Email</th>
+                                    <td>john.smithexample.com</td>
+                                </tr>
+                                <tr>
+                                    <th>Address</th>
+                                    <td>123 Main Street, Apt 4B, New York, NY 10001</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card p-3">
+                            <table class="table">
+                                <thead>
+                                    <tr class="text-center">
+                                        <th colspan="2">
+                                            Medical Information
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tr>
+                                    <th>Blood Type</th>
+                                    <td>O+</td>
+                                </tr>
+                                <tr>
+                                    <th>Allergies</th>
+                                    <td>Penicillin, Peanuts</td>
+                                </tr>
+                                <tr>
+                                    <th>Conditions</th>
+                                    <td>Hypertension, Type 2 Diabetes</td>
+                                </tr>
+                                <tr>
+                                    <th>Primary Doctor</th>
+                                    <td>Dr. Sarah Johnson</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <div class="card p-3">
+                            <table class="table">
+                                <thead>
+                                    <tr class="text-center">
+                                        <th colspan="2">
+                                            Insurance Information
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tr>
+                                    <th>Provider</th>
+                                    <td>Blue Cross Blue Shield</td>
+                                </tr>
+                                <tr>
+                                    <th>Policy Number</th>
+                                    <td>BCBS123456789</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card p-3">
+                            <table class="table">
+                                <thead>
+                                    <tr class="text-center">
+                                        <th colspan="2">
+                                            Emergency Contact
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <td>Mary Smith</td>
+                                </tr>
+                                <tr>
+                                    <th>Relationship</th>
+                                    <td>Wife</td>
+                                </tr>
+                                <tr>
+                                    <th>Phone</th>
+                                    <td>+1 (555) 987-6543</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="patient-history mt-3">
+                <p-tabs value="0" scrollable>
+                    <p-tablist>
+                        <p-tab value="0" class="flex items-center !gap-2">
+                            <span class="pi pi-user"></span>
+                            <span class="ml-2">Overview</span>
+                        </p-tab>
+                        <p-tab value="1" class="flex items-center !gap-2">
+                            <span class="pi pi-calendar-plus"></span>
+                            <span class="ml-2">Appointments</span>
+                        </p-tab>
+                        <p-tab value="2" class="flex items-center !gap-2">
+                            <i class="fa-solid fa-prescription-bottle-medical"></i>
+                            <span class="ml-2">Prescriptions</span>
+                        </p-tab>
+                        <p-tab value="3" class="flex items-center !gap-2">
+                            <i class="fa-solid fa-vial-virus"></i>
+                            <span class="ml-2">Lab Results</span>
+                        </p-tab>
+                        <p-tab value="4" class="flex items-center !gap-2">
+                            <i class="fa-solid fa-money-bills"></i>
+                            <span class="ml-2">Billing</span>
+                        </p-tab>
+                    </p-tablist>
+                    <p-tabpanels>
+                        <p-tabpanel value="0">
+                            <h5><b>Patient Summary</b></h5>
+                            <p>
+                                Overview of patient's health status and recent activities.
+                            </p>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="card p-3">
+                                        <h6><b>Blood Pressure</b></h6>
+                                        <div class="mt-3">
+                                            <p class="m-0">135/85</p>
+                                            <small>Last checked: Apr 5, 2024</small>
+                                            <p-progressbar />
+                                            <span>Slightly elevated</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card p-3">
+                                        <h6><b>Blood Glucose</b></h6>
+                                        <div class="mt-3">
+                                            <p class="m-0">125 mg/dL</p>
+                                            <small>Last checked: Apr 5, 2024</small>
+                                            <p-progressbar />
+                                            <span>Above normal</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card p-3">
+                                        <h6><b>Weight</b></h6>
+                                        <div class="mt-3">
+                                            <p class="m-0">82 kg</p>
+                                            <small>Last checked: Apr 5, 2024</small>
+                                            <p-progressbar />
+                                            <span>Stable</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </p-tabpanel>
+                        <p-tabpanel value="1">
+                            <h5><b>Appointment History</b></h5>
+                            <p>
+                                View all appointments and medical visits.
+                            </p>
+                            <div>
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Date & Time</th>
+                                            <th>Type</th>
+                                            <th>Doctor</th>
+                                            <th>Status</th>
+                                            <th>Notes</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <p class="m-0">2023-07-15</p>
+                                                <p class="m-0">10:00 AM</p>
+                                            </td>
+                                            <td>
+                                                Follow-up
+                                            </td>
+                                            <td>Dr. Michael Chen</td>
+                                            <td>
+                                                <span class="appoinment-status">Scheduled</span>
+                                            </td>
+                                            <td>Discussed medication adju...</td>
+                                            <td class="text-center">
+                                                <span class="pi pi-ellipsis-h"></span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </p-tabpanel>
+                        <p-tabpanel value="2">
+                            <h5><b>Prescriptions</b></h5>
+                            <p>
+                                View all medications and prescriptions.
+                            </p>
+                            <div>
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Medication</th>
+                                            <th>Dosage & Frequency</th>
+                                            <th>Date Range</th>
+                                            <th>Doctor</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <p class="m-0">Lisinopril</p>
+                                            </td>
+                                            <td>
+                                                10mg, Once daily
+                                            </td>
+                                            <td>
+                                                <p class="m-0">2023-07-15</p>
+                                                <p class="m-0">to 2023-10-15</p>
+                                            </td>
+                                            <td>Dr. Sarah Johnson</td>
+                                            <td>
+                                                <span class="appoinment-status">Active</span>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="pi pi-ellipsis-h"></span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </p-tabpanel>
+                        <p-tabpanel value="3">
+                            <h5><b>Lab Results</b></h5>
+                            <p>
+                                View all laboratory test results.
+                            </p>
+                            <div class="card p-3">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h6><b>Blood Panel</b></h6>
+                                    </div>
+                                    <div class="completed">Completed</div>
+                                </div>
+                                <p><small>Date: 2023-07-14 • Ordered by: Dr. Sarah Johnson</small></p>
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Test</th>
+                                            <th>Result</th>
+                                            <th>Reference Range</th>
+                                            <th>Flag</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <b>Hemoglobin</b>
+                                            </td>
+                                            <td>
+                                                14.2 g/dL
+                                            </td>
+                                            <td>
+                                                13.5-17.5 g/dL
+                                            </td>
+                                            <td>
+                                                <span class="appoinment-status">Normal</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <b>White Blood Cells</b>
+                                            </td>
+                                            <td>
+                                                7.5 x10^9/L
+                                            </td>
+                                            <td>
+                                                4.5-11.0 x10^9/L
+                                            </td>
+                                            <td>
+                                                <span class="appoinment-status">Normal</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <b>Glucose</b>
+                                            </td>
+                                            <td>
+                                                130 mg/dL
+                                            </td>
+                                            <td>
+                                                70-99 mg/dL
+                                            </td>
+                                            <td>
+                                                <span class="appoinment-status">High</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div class="d-flex justify-content-end print-dwn-btn">
+                                    <p-button label="Print" variant="outlined" severity="secondary" size="small"
+                                        icon="pi pi-print" />
+                                    <p-button label="DownLoad" variant="outlined" severity="secondary" size="small"
+                                        icon="pi pi-download" class="ml-2" />
+                                </div>
+                            </div>
+                            <div class="card p-3 mt-3">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h6><b>Comprehensive Metabolic Panel</b></h6>
+                                    </div>
+                                    <div class="completed">Completed</div>
+                                </div>
+                                <p><small>Date: 2024-01-20 • Ordered by: Dr. Michael Chen</small></p>
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Test</th>
+                                            <th>Result</th>
+                                            <th>Reference Range</th>
+                                            <th>Flag</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <b>Sodium</b>
+                                            </td>
+                                            <td>
+                                                140 mmol/L
+                                            </td>
+                                            <td>
+                                                135-145 mmol/L
+                                            </td>
+                                            <td>
+                                                <span class="appoinment-status">Normal</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div class="d-flex justify-content-end print-dwn-btn">
+                                    <p-button label="Print" variant="outlined" severity="secondary" size="small"
+                                        icon="pi pi-print" />
+                                    <p-button label="DownLoad" variant="outlined" severity="secondary" size="small"
+                                        icon="pi pi-download" class="ml-2" />
+                                </div>
+                            </div>
+                        </p-tabpanel>
+                        <p-tabpanel value="4">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h5><b>Billing History</b></h5>
+                                    <p>
+                                        View all billing and payment information.
+                                    </p>
+                                </div>
+                                <div>
+                                    <div class="d-flex justify-content-end">
+                                        <p-button label="Export History" variant="outlined" severity="secondary"
+                                            size="small" icon="pi pi-download" class=" export-btn" />
+                                        <p-button label="New Invoice" severity="contrast" size="small" icon="pi pi-plus"
+                                            class="ml-2" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Description</th>
+                                            <th>Amount</th>
+                                            <th>Insurance</th>
+                                            <th>Patient Responsibility</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                2023-07-15
+                                            </td>
+                                            <td>
+                                                Office Visit - General Check-up
+                                            </td>
+                                            <td>
+                                                $150.00
+                                            </td>
+                                            <td>
+                                                $120.00
+                                            </td>
+                                            <td>
+                                                $30.00
+                                            </td>
+                                            <td>
+                                                <span class="appoinment-status">Paid</span>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="pi pi-ellipsis-h"></span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                2024-02-03
+                                            </td>
+                                            <td>
+                                                Cardiology Consultation
+                                            </td>
+                                            <td>
+                                                $250.00
+                                            </td>
+                                            <td>
+                                                $200.00
+                                            </td>
+                                            <td>
+                                                $50.00
+                                            </td>
+                                            <td>
+                                                <span class="appoinment-status">Pending</span>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="pi pi-ellipsis-h"></span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="mt-5">
+                                <h5><b>Payment Summary</b></h5>
+                                <p>Overview of patient's payment history.</p>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="card p-3">
+                                            <h6><b>Total Billed</b></h6>
+                                            <span class="mt-4">$1,130.00</span>
+                                            <small>Year to date</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card p-3">
+                                            <h6><b>Insurance Covered</b></h6>
+                                            <span class="mt-4">$904.00</span>
+                                            <small>80% coverage</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card p-3">
+                                            <h6><b>Patient Paid</b></h6>
+                                            <span class="mt-4">$152.00</span>
+                                            <small class="text-danger">$74.00 outstanding</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </p-tabpanel>
+                    </p-tabpanels>
+                </p-tabs>
+            </div>
+        </div>
+    </div>
+</div>

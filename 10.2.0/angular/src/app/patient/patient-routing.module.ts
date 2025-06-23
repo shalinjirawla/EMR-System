@@ -6,6 +6,7 @@ import { PatientsAppointmentsComponent } from './patients-appointments/patients-
 import { PatientsLabReportsComponent } from './patients-lab-reports/patients-lab-reports.component';
 import { PatientsPaymentsComponent } from './patients-payments/patients-payments.component';
 import { PatientsPrescriptionsComponent } from './patients-prescriptions/patients-prescriptions.component';
+import { PatientProfileComponent } from './patient-profile/patient-profile.component';
 
 
 
@@ -15,7 +16,7 @@ const routes: Routes = [
     {
         path: '',
         component: PatientComponent,
-          canActivate: [AppRouteGuard],
+        canActivate: [AppRouteGuard],
         children: [
             {
                 path: 'patients-appointments',
@@ -34,6 +35,10 @@ const routes: Routes = [
                 component: PatientsPrescriptionsComponent,
             },
             {
+                path: 'patients-profile',
+                component: PatientProfileComponent,
+            },
+            {
                 path: '',
                 redirectTo: 'patients-appointments',
                 pathMatch: 'full'
@@ -46,4 +51,4 @@ const routes: Routes = [
     imports: [RouterModule.forChild(routes)],
     exports: [RouterModule],
 })
-export class PatientRoutingModule {}
+export class PatientRoutingModule { }
