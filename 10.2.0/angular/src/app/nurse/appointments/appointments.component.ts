@@ -24,7 +24,7 @@ import { ButtonModule } from 'primeng/button';
     styleUrl: './appointments.component.css',
     animations: [appModuleAnimation()],
     standalone: true,
-    imports: [FormsModule, TableModule, ButtonModule,ChipModule, SelectModule,MenuModule, OverlayPanelModule,PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, DatePipe],
+    imports: [FormsModule, TableModule, ChipModule, SelectModule,MenuModule,ButtonModule, OverlayPanelModule,PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, DatePipe],
     providers: [AppointmentServiceProxy, UserServiceProxy]
 })
 export class AppointmentsComponent extends PagedListingComponentBase<AppointmentDto> {

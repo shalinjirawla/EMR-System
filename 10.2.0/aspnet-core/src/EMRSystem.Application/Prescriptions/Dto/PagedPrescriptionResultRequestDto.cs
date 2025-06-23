@@ -6,13 +6,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EMRSystem.Appointments.Dto
+namespace EMRSystem.Prescriptions.Dto
 {
-    public class PagedAppoinmentResultRequestDto : PagedResultRequestDto, IShouldNormalize
+    public class PagedPrescriptionResultRequestDto : PagedResultRequestDto, IShouldNormalize
     {
         public string Keyword { get; set; }
-        public AppointmentStatus? Status { get; set; }
         public string Sorting { get; set; }
+
         public void Normalize()
         {
             if (!string.IsNullOrEmpty(Sorting))
@@ -35,5 +35,6 @@ namespace EMRSystem.Appointments.Dto
 
             Keyword = Keyword?.Trim();
         }
+
     }
 }

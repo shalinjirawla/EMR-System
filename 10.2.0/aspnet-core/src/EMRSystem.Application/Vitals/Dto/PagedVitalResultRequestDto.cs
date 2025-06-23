@@ -1,18 +1,19 @@
 ﻿using Abp.Application.Services.Dto;
 using Abp.Runtime.Validation;
+using EMRSystem.Appointments;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EMRSystem.Appointments.Dto
+namespace EMRSystem.Vitals.Dto
 {
-    public class PagedAppoinmentResultRequestDto : PagedResultRequestDto, IShouldNormalize
+    public class PagedVitalResultRequestDto : PagedResultRequestDto, IShouldNormalize
     {
         public string Keyword { get; set; }
-        public AppointmentStatus? Status { get; set; }
         public string Sorting { get; set; }
+
         public void Normalize()
         {
             if (!string.IsNullOrEmpty(Sorting))
@@ -22,18 +23,19 @@ namespace EMRSystem.Appointments.Dto
                 {
                     Sorting = Sorting.Replace("patientname", "Patient.FullName");
                 }
-                else if (Sorting.Contains("doctorName"))
+                else if (Sorting.Contains("nursename"))
                 {
-                    Sorting = Sorting.Replace("doctorName", "Doctor.FullName");
+                    Sorting = Sorting.Replace("nursename", "Nurse.FullName");
                 }
                 // Add more mappings as needed
             }
             else
             {
-                Sorting = "Patient.FullName, Doctor.FullName";
+                Sorting = "Patient.FullName, Nurse.FullName";
             }
 
             Keyword = Keyword?.Trim();
         }
+
     }
 }

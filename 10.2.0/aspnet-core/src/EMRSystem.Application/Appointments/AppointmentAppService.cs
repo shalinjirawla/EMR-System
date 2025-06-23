@@ -1,20 +1,24 @@
 ﻿using Abp.Application.Services;
-using Abp.Domain.Repositories;
-using System.Collections.Generic;
-using System.Linq;
-using EMRSystem.Appointments.Dto;
 using Abp.Application.Services.Dto;
-using Microsoft.EntityFrameworkCore;
+using Abp.Collections.Extensions;
+using Abp.Domain.Entities;
+using Abp.Domain.Repositories;
+using Abp.Extensions;
+using EMRSystem.Appointments.Dto;
+using EMRSystem.Authorization.Users;
 using EMRSystem.Patients;
 using EMRSystem.Prescriptions;
-using Abp.Domain.Entities;
 using EMRSystem.Prescriptions.Dto;
-using System.Threading.Tasks;
-using EMRSystem.Authorization.Users;
-using Abp.Collections.Extensions;
-using Abp.Extensions;
-using System;
 using EMRSystem.Users.Dto;
+using EMRSystem.Vitals;
+using EMRSystem.Vitals.Dto;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Linq.Dynamic.Core;
+
 
 namespace EMRSystem.Appointments
 {
@@ -68,6 +72,19 @@ namespace EMRSystem.Appointments
         }
         protected override IQueryable<Appointment> ApplySorting(IQueryable<Appointment> query, PagedAppoinmentResultRequestDto input)
         {
+            if (!string.IsNullOrWhiteSpace(input.Sorting))
+            {
+                var sorting = input.Sorting;
+
+                if (sorting.Contains("patientName", StringComparison.OrdinalIgnoreCase))
+                    sorting = sorting.Replace("patientName", "Patient.FullName", StringComparison.OrdinalIgnoreCase);
+
+                if (sorting.Contains("doctorName", StringComparison.OrdinalIgnoreCase))
+                    sorting = sorting.Replace("doctorName", "Doctor.FullName", StringComparison.OrdinalIgnoreCase);
+
+                return query.OrderBy(sorting);
+            }
+
             return base.ApplySorting(query, input);
         }
         public ListResultDto<AppointmentDto> GetPatientAppointment(long patientId, long doctorId)

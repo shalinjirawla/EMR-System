@@ -85,13 +85,13 @@
                             [tableStyle]="{ 'min-width': '50rem' }" (onLazyLoad)="list($event)">
                             <ng-template pTemplate="header">
                                 <tr>
-                                    <th style="min-width: 150px" pSortableColumn="name">
+                                    <th style="min-width: 150px" pSortableColumn="patientName">
                                         Patient
-                                        <!-- <p-sortIcon field="name"></p-sortIcon> -->
+                                        <p-sortIcon field="patientName"></p-sortIcon>
                                     </th>
-                                    <th style="min-width: 150px" pSortableColumn="emailAddress">
+                                    <th style="min-width: 150px" pSortableColumn="doctorName">
                                         Doctor
-                                        <!-- <p-sortIcon field="emailAddress"></p-sortIcon> -->
+                                        <p-sortIcon field="doctorName"></p-sortIcon>
                                     </th>
                                     <th style="min-width: 150px">
                                         Date & Time

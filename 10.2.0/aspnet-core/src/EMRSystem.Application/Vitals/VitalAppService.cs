@@ -1,6 +1,8 @@
 ﻿using Abp.Application.Services;
 using Abp.Application.Services.Dto;
 using Abp.Domain.Repositories;
+using EMRSystem.Appointments;
+using EMRSystem.Appointments.Dto;
 using EMRSystem.Prescriptions;
 using EMRSystem.Prescriptions.Dto;
 using EMRSystem.Vitals.Dto;
@@ -10,10 +12,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq.Dynamic.Core;
+
 
 namespace EMRSystem.Vitals
 {
-    public class VitalAppService : AsyncCrudAppService<Vital, VitalDto, long, PagedAndSortedResultRequestDto, CreateUpdateVitalDto, CreateUpdateVitalDto>,
+    public class VitalAppService : AsyncCrudAppService<Vital, VitalDto, long, PagedVitalResultRequestDto, CreateUpdateVitalDto, CreateUpdateVitalDto>,
   IVitalAppService
     {
         public VitalAppService(IRepository<Vital, long> repository) : base(repository)
@@ -32,13 +36,31 @@ namespace EMRSystem.Vitals
                 throw;
             }
         }
-        protected override IQueryable<Vital> CreateFilteredQuery(PagedAndSortedResultRequestDto input)
+        protected override IQueryable<Vital> CreateFilteredQuery(PagedVitalResultRequestDto input)
         {
             return Repository
                 .GetAll()
                 .Include(x => x.Patient)
                 .Include(x => x.Nurse);
         }
+        protected override IQueryable<Vital> ApplySorting(IQueryable<Vital> query, PagedVitalResultRequestDto input)
+        {
+            if (!string.IsNullOrWhiteSpace(input.Sorting))
+            {
+                var sorting = input.Sorting;
+
+                if (sorting.Contains("patientName", StringComparison.OrdinalIgnoreCase))
+                    sorting = sorting.Replace("patientName", "Patient.FullName", StringComparison.OrdinalIgnoreCase);
+
+                if (sorting.Contains("nurseName", StringComparison.OrdinalIgnoreCase))
+                    sorting = sorting.Replace("nurseName", "Nurse.FullName", StringComparison.OrdinalIgnoreCase);
+
+                return query.OrderBy(sorting);
+            }
+
+            return base.ApplySorting(query, input);
+        }
+
         protected override async Task<Vital> GetEntityByIdAsync(long id)
         {
             return await Repository
