@@ -9,13 +9,7 @@ using System.Threading.Tasks;
 
 namespace EMRSystem.LabTechnician
 {
-    public interface ILapTechnicianAppService :
-        IAsyncCrudAppService<
-              LabTechniciansDto,
-            long,
-            PagedAndSortedResultRequestDto,
-            CreateUpdateLabTechnicianDto,
-            CreateUpdateLabTechnicianDto>
+    public interface ILapTechnicianAppService :IAsyncCrudAppService<LabTechniciansDto,long,PagedAndSortedResultRequestDto,CreateUpdateLabTechnicianDto,CreateUpdateLabTechnicianDto>
     {
     }
 }
