@@ -1,0 +1,71 @@
+.font-patient-name {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.text-muted-foreground {
+    color: grey;
+    margin: 0;
+}
+
+.patient-status {
+    background-color: #22c55e;
+    color: white;
+    font-weight: 600;
+    font-size: 13px;
+    border-radius: 15px;
+}
+
+.patient-blood-group {
+    font-weight: 600;
+    font-size: 13px;
+    border-radius: 15px;
+    color: #0ea5e9;
+    border: 1px solid #0ea5e9;
+}
+
+::ng-deep .p-step {
+    padding: 0px !important;
+}
+
+::ng-deep .p-progressbar {
+    height: 5px !important;
+}
+
+.appoinment-status {
+    border: 1px solid #0ea5e9;
+    border-radius: 19px;
+    padding: 4px 8px 4px 8px;
+    color: #0ea5e9;
+}
+
+.completed {
+    background-color: #22c55e;
+    color: white;
+    font-weight: 600;
+    font-size: 13px;
+    border-radius: 15px;
+    padding: 4px 8px 4px 8px;
+}
+
+.print-dwn-btn {
+    ::ng-deep .p-button-label {
+        color: black !important;
+    }
+
+    ::ng-deep .p-button-icon {
+        color: black !important;
+    }
+}
+
+.export-btn {
+    ::ng-deep .p-button-label {
+        color: black !important;
+    }
+
+    ::ng-deep .p-button-icon {
+        color: black !important;
+    }
+}

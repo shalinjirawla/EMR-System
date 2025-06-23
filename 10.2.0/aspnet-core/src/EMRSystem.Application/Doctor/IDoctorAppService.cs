@@ -14,5 +14,6 @@ namespace EMRSystem.Doctor
     DoctorDto, long, PagedAndSortedResultRequestDto, CreateUpdateDoctorDto, CreateUpdateDoctorDto>
     {
         Task<DoctorDto> CreateAsync(CreateUpdateDoctorDto input);
+        EMRSystem.Doctors.Doctor GetDoctorDetailsByAbpUserID(long abpUserId);
     }
 }
