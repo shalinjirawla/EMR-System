@@ -144,14 +144,19 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <button type="button" class="btn btn-sm bg-secondary"
-                                            (click)="editPrescription(record)">
-                                            <i class="fas fa-pencil-alt"></i>
+                                        <button type="button" pButton icon="pi pi-ellipsis-v" class="p-button-text"
+                                            (click)="rowMenu.toggle($event); selectedRecord = record">
                                         </button>
-                                        <button type="button" class="btn btn-sm bg-danger mx-2"
-                                            (click)="delete(record)">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
+                                        <p-overlayPanel #rowMenu class="custom-overlay" [dismissable]="true">
+                                            <ul class="custom-overlay-menu">
+                                                <li (click)="editPrescription(selectedRecord)">   
+                                                    <i class="pi pi-pencil"></i> Edit
+                                                </li>
+                                                <li (click)="delete(selectedRecord)">
+                                                    <i class="pi pi-trash"></i> Delete
+                                                </li>
+                                            </ul>
+                                        </p-overlayPanel>
                                     </td>
                                 </tr>
                             </ng-template>
