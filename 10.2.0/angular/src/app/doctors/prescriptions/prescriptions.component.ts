@@ -16,10 +16,11 @@ import { CommonModule, NgIf } from '@angular/common';
 import { DatePipe } from "@angular/common";
 import { OverlayPanel, OverlayPanelModule } from 'primeng/overlaypanel';
 import { MenuModule } from 'primeng/menu';
+import { ButtonModule } from 'primeng/button';
 @Component({
   selector: 'app-prescriptions',
   animations: [appModuleAnimation()],
-  imports: [FormsModule, TableModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, DatePipe, CommonModule, OverlayPanelModule,MenuModule],
+  imports: [FormsModule, TableModule, PrimeTemplate, NgIf, PaginatorModule,ButtonModule, LocalizePipe, DatePipe, CommonModule, OverlayPanelModule,MenuModule],
   templateUrl: './prescriptions.component.html',
   styleUrl: './prescriptions.component.css',
   providers: [PrescriptionServiceProxy]

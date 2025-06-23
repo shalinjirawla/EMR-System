@@ -11,7 +11,7 @@ using EMRSystem.Vitals.Dto;
 namespace EMRSystem.Vitals
 {
     public interface IVitalAppService : IAsyncCrudAppService<
-    VitalDto, long, PagedAndSortedResultRequestDto, CreateUpdateVitalDto, CreateUpdateVitalDto>
+    VitalDto, long, PagedVitalResultRequestDto, CreateUpdateVitalDto, CreateUpdateVitalDto>
     {
     }
 }

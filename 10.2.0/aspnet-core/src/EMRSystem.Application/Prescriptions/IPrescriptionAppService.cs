@@ -11,7 +11,7 @@ using EMRSystem.Prescriptions.Dto;
 namespace EMRSystem.Prescriptions
 {
     public interface IPrescriptionAppService : IAsyncCrudAppService<
-    PrescriptionDto, long, PagedAndSortedResultRequestDto, CreateUpdatePrescriptionDto, CreateUpdatePrescriptionDto>
+    PrescriptionDto, long, PagedPrescriptionResultRequestDto, CreateUpdatePrescriptionDto, CreateUpdatePrescriptionDto>
     {
         Task<PrescriptionDto> CreateAsync(CreateUpdatePrescriptionDto input);
     }

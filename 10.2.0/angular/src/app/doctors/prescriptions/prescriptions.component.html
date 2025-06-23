@@ -100,17 +100,17 @@
                             [tableStyle]="{ 'min-width': '50rem' }">
                             <ng-template pTemplate="header">
                                 <tr>
-                                    <th style="min-width: 150px" pSortableColumn="userName">
+                                    <th style="min-width: 150px" pSortableColumn="patientName">
                                         Patient
-                                        <!-- <p-sortIcon field="userName"></p-sortIcon> -->
+                                        <p-sortIcon field="patientName"></p-sortIcon>
                                     </th>
-                                    <th style="min-width: 150px" pSortableColumn="userName">
+                                    <th style="min-width: 150px" pSortableColumn="doctorName">
                                         Doctor
-                                        <!-- <p-sortIcon field="userName"></p-sortIcon> -->
+                                        <p-sortIcon field="doctorName"></p-sortIcon>
                                     </th>
-                                    <th style="min-width: 150px" pSortableColumn="name">
+                                    <th style="min-width: 150px" >
                                         Date
-                                        <!-- <p-sortIcon field="name"></p-sortIcon> -->
+                                        <!-- <p-sortIcon field="name"></p-sortIcon> pSortableColumn="name" -->
                                     </th>
                                     <th style="min-width: 150px">
                                         Medications
