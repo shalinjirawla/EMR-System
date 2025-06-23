@@ -14,10 +14,12 @@ import { LazyLoadEvent, PrimeTemplate } from 'primeng/api';
 import { finalize } from 'rxjs/operators';
 import { CommonModule, NgIf } from '@angular/common';
 import { DatePipe } from "@angular/common";
+import { OverlayPanel, OverlayPanelModule } from 'primeng/overlaypanel';
+import { MenuModule } from 'primeng/menu';
 @Component({
   selector: 'app-prescriptions',
   animations: [appModuleAnimation()],
-  imports: [FormsModule, TableModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, DatePipe, CommonModule],
+  imports: [FormsModule, TableModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, DatePipe, CommonModule, OverlayPanelModule,MenuModule],
   templateUrl: './prescriptions.component.html',
   styleUrl: './prescriptions.component.css',
   providers: [PrescriptionServiceProxy]
