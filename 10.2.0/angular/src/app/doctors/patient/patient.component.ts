@@ -14,9 +14,10 @@ import { NgIf } from '@node_modules/@angular/common';
 import { CreateUserDialogComponent } from '@app/users/create-user/create-user-dialog.component';
 import { OverlayPanel, OverlayPanelModule } from 'primeng/overlaypanel';
 import { MenuModule } from 'primeng/menu';
+import { ButtonModule } from 'primeng/button';
 @Component({
     selector: 'app-patient',
-    imports: [FormsModule, TableModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, OverlayPanelModule,MenuModule],
+    imports: [FormsModule, TableModule, PrimeTemplate, NgIf, PaginatorModule,ButtonModule, LocalizePipe, OverlayPanelModule,MenuModule],
     animations: [appModuleAnimation()],
     templateUrl: './patient.component.html',
     styleUrl: './patient.component.css',

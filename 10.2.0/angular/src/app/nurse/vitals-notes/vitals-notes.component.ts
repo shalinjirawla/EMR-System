@@ -15,9 +15,10 @@ import { CreateVitalsComponent } from '../create-vitals/create-vitals.component'
 import { EditVitalsComponent } from '../edit-vitals/edit-vitals.component'
 import { OverlayPanel, OverlayPanelModule } from 'primeng/overlaypanel';
 import { MenuModule } from 'primeng/menu';
+import { ButtonModule } from 'primeng/button';
 @Component({
     selector: 'app-vitals-notes',
-    imports: [FormsModule, TableModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, OverlayPanelModule,MenuModule],
+    imports: [FormsModule, TableModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, OverlayPanelModule,MenuModule,ButtonModule],
     animations: [appModuleAnimation()],
     templateUrl: './vitals-notes.component.html',
     styleUrl: './vitals-notes.component.css',

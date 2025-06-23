@@ -27,12 +27,8 @@
                                         <i class="fas fa-search"></i>
                                     </button>
                                 </div>
-                                <input
-                                    type="text"
-                                    class="form-control"
-                                    name="keyword"
-                                    [placeholder]="'SearchWithThreeDot' | localize"
-                                    [(ngModel)]="keyword"
+                                <input type="text" class="form-control" name="keyword"
+                                    [placeholder]="'SearchWithThreeDot' | localize" [(ngModel)]="keyword"
                                     (keyup.enter)="list()" />
                             </div>
                         </div>
@@ -42,15 +38,10 @@
                     <div class="table-responsive">
                         <!--<Primeng-TurboTable-Start>-->
                         <div class="primeng-datatable-container table-striped table-bordered">
-                            <p-table
-                                #dataTable
-                                sortMode="multiple"
-                                (onLazyLoad)="list($event)"
+                            <p-table #dataTable sortMode="multiple" (onLazyLoad)="list($event)"
                                 [value]="primengTableHelper.records"
-                                rows="{{ primengTableHelper.defaultRecordsCountPerPage }}"
-                                [paginator]="false"
-                                [lazy]="true"
-                                [tableStyle]="{ 'min-width': '50rem' }">
+                                rows="{{ primengTableHelper.defaultRecordsCountPerPage }}" [paginator]="false"
+                                [lazy]="true" [tableStyle]="{ 'min-width': '50rem' }">
                                 <ng-template pTemplate="header">
                                     <tr>
                                         <th style="min-width: 150px" pSortableColumn="name">
@@ -80,20 +71,19 @@
                                             </span>
                                         </td>
                                         <td>
-                                            <button
-                                                type="button"
-                                                class="btn btn-sm bg-secondary"
-                                                (click)="editRole(record)">
-                                                <i class="fas fa-pencil-alt"></i>
-                                                {{ 'Edit' | localize }}
+                                            <button type="button" pButton icon="pi pi-ellipsis-v" class="p-button-text"
+                                                (click)="rowMenu.toggle($event); selectedRecord = record">
                                             </button>
-                                            <button
-                                                type="button"
-                                                class="btn btn-sm bg-danger mx-2"
-                                                (click)="delete(record)">
-                                                <i class="fas fa-trash"></i>
-                                                {{ 'Delete' | localize }}
-                                            </button>
+                                            <p-overlayPanel #rowMenu class="custom-overlay" [dismissable]="true">
+                                                <ul class="custom-overlay-menu">
+                                                    <li (click)="editRole(selectedRecord)">
+                                                        <i class="pi pi-pencil"></i> Edit
+                                                    </li>
+                                                    <li (click)="delete(selectedRecord)">
+                                                        <i class="pi pi-trash"></i> Delete
+                                                    </li>
+                                                </ul>
+                                            </p-overlayPanel>
                                         </td>
                                     </tr>
                                 </ng-template>
@@ -115,14 +105,11 @@
                         <div class="col-sm-8 col-12">
                             <div class="float-sm-right m-auto">
                                 <div class="primeng-paging-container">
-                                    <p-paginator
-                                        [rows]="primengTableHelper.defaultRecordsCountPerPage"
-                                        #paginator
+                                    <p-paginator [rows]="primengTableHelper.defaultRecordsCountPerPage" #paginator
                                         (onPageChange)="list($event)"
                                         [totalRecords]="primengTableHelper.totalRecordsCount"
                                         [rowsPerPageOptions]="primengTableHelper.predefinedRecordsCountPerPage"
-                                        [showCurrentPageReport]="true"
-                                        [currentPageReportTemplate]="
+                                        [showCurrentPageReport]="true" [currentPageReportTemplate]="
                                             'TotalRecordsCount' | localize: primengTableHelper.totalRecordsCount
                                         "></p-paginator>
                                 </div>
