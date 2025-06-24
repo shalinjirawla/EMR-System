@@ -1,4 +1,4 @@
-import { Component, Injector, OnInit, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Injector, OnInit, Output, ViewChild } from '@angular/core';
 import { CommonModule } from '@node_modules/@angular/common';
 import { FormsModule, NgForm } from '@node_modules/@angular/forms';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
@@ -20,7 +20,8 @@ import moment from 'moment';
   styleUrl: './create-vitals.component.css'
 })
 export class CreateVitalsComponent extends AppComponentBase implements OnInit {
-  @ViewChild('createVitalForm', { static: true }) createVitalForm: NgForm;
+  @ViewChild('createVitalForm', { static: true }) createVitalForm: NgForm; 
+    @Output() onSave = new EventEmitter<void>();
   saving = false;
 
   patients: PatientDto[] = [];
@@ -86,6 +87,7 @@ export class CreateVitalsComponent extends AppComponentBase implements OnInit {
       next: () => {
         this.notify.info(this.l('SavedSuccessfully'));
         this.bsModalRef.hide();
+        this.onSave.emit();
       },
       error: (err) => {
         console.error('Error saving vital', err);

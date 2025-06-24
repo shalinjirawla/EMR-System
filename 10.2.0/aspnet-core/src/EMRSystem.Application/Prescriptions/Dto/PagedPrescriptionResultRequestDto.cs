@@ -12,6 +12,8 @@ namespace EMRSystem.Prescriptions.Dto
     {
         public string Keyword { get; set; }
         public string Sorting { get; set; }
+        public DateTime? FromDate { get; set; }
+        public DateTime? ToDate { get; set; }
 
         public void Normalize()
         {

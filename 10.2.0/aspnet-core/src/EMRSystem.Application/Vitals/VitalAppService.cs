@@ -1,18 +1,22 @@
 ﻿using Abp.Application.Services;
 using Abp.Application.Services.Dto;
 using Abp.Domain.Repositories;
+using Abp.Extensions;
+using Abp.Linq.Extensions;
 using EMRSystem.Appointments;
 using EMRSystem.Appointments.Dto;
+using EMRSystem.Authorization.Users;
 using EMRSystem.Prescriptions;
 using EMRSystem.Prescriptions.Dto;
+using EMRSystem.Users.Dto;
 using EMRSystem.Vitals.Dto;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Text;
 using System.Threading.Tasks;
-using System.Linq.Dynamic.Core;
 
 
 namespace EMRSystem.Vitals
@@ -41,7 +45,10 @@ namespace EMRSystem.Vitals
             return Repository
                 .GetAll()
                 .Include(x => x.Patient)
-                .Include(x => x.Nurse);
+                .Include(x => x.Nurse)
+                .WhereIf(!input.Keyword.IsNullOrWhiteSpace(), x =>
+                    x.Patient.FullName.Contains(input.Keyword) ||
+                    x.Nurse.FullName.Contains(input.Keyword));
         }
         protected override IQueryable<Vital> ApplySorting(IQueryable<Vital> query, PagedVitalResultRequestDto input)
         {
