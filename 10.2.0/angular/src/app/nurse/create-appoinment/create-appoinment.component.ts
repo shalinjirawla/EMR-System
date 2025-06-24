@@ -128,7 +128,6 @@ export class CreateAppoinmentComponent extends AppComponentBase implements OnIni
       }
     });
     createOrEditPatientDialog.content.onSave.subscribe(() => {
-      debugger
       this.LoadPatients();
     });
   }

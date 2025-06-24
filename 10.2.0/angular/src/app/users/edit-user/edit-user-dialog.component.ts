@@ -228,7 +228,6 @@ export class EditUserDialogComponent extends AppComponentBase implements OnInit 
             this.notify.warn(this.l('FormIsInvalid'));
             return;
         }
-        debugger
         this.saving = true;
         this.user.roleNames = [this.selectedRole];
         this.user.id = this.id;
@@ -260,7 +259,6 @@ export class EditUserDialogComponent extends AppComponentBase implements OnInit 
     }
 
     updateDoctor(): void {
-        debugger
         this.doctorData.fullName = `${this.user.name} ${this.user.surname}`;
         this._doctorService.update(this.doctorData).subscribe();
     }

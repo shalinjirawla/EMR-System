@@ -53,7 +53,7 @@ namespace EMRSystem.Doctor
 
             if (doctor == null)
             {
-                throw new EntityNotFoundException(typeof(EMRSystem.Doctors.Doctor), abpUserId);
+                return null;
             }
             return doctor;
         }

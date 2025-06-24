@@ -95,8 +95,8 @@ namespace EMRSystem.Patients
             var totalCount = patientList.Count();
 
             var query =await patients
-                    .OrderBy(input.Sorting ?? "Id DESC") 
-                    .PageBy(input)                      
+                    .OrderBy(input.Sorting ?? "Id DESC")
+                    .PageBy(input)
                     .ToListAsync();
 
             var mapped = ObjectMapper.Map<List<PatientsForDoctorAndNurseDto>>(patients);
@@ -113,13 +113,13 @@ namespace EMRSystem.Patients
             long doctorID = 0;
             if (AbpSession.UserId.HasValue)
             {
-                var nurse = _doctorAppService.GetDoctorDetailsByAbpUserID(AbpSession.UserId.Value);
-                if (nurse != null)
-                    doctorID = nurse.Id;
+                var doctor = _doctorAppService.GetDoctorDetailsByAbpUserID(AbpSession.UserId.Value);
+                if (doctor != null)
+                    doctorID = doctor.Id;
             }
 
 
-            var patients = Repository.GetAll().Include(x => x.Nurses).Include(x=>x.AbpUser)
+            var patients = Repository.GetAll().Include(x => x.Nurses).Include(x => x.AbpUser)
                         .WhereIf(doctorID > 0, i => i.AssignedDoctorId == doctorID);
 
             var patientList = patients.ToList();
@@ -135,6 +135,54 @@ namespace EMRSystem.Patients
                  totalCount,
                  mapped
              );
+        }
+
+        [HttpGet]
+        public async Task<PatientDetailsAndMedicalHistoryDto> PatientDetailsAndMedicalHistory(long patientId)
+        {
+            var data = await Repository.GetAll()
+                            .Include(x => x.AbpUser)
+                            .Include(x => x.Nurses)
+                            .Include(x => x.Doctors)
+                            .Include(x => x.Prescriptions)
+                            .ThenInclude(x => x.Items)
+                            .Include(x => x.Vitals)
+                            .Include(x => x.Appointments).ThenInclude(x => x.Doctor)
+                            .Include(x => x.Appointments).ThenInclude(x => x.Nurse)
+                            .FirstOrDefaultAsync(x => x.Id == patientId);
+
+            var result = ObjectMapper.Map<PatientDetailsAndMedicalHistoryDto>(data);
+            return result;
+
+        }
+
+        public List<PatientDropDownDto> PatientDropDown()
+        {
+            var userId = AbpSession.UserId;
+            if (!userId.HasValue)
+                return new List<PatientDropDownDto>();
+
+            var doctor = _doctorAppService.GetDoctorDetailsByAbpUserID(userId.Value);
+            var nurse = _nurseAppService.GetNurseDetailsByAbpUserID(userId.Value);
+
+            var query = Repository.GetAll();
+
+            if (doctor != null)
+            {
+                query = query.Where(i => i.AssignedDoctorId == doctor.Id);
+            }
+            else if (nurse != null)
+            {
+                query = query.Where(i => i.AssignedNurseId == nurse.Id);
+            }
+            else if (AbpSession.TenantId.HasValue)
+            {
+                query = query.Where(i => i.TenantId == AbpSession.TenantId.Value);
+            }
+
+            var patients = query.ToList();
+            var mapped = ObjectMapper.Map<List<PatientDropDownDto>>(patients);
+            return mapped;
         }
     }
 }
