@@ -69,3 +69,43 @@
         color: black !important;
     }
 }
+
+.status-scheduled {
+    background-color: #ffc107;
+    padding: 5px;
+    font-weight: 800;
+    color: white;
+    border-radius: 8px;
+}
+
+.status-checkedin {
+    background-color: #0dcaf0;
+    padding: 5px;
+    font-weight: 800;
+    color: white;
+    border-radius: 8px;
+}
+
+.status-completed {
+    background-color: #198754;
+    padding: 5px;
+    font-weight: 800;
+    color: white;
+    border-radius: 8px;
+}
+
+.status-cancelled {
+    background-color: #dc3545;
+    padding: 5px;
+    font-weight: 800;
+    color: white;
+    border-radius: 8px;
+}
+
+.status-rescheduled {
+    background-color: #0d6efd;
+    padding: 5px;
+    font-weight: 800;
+    color: white;
+    border-radius: 8px;
+}

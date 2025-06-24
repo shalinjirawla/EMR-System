@@ -63,7 +63,7 @@ export class PrescriptionsComponent extends PagedListingComponentBase<Prescripti
 
     this._prescriptionService
       .getAll(
-        // this.keyword,
+         this.keyword,
         // this.isActive,
         this.primengTableHelper.getSorting(this.dataTable),
         this.primengTableHelper.getSkipCount(this.paginator, event),

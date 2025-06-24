@@ -18,7 +18,7 @@ import { MenuModule } from 'primeng/menu';
 import { ButtonModule } from 'primeng/button';
 @Component({
     selector: 'app-patient',
-    imports: [FormsModule, TableModule, ButtonModule,PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, OverlayPanelModule,MenuModule],
+    imports: [FormsModule, TableModule, ButtonModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, OverlayPanelModule, MenuModule],
     animations: [appModuleAnimation()],
     templateUrl: './patient.component.html',
     styleUrl: './patient.component.css',
@@ -113,10 +113,13 @@ export class PatientComponent extends PagedListingComponentBase<PatientDto> {
         });
     }
 
-    showPatientDetailsDialog(): void {
+    showPatientDetailsDialog(id: number): void {
         let patientDetailsDialog: BsModalRef;
         patientDetailsDialog = this._modalService.show(PatientProfileComponent, {
             class: 'modal-lg',
+            initialState: {
+                id: id,
+            },
         });
 
         // patientDetailsDialog.content.onSave.subscribe(() => {
