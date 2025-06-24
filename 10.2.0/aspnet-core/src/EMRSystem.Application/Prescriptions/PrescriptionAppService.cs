@@ -2,6 +2,8 @@
 using Abp.Application.Services.Dto;
 using Abp.Domain.Entities;
 using Abp.Domain.Repositories;
+using Abp.Extensions;
+using Abp.Linq.Extensions;
 using EMRSystem.Appointments;
 using EMRSystem.Appointments.Dto;
 using EMRSystem.Authorization.Users;
@@ -33,6 +35,14 @@ namespace EMRSystem.Prescriptions
                 .GetAll()
                 .Include(x => x.Patient)
                 .Include(x => x.Doctor)
+                .WhereIf(!input.Keyword.IsNullOrWhiteSpace(), x =>
+                    x.Diagnosis.Contains(input.Keyword) ||
+                    x.Notes.Contains(input.Keyword) ||
+                    x.Patient.FullName.Contains(input.Keyword) ||
+                    x.Doctor.FullName.Contains(input.Keyword) ||
+                    x.Items.Any(i => i.MedicineName.Contains(input.Keyword)))
+                .WhereIf(input.FromDate.HasValue, x => x.IssueDate >= input.FromDate.Value)
+                .WhereIf(input.ToDate.HasValue, x => x.IssueDate <= input.ToDate.Value)
                 .Select(x => new Prescription
                 {
                     Id = x.Id,
@@ -62,6 +72,7 @@ namespace EMRSystem.Prescriptions
                     }).ToList()
                 });
         }
+
 
         protected override IQueryable<Prescription> ApplySorting(IQueryable<Prescription> query, PagedPrescriptionResultRequestDto input)
         {
