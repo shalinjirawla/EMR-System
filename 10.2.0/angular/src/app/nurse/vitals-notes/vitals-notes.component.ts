@@ -66,7 +66,7 @@ export class VitalsNotesComponent extends PagedListingComponentBase<VitalDto> {
 
         this._vitalService
             .getAll(
-                this.keyword,
+                this.keyword,   
                 this.primengTableHelper.getSorting(this.dataTable),
                 this.primengTableHelper.getSkipCount(this.paginator, event),
                 this.primengTableHelper.getMaxResultCount(this.paginator, event)
@@ -117,9 +117,9 @@ export class VitalsNotesComponent extends PagedListingComponentBase<VitalDto> {
             });
         }
 
-        // createOrEditUserDialog.content.onSave.subscribe(() => {
-        //     this.refresh();
-        // });
+        createOrEditUserDialog.content.onSave.subscribe(() => {
+            this.refresh();
+        });
     }
 
 

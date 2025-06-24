@@ -40,40 +40,22 @@
                             </div>
                         </div>
                     </div>
+
                     @if (advancedFiltersVisible) {
                     <div class="card mb-0 mt-1">
                         <div class="card-body">
                             <form class="form-horizontal">
                                 <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group row mb-0">
-                                            <label class="col-md-3 col-form-label">
-                                                {{ 'IsActive' | localize }}
+                                    <div class="col-md-12">
+                                        <div class="form-group row">
+                                            <label class="col-md-2 col-form-label">
+                                                {{ 'DateRange' | localize }}
                                             </label>
-                                            <div class="col-md-9 pt-2">
-                                                <div class="custom-control custom-radio d-inline">
-                                                    <input type="radio" class="custom-control-input" id="isActiveAll"
-                                                        name="isActive" [(ngModel)]="isActive" [value]="undefined"
-                                                        checked />
-                                                    <label class="custom-control-label" for="isActiveAll">
-                                                        {{ 'All' | localize }}
-                                                    </label>
-                                                </div>
-                                                <div class="custom-control custom-radio d-inline mx-3">
-                                                    <input type="radio" class="custom-control-input" id="isActiveActive"
-                                                        name="isActive" [(ngModel)]="isActive" [value]="true" />
-                                                    <label class="custom-control-label" for="isActiveActive">
-                                                        {{ 'Yes' | localize }}
-                                                    </label>
-                                                </div>
-                                                <div class="custom-control custom-radio d-inline">
-                                                    <input type="radio" class="custom-control-input"
-                                                        id="isActivePassive" name="isActive" [(ngModel)]="isActive"
-                                                        [value]="false" />
-                                                    <label class="custom-control-label" for="isActivePassive">
-                                                        {{ 'No' | localize }}
-                                                    </label>
-                                                </div>
+                                            <div class="col-md-10">
+                                                <p-calendar [(ngModel)]="dateRange" name="dateRange"
+                                                    selectionMode="range" dateFormat="yy-mm-dd" class="w-100"
+                                                    [showIcon]="true" placeholder="Select date range">
+                                                </p-calendar>
                                             </div>
                                         </div>
                                     </div>
@@ -81,7 +63,7 @@
                             </form>
                         </div>
                         <div class="card-footer">
-                            <button type="button" class="btn bg-blue">
+                            <button type="button" class="btn bg-blue" (click)="list()">
                                 {{ 'Search' | localize }}
                             </button>
                             <button type="button" class="btn btn-default float-right" (click)="clearFilters()">
@@ -108,7 +90,7 @@
                                         Doctor
                                         <p-sortIcon field="doctorName"></p-sortIcon>
                                     </th>
-                                    <th style="min-width: 150px" >
+                                    <th style="min-width: 150px">
                                         Date
                                         <!-- <p-sortIcon field="name"></p-sortIcon> pSortableColumn="name" -->
                                     </th>
@@ -149,7 +131,7 @@
                                         </button>
                                         <p-overlayPanel #rowMenu class="custom-overlay" [dismissable]="true">
                                             <ul class="custom-overlay-menu">
-                                                <li (click)="editPrescription(selectedRecord)">   
+                                                <li (click)="editPrescription(selectedRecord)">
                                                     <i class="pi pi-pencil"></i> Edit
                                                 </li>
                                                 <li (click)="delete(selectedRecord)">

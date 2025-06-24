@@ -17,10 +17,14 @@ import { DatePipe } from "@angular/common";
 import { OverlayPanel, OverlayPanelModule } from 'primeng/overlaypanel';
 import { MenuModule } from 'primeng/menu';
 import { ButtonModule } from 'primeng/button';
+import { CalendarModule } from 'primeng/calendar';
+
+
+import moment from 'moment';
 @Component({
   selector: 'app-prescriptions',
   animations: [appModuleAnimation()],
-  imports: [FormsModule, TableModule, PrimeTemplate, NgIf, PaginatorModule,ButtonModule, LocalizePipe, DatePipe, CommonModule, OverlayPanelModule,MenuModule],
+  imports: [FormsModule, TableModule, PrimeTemplate,CalendarModule, NgIf, PaginatorModule, ButtonModule, LocalizePipe, DatePipe, CommonModule, OverlayPanelModule, MenuModule],
   templateUrl: './prescriptions.component.html',
   styleUrl: './prescriptions.component.css',
   providers: [PrescriptionServiceProxy]
@@ -31,6 +35,8 @@ export class PrescriptionsComponent extends PagedListingComponentBase<Prescripti
 
   prescriptions: PrescriptionDto[] = [];
   keyword = '';
+  dateRange: Date[];
+
   isActive: boolean | null;
   advancedFiltersVisible = false;
 
@@ -47,40 +53,42 @@ export class PrescriptionsComponent extends PagedListingComponentBase<Prescripti
 
   clearFilters(): void {
     this.keyword = '';
-    this.isActive = undefined;
+    this.dateRange = [];
+    this.list();
   }
 
   list(event?: LazyLoadEvent): void {
     if (this.primengTableHelper.shouldResetPaging(event)) {
       this.paginator.changePage(0);
-
       if (this.primengTableHelper.records && this.primengTableHelper.records.length > 0) {
         return;
       }
     }
 
+    const fromDate = this.dateRange?.[0] ? moment(this.dateRange[0]) : undefined;
+    const toDate = this.dateRange?.[1] ? moment(this.dateRange[1]) : undefined;
+
     this.primengTableHelper.showLoadingIndicator();
 
     this._prescriptionService
       .getAll(
-         this.keyword,
-        // this.isActive,
+        this.keyword,
         this.primengTableHelper.getSorting(this.dataTable),
+        fromDate,
+        toDate,
         this.primengTableHelper.getSkipCount(this.paginator, event),
         this.primengTableHelper.getMaxResultCount(this.paginator, event)
       )
-      .pipe(
-        finalize(() => {
-          this.primengTableHelper.hideLoadingIndicator();
-        })
-      )
+      .pipe(finalize(() => {
+        this.primengTableHelper.hideLoadingIndicator();
+      }))
       .subscribe((result: PrescriptionDtoPagedResultDto) => {
         this.primengTableHelper.records = result.items;
         this.primengTableHelper.totalRecordsCount = result.totalCount;
-        this.primengTableHelper.hideLoadingIndicator();
         this.cd.detectChanges();
       });
   }
+
 
   protected delete(entity: PrescriptionDto): void {
     abp.message.confirm("Are you sure u want to delete this", undefined, (result: boolean) => {

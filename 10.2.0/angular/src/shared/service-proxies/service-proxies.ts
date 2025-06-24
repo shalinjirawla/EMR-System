@@ -3518,11 +3518,13 @@ export class PrescriptionServiceProxy {
     /**
      * @param keyword (optional) 
      * @param sorting (optional) 
+     * @param fromDate (optional) 
+     * @param toDate (optional) 
      * @param skipCount (optional) 
      * @param maxResultCount (optional) 
      * @return OK
      */
-    getAll(keyword: string | undefined, sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<PrescriptionDtoPagedResultDto> {
+    getAll(keyword: string | undefined, sorting: string | undefined, fromDate: moment.Moment | undefined, toDate: moment.Moment | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<PrescriptionDtoPagedResultDto> {
         let url_ = this.baseUrl + "/api/services/app/Prescription/GetAll?";
         if (keyword === null)
             throw new Error("The parameter 'keyword' cannot be null.");
@@ -3532,6 +3534,14 @@ export class PrescriptionServiceProxy {
             throw new Error("The parameter 'sorting' cannot be null.");
         else if (sorting !== undefined)
             url_ += "Sorting=" + encodeURIComponent("" + sorting) + "&";
+        if (fromDate === null)
+            throw new Error("The parameter 'fromDate' cannot be null.");
+        else if (fromDate !== undefined)
+            url_ += "FromDate=" + encodeURIComponent(fromDate ? "" + fromDate.toISOString() : "") + "&";
+        if (toDate === null)
+            throw new Error("The parameter 'toDate' cannot be null.");
+        else if (toDate !== undefined)
+            url_ += "ToDate=" + encodeURIComponent(toDate ? "" + toDate.toISOString() : "") + "&";
         if (skipCount === null)
             throw new Error("The parameter 'skipCount' cannot be null.");
         else if (skipCount !== undefined)
