@@ -10,5 +10,5 @@ using System.Threading.Tasks;
 namespace EMRSystem.Patients
 {
     public interface IPatientAppService : IAsyncCrudAppService<
-    PatientDto, long, PagedAndSortedResultRequestDto, CreateUpdatePatientDto, CreateUpdatePatientDto>{}
+    PatientDto, long, PagedPatientResultRequestDto, CreateUpdatePatientDto, CreateUpdatePatientDto>{}
 }

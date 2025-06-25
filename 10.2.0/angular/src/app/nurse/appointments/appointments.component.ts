@@ -24,7 +24,7 @@ import { ButtonModule } from 'primeng/button';
     styleUrl: './appointments.component.css',
     animations: [appModuleAnimation()],
     standalone: true,
-    imports: [FormsModule, TableModule, ChipModule, SelectModule,MenuModule,ButtonModule, OverlayPanelModule,PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, DatePipe],
+    imports: [FormsModule, TableModule, ChipModule, SelectModule, MenuModule, ButtonModule, OverlayPanelModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, DatePipe],
     providers: [AppointmentServiceProxy, UserServiceProxy]
 })
 export class AppointmentsComponent extends PagedListingComponentBase<AppointmentDto> {
@@ -34,7 +34,7 @@ export class AppointmentsComponent extends PagedListingComponentBase<Appointment
     appointMents: AppointmentDto[] = [];
     AppointmentStatus = AppointmentStatus;
     keyword = '';
-    status!: number;
+    status: number;
     advancedFiltersVisible = false;
     patients!: UserDto[];
     statusOptions = [
@@ -58,7 +58,12 @@ export class AppointmentsComponent extends PagedListingComponentBase<Appointment
     }
     clearFilters(): void {
         this.keyword = '';
-        this.status = null;
+        this.status = undefined;
+        this.list();
+    }
+
+    onStatusChange() {
+        this.list(); // or this.list() depending on your implementation
     }
     list(event?: LazyLoadEvent): void {
         if (this.primengTableHelper.shouldResetPaging(event)) {

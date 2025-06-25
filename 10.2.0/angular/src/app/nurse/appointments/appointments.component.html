@@ -52,8 +52,8 @@
                                             </label>
                                             <div class="col-md-10 pt-2">
                                                 <select class="form-control form-select w-50" [(ngModel)]="status"
-                                                    name="status">
-                                                    <option [ngValue]="null">All</option>
+                                                    name="status" (change)="onStatusChange()">
+                                                    <option [ngValue]="undefined ">All</option>
                                                     <option [ngValue]="0">Scheduled</option>
                                                     <option [ngValue]="1">Checked In</option>
                                                     <option [ngValue]="2">Completed</option>
@@ -67,7 +67,7 @@
                             </form>
                         </div>
                         <div class="card-footer">
-                            <button type="button" class="btn bg-blue">
+                            <button type="button" class="btn bg-blue" (click)="list()">
                                 {{ 'Search' | localize }}
                             </button>
                             <button type="button" class="btn btn-default float-right" (click)="clearFilters()">

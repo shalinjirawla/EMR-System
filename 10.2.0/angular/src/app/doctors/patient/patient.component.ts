@@ -62,6 +62,7 @@ export class PatientComponent extends PagedListingComponentBase<PatientDto> {
 
         this._patientService
             .patientsForDoctor(
+                this.keyword,
                 this.primengTableHelper.getSorting(this.dataTable),
                 this.primengTableHelper.getSkipCount(this.paginator, event),
                 this.primengTableHelper.getMaxResultCount(this.paginator, event)
