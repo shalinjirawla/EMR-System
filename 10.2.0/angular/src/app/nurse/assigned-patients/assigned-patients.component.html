@@ -3,7 +3,7 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-6">
-                    <h1>{{ 'Users' | localize }}</h1>
+                    <h1>{{ 'Assigned Patient' | localize }}</h1>
                 </div>
                 <div class="col-6 text-right">
                     <a href="javascript:;" class="btn bg-blue">
@@ -100,9 +100,9 @@
                             [tableStyle]="{ 'min-width': '50rem' }">
                             <ng-template pTemplate="header">
                                 <tr>
-                                    <th style="min-width: 150px" pSortableColumn="name">
+                                    <th style="min-width: 150px" pSortableColumn="fullName">
                                         {{ 'FullName' | localize }}
-                                        <p-sortIcon field="name"></p-sortIcon>
+                                        <p-sortIcon field="fullName"></p-sortIcon>
                                     </th>
                                     <th style="min-width: 150px" pSortableColumn="emailAddress">
                                         {{ 'EmailAddress' | localize }}

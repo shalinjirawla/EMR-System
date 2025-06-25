@@ -30,45 +30,62 @@ namespace EMRSystem.Appointments
         {
         }
 
+      
         protected override IQueryable<Appointment> CreateFilteredQuery(PagedAppoinmentResultRequestDto input)
         {
-            var res = Repository
-                 .GetAll()
-                 .Include(x => x.Patient)
-                 .Include(x => x.Doctor)
-                 .Include(x => x.Nurse)
-                 .Select(x => new Appointment
-                 {
-                     Id = x.Id,
-                     TenantId = x.TenantId,
-                     AppointmentDate = x.AppointmentDate,
-                     StartTime = x.StartTime,
-                     EndTime = x.EndTime,
-                     ReasonForVisit = x.ReasonForVisit,
-                     Status = x.Status,
-                     IsFollowUp = x.IsFollowUp,
-                     PatientId = x.PatientId,
-                     DoctorId = x.DoctorId,
-                     NurseId = x.NurseId,
-                     Patient = x.Patient == null ? null : new Patient
-                     {
-                         Id = x.Patient.Id,
-                         FullName = x.Patient.FullName
-                     },
-                     Doctor = x.Doctor == null ? null : new EMRSystem.Doctors.Doctor
-                     {
-                         Id = x.Doctor.Id,
-                         FullName = x.Doctor.FullName
-                     },
-                     Nurse = x.Nurse == null ? null : new EMRSystem.Nurses.Nurse
-                     {
-                         Id = x.Nurse.Id,
-                         FullName = x.Nurse.FullName
-                     },
-                 })
-                 .WhereIf(!input.Keyword.IsNullOrWhiteSpace(), x => x.Patient.FullName.Contains(input.Keyword) || x.Doctor.FullName.Contains(input.Keyword))
-                 .WhereIf(input.Status.HasValue, i => i.Status == input.Status.Value);
-            return res.AsQueryable();
+            // Start with base query without projection
+            var baseQuery = Repository
+                .GetAll()
+                .Include(x => x.Patient)
+                .Include(x => x.Doctor)
+                .Include(x => x.Nurse);
+
+            var filteredQuery = baseQuery.AsQueryable(); // Explicitly convert to IQueryable
+
+            if (!input.Keyword.IsNullOrWhiteSpace())
+            {
+                filteredQuery = filteredQuery.Where(x =>
+                    (x.Patient.FullName != null && x.Patient.FullName.Contains(input.Keyword)) ||
+                    (x.Doctor.FullName != null && x.Doctor.FullName.Contains(input.Keyword)));
+            }
+
+            if (input.Status.HasValue)
+            {
+                filteredQuery = filteredQuery.Where(x => x.Status == input.Status.Value);
+            }
+
+            // Apply projection after all filtering
+            var result = filteredQuery.Select(x => new Appointment
+            {
+                Id = x.Id,
+                TenantId = x.TenantId,
+                AppointmentDate = x.AppointmentDate,
+                StartTime = x.StartTime,
+                EndTime = x.EndTime,
+                ReasonForVisit = x.ReasonForVisit,
+                Status = x.Status,
+                IsFollowUp = x.IsFollowUp,
+                PatientId = x.PatientId,
+                DoctorId = x.DoctorId,
+                NurseId = x.NurseId,
+                Patient = x.Patient == null ? null : new Patient
+                {
+                    Id = x.Patient.Id,
+                    FullName = x.Patient.FullName
+                },
+                Doctor = x.Doctor == null ? null : new EMRSystem.Doctors.Doctor
+                {
+                    Id = x.Doctor.Id,
+                    FullName = x.Doctor.FullName
+                },
+                Nurse = x.Nurse == null ? null : new EMRSystem.Nurses.Nurse
+                {
+                    Id = x.Nurse.Id,
+                    FullName = x.Nurse.FullName
+                },
+            });
+
+            return result;
         }
         protected override IQueryable<Appointment> ApplySorting(IQueryable<Appointment> query, PagedAppoinmentResultRequestDto input)
         {

@@ -98,9 +98,9 @@
                             [tableStyle]="{ 'min-width': '50rem' }" (onLazyLoad)="list($event)">
                             <ng-template pTemplate="header">
                                 <tr>
-                                    <th style="min-width: 150px" pSortableColumn="name">
+                                    <th style="min-width: 150px" pSortableColumn="fullName">
                                         {{ 'FullName' | localize }}
-                                        <p-sortIcon field="name"></p-sortIcon>
+                                        <p-sortIcon field="fullName"></p-sortIcon>
                                     </th>
                                     <th style="min-width: 150px" pSortableColumn="emailAddress">
                                         {{ 'EmailAddress' | localize }}

@@ -2680,13 +2680,18 @@ export class PatientServiceProxy {
     }
 
     /**
+     * @param keyword (optional) 
      * @param sorting (optional) 
      * @param skipCount (optional) 
      * @param maxResultCount (optional) 
      * @return OK
      */
-    patientsForNurse(sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<PatientsForDoctorAndNurseDtoPagedResultDto> {
+    patientsForNurse(keyword: string | undefined, sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<PatientsForDoctorAndNurseDtoPagedResultDto> {
         let url_ = this.baseUrl + "/api/services/app/Patient/PatientsForNurse?";
+        if (keyword === null)
+            throw new Error("The parameter 'keyword' cannot be null.");
+        else if (keyword !== undefined)
+            url_ += "Keyword=" + encodeURIComponent("" + keyword) + "&";
         if (sorting === null)
             throw new Error("The parameter 'sorting' cannot be null.");
         else if (sorting !== undefined)
@@ -2746,13 +2751,18 @@ export class PatientServiceProxy {
     }
 
     /**
+     * @param keyword (optional) 
      * @param sorting (optional) 
      * @param skipCount (optional) 
      * @param maxResultCount (optional) 
      * @return OK
      */
-    patientsForDoctor(sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<PatientsForDoctorAndNurseDtoPagedResultDto> {
+    patientsForDoctor(keyword: string | undefined, sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<PatientsForDoctorAndNurseDtoPagedResultDto> {
         let url_ = this.baseUrl + "/api/services/app/Patient/PatientsForDoctor?";
+        if (keyword === null)
+            throw new Error("The parameter 'keyword' cannot be null.");
+        else if (keyword !== undefined)
+            url_ += "Keyword=" + encodeURIComponent("" + keyword) + "&";
         if (sorting === null)
             throw new Error("The parameter 'sorting' cannot be null.");
         else if (sorting !== undefined)
@@ -2868,6 +2878,64 @@ export class PatientServiceProxy {
     }
 
     /**
+     * @return OK
+     */
+    patientDropDown(): Observable<PatientDropDownDto[]> {
+        let url_ = this.baseUrl + "/api/services/app/Patient/PatientDropDown";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processPatientDropDown(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processPatientDropDown(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PatientDropDownDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PatientDropDownDto[]>;
+        }));
+    }
+
+    protected processPatientDropDown(response: HttpResponseBase): Observable<PatientDropDownDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200.push(PatientDropDownDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * @param id (optional) 
      * @return OK
      */
@@ -2924,13 +2992,18 @@ export class PatientServiceProxy {
     }
 
     /**
+     * @param keyword (optional) 
      * @param sorting (optional) 
      * @param skipCount (optional) 
      * @param maxResultCount (optional) 
      * @return OK
      */
-    getAll(sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<PatientDtoPagedResultDto> {
+    getAll(keyword: string | undefined, sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<PatientDtoPagedResultDto> {
         let url_ = this.baseUrl + "/api/services/app/Patient/GetAll?";
+        if (keyword === null)
+            throw new Error("The parameter 'keyword' cannot be null.");
+        else if (keyword !== undefined)
+            url_ += "Keyword=" + encodeURIComponent("" + keyword) + "&";
         if (sorting === null)
             throw new Error("The parameter 'sorting' cannot be null.");
         else if (sorting !== undefined)
@@ -9889,6 +9962,53 @@ export interface IPatientDetailsAndMedicalHistoryDto {
     patientPrescriptionsHistory: PatientPrescriptionsHistoryDto[] | undefined;
 }
 
+export class PatientDropDownDto implements IPatientDropDownDto {
+    id: number;
+    fullName: string | undefined;
+
+    constructor(data?: IPatientDropDownDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.fullName = _data["fullName"];
+        }
+    }
+
+    static fromJS(data: any): PatientDropDownDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PatientDropDownDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["fullName"] = this.fullName;
+        return data;
+    }
+
+    clone(): PatientDropDownDto {
+        const json = this.toJSON();
+        let result = new PatientDropDownDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IPatientDropDownDto {
+    id: number;
+    fullName: string | undefined;
+}
+
 export class PatientDto implements IPatientDto {
     id: number;
     tenantId: number;
@@ -9907,6 +10027,7 @@ export class PatientDto implements IPatientDto {
     insurancePolicyNumber: string | undefined;
     abpUser: UserDto;
     doctors: DoctorDto;
+    nurses: NurseDto;
     prescriptions: PrescriptionDto[] | undefined;
 
     constructor(data?: IPatientDto) {
@@ -9937,6 +10058,7 @@ export class PatientDto implements IPatientDto {
             this.insurancePolicyNumber = _data["insurancePolicyNumber"];
             this.abpUser = _data["abpUser"] ? UserDto.fromJS(_data["abpUser"]) : <any>undefined;
             this.doctors = _data["doctors"] ? DoctorDto.fromJS(_data["doctors"]) : <any>undefined;
+            this.nurses = _data["nurses"] ? NurseDto.fromJS(_data["nurses"]) : <any>undefined;
             if (Array.isArray(_data["prescriptions"])) {
                 this.prescriptions = [] as any;
                 for (let item of _data["prescriptions"])
@@ -9971,6 +10093,7 @@ export class PatientDto implements IPatientDto {
         data["insurancePolicyNumber"] = this.insurancePolicyNumber;
         data["abpUser"] = this.abpUser ? this.abpUser.toJSON() : <any>undefined;
         data["doctors"] = this.doctors ? this.doctors.toJSON() : <any>undefined;
+        data["nurses"] = this.nurses ? this.nurses.toJSON() : <any>undefined;
         if (Array.isArray(this.prescriptions)) {
             data["prescriptions"] = [];
             for (let item of this.prescriptions)
@@ -10005,6 +10128,7 @@ export interface IPatientDto {
     insurancePolicyNumber: string | undefined;
     abpUser: UserDto;
     doctors: DoctorDto;
+    nurses: NurseDto;
     prescriptions: PrescriptionDto[] | undefined;
 }
 

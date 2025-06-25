@@ -1,28 +1,30 @@
 ﻿using Abp.Application.Services;
 using Abp.Application.Services.Dto;
 using Abp.Authorization;
+using Abp.Collections.Extensions;
 using Abp.Domain.Repositories;
+using Abp.Extensions;
+using Abp.Linq.Extensions;
+using EMRSystem.Appointments;
+using EMRSystem.Appointments.Dto;
 using EMRSystem.Authorization.Users;
+using EMRSystem.Doctor;
 using EMRSystem.Nurse;
 using EMRSystem.Nurse.Dto;
+using EMRSystem.Nurses;
 using EMRSystem.Patients.Dto;
 using EMRSystem.Prescriptions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Abp.Collections.Extensions;
-using EMRSystem.Appointments.Dto;
-using EMRSystem.Appointments;
-using Microsoft.AspNetCore.Mvc;
-using EMRSystem.Doctor;
-using Abp.Linq.Extensions;
 using System.Linq.Dynamic.Core;
+using System.Threading.Tasks;
 namespace EMRSystem.Patients
 {
     //[AbpAuthorize("Pages.Doctors.Patients")]
 
-    public class PatientAppService : AsyncCrudAppService<Patient, PatientDto, long, PagedAndSortedResultRequestDto, CreateUpdatePatientDto, CreateUpdatePatientDto>,
+    public class PatientAppService : AsyncCrudAppService<Patient, PatientDto, long, PagedPatientResultRequestDto, CreateUpdatePatientDto, CreateUpdatePatientDto>,
     IPatientAppService
     {
         private readonly UserManager _userManager;
@@ -35,7 +37,7 @@ namespace EMRSystem.Patients
             _nurseAppService = nurseAppService;
         }
 
-        protected override IQueryable<Patient> CreateFilteredQuery(PagedAndSortedResultRequestDto input)
+        protected override IQueryable<Patient> CreateFilteredQuery(PagedPatientResultRequestDto input)
         {
             return Repository.GetAll();
         }
@@ -76,9 +78,8 @@ namespace EMRSystem.Patients
         }
 
         [HttpGet]
-        public async Task<PagedResultDto<PatientsForDoctorAndNurseDto>> PatientsForNurse(PagedAndSortedResultRequestDto input)
+        public async Task<PagedResultDto<PatientsForDoctorAndNurseDto>> PatientsForNurse(PagedPatientResultRequestDto input)
         {
-
             long nurseID = 0;
             if (AbpSession.UserId.HasValue)
             {
@@ -87,27 +88,37 @@ namespace EMRSystem.Patients
                     nurseID = nurse.Id;
             }
 
+            var query = Repository.GetAll()
+                .Include(x => x.Doctors)
+                .Include(x => x.AbpUser)
+                .WhereIf(nurseID > 0, i => i.AssignedNurseId == nurseID)
+                .WhereIf(!input.Keyword.IsNullOrWhiteSpace(),
+                    x => x.FullName.Contains(input.Keyword) ||
+                         (x.AbpUser != null && x.AbpUser.EmailAddress.Contains(input.Keyword)));
 
-            var patients = Repository.GetAll().Include(x => x.Doctors).Include(x => x.AbpUser)
-                        .WhereIf(nurseID > 0, i => i.AssignedNurseId == nurseID);
+            var totalCount = await query.CountAsync();
 
-            var patientList = patients.ToList();
-            var totalCount = patientList.Count();
+            // Apply sorting before pagination
+            var orderedQuery = input.Sorting switch
+            {
+                "FullName" => query.OrderBy(x => x.FullName),
+                "FullName desc" => query.OrderByDescending(x => x.FullName),
+                "AbpUser.EmailAddress" => query.OrderBy(x => x.AbpUser.EmailAddress),
+                "AbpUser.EmailAddress desc" => query.OrderByDescending(x => x.AbpUser.EmailAddress),
+                _ => query.OrderBy(x => x.FullName) // Default sorting
+            };
 
-            var query =await patients
-                    .OrderBy(input.Sorting ?? "Id DESC")
-                    .PageBy(input)
-                    .ToListAsync();
+            var patients = await orderedQuery
+                .PageBy(input)
+                .ToListAsync();
 
             var mapped = ObjectMapper.Map<List<PatientsForDoctorAndNurseDto>>(patients);
-            return new PagedResultDto<PatientsForDoctorAndNurseDto>(
-                 totalCount,
-                 mapped
-             );
+            return new PagedResultDto<PatientsForDoctorAndNurseDto>(totalCount, mapped);
         }
+      
 
         [HttpGet]
-        public async Task<PagedResultDto<PatientsForDoctorAndNurseDto>> PatientsForDoctor(PagedAndSortedResultRequestDto input)
+        public async Task<PagedResultDto<PatientsForDoctorAndNurseDto>> PatientsForDoctor(PagedPatientResultRequestDto input)
         {
 
             long doctorID = 0;
@@ -119,22 +130,29 @@ namespace EMRSystem.Patients
             }
 
 
-            var patients = Repository.GetAll().Include(x => x.Nurses).Include(x => x.AbpUser)
-                        .WhereIf(doctorID > 0, i => i.AssignedDoctorId == doctorID);
+            var query = Repository.GetAll()
+                .Include(x => x.Nurses)
+                .Include(x => x.AbpUser)
+                .WhereIf(doctorID > 0, i => i.AssignedDoctorId == doctorID)
+                .WhereIf(!input.Keyword.IsNullOrWhiteSpace(),
+                    x=>x.FullName.Contains(input.Keyword)||
+                     (x.AbpUser != null && x.AbpUser.EmailAddress.Contains(input.Keyword)));
 
-            var patientList = patients.ToList();
-            var totalCount = patientList.Count();
+            var totalCount = await query.CountAsync();
 
-            var query = await patients
-                   .OrderBy(input.Sorting ?? "Id DESC")
-                   .PageBy(input)
-                   .ToListAsync();
-
+            var orderedQuery = input.Sorting switch
+            {
+                "FullName" => query.OrderBy(x => x.FullName),
+                "FullName desc" => query.OrderByDescending(x => x.FullName),
+                "AbpUser.EmailAddress" => query.OrderBy(x => x.AbpUser.EmailAddress),
+                "AbpUser.EmailAddress desc" => query.OrderByDescending(x => x.AbpUser.EmailAddress),
+                _ => query.OrderBy(x => x.FullName) // Default sorting
+            };
+            var patients = await orderedQuery
+                             .PageBy(input)
+                              .ToListAsync();
             var mapped = ObjectMapper.Map<List<PatientsForDoctorAndNurseDto>>(patients);
-            return new PagedResultDto<PatientsForDoctorAndNurseDto>(
-                 totalCount,
-                 mapped
-             );
+            return new PagedResultDto<PatientsForDoctorAndNurseDto>(totalCount,mapped);
         }
 
         [HttpGet]
