@@ -1,0 +1,37 @@
+
+  <div class="p-fluid p-3">
+    <div class="field mb-4">
+      <label for="name" class="block font-medium mb-2">
+        {{ dataType === 'report' ? 'Report' : 'Diagnosis' }} Name *
+      </label>
+      <input 
+        pInputText 
+        id="name" 
+        type="text" 
+        [(ngModel)]="name" 
+        class="w-full" 
+        autocomplete="off"
+        (keyup.enter)="save()"
+        placeholder="Enter {{ dataType === 'report' ? 'report' : 'diagnosis' }} name..."
+        [disabled]="saving"
+      />
+    </div>
+    
+    <div class="flex justify-content-end gap-2">
+      <button pButton 
+        type="button" 
+        label="Cancel" 
+        icon="pi pi-times" 
+        class="p-button-text" 
+        (click)="cancel()"
+        [disabled]="saving">
+      </button>
+      <button pButton 
+        type="button" 
+        label="Save" 
+        icon="pi pi-check" 
+        [disabled]="isSaveDisabled()" 
+        (click)="save()">
+      </button>
+    </div>
+  </div>

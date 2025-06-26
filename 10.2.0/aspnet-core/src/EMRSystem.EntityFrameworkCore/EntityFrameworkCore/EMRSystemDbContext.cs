@@ -5,10 +5,12 @@ using EMRSystem.Authorization.Users;
 using EMRSystem.Billings;
 using EMRSystem.Doctors;
 using EMRSystem.LabReports;
+using EMRSystem.LabReportsTypes;
 using EMRSystem.MultiTenancy;
 using EMRSystem.Nurses;
 using EMRSystem.Patients;
 using EMRSystem.Pharmacists;
+using EMRSystem.PrescriptionLabTests;
 using EMRSystem.Prescriptions;
 using EMRSystem.Vitals;
 using Microsoft.EntityFrameworkCore;
@@ -28,11 +30,11 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
     public DbSet<Nurse> Nurses { get; set; }
     public DbSet<Pharmacist> Pharmacists { get; set; }
     public DbSet<Appointment> Appointments { get; set; }
-
-
+    public DbSet<LabReportsType> LabReportsTypes { get; set; }
     public DbSet<Patient> Patients { get; set; }
     public DbSet<Prescription> Prescriptions { get; set; }
     public DbSet<Vital> Vitals { get; set; }
+    public DbSet<PrescriptionLabTest> PrescriptionLabTests { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -147,6 +149,22 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
             .WithMany(n => n.Appointments)
             .HasForeignKey(a => a.NurseId)
             .OnDelete(DeleteBehavior.NoAction); // OR Restrict
+
+        modelBuilder.Entity<PrescriptionLabTest>().ToTable("PrescriptionLabTests");
+
+        // Prescription relationship
+        modelBuilder.Entity<PrescriptionLabTest>()
+            .HasOne(plt => plt.Prescription)
+            .WithMany(p => p.LabTests) // Now this will work
+            .HasForeignKey(plt => plt.PrescriptionId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // LabReportsType relationship  
+        modelBuilder.Entity<PrescriptionLabTest>()
+            .HasOne(plt => plt.LabReportsType)
+            .WithMany(lrt => lrt.PrescriptionLabTests) // Optional: Add if you want reverse navigation
+            .HasForeignKey(plt => plt.LabReportsTypeId)
+            .OnDelete(DeleteBehavior.Restrict);
 
 
     }

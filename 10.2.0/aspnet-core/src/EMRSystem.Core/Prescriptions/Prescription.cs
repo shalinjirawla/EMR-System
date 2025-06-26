@@ -3,6 +3,7 @@ using Abp.Domain.Entities.Auditing;
 using EMRSystem.Appointments;
 using EMRSystem.Doctors;
 using EMRSystem.Patients;
+using EMRSystem.PrescriptionLabTests;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,5 +26,6 @@ namespace EMRSystem.Prescriptions
         public long PatientId { get; set; }
         public virtual Patient Patient { get; set; }
         public ICollection<PrescriptionItem> Items { get; set; }
+        public virtual ICollection<PrescriptionLabTest> LabTests { get; set; }
     }
 }

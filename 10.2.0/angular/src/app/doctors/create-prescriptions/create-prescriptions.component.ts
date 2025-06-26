@@ -5,7 +5,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { BsModalRef } from 'ngx-bootstrap/modal';
-import { AppointmentServiceProxy, CreateUpdatePrescriptionItemDto, PrescriptionItemDto, PrescriptionServiceProxy } from '@shared/service-proxies/service-proxies';
+import { AppointmentServiceProxy, CreateUpdatePrescriptionItemDto, LabReportsTypeServiceProxy, PrescriptionItemDto, PrescriptionServiceProxy } from '@shared/service-proxies/service-proxies';
 import { AbpModalHeaderComponent } from '../../../shared/components/modal/abp-modal-header.component';
 import { AbpModalFooterComponent } from '../../../shared/components/modal/abp-modal-footer.component';
 import { AppComponentBase } from '../../../shared/app-component-base';
@@ -17,17 +17,18 @@ import { AppointmentDto, CreateUpdatePrescriptionDto, DoctorDto, DoctorServicePr
 import moment from 'moment';
 import { TextareaModule } from 'primeng/textarea';
 import { AppSessionService } from '@shared/session/app-session.service';
+import { MultiSelectModule } from 'primeng/multiselect';
 
 @Component({
   selector: 'app-create-prescriptions',
   standalone: true,
   imports: [
     FormsModule, CalendarModule, DropdownModule, CheckboxModule, InputTextModule, TextareaModule,
-    ButtonModule, CommonModule, SelectModule, AbpModalHeaderComponent, AbpModalFooterComponent
+    ButtonModule, CommonModule, SelectModule, AbpModalHeaderComponent, AbpModalFooterComponent,MultiSelectModule
   ],
   templateUrl: './create-prescriptions.component.html',
   styleUrls: ['./create-prescriptions.component.css'],
-  providers: [DoctorServiceProxy, PatientServiceProxy, AppointmentServiceProxy, AppSessionService, PrescriptionServiceProxy]
+  providers: [DoctorServiceProxy, PatientServiceProxy,LabReportsTypeServiceProxy, AppointmentServiceProxy, AppSessionService, PrescriptionServiceProxy]
 })
 export class CreatePrescriptionsComponent extends AppComponentBase implements OnInit {
   @ViewChild('prescriptionForm', { static: true }) prescriptionForm: NgForm;
@@ -35,6 +36,8 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
   saving = false;
   patients!: PatientDto[];
   appointments!: AppointmentDto[];
+  labTests: any[] = [];
+  selectedLabTests: any[] = []; 
   doctorID!: number;
   prescription: CreateUpdatePrescriptionDto = {
     id: 0,
@@ -47,6 +50,7 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
     doctorId: 0,
     patientId: 0,
     items: [],
+    labTestIds:[],
     init: function (_data?: any): void {
       throw new Error('Function not implemented.');
     },
@@ -66,13 +70,14 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
     private _appointmentService: AppointmentServiceProxy,
     private _sessionService: AppSessionService,
     private _prescriptionService: PrescriptionServiceProxy,
+    private _labService:LabReportsTypeServiceProxy
   ) {
     super(injector);
   }
-
   ngOnInit(): void {
     this.FetchDoctorID();
     this.LoadPatients();
+     this.LoadLabReports();
   }
   LoadPatients() {
     this._patientService.getAllPatientByTenantID(abp.session.tenantId).subscribe({
@@ -96,6 +101,19 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
       }, error: (err) => {
       }
     })
+  }
+  LoadLabReports() {
+    this._labService.getAllTestByTenantID(abp.session.tenantId).subscribe({
+      next: (res) => {
+        this.labTests = res.items.map(item => ({
+          id: item.id,
+          name: item.reportType // 'ReportType' column ka data
+        }));
+      },
+      error: (err) => {
+        this.notify.error('Could not load lab tests');
+      }
+    });
   }
   addItem(): void {
     const item = new CreateUpdatePrescriptionItemDto();
@@ -153,6 +171,8 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
     input.doctorId = this.doctorID;
     input.patientId = this.prescription.patientId;
     input.items = this.prescription.items;
+    input.labTestIds = this.selectedLabTests.map(test => test.id || test);
+    debugger
     this._prescriptionService.createPrescriptionWithItem(input).subscribe({
       next: (res) => {
         this.notify.info(this.l('SavedSuccessfully'));
