@@ -27,6 +27,12 @@ import { AppComponent } from './app.component';
                         canActivate: [AppRouteGuard],
                     },
                     {
+                        path: 'master',
+                        loadChildren: () => import('./master-table/master-table.module').then((m) => m.MasterTableModule),
+                        data: { permission: 'Pages.Users' },
+                        canActivate: [AppRouteGuard],
+                    },
+                    {
                         path: 'doctors',
                         loadChildren: () => import('./doctors/doctors.module').then((m) => m.DoctorsModule),
                         data: { permission: 'Pages.Doctors' },

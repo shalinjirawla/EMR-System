@@ -3,6 +3,7 @@ using EMRSystem.Appointments.Dto;
 using EMRSystem.Doctor.Dto;
 using EMRSystem.Patients;
 using EMRSystem.Patients.Dto;
+using EMRSystem.PrescriptionLabTest.Dto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,5 +23,7 @@ namespace EMRSystem.Prescriptions.Dto
         public DoctorDto Doctor { get; set; }
         public PatientDto Patient { get; set; }
         public List<PrescriptionItemDto> Items { get; set; }
+        public List<int> LabTestIds { get; set; }
+        public List<PrescriptionLabTestDto> LabTests { get; set; }
     }
 }

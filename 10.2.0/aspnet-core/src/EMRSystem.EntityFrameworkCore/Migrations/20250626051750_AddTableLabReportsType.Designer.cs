@@ -4,6 +4,7 @@ using EMRSystem.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EMRSystem.Migrations
 {
     [DbContext(typeof(EMRSystemDbContext))]
-    partial class EMRSystemDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250626051750_AddTableLabReportsType")]
+    partial class AddTableLabReportsType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2079,32 +2082,6 @@ namespace EMRSystem.Migrations
                     b.ToTable("Pharmacists");
                 });
 
-            modelBuilder.Entity("EMRSystem.PrescriptionLabTests.PrescriptionLabTest", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("LabReportsTypeId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("PrescriptionId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LabReportsTypeId");
-
-                    b.HasIndex("PrescriptionId");
-
-                    b.ToTable("PrescriptionLabTests", (string)null);
-                });
-
             modelBuilder.Entity("EMRSystem.Prescriptions.Prescription", b =>
                 {
                     b.Property<long>("Id")
@@ -2610,25 +2587,6 @@ namespace EMRSystem.Migrations
                     b.Navigation("AbpUser");
                 });
 
-            modelBuilder.Entity("EMRSystem.PrescriptionLabTests.PrescriptionLabTest", b =>
-                {
-                    b.HasOne("EMRSystem.LabReportsTypes.LabReportsType", "LabReportsType")
-                        .WithMany("PrescriptionLabTests")
-                        .HasForeignKey("LabReportsTypeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("EMRSystem.Prescriptions.Prescription", "Prescription")
-                        .WithMany("LabTests")
-                        .HasForeignKey("PrescriptionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("LabReportsType");
-
-                    b.Navigation("Prescription");
-                });
-
             modelBuilder.Entity("EMRSystem.Prescriptions.Prescription", b =>
                 {
                     b.HasOne("EMRSystem.Appointments.Appointment", "Appointment")
@@ -2793,11 +2751,6 @@ namespace EMRSystem.Migrations
                     b.Navigation("LabReports");
                 });
 
-            modelBuilder.Entity("EMRSystem.LabReportsTypes.LabReportsType", b =>
-                {
-                    b.Navigation("PrescriptionLabTests");
-                });
-
             modelBuilder.Entity("EMRSystem.Nurses.Nurse", b =>
                 {
                     b.Navigation("Appointments");
@@ -2819,8 +2772,6 @@ namespace EMRSystem.Migrations
             modelBuilder.Entity("EMRSystem.Prescriptions.Prescription", b =>
                 {
                     b.Navigation("Items");
-
-                    b.Navigation("LabTests");
                 });
 #pragma warning restore 612, 618
         }

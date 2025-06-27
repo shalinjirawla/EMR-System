@@ -149,8 +149,8 @@ namespace EMRSystem.Patients
                 _ => query.OrderBy(x => x.FullName) // Default sorting
             };
             var patients = await orderedQuery
-                             .PageBy(input)
-                              .ToListAsync();
+                .PageBy(input)
+                .ToListAsync();
             var mapped = ObjectMapper.Map<List<PatientsForDoctorAndNurseDto>>(patients);
             return new PagedResultDto<PatientsForDoctorAndNurseDto>(totalCount,mapped);
         }

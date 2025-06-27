@@ -91,12 +91,19 @@ namespace EMRSystem.Prescriptions
 
             return base.ApplySorting(query, input);
         }
-
         public async Task CreatePrescriptionWithItemAsync(CreateUpdatePrescriptionDto input)
         {
             var prescription = ObjectMapper.Map<Prescription>(input);
-            await Repository.InsertAndGetIdAsync(prescription);
-            CurrentUnitOfWork.SaveChanges();
+
+            // Manually handle relationships
+            prescription.Items = input.Items.Select(item =>
+                ObjectMapper.Map<PrescriptionItem>(item)).ToList();
+
+            prescription.LabTests = input.LabTestIds.Select(id =>
+                new EMRSystem.PrescriptionLabTests.PrescriptionLabTest { LabReportsTypeId = id }).ToList();
+
+            await Repository.InsertAsync(prescription);
+            await CurrentUnitOfWork.SaveChangesAsync();
         }
         public async Task UpdatePrescriptionWithItemAsync(CreateUpdatePrescriptionDto input)
         {

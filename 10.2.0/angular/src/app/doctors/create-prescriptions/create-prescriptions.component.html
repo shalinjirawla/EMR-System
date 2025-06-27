@@ -33,6 +33,15 @@
       </div>
     </div>
 
+    <div class="row mt-3">
+      <div class="col-md-12">
+        <label><b>Select Lab Tests (if required)</b></label>
+        <p-multiSelect [(ngModel)]="selectedLabTests" [options]="labTests" optionLabel="name"  optionValue="id"
+          placeholder="Select Lab Tests" display="chip" class="w-100" name="labTests">
+        </p-multiSelect>
+      </div>
+    </div>
+
     <!-- Notes -->
     <div class="row mt-3">
       <div class="col-md-12 d-flex flex-column">
@@ -50,6 +59,8 @@
         <label for="followup" class="ml-2"><b>Follow-up Required</b></label>
       </div>
     </div>
+
+
 
     <!-- Prescription Items Placeholder -->
     <div class="row mt-4">
