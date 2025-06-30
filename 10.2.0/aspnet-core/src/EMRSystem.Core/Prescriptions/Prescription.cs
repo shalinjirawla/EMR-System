@@ -2,8 +2,8 @@
 using Abp.Domain.Entities.Auditing;
 using EMRSystem.Appointments;
 using EMRSystem.Doctors;
+using EMRSystem.LabReports;
 using EMRSystem.Patients;
-using EMRSystem.PrescriptionLabTests;
 using System;
 using System.Collections.Generic;
 using System.Linq;

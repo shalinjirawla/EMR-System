@@ -12,7 +12,7 @@ import { AppComponentBase } from '@shared/app-component-base';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
-import { AppointmentDto, AppointmentServiceProxy, AppointmentStatus, CreateUpdateAppointmentDto, DoctorDto, DoctorServiceProxy, NurseDto, NurseServiceProxy, PatientDto, PatientServiceProxy } from '@shared/service-proxies/service-proxies';
+import { AppointmentDto, AppointmentServiceProxy, AppointmentStatus, CreateUpdateAppointmentDto, DoctorDto, DoctorServiceProxy, NurseDto, NurseServiceProxy, PatientDropDownDto, PatientDto, PatientServiceProxy } from '@shared/service-proxies/service-proxies';
 import { DatePickerModule } from 'primeng/datepicker';
 import { CheckboxModule } from 'primeng/checkbox';
 import { TextareaModule } from 'primeng/textarea';
@@ -39,7 +39,7 @@ export class CreateAppoinmentComponent extends AppComponentBase implements OnIni
   @ViewChild('createAppoinmentModal', { static: true }) createAppoinmentModal: NgForm;
   @Output() onSave = new EventEmitter<void>();
   saving = false;
-  patients!: PatientDto[];
+  patients!: PatientDropDownDto[];
   nurse!: NurseDto[];
   doctors!: DoctorDto[];
   statusOptions!: any[];
@@ -86,9 +86,9 @@ export class CreateAppoinmentComponent extends AppComponentBase implements OnIni
     this.LoadStatus();
   }
   LoadPatients() {
-    this._patientService.getAllPatientByTenantID(abp.session.tenantId).subscribe({
+    this._patientService.patientDropDown().subscribe({
       next: (res) => {
-        this.patients = res.items;
+        this.patients = res;
       }, error: (err) => {
       }
     })

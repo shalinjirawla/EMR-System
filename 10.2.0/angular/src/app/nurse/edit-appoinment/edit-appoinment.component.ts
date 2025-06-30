@@ -8,7 +8,7 @@ import { AbpValidationSummaryComponent } from '../../../shared/components/valida
 import { AbpModalFooterComponent } from '../../../shared/components/modal/abp-modal-footer.component';
 import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { CommonModule } from '@node_modules/@angular/common';
-import { AppointmentDto, AppointmentServiceProxy, AppointmentStatus, CreateUpdateAppointmentDto, CreateUpdatePrescriptionDto, CreateUpdatePrescriptionItemDto, DoctorDto, DoctorServiceProxy, NurseDto, NurseServiceProxy, PatientDto, PatientServiceProxy, PrescriptionServiceProxy } from '@shared/service-proxies/service-proxies';
+import { AppointmentDto, AppointmentServiceProxy, AppointmentStatus, CreateUpdateAppointmentDto, CreateUpdatePrescriptionDto, CreateUpdatePrescriptionItemDto, DoctorDto, DoctorServiceProxy, NurseDto, NurseServiceProxy, PatientDropDownDto, PatientDto, PatientServiceProxy, PrescriptionServiceProxy } from '@shared/service-proxies/service-proxies';
 import moment from 'moment';
 import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
@@ -50,7 +50,7 @@ export class EditAppoinmentComponent extends AppComponentBase implements OnInit 
     reasonForVisit: '',
     tenantId: 0,
   };
-  patients!: PatientDto[];
+  patients!: PatientDropDownDto[];
   nurse!: NurseDto[];
   doctors!: DoctorDto[];
   statusOptions!: any[];
@@ -94,9 +94,9 @@ export class EditAppoinmentComponent extends AppComponentBase implements OnInit 
     });
   }
   LoadPatients() {
-    this._patientService.getAllPatientByTenantID(abp.session.tenantId).subscribe({
+    this._patientService.patientDropDown().subscribe({
       next: (res) => {
-        this.patients = res.items;
+        this.patients = res;
       }, error: (err) => {
       }
     })

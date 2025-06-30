@@ -7,6 +7,7 @@ using Abp.Linq.Extensions;
 using EMRSystem.Appointments;
 using EMRSystem.Appointments.Dto;
 using EMRSystem.Authorization.Users;
+using EMRSystem.Doctor;
 using EMRSystem.Patients;
 using EMRSystem.Prescriptions.Dto;
 using EMRSystem.Users.Dto;
@@ -25,12 +26,18 @@ namespace EMRSystem.Prescriptions
     public class PrescriptionAppService : AsyncCrudAppService<Prescription, PrescriptionDto, long, PagedPrescriptionResultRequestDto, CreateUpdatePrescriptionDto, CreateUpdatePrescriptionDto>,
    IPrescriptionAppService
     {
+        private readonly IDoctorAppService _doctorAppService;
         public PrescriptionAppService(IRepository<Prescription, long> repository
+            , IDoctorAppService doctorAppService
             ) : base(repository)
         {
+            _doctorAppService = doctorAppService;
         }
         protected override IQueryable<Prescription> CreateFilteredQuery(PagedPrescriptionResultRequestDto input)
         {
+            var userId = AbpSession.UserId;
+            var doctor = _doctorAppService.GetDoctorDetailsByAbpUserID(userId.Value);
+
             return Repository
                 .GetAll()
                 .Include(x => x.Patient)
@@ -43,6 +50,7 @@ namespace EMRSystem.Prescriptions
                     x.Items.Any(i => i.MedicineName.Contains(input.Keyword)))
                 .WhereIf(input.FromDate.HasValue, x => x.IssueDate >= input.FromDate.Value)
                 .WhereIf(input.ToDate.HasValue, x => x.IssueDate <= input.ToDate.Value)
+                 .WhereIf(doctor != null, x => x.Doctor.Id == doctor.Id)
                 .Select(x => new Prescription
                 {
                     Id = x.Id,
@@ -100,7 +108,7 @@ namespace EMRSystem.Prescriptions
                 ObjectMapper.Map<PrescriptionItem>(item)).ToList();
 
             prescription.LabTests = input.LabTestIds.Select(id =>
-                new EMRSystem.PrescriptionLabTests.PrescriptionLabTest { LabReportsTypeId = id }).ToList();
+                new EMRSystem.LabReports.PrescriptionLabTest { LabReportsTypeId = id }).ToList();
 
             await Repository.InsertAsync(prescription);
             await CurrentUnitOfWork.SaveChangesAsync();

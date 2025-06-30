@@ -1,11 +1,11 @@
-import { ChangeDetectorRef, Component, Injector, OnInit, Output, ViewChild,EventEmitter } from '@angular/core';
+import { ChangeDetectorRef, Component, Injector, OnInit, Output, ViewChild, EventEmitter } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { BsModalRef } from 'ngx-bootstrap/modal';
-import { AppointmentServiceProxy, CreateUpdatePrescriptionItemDto, LabReportsTypeServiceProxy, PrescriptionItemDto, PrescriptionServiceProxy } from '@shared/service-proxies/service-proxies';
+import { AppointmentServiceProxy, CreateUpdatePrescriptionItemDto, LabReportsTypeServiceProxy, PatientDropDownDto, PrescriptionItemDto, PrescriptionServiceProxy } from '@shared/service-proxies/service-proxies';
 import { AbpModalHeaderComponent } from '../../../shared/components/modal/abp-modal-header.component';
 import { AbpModalFooterComponent } from '../../../shared/components/modal/abp-modal-footer.component';
 import { AppComponentBase } from '../../../shared/app-component-base';
@@ -34,7 +34,7 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
   @ViewChild('prescriptionForm', { static: true }) prescriptionForm: NgForm;
   @Output() onSave = new EventEmitter<void>();
   saving = false;
-  patients!: PatientDto[];
+  patients!: PatientDropDownDto[];
   appointments!: AppointmentDto[];
   labTests: any[] = [];
   selectedLabTests: any[] = []; 
@@ -80,9 +80,9 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
      this.LoadLabReports();
   }
   LoadPatients() {
-    this._patientService.getAllPatientByTenantID(abp.session.tenantId).subscribe({
+    this._patientService.patientDropDown().subscribe({
       next: (res) => {
-        this.patients = res.items;
+        this.patients = res;
       }, error: (err) => {
       }
     })
@@ -91,7 +91,6 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
     const patientId = this.prescription.patientId;
     const doctorId = this.doctorID;
     if (!patientId) return;
-    if (!doctorId) return;
     this._appointmentService.getPatientAppointment(patientId, doctorId).subscribe({
       next: (res) => {
         this.appointments = res.items;
@@ -161,6 +160,9 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
     );
   }
   save(): void {
+    if (this.prescription.appointmentId <= 0) {
+      return;
+    }
     const input = new CreateUpdatePrescriptionDto();
     input.tenantId = this.prescription.tenantId;
     input.diagnosis = this.prescription.diagnosis;
@@ -172,7 +174,6 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
     input.patientId = this.prescription.patientId;
     input.items = this.prescription.items;
     input.labTestIds = this.selectedLabTests.map(test => test.id || test);
-    debugger
     this._prescriptionService.createPrescriptionWithItem(input).subscribe({
       next: (res) => {
         this.notify.info(this.l('SavedSuccessfully'));

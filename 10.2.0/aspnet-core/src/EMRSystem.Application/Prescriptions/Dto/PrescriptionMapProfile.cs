@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
-using EMRSystem.LabReports;
 using EMRSystem.LabTechnician.Dto;
 using EMRSystem.PrescriptionLabTest.Dto;
-using EMRSystem.PrescriptionLabTests;
 using EMRSystem.Vitals;
 using EMRSystem.Vitals.Dto;
 using System;
@@ -11,7 +9,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using EMRSystem.Prescriptions.Dto;
-using EMRSystem.PrescriptionLabTests;
 namespace EMRSystem.Prescriptions.Dto
 {
     //class PrescriptionMapProfile : Profile
@@ -58,7 +55,7 @@ namespace EMRSystem.Prescriptions.Dto
                 .ReverseMap();
 
             // Lab Tests
-            CreateMap<EMRSystem.PrescriptionLabTests.PrescriptionLabTest, PrescriptionLabTestDto>()
+            CreateMap<LabReports.PrescriptionLabTest, PrescriptionLabTestDto>()
                 .ForMember(dest => dest.ReportTypeName, opt => opt.MapFrom(src => src.LabReportsType.ReportType))
                 .ReverseMap();
         }

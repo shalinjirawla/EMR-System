@@ -7,106 +7,146 @@ import { LazyLoadEvent, PrimeTemplate } from 'primeng/api';
 import { finalize } from 'rxjs/operators';
 import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { FormsModule } from '@node_modules/@angular/forms';
-import { NgIf } from '@node_modules/@angular/common';
+import { CommonModule, NgIf } from '@node_modules/@angular/common';
 import { ChangeDetectorRef, Component, Injector, ViewChild } from '@angular/core';
-import { LabReportDto, LabReportDtoPagedResultDto, LabServiceProxy } from '@shared/service-proxies/service-proxies';
+import { LabRequestListDto, LabTestStatus, PrescriptionLabTestDto, PrescriptionLabTestsServiceProxy } from '@shared/service-proxies/service-proxies';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
-
+import { ChipModule } from 'primeng/chip';
+import { OverlayPanelModule } from 'primeng/overlaypanel';
+import { ButtonModule } from 'primeng/button';
+import { MenuModule } from 'primeng/menu';
+import { EditLabReportComponent } from '@app/lab-technician/edit-lab-report/edit-lab-report.component';
+import { GenerateLabReportComponent } from '@app/lab-technician/generate-lab-report/generate-lab-report.component';
+import { ViewLabReportComponent } from '@app/lab-technician/view-lab-report/view-lab-report.component';
 @Component({
-  selector: 'app-test-requests',
-  imports: [FormsModule, TableModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe],
-  animations: [appModuleAnimation()],
-  templateUrl: './test-requests.component.html',
-  styleUrl: './test-requests.component.css',
-  providers:[LabServiceProxy]
+    selector: 'app-test-requests',
+    imports: [FormsModule, TableModule, CommonModule, PrimeTemplate, OverlayPanelModule, MenuModule, ButtonModule, NgIf, PaginatorModule, ChipModule, LocalizePipe],
+    animations: [appModuleAnimation()],
+    templateUrl: './test-requests.component.html',
+    styleUrl: './test-requests.component.css',
+    providers: [PrescriptionLabTestsServiceProxy]
 })
-export class TestRequestsComponent extends PagedListingComponentBase<LabReportDto> {
+export class TestRequestsComponent extends PagedListingComponentBase<PrescriptionLabTestDto> {
     @ViewChild('dataTable', { static: true }) dataTable: Table;
     @ViewChild('paginator', { static: true }) paginator: Paginator;
 
-    patients: LabReportDto[] = [];
     keyword = '';
     isActive: boolean | null;
     advancedFiltersVisible = false;
-
+    testStatus = [
+        { label: 'Pending', value: LabTestStatus._0 },
+        { label: 'In Progress', value: LabTestStatus._1 },
+        { label: 'Completed', value: LabTestStatus._2 },
+    ];
     constructor(
         injector: Injector,
         private _modalService: BsModalService,
         private _activatedRoute: ActivatedRoute,
-        private _labService: LabServiceProxy,
+        private _prescriptionLabTests: PrescriptionLabTestsServiceProxy,
         cd: ChangeDetectorRef
     ) {
         super(injector, cd);
         this.keyword = this._activatedRoute.snapshot.queryParams['filterText'] || '';
     }
-
     clearFilters(): void {
         this.keyword = '';
         this.isActive = undefined;
     }
-
     list(event?: LazyLoadEvent): void {
         if (this.primengTableHelper.shouldResetPaging(event)) {
             this.paginator.changePage(0);
-
             if (this.primengTableHelper.records && this.primengTableHelper.records.length > 0) {
                 return;
             }
         }
         this.primengTableHelper.showLoadingIndicator();
 
-        this._labService
-            .getAll(
+        this._prescriptionLabTests
+            .getAllLabTestRequests(
                 this.primengTableHelper.getSorting(this.dataTable),
                 this.primengTableHelper.getSkipCount(this.paginator, event),
                 this.primengTableHelper.getMaxResultCount(this.paginator, event)
             )
-            .pipe(
-                finalize(() => {
-                    this.primengTableHelper.hideLoadingIndicator();
-                })
-            )
-            .subscribe((result: LabReportDtoPagedResultDto) => {
+            .pipe(finalize(() => {
+                this.primengTableHelper.hideLoadingIndicator();
+            }))
+            .subscribe((result) => {
                 this.primengTableHelper.records = result.items;
                 this.primengTableHelper.totalRecordsCount = result.totalCount;
-                this.primengTableHelper.hideLoadingIndicator();
                 this.cd.detectChanges();
             });
     }
-    delete(test: LabReportDto): void {
-        abp.message.confirm(this.l('UserDeleteWarningMessage'), undefined, (result: boolean) => {
+    delete(entity: PrescriptionLabTestDto): void {
+        abp.message.confirm("Are you sure u want to delete this", undefined, (result: boolean) => {
             if (result) {
-                this._labService.delete(test.id).subscribe(() => {
+                this._prescriptionLabTests.delete(entity.id).subscribe(() => {
                     abp.notify.success(this.l('SuccessfullyDeleted'));
                     this.refresh();
                 });
             }
         });
     }
-
-    createPrescription(): void {
-    //this.showCreateOrEditPrescriptionDialog();
-  }
-
-  // showCreateOrEditPrescriptionDialog(id?: number): void {
-  //     let createOrEditUserDialog: BsModalRef;
-  //     if (!id) {
-  //       createOrEditUserDialog = this._modalService.show(CreateUserDialogComponent, {
-  //         class: 'modal-lg',
-  //       });
-  //     }
-  //     //  else {
-  //     //     createOrEditUserDialog = this._modalService.show(CreateAppoinmentComponent, {
-  //     //         class: 'modal-lg',
-  //     //         initialState: {
-  //     //             id: id,
-  //     //         },
-  //     //     });
-  //     // }
-  
-  //     createOrEditUserDialog.content.onSave.subscribe(() => {
-  //       //this.refresh();
-  //     });
-  //   }
-
+    getStatusLabel(value: number): string {
+        const status = this.testStatus.find(s => s.value === value);
+        return status ? status.label : '';
+    }
+    getStatusClass(value: number): string {
+        switch (value) {
+            case LabTestStatus._0: return 'status-pending';    // Scheduled
+            case LabTestStatus._1: return 'status-in-progress';    // Checked In
+            case LabTestStatus._2: return 'status-completed';    // Completed
+            default: return '';
+        }
+    }
+    CreateReport(record: LabRequestListDto): void {
+        let createReportDialog: BsModalRef;
+        if (record.id) {
+            createReportDialog = this._modalService.show(GenerateLabReportComponent, {
+                class: 'modal-xl',
+                initialState: {
+                    id: record.id,
+                    testName: record.labReportTypeName,
+                    patientName: record.patientName
+                },
+            });
+        }
+        createReportDialog.content.onSave.subscribe(() => {
+            this.refresh();
+        });
+    }
+    EditReport(record: LabRequestListDto): void {
+        let editReportDialog: BsModalRef;
+        if (record.id) {
+            editReportDialog = this._modalService.show(EditLabReportComponent, {
+                class: 'modal-xl',
+                initialState: {
+                    id: record.id,
+                    testName: record.labReportTypeName,
+                    patientName: record.patientName
+                },
+            });
+        }
+        editReportDialog.content.onSave.subscribe(() => {
+            this.refresh();
+        });
+    }
+    ViewLabReport(id?: number) {
+        let viewReportDialog: BsModalRef;
+        viewReportDialog = this._modalService.show(ViewLabReportComponent, {
+            class: 'modal-xl',
+            initialState: {
+                id: id,
+            },
+        });
+        // editReportDialog.content.onSave.subscribe(() => {
+        //     this.refresh();
+        // });
+    }
+    CompleteReport(id?: number) {
+        if (id > 0) {
+            this._prescriptionLabTests.makeCompleteReport(id).subscribe(res => {
+                this.refresh();
+            })
+        }
+    }
 }
