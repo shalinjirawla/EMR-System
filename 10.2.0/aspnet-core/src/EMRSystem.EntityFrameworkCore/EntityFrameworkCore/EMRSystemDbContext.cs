@@ -29,6 +29,7 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
     public DbSet<LabTechnician> LabTechnician { get; set; }
     public DbSet<Nurse> Nurses { get; set; }
     public DbSet<Pharmacist> Pharmacists { get; set; }
+    public DbSet<PharmacistInventory> PharmacistInventory { get; set; }
     public DbSet<Appointment> Appointments { get; set; }
     public DbSet<LabReportsType> LabReportsTypes { get; set; }
     public DbSet<Patient> Patients { get; set; }

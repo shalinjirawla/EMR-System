@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using EMRSystem.Nurse.Dto;
+using EMRSystem.Pharmacists;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,13 @@ namespace EMRSystem.Pharmacist.Dto
         {
             CreateMap<EMRSystem.Pharmacists.Pharmacist, PharmacistDto>().ReverseMap();
             CreateMap<EMRSystem.Pharmacists.Pharmacist, CreateUpdatePharmacistDto>().ReverseMap();
+
+            CreateMap<PharmacistInventory, PharmacistInventoryDto>()
+                .ForMember(dest => dest.StockStatus, opt => opt.Ignore())
+                .ForMember(dest => dest.ExpiryStatus, opt => opt.Ignore())
+                .ReverseMap();
+
+            CreateMap<PharmacistInventory, CreateUpdatePharmacistInventoryDto>().ReverseMap();
         }
     }
 }

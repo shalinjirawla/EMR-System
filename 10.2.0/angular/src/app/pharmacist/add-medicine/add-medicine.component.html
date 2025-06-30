@@ -1,0 +1,83 @@
+<form class="form-horizontal" autocomplete="off" #createInventoryModal="ngForm" (ngSubmit)="save()">
+    <abp-modal-header title="Add New Medicine" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-md-12 d-flex flex-column">
+                <label for="medicineName">Medicine Name</label>
+                <input pInputText [(ngModel)]="inventory.medicineName" name="medicineName"
+                    placeholder="Enter medicine name" class="w-100" required />
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-6 d-flex flex-column">
+                <label for="costPrice">Cost Price</label>
+                <p-inputNumber [(ngModel)]="inventory.costPrice" name="costPrice" mode="currency" currency="USD"
+                    locale="en-US" placeholder="Enter cost price" class="w-100" required />
+            </div>
+            <div class="col-md-6 d-flex flex-column">
+                <label for="sellingPrice">Selling Price</label>
+                <p-inputNumber [(ngModel)]="inventory.sellingPrice" name="sellingPrice" mode="currency" currency="USD"
+                    locale="en-US" placeholder="Enter selling price" class="w-100" required />
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-6 d-flex flex-column">
+                <label for="purchaseDate">Purchase Date</label>
+                <p-datepicker [(ngModel)]="inventory.purchaseDate" name="purchaseDate" [showIcon]="true"
+                    placeholder="Select purchase date" class="w-100" style="width: 100%;" required />
+            </div>
+            <div class="col-md-6 d-flex flex-column">
+                <label for="expiryDate">Expiry Date</label>
+                <p-datepicker [(ngModel)]="inventory.expiryDate" name="expiryDate" [showIcon]="true"
+                    placeholder="Select expiry date" [minDate]="tomorrow" class="w-100" required />
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-6 d-flex flex-column">
+                <label for="unit">Unit</label>
+                <p-inputNumber [(ngModel)]="inventory.unitValue" name="unitValue" placeholder="Value" [min]="1"
+                    [max]="10000" class="w-100" required />
+
+            </div>
+            <div class="col-md-6 d-flex flex-column">
+                <label for="type">Type(mg/ml)</label>
+                <p-dropdown [(ngModel)]="inventory.unitType" name="unitType" [options]="unitTypeOptions"
+                    placeholder="Type" class="w-100" required />
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-6 d-flex flex-column">
+                <label for="stock">Current Stock</label>
+                <p-inputNumber [(ngModel)]="inventory.stock" name="stock" placeholder="Enter quantity" class="w-100"
+                    required />
+            </div>
+            <div class="col-md-6 d-flex flex-column">
+                <label for="minStock">Minimum Stock</label>
+                <p-inputNumber [(ngModel)]="inventory.minStock" name="minStock" placeholder="Enter minimum stock"
+                    class="w-100" required />
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-12 d-flex flex-column">
+                <label for="description">Description</label>
+                <textarea pTextarea [(ngModel)]="inventory.description" name="description"
+                    placeholder="Enter description" rows="3" class="w-100"></textarea>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-12 d-flex align-items-center">
+                <p-checkbox [(ngModel)]="inventory.isAvailable" name="isAvailable" binary="true"
+                    inputId="isAvailable"></p-checkbox>
+                <label for="isAvailable" class="ml-2 mb-0">Is Available</label>
+            </div>
+        </div>
+    </div>
+    <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="!isFormValid || saving"
+        (onCancelClick)="bsModalRef.hide()"></abp-modal-footer>
+</form>

@@ -1,14 +1,11 @@
 import { Component, Injector, OnInit, EventEmitter, Output, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal';
-import { forEach as _forEach, includes as _includes, map as _map } from 'lodash-es';
 import { AppComponentBase } from '@shared/app-component-base';
 import { FormsModule, NgForm } from '@angular/forms';
 import { AbpModalHeaderComponent } from '../../../shared/components/modal/abp-modal-header.component';
-import { AbpValidationSummaryComponent } from '../../../shared/components/validation/abp-validation.summary.component';
 import { AbpModalFooterComponent } from '../../../shared/components/modal/abp-modal-footer.component';
-import { LocalizePipe } from '@shared/pipes/localize.pipe';
-import { CommonModule } from '@node_modules/@angular/common';
-import { AppointmentDto, AppointmentServiceProxy, CreateUpdatePrescriptionDto, CreateUpdatePrescriptionItemDto, DoctorServiceProxy, PatientDto, PatientServiceProxy, PrescriptionServiceProxy } from '@shared/service-proxies/service-proxies';
+import { CommonModule } from '@angular/common';
+import { AppointmentDto, AppointmentServiceProxy, CreateUpdatePrescriptionDto, CreateUpdatePrescriptionItemDto, DoctorServiceProxy, PatientDto, PatientServiceProxy, PrescriptionServiceProxy, PharmacistInventoryServiceProxy } from '@shared/service-proxies/service-proxies';
 import moment from 'moment';
 import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
@@ -17,18 +14,21 @@ import { DropdownModule } from 'primeng/dropdown';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
+import { MultiSelectModule } from 'primeng/multiselect';
 
 @Component({
   selector: 'app-edit-prescriptions',
+  standalone: true,
   imports: [
     FormsModule, AbpModalHeaderComponent,
     AbpModalFooterComponent, CommonModule,
     CalendarModule, DropdownModule, CheckboxModule, InputTextModule, TextareaModule,
-    ButtonModule, CommonModule, SelectModule, AbpModalHeaderComponent, AbpModalFooterComponent
+    ButtonModule, CommonModule, SelectModule, AbpModalHeaderComponent, AbpModalFooterComponent,
+    MultiSelectModule
   ],
   templateUrl: './edit-prescriptions.component.html',
-  styleUrl: './edit-prescriptions.component.css',
-  providers: [PrescriptionServiceProxy, PatientServiceProxy, AppointmentServiceProxy],
+  styleUrls: ['./edit-prescriptions.component.css'],
+  providers: [PrescriptionServiceProxy, PatientServiceProxy, AppointmentServiceProxy, PharmacistInventoryServiceProxy],
 })
 export class EditPrescriptionsComponent extends AppComponentBase implements OnInit {
   @Output() onSave = new EventEmitter<any>();
@@ -36,10 +36,37 @@ export class EditPrescriptionsComponent extends AppComponentBase implements OnIn
 
   id: number;
   saving = false;
-  prescription = new CreateUpdatePrescriptionDto();
+  prescription: any = {
+    items: []
+  };
   patients!: PatientDto[];
   appointmentTitle: { id: number, title: string }[] = [];
   doctorID!: number;
+  labTests: any[] = [];
+  selectedLabTests: any[] = [];
+
+  // Medicine and Dosage related properties
+  medicineOptions: any[] = [];
+  medicineDosageOptions: { [medicineName: string]: string[] } = {};
+  selectedMedicineUnits: { [medicineName: string]: string } = {};
+
+  frequencyOptions = [
+    { label: 'Once a day', value: 'Once a day' },
+    { label: 'Twice a day', value: 'Twice a day' },
+    { label: 'Three times a day', value: 'Three times a day' },
+    { label: 'Four times a day', value: 'Four times a day' },
+    { label: 'Every 6 hours', value: 'Every 6 hours' },
+    { label: 'Every 8 hours', value: 'Every 8 hours' },
+    { label: 'Every 12 hours', value: 'Every 12 hours' },
+    { label: 'As needed', value: 'As needed' }
+  ];
+
+  durationUnits = [
+    { label: 'Days', value: 'Days' },
+    { label: 'Weeks', value: 'Weeks' },
+    { label: 'Months', value: 'Months' }
+  ];
+
   constructor(
     injector: Injector,
     public bsModalRef: BsModalRef,
@@ -47,63 +74,130 @@ export class EditPrescriptionsComponent extends AppComponentBase implements OnIn
     private _prescriptionService: PrescriptionServiceProxy,
     private _patientService: PatientServiceProxy,
     private _appointmentService: AppointmentServiceProxy,
-  ) { super(injector); }
-
+    private _pharmacistInventoryService: PharmacistInventoryServiceProxy
+  ) {
+    super(injector);
+  }
 
   ngOnInit(): void {
     this.LoadPatients();
+    this.loadMedicines();
     this.FillEditForm();
   }
+
+  loadMedicines() {
+    this._pharmacistInventoryService.getAll(
+      undefined, undefined, undefined, undefined,
+      undefined, undefined, true, undefined, undefined
+    ).subscribe({
+      next: (res) => {
+        if (res.items && res.items.length > 0) {
+          this.medicineOptions = res.items.map(item => ({
+            label: item.medicineName,
+            value: item.medicineName
+          }));
+
+          res.items.forEach(medicine => {
+            const unit = medicine.unit;
+            if (unit) {
+              const units = unit.split(',').map(u => u.trim());
+              this.medicineDosageOptions[medicine.medicineName] = units;
+              this.selectedMedicineUnits[medicine.medicineName] = units[0];
+            }
+          });
+        }
+      },
+      error: (err) => {
+        this.notify.error('Could not load medicines');
+      }
+    });
+  }
+
+  getDosageOptions(medicineName: string): any[] {
+    if (!medicineName || !this.medicineDosageOptions[medicineName]) return [];
+    return this.medicineDosageOptions[medicineName].map(unit => ({
+      label: unit,
+      value: unit
+    }));
+  }
+
+  onMedicineChange(item: any, index: number) {
+    const selectedMedicine = item.medicineName;
+    if (selectedMedicine && this.medicineDosageOptions[selectedMedicine]) {
+      item.dosage = this.selectedMedicineUnits[selectedMedicine];
+    } else {
+      item.dosage = '';
+    }
+  }
+
   LoadPatients() {
     this._patientService.getAllPatientByTenantID(abp.session.tenantId).subscribe({
       next: (res) => {
         this.patients = res.items;
-      }, error: (err) => {
-      }
-    })
+      },
+      error: (err) => { }
+    });
   }
+
   FillEditForm() {
     this._prescriptionService.getPrescriptionDetailsById(this.id).subscribe((result) => {
-      this.prescription.id = result.id;
-      this.prescription.tenantId = result.tenantId;
-      this.prescription.diagnosis = result.diagnosis;
-      this.prescription.notes = result.notes;
-      this.prescription.issueDate = result.issueDate;
-      this.prescription.isFollowUpRequired = result.isFollowUpRequired;
-      this.prescription.appointmentId = result.appointmentId;
-      this.prescription.doctorId = result.doctorId;
-      this.prescription.patientId = result.patientId;
-      this.prescription.items = result.items.map(i => {
-        const dto = new CreateUpdatePrescriptionItemDto();
-        dto.id = i.id;
-        dto.tenantId = i.tenantId;
-        dto.medicineName = i.medicineName;
-        dto.dosage = i.dosage;
-        dto.frequency = i.frequency;
-        dto.duration = i.duration;
-        dto.instructions = i.instructions;
-        dto.prescriptionId = i.prescriptionId;
-        return dto;
-      });
+      this.prescription = {
+        id: result.id,
+        tenantId: result.tenantId,
+        diagnosis: result.diagnosis,
+        notes: result.notes,
+        issueDate: result.issueDate,
+        isFollowUpRequired: result.isFollowUpRequired,
+        appointmentId: result.appointmentId,
+        doctorId: result.doctorId,
+        patientId: result.patientId,
+        labTestIds: result.labTestIds || [],
+        items: result.items.map(i => {
+          // Parse duration into value and unit
+          const durationParts = i.duration?.split(' ') || ['', ''];
+          return {
+            ...new CreateUpdatePrescriptionItemDto(),
+            id: i.id,
+            tenantId: i.tenantId,
+            medicineName: i.medicineName,
+            dosage: i.dosage,
+            frequency: i.frequency,
+            duration: i.duration,
+            durationValue: durationParts[0] ? parseInt(durationParts[0]) : 1,
+            durationUnit: durationParts[1] || 'Days',
+            instructions: i.instructions,
+            prescriptionId: i.prescriptionId
+          };
+        })
+      };
+
+      this.selectedLabTests = this.labTests.filter(test =>
+        this.prescription.labTestIds.includes(test.id)
+      );
+
       this._appointmentService.get(this.prescription.appointmentId).subscribe((app) => {
         const selectedPatient = this.patients.find(p => p.id === this.prescription.patientId);
         const title = `${app.startTime} - ${app.endTime} - ${selectedPatient.fullName}`;
         this.appointmentTitle = [{ id: app.id, title: title }];
         this.cd.detectChanges();
       });
-      this.cd.detectChanges();
     });
   }
+
   addItem(): void {
-    const item = new CreateUpdatePrescriptionItemDto();
-    item.id = 0;
-    item.tenantId = abp.session.tenantId;
-    item.medicineName = '';
-    item.dosage = '';
-    item.frequency = '';
-    item.duration = '';
-    item.instructions = '';
-    item.prescriptionId = 0;
+    const item: any = {
+      ...new CreateUpdatePrescriptionItemDto(),
+      id: 0,
+      tenantId: abp.session.tenantId,
+      medicineName: '',
+      dosage: '',
+      frequency: '',
+      duration: '',
+      durationValue: 1,
+      durationUnit: 'Days',
+      instructions: '',
+      prescriptionId: this.id
+    };
 
     if (!this.prescription.items) {
       this.prescription.items = [];
@@ -111,9 +205,11 @@ export class EditPrescriptionsComponent extends AppComponentBase implements OnIn
 
     this.prescription.items.push(item);
   }
+
   removeItem(index: number): void {
     this.prescription.items.splice(index, 1);
   }
+
   isSaveDisabled() {
     if (!this.editPrescriptionForm.valid || this.saving) {
       return true;
@@ -126,22 +222,55 @@ export class EditPrescriptionsComponent extends AppComponentBase implements OnIn
       !item.medicineName?.trim() ||
       !item.dosage?.trim() ||
       !item.frequency?.trim() ||
-      !item.duration?.trim() ||
       !item.instructions?.trim()
     );
   }
+
   save(): void {
     this.saving = true;
-    this._prescriptionService.update(this.prescription).subscribe({
+
+    // Prepare the prescription data for saving
+    const input = new CreateUpdatePrescriptionDto();
+    input.init({
+      id: this.prescription.id,
+      tenantId: this.prescription.tenantId,
+      diagnosis: this.prescription.diagnosis,
+      notes: this.prescription.notes,
+      issueDate: this.prescription.issueDate,
+      isFollowUpRequired: this.prescription.isFollowUpRequired,
+      appointmentId: this.prescription.appointmentId,
+      doctorId: this.prescription.doctorId,
+      patientId: this.prescription.patientId,
+      labTestIds: this.selectedLabTests.map(test => test.id || test)
+    });
+
+    // Prepare items with combined duration and proper prescriptionId
+    input.items = this.prescription.items.map(item => {
+      const dtoItem = new CreateUpdatePrescriptionItemDto();
+      dtoItem.init({
+        id: item.id,
+        tenantId: abp.session.tenantId,
+        medicineName: item.medicineName,
+        dosage: item.dosage,
+        frequency: item.frequency,
+        duration: `${item.durationValue} ${item.durationUnit}`,
+        instructions: item.instructions,
+        prescriptionId: this.prescription.id, 
+        
+      });
+      return dtoItem;
+    });
+debugger
+    this._prescriptionService.updatePrescriptionWithItem(input).subscribe({
       next: (res) => {
         this.notify.info(this.l('SavedSuccessfully'));
         this.bsModalRef.hide();
         this.onSave.emit();
-      }, error: (err) => {
-        this.notify.info(this.l('SavedSuccessfully'));
-        this.bsModalRef.hide();
-        this.onSave.emit();
+      },
+      error: (err) => {
+        this.saving = false;
+        this.notify.error('Could not update prescription');
       }
-    })
+    });
   }
 }
