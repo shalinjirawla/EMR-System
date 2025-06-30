@@ -10,7 +10,6 @@ using EMRSystem.MultiTenancy;
 using EMRSystem.Nurses;
 using EMRSystem.Patients;
 using EMRSystem.Pharmacists;
-using EMRSystem.PrescriptionLabTests;
 using EMRSystem.Prescriptions;
 using EMRSystem.Vitals;
 using Microsoft.EntityFrameworkCore;
@@ -25,7 +24,7 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
     public DbSet<Bill> Billing { get; set; }
     public DbSet<BillItem> BillItem { get; set; }
     public DbSet<Doctor> Doctors { get; set; }
-    public DbSet<LabReport> Lab { get; set; }
+    public DbSet<LabReportResultItem> LabReportResultItems { get; set; }
     public DbSet<LabTechnician> LabTechnician { get; set; }
     public DbSet<Nurse> Nurses { get; set; }
     public DbSet<Pharmacist> Pharmacists { get; set; }
@@ -58,12 +57,6 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
                .WithMany(e => e.Doctors)
                .HasForeignKey(s => s.AbpUserId)
                .OnDelete(DeleteBehavior.NoAction); // or NoAction
-
-        modelBuilder.Entity<LabReport>()
-                .HasOne(s => s.LabTechnicians)
-                .WithMany(e => e.LabReports)
-                .HasForeignKey(s => s.LabTechnicianId)
-                .OnDelete(DeleteBehavior.NoAction); // or NoAction
 
         modelBuilder.Entity<LabTechnician>()
                 .HasOne(s => s.AbpUser)
@@ -165,6 +158,12 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
             .WithMany(lrt => lrt.PrescriptionLabTests) // Optional: Add if you want reverse navigation
             .HasForeignKey(plt => plt.LabReportsTypeId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<LabReportResultItem>()
+           .HasOne(plt => plt.PrescriptionLabTest)
+           .WithMany(lrt => lrt.LabReportResultItems) // Optional: Add if you want reverse navigation
+           .HasForeignKey(plt => plt.PrescriptionLabTestId)
+           .OnDelete(DeleteBehavior.NoAction);
 
 
     }

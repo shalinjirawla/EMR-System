@@ -1,0 +1,74 @@
+<div class="container p-4 border rounded bg-white" *ngIf="report">
+    <div class="d-flex justify-content-between">
+        <div>
+            <p>
+                {{report.tenantName}}
+            </p>
+        </div>
+        <div>
+            <img src="/assets/img/download.jpg" class=" w-75" />
+        </div>
+    </div>
+    <h4 class="text-center text-primary mb-3">LABORATORY REPORT</h4>
+
+    <div class="row mb-2">
+        <div class="col-md-6">
+            <strong>Name:</strong> {{ report.patientName }}
+        </div>
+        <div class="col-md-6 text-right">
+            <strong>Patient ID:</strong> {{ report.patientId }}
+        </div>
+    </div>
+
+    <div class="row mb-2">
+        <div class="col-md-4">
+            <strong>Date:</strong> {{ report.recordedDate | date: 'dd/MM/yyyy' }}
+        </div>
+        <div class="col-md-4 text-center">
+            <strong>Age:</strong> {{ calculateAgeDisplay(report.patientDateOfBirth) }}
+        </div>
+        <div class="col-md-4 text-right">
+            <strong>Sex:</strong> {{ report.gender }}
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <strong>Doctor:</strong> {{ report.doctorName }}
+        </div>
+        <div class="col-md-6 text-right">
+            <strong>Test ID:</strong> {{ report.id }}
+        </div>
+    </div>
+
+    <h5 class="text-center text-success mb-3">Complete {{ report.testName }} Report</h5>
+
+    <table class="table table-bordered">
+        <thead class="thead-light">
+            <tr>
+                <th>Test Name</th>
+                <th>Result</th>
+                <th>Normal Range</th>
+                <th>Units</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of report.labReportResultItem">
+                <td>{{ item.test }}</td>
+                <td>{{ item.result }}</td>
+                <td>{{ item.minValue }} - {{item.maxValue}}</td>
+                <td>{{ item.unit }}</td>
+                <td>
+                    <p-tag [value]="item.flag" [severity]="getSeverity(item.flag)"></p-tag>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="text-right mt-5">
+        <i>Digitally signed by</i><br />
+        <strong>{{ report.doctorName }}</strong><br>
+        <p>Registration Number : {{ report.doctorRegistrationNumber }}</p>
+    </div>
+</div>

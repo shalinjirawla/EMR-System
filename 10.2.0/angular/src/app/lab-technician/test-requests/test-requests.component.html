@@ -5,12 +5,6 @@
                 <div class="col-6">
                     <h1>Test Requests</h1>
                 </div>
-                <div class="col-6 text-right">
-                    <a href="javascript:;" class="btn bg-blue" (click)="createPrescription()">
-                        <i class="fa fa-plus-square"></i>
-                        {{ 'Create' | localize }}
-                    </a>
-                </div>
             </div>
         </div>
     </section>
@@ -99,22 +93,18 @@
                             <ng-template pTemplate="header">
                                 <tr>
                                     <th style="min-width: 100px" pSortableColumn="patientName">
-                                        {{ 'PatientName' | localize }}
+                                        Patient Name
+                                        <p-sortIcon field="patientName"></p-sortIcon>
+                                    </th>
+                                    <th style="min-width: 100px" pSortableColumn="patientName">
+                                        Doctor Name
                                         <p-sortIcon field="patientName"></p-sortIcon>
                                     </th>
                                     <th style="min-width: 150px" pSortableColumn="testname">
-                                        {{ 'TestName' | localize }}
+                                        Test Name
                                         <p-sortIcon field="testname"></p-sortIcon>
                                     </th>
-                                    <th style="min-width: 150px" pSortableColumn="resultSummary">
-                                        {{ 'ResultSummary' | localize }}
-                                        <p-sortIcon field="resultSummary"></p-sortIcon>
-                                    </th>
-                                    <th style="min-width: 30px" pSortableColumn="remarks">
-                                        {{ 'Remarks' | localize }}
-                                        <p-sortIcon field="remarks"></p-sortIcon>
-                                    </th>
-                                    <th style="min-width: 150px" pSortableColumn="status">
+                                    <th style="min-width: 100px" pSortableColumn="status">
                                         {{ 'Status' | localize }}
                                         <p-sortIcon field="status"></p-sortIcon>
                                     </th>
@@ -133,36 +123,38 @@
                                     </td>
                                     <td>
                                         <span>
-                                            {{ record.testname }}
+                                            Dr. {{ record.doctorName }}
                                         </span>
                                     </td>
                                     <td>
                                         <span>
-                                            {{ record.resultSummary }}
+                                            {{ record.labReportTypeName }}
                                         </span>
                                     </td>
                                     <td>
-                                        <span>
-                                            {{ record.remarks }}
-                                        </span>
+                                        <p-chip [label]="getStatusLabel(record.testStatus)"
+                                            [class]="getStatusClass(record.testStatus)" />
                                     </td>
                                     <td>
-                                        <span>
-                                            {{ record.status }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                    <td>
-                                        <button type="button" class="btn btn-sm bg-secondary"
-                                            (click)="editAppoinment(record)">
-                                            <i class="fas fa-pencil-alt"></i>
-                                            {{ 'Edit' | localize }}
+                                        <button type="button" pButton icon="pi pi-ellipsis-v" class="p-button-text"
+                                            (click)="rowMenu.toggle($event); selectedRecord = record">
                                         </button>
-                                        <button type="button" class="btn btn-sm bg-danger mx-2"
-                                            (click)="delete(record)">
-                                            <i class="fas fa-trash"></i>
-                                            {{ 'Delete' | localize }}
-                                        </button>
+                                        <p-overlayPanel #rowMenu class="custom-overlay" [dismissable]="true">
+                                            <ul class="custom-overlay-menu">
+                                                <li *ngIf="record.testStatus==0" (click)="CreateReport(record)">
+                                                    <i class="pi pi-plus"></i> Create
+                                                </li>
+                                                <li *ngIf="record.testStatus==1" (click)="EditReport(record)">
+                                                    <i class="pi pi-pencil"></i> Edit
+                                                </li>
+                                                <li *ngIf="record.testStatus==1" (click)="CompleteReport(record.id)">
+                                                    <i class="pi pi-check"></i> Mark As Completed
+                                                </li>
+                                                <li *ngIf="record.testStatus!=0" (click)="ViewLabReport(record.id)">
+                                                    <i class="pi pi-eye"></i> View
+                                                </li>
+                                            </ul>
+                                        </p-overlayPanel>
                                     </td>
                                 </tr>
                             </ng-template>

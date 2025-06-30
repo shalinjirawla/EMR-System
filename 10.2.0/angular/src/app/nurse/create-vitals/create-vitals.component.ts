@@ -8,7 +8,7 @@ import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
 import { AbpModalFooterComponent } from '@shared/components/modal/abp-modal-footer.component';
 import { AbpModalHeaderComponent } from '@shared/components/modal/abp-modal-header.component';
-import { PatientDto, NurseDto, PatientServiceProxy, NurseServiceProxy, VitalServiceProxy, CreateUpdateVitalDto } from '@shared/service-proxies/service-proxies';
+import { PatientDto, NurseDto, PatientServiceProxy, NurseServiceProxy, VitalServiceProxy, CreateUpdateVitalDto, PatientDropDownDto } from '@shared/service-proxies/service-proxies';
 import { AppComponentBase } from '@shared/app-component-base';
 import moment from 'moment';
 
@@ -20,11 +20,11 @@ import moment from 'moment';
   styleUrl: './create-vitals.component.css'
 })
 export class CreateVitalsComponent extends AppComponentBase implements OnInit {
-  @ViewChild('createVitalForm', { static: true }) createVitalForm: NgForm; 
-    @Output() onSave = new EventEmitter<void>();
+  @ViewChild('createVitalForm', { static: true }) createVitalForm: NgForm;
+  @Output() onSave = new EventEmitter<void>();
   saving = false;
 
-  patients: PatientDto[] = [];
+  patients: PatientDropDownDto[] = [];
   nurses: NurseDto[] = [];
 
   vital: CreateUpdateVitalDto = new CreateUpdateVitalDto();
@@ -48,8 +48,8 @@ export class CreateVitalsComponent extends AppComponentBase implements OnInit {
   }
 
   loadPatients() {
-    this._patientService.getAllPatientByTenantID(abp.session.tenantId).subscribe({
-      next: res => this.patients = res.items,
+    this._patientService.patientDropDown().subscribe({
+      next: res => this.patients = res,
       error: err => console.error(err)
     });
   }

@@ -6,7 +6,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
-import { PatientDto, NurseDto, CreateUpdateVitalDto, PatientServiceProxy, NurseServiceProxy, VitalServiceProxy } from '@shared/service-proxies/service-proxies';
+import { PatientDto, NurseDto, CreateUpdateVitalDto, PatientServiceProxy, NurseServiceProxy, VitalServiceProxy, PatientDropDownDto } from '@shared/service-proxies/service-proxies';
 import moment from 'moment';
 import { AbpModalHeaderComponent } from "../../../shared/components/modal/abp-modal-header.component";
 import { AbpModalFooterComponent } from '@shared/components/modal/abp-modal-footer.component';
@@ -27,7 +27,7 @@ export class EditVitalsComponent extends AppComponentBase implements OnInit {
   @Input() vitalId: number; // <-- Receive vital ID for editing
   saving = false;
 
-  patients: PatientDto[] = [];
+  patients: PatientDropDownDto[] = [];
   nurses: NurseDto[] = [];
 
   vital: CreateUpdateVitalDto = new CreateUpdateVitalDto();
@@ -76,9 +76,9 @@ export class EditVitalsComponent extends AppComponentBase implements OnInit {
   }
 
   loadPatients() {
-    this._patientService.getAllPatientByTenantID(abp.session.tenantId).subscribe({
+    this._patientService.patientDropDown().subscribe({
       next: res => {
-        this.patients = res.items;
+        this.patients = res;
 
         // Now assign patientId if already fetched
         if (this.vitalId && this.vital.patientId) {

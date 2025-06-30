@@ -60,10 +60,9 @@ export class AssignedPatientsComponent extends PagedListingComponentBase<Patient
     }
 
     this.primengTableHelper.showLoadingIndicator();
-debugger
     this._patientService
       .patientsForNurse(
-        
+
         this.keyword,
         this.primengTableHelper.getSorting(this.dataTable),
         this.primengTableHelper.getSkipCount(this.paginator, event),

@@ -20,7 +20,6 @@ namespace EMRSystem.LabReports
         public DateTime? DateOfBirth { get; set; }
         public long AbpUserId { get; set; }
         public virtual User AbpUser { get; set; }
-        public ICollection<LabReport> LabReports { get; set; }
     }
 
     public enum LabDepartment

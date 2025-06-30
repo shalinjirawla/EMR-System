@@ -1,5 +1,5 @@
 ﻿using Abp.Domain.Entities;
-using EMRSystem.PrescriptionLabTests;
+using EMRSystem.LabReports;
 using System;
 using System.Collections.Generic;
 using System.Linq;

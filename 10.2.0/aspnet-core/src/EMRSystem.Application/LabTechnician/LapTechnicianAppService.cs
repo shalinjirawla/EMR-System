@@ -10,16 +10,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using EMRSystem.Patients.Dto;
+using Microsoft.AspNetCore.Mvc;
 
 namespace EMRSystem.LabTechnician
 {
     [AbpAuthorize(PermissionNames.Pages_LabReports)]
     public class LapTechnicianAppService :
-        AsyncCrudAppService<EMRSystem.LabReports.LabTechnician,LabTechniciansDto,long,PagedAndSortedResultRequestDto,CreateUpdateLabTechnicianDto,CreateUpdateLabTechnicianDto>,
+        AsyncCrudAppService<EMRSystem.LabReports.LabTechnician, LabTechniciansDto, long, PagedAndSortedResultRequestDto, CreateUpdateLabTechnicianDto, CreateUpdateLabTechnicianDto>,
             ILapTechnicianAppService
     {
         public LapTechnicianAppService(IRepository<EMRSystem.LabReports.LabTechnician, long> repository) : base(repository)
         {
         }
+        //[HttpGet]
+        //public async  Task<PagedResultDto<LabRequestListDto>> GetLabRequestList(PagedLabRequestResultRequestDto input)
+        //{
+
+        //}
     }
 }

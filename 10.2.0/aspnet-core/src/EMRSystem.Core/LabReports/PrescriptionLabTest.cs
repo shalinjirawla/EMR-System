@@ -8,18 +8,25 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EMRSystem.PrescriptionLabTests
+namespace EMRSystem.LabReports
 {
     public class PrescriptionLabTest : Entity<long>, IMustHaveTenant
     {
         public int TenantId { get; set; }
-
         public long PrescriptionId { get; set; }
         public virtual Prescription Prescription { get; set; }
-
         public long LabReportsTypeId { get; set; }
         public virtual LabReportsType LabReportsType { get; set; }
+        public LabTestStatus TestStatus { get; set; }
+        public DateTime? CreatedDate { get; set; } = DateTime.Now;
+        public ICollection<LabReportResultItem> LabReportResultItems { get; set; }
     }
 
-   
+    public enum LabTestStatus
+    {
+        Pending = 0,
+        InProgress = 1,
+        Completed = 2,
+    }
+
 }
