@@ -5,7 +5,8 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { AbpModalHeaderComponent } from '../../../shared/components/modal/abp-modal-header.component';
 import { AbpModalFooterComponent } from '../../../shared/components/modal/abp-modal-footer.component';
 import { CommonModule } from '@angular/common';
-import { AppointmentDto, AppointmentServiceProxy, CreateUpdatePrescriptionDto, CreateUpdatePrescriptionItemDto, DoctorServiceProxy, PatientDto, PatientServiceProxy, PrescriptionServiceProxy, PharmacistInventoryServiceProxy } from '@shared/service-proxies/service-proxies';
+import { AppointmentDto, AppointmentServiceProxy, CreateUpdatePrescriptionDto, CreateUpdatePrescriptionItemDto, DoctorServiceProxy, PatientDto, PatientServiceProxy, PrescriptionServiceProxy, PharmacistInventoryServiceProxy,PatientDropDownDto } from '@shared/service-proxies/service-proxies';
+import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import moment from 'moment';
 import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
@@ -39,7 +40,7 @@ export class EditPrescriptionsComponent extends AppComponentBase implements OnIn
   prescription: any = {
     items: []
   };
-  patients!: PatientDto[];
+  patients!: PatientDropDownDto[];
   appointmentTitle: { id: number, title: string }[] = [];
   doctorID!: number;
   labTests: any[] = [];
@@ -130,13 +131,13 @@ export class EditPrescriptionsComponent extends AppComponentBase implements OnIn
     }
   }
 
-  LoadPatients() {
-    this._patientService.getAllPatientByTenantID(abp.session.tenantId).subscribe({
+ LoadPatients() {
+    this._patientService.patientDropDown().subscribe({
       next: (res) => {
-        this.patients = res.items;
-      },
-      error: (err) => { }
-    });
+        this.patients = res;
+      }, error: (err) => {
+      }
+    })
   }
 
   FillEditForm() {

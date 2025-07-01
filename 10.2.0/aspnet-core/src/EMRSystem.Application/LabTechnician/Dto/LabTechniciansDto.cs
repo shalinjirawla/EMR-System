@@ -22,6 +22,5 @@ namespace EMRSystem.LabTechnician.Dto
         public string CertificationNumber { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public UserDto AbpUser { get; set; }
-        public List<LabReportDto> LabReports { get; set; }
     }
 }

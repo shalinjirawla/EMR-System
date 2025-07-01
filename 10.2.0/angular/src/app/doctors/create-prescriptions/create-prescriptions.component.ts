@@ -5,7 +5,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { BsModalRef } from 'ngx-bootstrap/modal';
-import { AppointmentServiceProxy, CreateUpdatePrescriptionItemDto, LabReportsTypeServiceProxy, PharmacistInventoryDtoPagedResultDto, PharmacistInventoryServiceProxy, PrescriptionItemDto, PrescriptionServiceProxy } from '@shared/service-proxies/service-proxies';
+import { AppointmentServiceProxy, CreateUpdatePrescriptionItemDto, LabReportsTypeServiceProxy, PharmacistInventoryDtoPagedResultDto, PharmacistInventoryServiceProxy, PrescriptionItemDto, PrescriptionServiceProxy,PatientDropDownDto } from '@shared/service-proxies/service-proxies';
 import { AbpModalHeaderComponent } from '../../../shared/components/modal/abp-modal-header.component';
 import { AbpModalFooterComponent } from '../../../shared/components/modal/abp-modal-footer.component';
 import { AppComponentBase } from '../../../shared/app-component-base';
@@ -34,7 +34,7 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
   @ViewChild('prescriptionForm', { static: true }) prescriptionForm: NgForm;
   @Output() onSave = new EventEmitter<void>();
   saving = false;
-  patients!: PatientDto[];
+  patients!: PatientDropDownDto[];
   appointments!: AppointmentDto[];
   labTests: any[] = [];
   selectedLabTests: any[] = [];
@@ -157,9 +157,9 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
   }
 
   LoadPatients() {
-    this._patientService.getAllPatientByTenantID(abp.session.tenantId).subscribe({
+    this._patientService.patientDropDown().subscribe({
       next: (res) => {
-        this.patients = res.items;
+        this.patients = res;
       }, error: (err) => {
       }
     });
@@ -169,7 +169,6 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
     const patientId = this.prescription.patientId;
     const doctorId = this.doctorID;
     if (!patientId) return;
-    if (!doctorId) return;
     this._appointmentService.getPatientAppointment(patientId, doctorId).subscribe({
       next: (res) => {
         this.appointments = res.items;
@@ -254,6 +253,7 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
   }
 
   save(): void {
+
     this.saving = true;
 
     // Create a proper DTO instance for the prescription
@@ -279,7 +279,6 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
       });
       return dtoItem;
     });
-
     this._prescriptionService.createPrescriptionWithItem(input).subscribe({
       next: (res) => {
         this.notify.info(this.l('SavedSuccessfully'));

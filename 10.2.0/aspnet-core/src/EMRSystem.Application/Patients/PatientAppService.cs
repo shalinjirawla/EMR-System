@@ -67,16 +67,6 @@ namespace EMRSystem.Patients
             await Repository.DeleteAsync(user);
         }
 
-        public async Task<ListResultDto<PatientDto>> GetAllPatientByTenantID(int tenantId)
-        {
-            var patientsData = await Repository.GetAllAsync();
-            var patients = patientsData.Where(x => x.TenantId == tenantId).ToList();
-
-            var mapped = ObjectMapper.Map<List<PatientDto>>(patients);
-            var resultList = new ListResultDto<PatientDto>(mapped);
-            return resultList;
-        }
-
         [HttpGet]
         public async Task<PagedResultDto<PatientsForDoctorAndNurseDto>> PatientsForNurse(PagedPatientResultRequestDto input)
         {
@@ -115,8 +105,8 @@ namespace EMRSystem.Patients
             var mapped = ObjectMapper.Map<List<PatientsForDoctorAndNurseDto>>(patients);
             return new PagedResultDto<PatientsForDoctorAndNurseDto>(totalCount, mapped);
         }
-      
 
+      
         [HttpGet]
         public async Task<PagedResultDto<PatientsForDoctorAndNurseDto>> PatientsForDoctor(PagedPatientResultRequestDto input)
         {
@@ -174,6 +164,7 @@ namespace EMRSystem.Patients
 
         }
 
+        [HttpGet]
         public List<PatientDropDownDto> PatientDropDown()
         {
             var userId = AbpSession.UserId;

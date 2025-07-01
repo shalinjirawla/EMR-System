@@ -30,7 +30,7 @@ namespace EMRSystem.Appointments
         {
         }
 
-      
+
         protected override IQueryable<Appointment> CreateFilteredQuery(PagedAppoinmentResultRequestDto input)
         {
             // Start with base query without projection
@@ -107,8 +107,9 @@ namespace EMRSystem.Appointments
         public ListResultDto<AppointmentDto> GetPatientAppointment(long patientId, long doctorId)
         {
             var appointments = Repository.GetAllIncluding(x => x.Patient)
-                 .Where(x => x.PatientId == patientId && x.DoctorId == doctorId)
-                 .ToList();
+                    .WhereIf(doctorId > 0, x => x.DoctorId == doctorId)
+                    .Where(x => x.PatientId == patientId)
+                    .ToList();
 
             var mapped = ObjectMapper.Map<List<AppointmentDto>>(appointments);
             return new ListResultDto<AppointmentDto>(mapped);

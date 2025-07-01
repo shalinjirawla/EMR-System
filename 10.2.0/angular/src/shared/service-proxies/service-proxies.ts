@@ -1443,7 +1443,7 @@ export class DoctorServiceProxy {
 }
 
 @Injectable()
-export class LabServiceProxy {
+export class LabReportResultItemServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
@@ -1454,11 +1454,234 @@ export class LabServiceProxy {
     }
 
     /**
+     * @param body (optional) 
+     * @return OK
+     */
+    addLabReportResultItem(body: CreateUpdateLabReportResultItemDto[] | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/LabReportResultItem/AddLabReportResultItem";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAddLabReportResultItem(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAddLabReportResultItem(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processAddLabReportResultItem(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param prescriptionLabTestId (optional) 
+     * @return OK
+     */
+    getLabReportResultItemsById(prescriptionLabTestId: number | undefined): Observable<CreateUpdateLabReportResultItemDto[]> {
+        let url_ = this.baseUrl + "/api/services/app/LabReportResultItem/GetLabReportResultItemsById?";
+        if (prescriptionLabTestId === null)
+            throw new Error("The parameter 'prescriptionLabTestId' cannot be null.");
+        else if (prescriptionLabTestId !== undefined)
+            url_ += "prescriptionLabTestId=" + encodeURIComponent("" + prescriptionLabTestId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetLabReportResultItemsById(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetLabReportResultItemsById(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<CreateUpdateLabReportResultItemDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<CreateUpdateLabReportResultItemDto[]>;
+        }));
+    }
+
+    protected processGetLabReportResultItemsById(response: HttpResponseBase): Observable<CreateUpdateLabReportResultItemDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200.push(CreateUpdateLabReportResultItemDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    editLabReportResultItem(body: CreateUpdateLabReportResultItemDto[] | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/LabReportResultItem/EditLabReportResultItem";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processEditLabReportResultItem(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processEditLabReportResultItem(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processEditLabReportResultItem(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param prescriptionLabTestId (optional) 
+     * @return OK
+     */
+    viewLabReport(prescriptionLabTestId: number | undefined): Observable<ViewLabReportDto> {
+        let url_ = this.baseUrl + "/api/services/app/LabReportResultItem/ViewLabReport?";
+        if (prescriptionLabTestId === null)
+            throw new Error("The parameter 'prescriptionLabTestId' cannot be null.");
+        else if (prescriptionLabTestId !== undefined)
+            url_ += "prescriptionLabTestId=" + encodeURIComponent("" + prescriptionLabTestId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processViewLabReport(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processViewLabReport(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ViewLabReportDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ViewLabReportDto>;
+        }));
+    }
+
+    protected processViewLabReport(response: HttpResponseBase): Observable<ViewLabReportDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ViewLabReportDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * @param id (optional) 
      * @return OK
      */
-    get(id: number | undefined): Observable<LabReportDto> {
-        let url_ = this.baseUrl + "/api/services/app/Lab/Get?";
+    get(id: number | undefined): Observable<LabReportResultItemDto> {
+        let url_ = this.baseUrl + "/api/services/app/LabReportResultItem/Get?";
         if (id === null)
             throw new Error("The parameter 'id' cannot be null.");
         else if (id !== undefined)
@@ -1480,14 +1703,14 @@ export class LabServiceProxy {
                 try {
                     return this.processGet(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<LabReportDto>;
+                    return _observableThrow(e) as any as Observable<LabReportResultItemDto>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<LabReportDto>;
+                return _observableThrow(response_) as any as Observable<LabReportResultItemDto>;
         }));
     }
 
-    protected processGet(response: HttpResponseBase): Observable<LabReportDto> {
+    protected processGet(response: HttpResponseBase): Observable<LabReportResultItemDto> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1498,7 +1721,7 @@ export class LabServiceProxy {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = LabReportDto.fromJS(resultData200);
+            result200 = LabReportResultItemDto.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -1515,8 +1738,8 @@ export class LabServiceProxy {
      * @param maxResultCount (optional) 
      * @return OK
      */
-    getAll(sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<LabReportDtoPagedResultDto> {
-        let url_ = this.baseUrl + "/api/services/app/Lab/GetAll?";
+    getAll(sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<LabReportResultItemDtoPagedResultDto> {
+        let url_ = this.baseUrl + "/api/services/app/LabReportResultItem/GetAll?";
         if (sorting === null)
             throw new Error("The parameter 'sorting' cannot be null.");
         else if (sorting !== undefined)
@@ -1546,14 +1769,14 @@ export class LabServiceProxy {
                 try {
                     return this.processGetAll(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<LabReportDtoPagedResultDto>;
+                    return _observableThrow(e) as any as Observable<LabReportResultItemDtoPagedResultDto>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<LabReportDtoPagedResultDto>;
+                return _observableThrow(response_) as any as Observable<LabReportResultItemDtoPagedResultDto>;
         }));
     }
 
-    protected processGetAll(response: HttpResponseBase): Observable<LabReportDtoPagedResultDto> {
+    protected processGetAll(response: HttpResponseBase): Observable<LabReportResultItemDtoPagedResultDto> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1564,7 +1787,7 @@ export class LabServiceProxy {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = LabReportDtoPagedResultDto.fromJS(resultData200);
+            result200 = LabReportResultItemDtoPagedResultDto.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -1579,8 +1802,8 @@ export class LabServiceProxy {
      * @param body (optional) 
      * @return OK
      */
-    create(body: CreateUpdateLabReportDto | undefined): Observable<LabReportDto> {
-        let url_ = this.baseUrl + "/api/services/app/Lab/Create";
+    create(body: CreateUpdateLabReportResultItemDto | undefined): Observable<LabReportResultItemDto> {
+        let url_ = this.baseUrl + "/api/services/app/LabReportResultItem/Create";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -1602,14 +1825,14 @@ export class LabServiceProxy {
                 try {
                     return this.processCreate(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<LabReportDto>;
+                    return _observableThrow(e) as any as Observable<LabReportResultItemDto>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<LabReportDto>;
+                return _observableThrow(response_) as any as Observable<LabReportResultItemDto>;
         }));
     }
 
-    protected processCreate(response: HttpResponseBase): Observable<LabReportDto> {
+    protected processCreate(response: HttpResponseBase): Observable<LabReportResultItemDto> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1620,7 +1843,7 @@ export class LabServiceProxy {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = LabReportDto.fromJS(resultData200);
+            result200 = LabReportResultItemDto.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -1635,8 +1858,8 @@ export class LabServiceProxy {
      * @param body (optional) 
      * @return OK
      */
-    update(body: CreateUpdateLabReportDto | undefined): Observable<LabReportDto> {
-        let url_ = this.baseUrl + "/api/services/app/Lab/Update";
+    update(body: CreateUpdateLabReportResultItemDto | undefined): Observable<LabReportResultItemDto> {
+        let url_ = this.baseUrl + "/api/services/app/LabReportResultItem/Update";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -1658,14 +1881,14 @@ export class LabServiceProxy {
                 try {
                     return this.processUpdate(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<LabReportDto>;
+                    return _observableThrow(e) as any as Observable<LabReportResultItemDto>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<LabReportDto>;
+                return _observableThrow(response_) as any as Observable<LabReportResultItemDto>;
         }));
     }
 
-    protected processUpdate(response: HttpResponseBase): Observable<LabReportDto> {
+    protected processUpdate(response: HttpResponseBase): Observable<LabReportResultItemDto> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1676,7 +1899,7 @@ export class LabServiceProxy {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = LabReportDto.fromJS(resultData200);
+            result200 = LabReportResultItemDto.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -1692,7 +1915,7 @@ export class LabServiceProxy {
      * @return OK
      */
     delete(id: number | undefined): Observable<void> {
-        let url_ = this.baseUrl + "/api/services/app/Lab/Delete?";
+        let url_ = this.baseUrl + "/api/services/app/LabReportResultItem/Delete?";
         if (id === null)
             throw new Error("The parameter 'id' cannot be null.");
         else if (id !== undefined)
@@ -2978,62 +3201,6 @@ export class PatientServiceProxy {
     }
 
     /**
-     * @param tenantId (optional) 
-     * @return OK
-     */
-    getAllPatientByTenantID(tenantId: number | undefined): Observable<PatientDtoListResultDto> {
-        let url_ = this.baseUrl + "/api/services/app/Patient/GetAllPatientByTenantID?";
-        if (tenantId === null)
-            throw new Error("The parameter 'tenantId' cannot be null.");
-        else if (tenantId !== undefined)
-            url_ += "tenantId=" + encodeURIComponent("" + tenantId) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "text/plain"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetAllPatientByTenantID(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processGetAllPatientByTenantID(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<PatientDtoListResultDto>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<PatientDtoListResultDto>;
-        }));
-    }
-
-    protected processGetAllPatientByTenantID(response: HttpResponseBase): Observable<PatientDtoListResultDto> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = PatientDtoListResultDto.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    /**
      * @param keyword (optional) 
      * @param sorting (optional) 
      * @param skipCount (optional) 
@@ -3246,7 +3413,7 @@ export class PatientServiceProxy {
             })
         };
 
-        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
             return this.processPatientDropDown(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
@@ -4823,6 +4990,652 @@ export class PrescriptionItemsServiceProxy {
      */
     delete(id: number | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/services/app/PrescriptionItems/Delete?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDelete(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDelete(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDelete(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
+export class PrescriptionLabTestsServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @param sorting (optional) 
+     * @param skipCount (optional) 
+     * @param maxResultCount (optional) 
+     * @return OK
+     */
+    getAllLabTestRequests(sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<LabRequestListDtoPagedResultDto> {
+        let url_ = this.baseUrl + "/api/services/app/PrescriptionLabTests/GetAllLabTestRequests?";
+        if (sorting === null)
+            throw new Error("The parameter 'sorting' cannot be null.");
+        else if (sorting !== undefined)
+            url_ += "Sorting=" + encodeURIComponent("" + sorting) + "&";
+        if (skipCount === null)
+            throw new Error("The parameter 'skipCount' cannot be null.");
+        else if (skipCount !== undefined)
+            url_ += "SkipCount=" + encodeURIComponent("" + skipCount) + "&";
+        if (maxResultCount === null)
+            throw new Error("The parameter 'maxResultCount' cannot be null.");
+        else if (maxResultCount !== undefined)
+            url_ += "MaxResultCount=" + encodeURIComponent("" + maxResultCount) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAllLabTestRequests(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAllLabTestRequests(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<LabRequestListDtoPagedResultDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<LabRequestListDtoPagedResultDto>;
+        }));
+    }
+
+    protected processGetAllLabTestRequests(response: HttpResponseBase): Observable<LabRequestListDtoPagedResultDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = LabRequestListDtoPagedResultDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param sorting (optional) 
+     * @param skipCount (optional) 
+     * @param maxResultCount (optional) 
+     * @return OK
+     */
+    getAllLabOrders(sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<LabOrderListDtoPagedResultDto> {
+        let url_ = this.baseUrl + "/api/services/app/PrescriptionLabTests/GetAllLabOrders?";
+        if (sorting === null)
+            throw new Error("The parameter 'sorting' cannot be null.");
+        else if (sorting !== undefined)
+            url_ += "Sorting=" + encodeURIComponent("" + sorting) + "&";
+        if (skipCount === null)
+            throw new Error("The parameter 'skipCount' cannot be null.");
+        else if (skipCount !== undefined)
+            url_ += "SkipCount=" + encodeURIComponent("" + skipCount) + "&";
+        if (maxResultCount === null)
+            throw new Error("The parameter 'maxResultCount' cannot be null.");
+        else if (maxResultCount !== undefined)
+            url_ += "MaxResultCount=" + encodeURIComponent("" + maxResultCount) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAllLabOrders(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAllLabOrders(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<LabOrderListDtoPagedResultDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<LabOrderListDtoPagedResultDto>;
+        }));
+    }
+
+    protected processGetAllLabOrders(response: HttpResponseBase): Observable<LabOrderListDtoPagedResultDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = LabOrderListDtoPagedResultDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    getPrescriptionLabTestDetailsById(id: number | undefined): Observable<PrescriptionLabTest> {
+        let url_ = this.baseUrl + "/api/services/app/PrescriptionLabTests/GetPrescriptionLabTestDetailsById?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetPrescriptionLabTestDetailsById(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetPrescriptionLabTestDetailsById(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PrescriptionLabTest>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PrescriptionLabTest>;
+        }));
+    }
+
+    protected processGetPrescriptionLabTestDetailsById(response: HttpResponseBase): Observable<PrescriptionLabTest> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PrescriptionLabTest.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    getPrescriptionLabTestDetailsForViewReportById(id: number | undefined): Observable<PrescriptionLabTest> {
+        let url_ = this.baseUrl + "/api/services/app/PrescriptionLabTests/GetPrescriptionLabTestDetailsForViewReportById?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetPrescriptionLabTestDetailsForViewReportById(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetPrescriptionLabTestDetailsForViewReportById(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PrescriptionLabTest>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PrescriptionLabTest>;
+        }));
+    }
+
+    protected processGetPrescriptionLabTestDetailsForViewReportById(response: HttpResponseBase): Observable<PrescriptionLabTest> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PrescriptionLabTest.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param prescriptionLabTestId (optional) 
+     * @return OK
+     */
+    makeCompleteReport(prescriptionLabTestId: number | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/PrescriptionLabTests/MakeCompleteReport?";
+        if (prescriptionLabTestId === null)
+            throw new Error("The parameter 'prescriptionLabTestId' cannot be null.");
+        else if (prescriptionLabTestId !== undefined)
+            url_ += "prescriptionLabTestId=" + encodeURIComponent("" + prescriptionLabTestId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processMakeCompleteReport(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processMakeCompleteReport(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processMakeCompleteReport(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param prescriptionLabTestId (optional) 
+     * @return OK
+     */
+    makeInprogressReport(prescriptionLabTestId: number | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/PrescriptionLabTests/MakeInprogressReport?";
+        if (prescriptionLabTestId === null)
+            throw new Error("The parameter 'prescriptionLabTestId' cannot be null.");
+        else if (prescriptionLabTestId !== undefined)
+            url_ += "prescriptionLabTestId=" + encodeURIComponent("" + prescriptionLabTestId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processMakeInprogressReport(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processMakeInprogressReport(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processMakeInprogressReport(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    get(id: number | undefined): Observable<LabRequestListDto> {
+        let url_ = this.baseUrl + "/api/services/app/PrescriptionLabTests/Get?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGet(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<LabRequestListDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<LabRequestListDto>;
+        }));
+    }
+
+    protected processGet(response: HttpResponseBase): Observable<LabRequestListDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = LabRequestListDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param sorting (optional) 
+     * @param skipCount (optional) 
+     * @param maxResultCount (optional) 
+     * @return OK
+     */
+    getAll(sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<LabRequestListDtoPagedResultDto> {
+        let url_ = this.baseUrl + "/api/services/app/PrescriptionLabTests/GetAll?";
+        if (sorting === null)
+            throw new Error("The parameter 'sorting' cannot be null.");
+        else if (sorting !== undefined)
+            url_ += "Sorting=" + encodeURIComponent("" + sorting) + "&";
+        if (skipCount === null)
+            throw new Error("The parameter 'skipCount' cannot be null.");
+        else if (skipCount !== undefined)
+            url_ += "SkipCount=" + encodeURIComponent("" + skipCount) + "&";
+        if (maxResultCount === null)
+            throw new Error("The parameter 'maxResultCount' cannot be null.");
+        else if (maxResultCount !== undefined)
+            url_ += "MaxResultCount=" + encodeURIComponent("" + maxResultCount) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAll(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAll(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<LabRequestListDtoPagedResultDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<LabRequestListDtoPagedResultDto>;
+        }));
+    }
+
+    protected processGetAll(response: HttpResponseBase): Observable<LabRequestListDtoPagedResultDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = LabRequestListDtoPagedResultDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    create(body: CreateUpdateLabRequestDto | undefined): Observable<LabRequestListDto> {
+        let url_ = this.baseUrl + "/api/services/app/PrescriptionLabTests/Create";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<LabRequestListDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<LabRequestListDto>;
+        }));
+    }
+
+    protected processCreate(response: HttpResponseBase): Observable<LabRequestListDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = LabRequestListDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    update(body: CreateUpdateLabRequestDto | undefined): Observable<LabRequestListDto> {
+        let url_ = this.baseUrl + "/api/services/app/PrescriptionLabTests/Update";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<LabRequestListDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<LabRequestListDto>;
+        }));
+    }
+
+    protected processUpdate(response: HttpResponseBase): Observable<LabRequestListDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = LabRequestListDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    delete(id: number | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/PrescriptionLabTests/Delete?";
         if (id === null)
             throw new Error("The parameter 'id' cannot be null.");
         else if (id !== undefined)
@@ -8147,17 +8960,17 @@ export interface ICreateUpdateDoctorDto {
     abpUserId: number;
 }
 
-export class CreateUpdateLabReportDto implements ICreateUpdateLabReportDto {
+export class CreateUpdateLabReportResultItemDto implements ICreateUpdateLabReportResultItemDto {
     id: number;
-    tenantId: number;
-    patientId: number;
-    testName: string | undefined;
-    resultSummary: string | undefined;
-    remarks: string | undefined;
-    status: LabReportStatus;
-    labTechnicianId: number;
+    test: string | undefined;
+    result: number;
+    minValue: number;
+    maxValue: number;
+    unit: string | undefined;
+    flag: string | undefined;
+    prescriptionLabTestId: number;
 
-    constructor(data?: ICreateUpdateLabReportDto) {
+    constructor(data?: ICreateUpdateLabReportResultItemDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -8169,19 +8982,19 @@ export class CreateUpdateLabReportDto implements ICreateUpdateLabReportDto {
     init(_data?: any) {
         if (_data) {
             this.id = _data["id"];
-            this.tenantId = _data["tenantId"];
-            this.patientId = _data["patientId"];
-            this.testName = _data["testName"];
-            this.resultSummary = _data["resultSummary"];
-            this.remarks = _data["remarks"];
-            this.status = _data["status"];
-            this.labTechnicianId = _data["labTechnicianId"];
+            this.test = _data["test"];
+            this.result = _data["result"];
+            this.minValue = _data["minValue"];
+            this.maxValue = _data["maxValue"];
+            this.unit = _data["unit"];
+            this.flag = _data["flag"];
+            this.prescriptionLabTestId = _data["prescriptionLabTestId"];
         }
     }
 
-    static fromJS(data: any): CreateUpdateLabReportDto {
+    static fromJS(data: any): CreateUpdateLabReportResultItemDto {
         data = typeof data === 'object' ? data : {};
-        let result = new CreateUpdateLabReportDto();
+        let result = new CreateUpdateLabReportResultItemDto();
         result.init(data);
         return result;
     }
@@ -8189,33 +9002,33 @@ export class CreateUpdateLabReportDto implements ICreateUpdateLabReportDto {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
-        data["tenantId"] = this.tenantId;
-        data["patientId"] = this.patientId;
-        data["testName"] = this.testName;
-        data["resultSummary"] = this.resultSummary;
-        data["remarks"] = this.remarks;
-        data["status"] = this.status;
-        data["labTechnicianId"] = this.labTechnicianId;
+        data["test"] = this.test;
+        data["result"] = this.result;
+        data["minValue"] = this.minValue;
+        data["maxValue"] = this.maxValue;
+        data["unit"] = this.unit;
+        data["flag"] = this.flag;
+        data["prescriptionLabTestId"] = this.prescriptionLabTestId;
         return data;
     }
 
-    clone(): CreateUpdateLabReportDto {
+    clone(): CreateUpdateLabReportResultItemDto {
         const json = this.toJSON();
-        let result = new CreateUpdateLabReportDto();
+        let result = new CreateUpdateLabReportResultItemDto();
         result.init(json);
         return result;
     }
 }
 
-export interface ICreateUpdateLabReportDto {
+export interface ICreateUpdateLabReportResultItemDto {
     id: number;
-    tenantId: number;
-    patientId: number;
-    testName: string | undefined;
-    resultSummary: string | undefined;
-    remarks: string | undefined;
-    status: LabReportStatus;
-    labTechnicianId: number;
+    test: string | undefined;
+    result: number;
+    minValue: number;
+    maxValue: number;
+    unit: string | undefined;
+    flag: string | undefined;
+    prescriptionLabTestId: number;
 }
 
 export class CreateUpdateLabReportTypeDto implements ICreateUpdateLabReportTypeDto {
@@ -8267,6 +9080,65 @@ export interface ICreateUpdateLabReportTypeDto {
     id: number;
     tenantId: number;
     reportType: string | undefined;
+}
+
+export class CreateUpdateLabRequestDto implements ICreateUpdateLabRequestDto {
+    id: number;
+    tenantId: number;
+    prescriptionId: number;
+    labReportsTypeId: number;
+    testStatus: LabTestStatus;
+
+    constructor(data?: ICreateUpdateLabRequestDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.prescriptionId = _data["prescriptionId"];
+            this.labReportsTypeId = _data["labReportsTypeId"];
+            this.testStatus = _data["testStatus"];
+        }
+    }
+
+    static fromJS(data: any): CreateUpdateLabRequestDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateUpdateLabRequestDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["prescriptionId"] = this.prescriptionId;
+        data["labReportsTypeId"] = this.labReportsTypeId;
+        data["testStatus"] = this.testStatus;
+        return data;
+    }
+
+    clone(): CreateUpdateLabRequestDto {
+        const json = this.toJSON();
+        let result = new CreateUpdateLabRequestDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ICreateUpdateLabRequestDto {
+    id: number;
+    tenantId: number;
+    prescriptionId: number;
+    labReportsTypeId: number;
+    testStatus: LabTestStatus;
 }
 
 export class CreateUpdateLabTechnicianDto implements ICreateUpdateLabTechnicianDto {
@@ -9682,25 +10554,16 @@ export enum LabDepartment {
     _4 = 4,
 }
 
-export class LabReport implements ILabReport {
+export class LabOrderListDto implements ILabOrderListDto {
     id: number;
-    creationTime: moment.Moment;
-    creatorUserId: number | undefined;
-    lastModificationTime: moment.Moment | undefined;
-    lastModifierUserId: number | undefined;
-    isDeleted: boolean;
-    deleterUserId: number | undefined;
-    deletionTime: moment.Moment | undefined;
-    tenantId: number;
-    patientId: number;
-    testName: string | undefined;
-    resultSummary: string | undefined;
-    remarks: string | undefined;
-    status: LabReportStatus;
-    labTechnicianId: number;
-    labTechnicians: LabTechnician;
+    patientName: string | undefined;
+    gender: string | undefined;
+    appointmentDate: moment.Moment;
+    doctorName: string | undefined;
+    labReportTypeName: string | undefined;
+    testStatus: LabTestStatus;
 
-    constructor(data?: ILabReport) {
+    constructor(data?: ILabOrderListDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -9712,27 +10575,18 @@ export class LabReport implements ILabReport {
     init(_data?: any) {
         if (_data) {
             this.id = _data["id"];
-            this.creationTime = _data["creationTime"] ? moment(_data["creationTime"].toString()) : <any>undefined;
-            this.creatorUserId = _data["creatorUserId"];
-            this.lastModificationTime = _data["lastModificationTime"] ? moment(_data["lastModificationTime"].toString()) : <any>undefined;
-            this.lastModifierUserId = _data["lastModifierUserId"];
-            this.isDeleted = _data["isDeleted"];
-            this.deleterUserId = _data["deleterUserId"];
-            this.deletionTime = _data["deletionTime"] ? moment(_data["deletionTime"].toString()) : <any>undefined;
-            this.tenantId = _data["tenantId"];
-            this.patientId = _data["patientId"];
-            this.testName = _data["testName"];
-            this.resultSummary = _data["resultSummary"];
-            this.remarks = _data["remarks"];
-            this.status = _data["status"];
-            this.labTechnicianId = _data["labTechnicianId"];
-            this.labTechnicians = _data["labTechnicians"] ? LabTechnician.fromJS(_data["labTechnicians"]) : <any>undefined;
+            this.patientName = _data["patientName"];
+            this.gender = _data["gender"];
+            this.appointmentDate = _data["appointmentDate"] ? moment(_data["appointmentDate"].toString()) : <any>undefined;
+            this.doctorName = _data["doctorName"];
+            this.labReportTypeName = _data["labReportTypeName"];
+            this.testStatus = _data["testStatus"];
         }
     }
 
-    static fromJS(data: any): LabReport {
+    static fromJS(data: any): LabOrderListDto {
         data = typeof data === 'object' ? data : {};
-        let result = new LabReport();
+        let result = new LabOrderListDto();
         result.init(data);
         return result;
     }
@@ -9740,127 +10594,38 @@ export class LabReport implements ILabReport {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
-        data["creationTime"] = this.creationTime ? this.creationTime.toISOString() : <any>undefined;
-        data["creatorUserId"] = this.creatorUserId;
-        data["lastModificationTime"] = this.lastModificationTime ? this.lastModificationTime.toISOString() : <any>undefined;
-        data["lastModifierUserId"] = this.lastModifierUserId;
-        data["isDeleted"] = this.isDeleted;
-        data["deleterUserId"] = this.deleterUserId;
-        data["deletionTime"] = this.deletionTime ? this.deletionTime.toISOString() : <any>undefined;
-        data["tenantId"] = this.tenantId;
-        data["patientId"] = this.patientId;
-        data["testName"] = this.testName;
-        data["resultSummary"] = this.resultSummary;
-        data["remarks"] = this.remarks;
-        data["status"] = this.status;
-        data["labTechnicianId"] = this.labTechnicianId;
-        data["labTechnicians"] = this.labTechnicians ? this.labTechnicians.toJSON() : <any>undefined;
+        data["patientName"] = this.patientName;
+        data["gender"] = this.gender;
+        data["appointmentDate"] = this.appointmentDate ? this.appointmentDate.toISOString() : <any>undefined;
+        data["doctorName"] = this.doctorName;
+        data["labReportTypeName"] = this.labReportTypeName;
+        data["testStatus"] = this.testStatus;
         return data;
     }
 
-    clone(): LabReport {
+    clone(): LabOrderListDto {
         const json = this.toJSON();
-        let result = new LabReport();
+        let result = new LabOrderListDto();
         result.init(json);
         return result;
     }
 }
 
-export interface ILabReport {
+export interface ILabOrderListDto {
     id: number;
-    creationTime: moment.Moment;
-    creatorUserId: number | undefined;
-    lastModificationTime: moment.Moment | undefined;
-    lastModifierUserId: number | undefined;
-    isDeleted: boolean;
-    deleterUserId: number | undefined;
-    deletionTime: moment.Moment | undefined;
-    tenantId: number;
-    patientId: number;
-    testName: string | undefined;
-    resultSummary: string | undefined;
-    remarks: string | undefined;
-    status: LabReportStatus;
-    labTechnicianId: number;
-    labTechnicians: LabTechnician;
+    patientName: string | undefined;
+    gender: string | undefined;
+    appointmentDate: moment.Moment;
+    doctorName: string | undefined;
+    labReportTypeName: string | undefined;
+    testStatus: LabTestStatus;
 }
 
-export class LabReportDto implements ILabReportDto {
-    id: number;
-    tenantId: number;
-    patientId: number;
-    testName: string | undefined;
-    resultSummary: string | undefined;
-    remarks: string | undefined;
-    status: LabReportStatus;
-    labTechnicians: LabTechniciansDto;
-
-    constructor(data?: ILabReportDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.tenantId = _data["tenantId"];
-            this.patientId = _data["patientId"];
-            this.testName = _data["testName"];
-            this.resultSummary = _data["resultSummary"];
-            this.remarks = _data["remarks"];
-            this.status = _data["status"];
-            this.labTechnicians = _data["labTechnicians"] ? LabTechniciansDto.fromJS(_data["labTechnicians"]) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): LabReportDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new LabReportDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["tenantId"] = this.tenantId;
-        data["patientId"] = this.patientId;
-        data["testName"] = this.testName;
-        data["resultSummary"] = this.resultSummary;
-        data["remarks"] = this.remarks;
-        data["status"] = this.status;
-        data["labTechnicians"] = this.labTechnicians ? this.labTechnicians.toJSON() : <any>undefined;
-        return data;
-    }
-
-    clone(): LabReportDto {
-        const json = this.toJSON();
-        let result = new LabReportDto();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface ILabReportDto {
-    id: number;
-    tenantId: number;
-    patientId: number;
-    testName: string | undefined;
-    resultSummary: string | undefined;
-    remarks: string | undefined;
-    status: LabReportStatus;
-    labTechnicians: LabTechniciansDto;
-}
-
-export class LabReportDtoPagedResultDto implements ILabReportDtoPagedResultDto {
-    items: LabReportDto[] | undefined;
+export class LabOrderListDtoPagedResultDto implements ILabOrderListDtoPagedResultDto {
+    items: LabOrderListDto[] | undefined;
     totalCount: number;
 
-    constructor(data?: ILabReportDtoPagedResultDto) {
+    constructor(data?: ILabOrderListDtoPagedResultDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -9874,15 +10639,15 @@ export class LabReportDtoPagedResultDto implements ILabReportDtoPagedResultDto {
             if (Array.isArray(_data["items"])) {
                 this.items = [] as any;
                 for (let item of _data["items"])
-                    this.items.push(LabReportDto.fromJS(item));
+                    this.items.push(LabOrderListDto.fromJS(item));
             }
             this.totalCount = _data["totalCount"];
         }
     }
 
-    static fromJS(data: any): LabReportDtoPagedResultDto {
+    static fromJS(data: any): LabOrderListDtoPagedResultDto {
         data = typeof data === 'object' ? data : {};
-        let result = new LabReportDtoPagedResultDto();
+        let result = new LabOrderListDtoPagedResultDto();
         result.init(data);
         return result;
     }
@@ -9898,22 +10663,218 @@ export class LabReportDtoPagedResultDto implements ILabReportDtoPagedResultDto {
         return data;
     }
 
-    clone(): LabReportDtoPagedResultDto {
+    clone(): LabOrderListDtoPagedResultDto {
         const json = this.toJSON();
-        let result = new LabReportDtoPagedResultDto();
+        let result = new LabOrderListDtoPagedResultDto();
         result.init(json);
         return result;
     }
 }
 
-export interface ILabReportDtoPagedResultDto {
-    items: LabReportDto[] | undefined;
+export interface ILabOrderListDtoPagedResultDto {
+    items: LabOrderListDto[] | undefined;
     totalCount: number;
 }
 
-export enum LabReportStatus {
-    _0 = 0,
-    _1 = 1,
+export class LabReportResultItem implements ILabReportResultItem {
+    id: number;
+    test: string | undefined;
+    result: number;
+    minValue: number;
+    maxValue: number;
+    unit: string | undefined;
+    flag: string | undefined;
+    prescriptionLabTestId: number;
+    prescriptionLabTest: PrescriptionLabTest;
+
+    constructor(data?: ILabReportResultItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.test = _data["test"];
+            this.result = _data["result"];
+            this.minValue = _data["minValue"];
+            this.maxValue = _data["maxValue"];
+            this.unit = _data["unit"];
+            this.flag = _data["flag"];
+            this.prescriptionLabTestId = _data["prescriptionLabTestId"];
+            this.prescriptionLabTest = _data["prescriptionLabTest"] ? PrescriptionLabTest.fromJS(_data["prescriptionLabTest"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): LabReportResultItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new LabReportResultItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["test"] = this.test;
+        data["result"] = this.result;
+        data["minValue"] = this.minValue;
+        data["maxValue"] = this.maxValue;
+        data["unit"] = this.unit;
+        data["flag"] = this.flag;
+        data["prescriptionLabTestId"] = this.prescriptionLabTestId;
+        data["prescriptionLabTest"] = this.prescriptionLabTest ? this.prescriptionLabTest.toJSON() : <any>undefined;
+        return data;
+    }
+
+    clone(): LabReportResultItem {
+        const json = this.toJSON();
+        let result = new LabReportResultItem();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ILabReportResultItem {
+    id: number;
+    test: string | undefined;
+    result: number;
+    minValue: number;
+    maxValue: number;
+    unit: string | undefined;
+    flag: string | undefined;
+    prescriptionLabTestId: number;
+    prescriptionLabTest: PrescriptionLabTest;
+}
+
+export class LabReportResultItemDto implements ILabReportResultItemDto {
+    id: number;
+    test: string | undefined;
+    result: string | undefined;
+    minValue: number;
+    maxValue: number;
+    unit: string | undefined;
+    flag: string | undefined;
+    prescriptionLabTest: PrescriptionLabTestDto;
+
+    constructor(data?: ILabReportResultItemDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.test = _data["test"];
+            this.result = _data["result"];
+            this.minValue = _data["minValue"];
+            this.maxValue = _data["maxValue"];
+            this.unit = _data["unit"];
+            this.flag = _data["flag"];
+            this.prescriptionLabTest = _data["prescriptionLabTest"] ? PrescriptionLabTestDto.fromJS(_data["prescriptionLabTest"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): LabReportResultItemDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new LabReportResultItemDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["test"] = this.test;
+        data["result"] = this.result;
+        data["minValue"] = this.minValue;
+        data["maxValue"] = this.maxValue;
+        data["unit"] = this.unit;
+        data["flag"] = this.flag;
+        data["prescriptionLabTest"] = this.prescriptionLabTest ? this.prescriptionLabTest.toJSON() : <any>undefined;
+        return data;
+    }
+
+    clone(): LabReportResultItemDto {
+        const json = this.toJSON();
+        let result = new LabReportResultItemDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ILabReportResultItemDto {
+    id: number;
+    test: string | undefined;
+    result: string | undefined;
+    minValue: number;
+    maxValue: number;
+    unit: string | undefined;
+    flag: string | undefined;
+    prescriptionLabTest: PrescriptionLabTestDto;
+}
+
+export class LabReportResultItemDtoPagedResultDto implements ILabReportResultItemDtoPagedResultDto {
+    items: LabReportResultItemDto[] | undefined;
+    totalCount: number;
+
+    constructor(data?: ILabReportResultItemDtoPagedResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(LabReportResultItemDto.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): LabReportResultItemDtoPagedResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new LabReportResultItemDtoPagedResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+
+    clone(): LabReportResultItemDtoPagedResultDto {
+        const json = this.toJSON();
+        let result = new LabReportResultItemDtoPagedResultDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ILabReportResultItemDtoPagedResultDto {
+    items: LabReportResultItemDto[] | undefined;
+    totalCount: number;
 }
 
 export class LabReportsType implements ILabReportsType {
@@ -10136,6 +11097,136 @@ export interface ILabReportsTypeDtoPagedResultDto {
     totalCount: number;
 }
 
+export class LabRequestListDto implements ILabRequestListDto {
+    id: number;
+    patientId: number;
+    patientName: string | undefined;
+    doctorId: number;
+    doctorName: string | undefined;
+    prescriptionId: number;
+    labReportsTypeId: number;
+    labReportTypeName: string | undefined;
+    testStatus: LabTestStatus;
+
+    constructor(data?: ILabRequestListDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.patientId = _data["patientId"];
+            this.patientName = _data["patientName"];
+            this.doctorId = _data["doctorId"];
+            this.doctorName = _data["doctorName"];
+            this.prescriptionId = _data["prescriptionId"];
+            this.labReportsTypeId = _data["labReportsTypeId"];
+            this.labReportTypeName = _data["labReportTypeName"];
+            this.testStatus = _data["testStatus"];
+        }
+    }
+
+    static fromJS(data: any): LabRequestListDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new LabRequestListDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["patientId"] = this.patientId;
+        data["patientName"] = this.patientName;
+        data["doctorId"] = this.doctorId;
+        data["doctorName"] = this.doctorName;
+        data["prescriptionId"] = this.prescriptionId;
+        data["labReportsTypeId"] = this.labReportsTypeId;
+        data["labReportTypeName"] = this.labReportTypeName;
+        data["testStatus"] = this.testStatus;
+        return data;
+    }
+
+    clone(): LabRequestListDto {
+        const json = this.toJSON();
+        let result = new LabRequestListDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ILabRequestListDto {
+    id: number;
+    patientId: number;
+    patientName: string | undefined;
+    doctorId: number;
+    doctorName: string | undefined;
+    prescriptionId: number;
+    labReportsTypeId: number;
+    labReportTypeName: string | undefined;
+    testStatus: LabTestStatus;
+}
+
+export class LabRequestListDtoPagedResultDto implements ILabRequestListDtoPagedResultDto {
+    items: LabRequestListDto[] | undefined;
+    totalCount: number;
+
+    constructor(data?: ILabRequestListDtoPagedResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(LabRequestListDto.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): LabRequestListDtoPagedResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new LabRequestListDtoPagedResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+
+    clone(): LabRequestListDtoPagedResultDto {
+        const json = this.toJSON();
+        let result = new LabRequestListDtoPagedResultDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ILabRequestListDtoPagedResultDto {
+    items: LabRequestListDto[] | undefined;
+    totalCount: number;
+}
+
 export class LabTechnician implements ILabTechnician {
     id: number;
     tenantId: number;
@@ -10148,7 +11239,6 @@ export class LabTechnician implements ILabTechnician {
     dateOfBirth: moment.Moment | undefined;
     abpUserId: number;
     abpUser: User;
-    labReports: LabReport[] | undefined;
 
     constructor(data?: ILabTechnician) {
         if (data) {
@@ -10172,11 +11262,6 @@ export class LabTechnician implements ILabTechnician {
             this.dateOfBirth = _data["dateOfBirth"] ? moment(_data["dateOfBirth"].toString()) : <any>undefined;
             this.abpUserId = _data["abpUserId"];
             this.abpUser = _data["abpUser"] ? User.fromJS(_data["abpUser"]) : <any>undefined;
-            if (Array.isArray(_data["labReports"])) {
-                this.labReports = [] as any;
-                for (let item of _data["labReports"])
-                    this.labReports.push(LabReport.fromJS(item));
-            }
         }
     }
 
@@ -10200,11 +11285,6 @@ export class LabTechnician implements ILabTechnician {
         data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
         data["abpUserId"] = this.abpUserId;
         data["abpUser"] = this.abpUser ? this.abpUser.toJSON() : <any>undefined;
-        if (Array.isArray(this.labReports)) {
-            data["labReports"] = [];
-            for (let item of this.labReports)
-                data["labReports"].push(item.toJSON());
-        }
         return data;
     }
 
@@ -10228,7 +11308,6 @@ export interface ILabTechnician {
     dateOfBirth: moment.Moment | undefined;
     abpUserId: number;
     abpUser: User;
-    labReports: LabReport[] | undefined;
 }
 
 export class LabTechniciansDto implements ILabTechniciansDto {
@@ -10242,7 +11321,6 @@ export class LabTechniciansDto implements ILabTechniciansDto {
     certificationNumber: string | undefined;
     dateOfBirth: moment.Moment | undefined;
     abpUser: UserDto;
-    labReports: LabReportDto[] | undefined;
 
     constructor(data?: ILabTechniciansDto) {
         if (data) {
@@ -10265,11 +11343,6 @@ export class LabTechniciansDto implements ILabTechniciansDto {
             this.certificationNumber = _data["certificationNumber"];
             this.dateOfBirth = _data["dateOfBirth"] ? moment(_data["dateOfBirth"].toString()) : <any>undefined;
             this.abpUser = _data["abpUser"] ? UserDto.fromJS(_data["abpUser"]) : <any>undefined;
-            if (Array.isArray(_data["labReports"])) {
-                this.labReports = [] as any;
-                for (let item of _data["labReports"])
-                    this.labReports.push(LabReportDto.fromJS(item));
-            }
         }
     }
 
@@ -10292,11 +11365,6 @@ export class LabTechniciansDto implements ILabTechniciansDto {
         data["certificationNumber"] = this.certificationNumber;
         data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
         data["abpUser"] = this.abpUser ? this.abpUser.toJSON() : <any>undefined;
-        if (Array.isArray(this.labReports)) {
-            data["labReports"] = [];
-            for (let item of this.labReports)
-                data["labReports"].push(item.toJSON());
-        }
         return data;
     }
 
@@ -10319,7 +11387,6 @@ export interface ILabTechniciansDto {
     certificationNumber: string | undefined;
     dateOfBirth: moment.Moment | undefined;
     abpUser: UserDto;
-    labReports: LabReportDto[] | undefined;
 }
 
 export class LabTechniciansDtoPagedResultDto implements ILabTechniciansDtoPagedResultDto {
@@ -10375,6 +11442,12 @@ export class LabTechniciansDtoPagedResultDto implements ILabTechniciansDtoPagedR
 export interface ILabTechniciansDtoPagedResultDto {
     items: LabTechniciansDto[] | undefined;
     totalCount: number;
+}
+
+export enum LabTestStatus {
+    _0 = 0,
+    _1 = 1,
+    _2 = 2,
 }
 
 export class Nurse implements INurse {
@@ -11238,57 +12311,6 @@ export interface IPatientDto {
     doctors: DoctorDto;
     nurses: NurseDto;
     prescriptions: PrescriptionDto[] | undefined;
-}
-
-export class PatientDtoListResultDto implements IPatientDtoListResultDto {
-    items: PatientDto[] | undefined;
-
-    constructor(data?: IPatientDtoListResultDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            if (Array.isArray(_data["items"])) {
-                this.items = [] as any;
-                for (let item of _data["items"])
-                    this.items.push(PatientDto.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): PatientDtoListResultDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new PatientDtoListResultDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.items)) {
-            data["items"] = [];
-            for (let item of this.items)
-                data["items"].push(item.toJSON());
-        }
-        return data;
-    }
-
-    clone(): PatientDtoListResultDto {
-        const json = this.toJSON();
-        let result = new PatientDtoListResultDto();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface IPatientDtoListResultDto {
-    items: PatientDto[] | undefined;
 }
 
 export class PatientDtoPagedResultDto implements IPatientDtoPagedResultDto {
@@ -12669,6 +13691,9 @@ export class PrescriptionLabTest implements IPrescriptionLabTest {
     prescription: Prescription;
     labReportsTypeId: number;
     labReportsType: LabReportsType;
+    testStatus: LabTestStatus;
+    createdDate: moment.Moment | undefined;
+    labReportResultItems: LabReportResultItem[] | undefined;
 
     constructor(data?: IPrescriptionLabTest) {
         if (data) {
@@ -12687,6 +13712,13 @@ export class PrescriptionLabTest implements IPrescriptionLabTest {
             this.prescription = _data["prescription"] ? Prescription.fromJS(_data["prescription"]) : <any>undefined;
             this.labReportsTypeId = _data["labReportsTypeId"];
             this.labReportsType = _data["labReportsType"] ? LabReportsType.fromJS(_data["labReportsType"]) : <any>undefined;
+            this.testStatus = _data["testStatus"];
+            this.createdDate = _data["createdDate"] ? moment(_data["createdDate"].toString()) : <any>undefined;
+            if (Array.isArray(_data["labReportResultItems"])) {
+                this.labReportResultItems = [] as any;
+                for (let item of _data["labReportResultItems"])
+                    this.labReportResultItems.push(LabReportResultItem.fromJS(item));
+            }
         }
     }
 
@@ -12705,6 +13737,13 @@ export class PrescriptionLabTest implements IPrescriptionLabTest {
         data["prescription"] = this.prescription ? this.prescription.toJSON() : <any>undefined;
         data["labReportsTypeId"] = this.labReportsTypeId;
         data["labReportsType"] = this.labReportsType ? this.labReportsType.toJSON() : <any>undefined;
+        data["testStatus"] = this.testStatus;
+        data["createdDate"] = this.createdDate ? this.createdDate.toISOString() : <any>undefined;
+        if (Array.isArray(this.labReportResultItems)) {
+            data["labReportResultItems"] = [];
+            for (let item of this.labReportResultItems)
+                data["labReportResultItems"].push(item.toJSON());
+        }
         return data;
     }
 
@@ -12723,6 +13762,9 @@ export interface IPrescriptionLabTest {
     prescription: Prescription;
     labReportsTypeId: number;
     labReportsType: LabReportsType;
+    testStatus: LabTestStatus;
+    createdDate: moment.Moment | undefined;
+    labReportResultItems: LabReportResultItem[] | undefined;
 }
 
 export class PrescriptionLabTestDto implements IPrescriptionLabTestDto {
@@ -14370,6 +15412,101 @@ export interface IUserToken {
     name: string | undefined;
     value: string | undefined;
     expireDate: moment.Moment | undefined;
+}
+
+export class ViewLabReportDto implements IViewLabReportDto {
+    id: number;
+    tenantName: string | undefined;
+    testName: string | undefined;
+    prescriptionLabTestId: number;
+    patientId: number;
+    patientName: string | undefined;
+    patientDateOfBirth: string | undefined;
+    gender: string | undefined;
+    doctorName: string | undefined;
+    recordedDate: moment.Moment;
+    doctorRegistrationNumber: string | undefined;
+    labReportResultItem: LabReportResultItemDto[] | undefined;
+
+    constructor(data?: IViewLabReportDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantName = _data["tenantName"];
+            this.testName = _data["testName"];
+            this.prescriptionLabTestId = _data["prescriptionLabTestId"];
+            this.patientId = _data["patientId"];
+            this.patientName = _data["patientName"];
+            this.patientDateOfBirth = _data["patientDateOfBirth"];
+            this.gender = _data["gender"];
+            this.doctorName = _data["doctorName"];
+            this.recordedDate = _data["recordedDate"] ? moment(_data["recordedDate"].toString()) : <any>undefined;
+            this.doctorRegistrationNumber = _data["doctorRegistrationNumber"];
+            if (Array.isArray(_data["labReportResultItem"])) {
+                this.labReportResultItem = [] as any;
+                for (let item of _data["labReportResultItem"])
+                    this.labReportResultItem.push(LabReportResultItemDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ViewLabReportDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ViewLabReportDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantName"] = this.tenantName;
+        data["testName"] = this.testName;
+        data["prescriptionLabTestId"] = this.prescriptionLabTestId;
+        data["patientId"] = this.patientId;
+        data["patientName"] = this.patientName;
+        data["patientDateOfBirth"] = this.patientDateOfBirth;
+        data["gender"] = this.gender;
+        data["doctorName"] = this.doctorName;
+        data["recordedDate"] = this.recordedDate ? this.recordedDate.toISOString() : <any>undefined;
+        data["doctorRegistrationNumber"] = this.doctorRegistrationNumber;
+        if (Array.isArray(this.labReportResultItem)) {
+            data["labReportResultItem"] = [];
+            for (let item of this.labReportResultItem)
+                data["labReportResultItem"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): ViewLabReportDto {
+        const json = this.toJSON();
+        let result = new ViewLabReportDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IViewLabReportDto {
+    id: number;
+    tenantName: string | undefined;
+    testName: string | undefined;
+    prescriptionLabTestId: number;
+    patientId: number;
+    patientName: string | undefined;
+    patientDateOfBirth: string | undefined;
+    gender: string | undefined;
+    doctorName: string | undefined;
+    recordedDate: moment.Moment;
+    doctorRegistrationNumber: string | undefined;
+    labReportResultItem: LabReportResultItemDto[] | undefined;
 }
 
 export class Vital implements IVital {
