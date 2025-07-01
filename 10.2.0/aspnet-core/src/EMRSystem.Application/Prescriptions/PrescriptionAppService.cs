@@ -4,6 +4,7 @@ using Abp.Domain.Entities;
 using Abp.Domain.Repositories;
 using Abp.Extensions;
 using Abp.Linq.Extensions;
+using Abp.UI;
 using EMRSystem.Appointments;
 using EMRSystem.Appointments.Dto;
 using EMRSystem.Authorization.Users;
@@ -103,7 +104,6 @@ namespace EMRSystem.Prescriptions
         {
             var prescription = ObjectMapper.Map<Prescription>(input);
 
-            // Manually handle relationships
             prescription.Items = input.Items.Select(item =>
                 ObjectMapper.Map<PrescriptionItem>(item)).ToList();
 
@@ -115,9 +115,60 @@ namespace EMRSystem.Prescriptions
         }
         public async Task UpdatePrescriptionWithItemAsync(CreateUpdatePrescriptionDto input)
         {
-            var prescription = ObjectMapper.Map<Prescription>(input);
-            await Repository.UpdateAsync(prescription);
-            CurrentUnitOfWork.SaveChanges();
+            // First get the existing prescription with its items
+            var existingPrescription = await Repository.GetAllIncluding(
+                p => p.Items,
+                p => p.LabTests
+            ).FirstOrDefaultAsync(p => p.Id == input.Id);
+
+            if (existingPrescription == null)
+            {
+                throw new UserFriendlyException("Prescription not found");
+            }
+
+            // Map the input to the existing prescription
+            ObjectMapper.Map(input, existingPrescription);
+
+            // Handle Items update
+            var existingItems = existingPrescription.Items.ToList();
+
+            // Update existing items or add new ones
+            foreach (var inputItem in input.Items)
+            {
+                var existingItem = existingItems.FirstOrDefault(i => i.Id == inputItem.Id);
+                if (existingItem != null)
+                {
+                    // Update existing item
+                    ObjectMapper.Map(inputItem, existingItem);
+                }
+                else
+                {
+                    // Add new item
+                    var newItem = ObjectMapper.Map<PrescriptionItem>(inputItem);
+                    existingPrescription.Items.Add(newItem);
+                }
+            }
+
+            // Remove items that are no longer in the input
+            var itemsToRemove = existingItems.Where(ei => !input.Items.Any(ii => ii.Id == ei.Id)).ToList();
+            foreach (var item in itemsToRemove)
+            {
+                existingPrescription.Items.Remove(item);
+            }
+
+            // Handle LabTests update
+            existingPrescription.LabTests.Clear();
+            foreach (var labTestId in input.LabTestIds)
+            {
+                existingPrescription.LabTests.Add(new  EMRSystem.PrescriptionLabTests.PrescriptionLabTest
+                {
+                    LabReportsTypeId = labTestId,
+                    PrescriptionId = input.Id
+                });
+            }
+
+            await Repository.UpdateAsync(existingPrescription);
+            await CurrentUnitOfWork.SaveChangesAsync();
         }
 
         public async Task<CreateUpdatePrescriptionDto> GetPrescriptionDetailsById(long id)

@@ -36,7 +36,7 @@
     <div class="row mt-3">
       <div class="col-md-12">
         <label><b>Select Lab Tests (if required)</b></label>
-        <p-multiSelect [(ngModel)]="selectedLabTests" [options]="labTests" optionLabel="name"  optionValue="id"
+        <p-multiSelect [(ngModel)]="selectedLabTests" [options]="labTests" optionLabel="name" optionValue="id"
           placeholder="Select Lab Tests" display="chip" class="w-100" name="labTests">
         </p-multiSelect>
       </div>
@@ -60,45 +60,61 @@
       </div>
     </div>
 
-
-
-    <!-- Prescription Items Placeholder -->
+    <!-- Prescription Items -->
     <div class="row mt-4">
       <div class="col-md-12">
         <div class="d-flex justify-content-between align-items-center">
-          <div><b>Prescription Items</b>
-          </div>
+          <div><b>Prescription Items</b></div>
           <div>
             <p-button label="Add Item" variant="text" severity="info" (click)="addItem()" icon="fa-solid fa-plus" />
           </div>
         </div>
 
         <div class="d-flex" *ngIf="prescription.items.length>0">
-          <p class="w-25 m-0">Medicine Name</p>
+          <p class="w-25 m-0">Medicine</p>
           <p class="w-25 m-0">Dosage</p>
           <p class="w-25 m-0">Frequency</p>
           <p class="w-25 m-0">Duration</p>
           <p class="w-25 m-0">Instructions</p>
         </div>
-        <!-- You can dynamically render prescription items list here -->
+
         <div *ngFor="let item of prescription.items; let i = index" class="mt-2">
-          <div class="d-flex">
-            <input type="text" pInputText [(ngModel)]="item.medicineName" name="itemName{{i}}" class="w-25 mr-2"
-              placeholder="Medicine Name" />
-            <input type="text" pInputText [(ngModel)]="item.dosage" name="itemDosage{{i}}" class="w-25 mr-2"
-              placeholder="Dosage" />
-            <input type="text" pInputText [(ngModel)]="item.frequency" name="itemDosage{{i}}" class="w-25 mr-2"
-              placeholder="Frequency" />
-            <input type="text" pInputText [(ngModel)]="item.duration" name="itemDosage{{i}}" class="w-25 mr-2"
-              placeholder="Duration" />
-            <input type="text" pInputText [(ngModel)]="item.instructions" name="itemDosage{{i}}" class="w-25 mr-2"
-              placeholder="Instructions" />
+          <div class="d-flex align-items-center">
+            <!-- Medicine Dropdown -->
+            <p-dropdown [(ngModel)]="item.medicineName" [options]="medicineOptions" optionLabel="label"
+              optionValue="value" placeholder="Select Medicine" class="w-25 mr-2" name="itemName{{i}}"
+              (onChange)="onMedicineChange(item, i)"></p-dropdown>
+
+            <!-- Dosage Dropdown -->
+            <p-dropdown *ngIf="item.medicineName && medicineDosageOptions[item.medicineName]" [(ngModel)]="item.dosage"
+              [options]="getDosageOptions(item.medicineName)" optionLabel="label" optionValue="value"
+              placeholder="Dosage" class="w-25 mr-2" name="itemDosage{{i}}">
+            </p-dropdown>
+            <input *ngIf="!item.medicineName || !medicineDosageOptions[item.medicineName]" type="text" pInputText
+              [(ngModel)]="item.dosage" name="itemDosage{{i}}" class="w-25 mr-2" placeholder="Dosage" />
+
+            <!-- Frequency Dropdown -->
+            <p-dropdown [(ngModel)]="item.frequency" [options]="frequencyOptions" optionLabel="label"
+              optionValue="value" placeholder="Frequency" class="w-25 mr-2" name="itemFrequency{{i}}"></p-dropdown>
+
+            <!-- Duration (Input + Dropdown) -->
+            <div class="d-flex w-25 mr-2">
+              <input type="number" pInputText [(ngModel)]="item.durationValue" placeholder="Duration" class="w-50 mr-1"
+                min="1" required name="durationValue{{i}}">
+
+              <p-dropdown [(ngModel)]="item.durationUnit" [options]="durationUnits" optionLabel="label"
+                optionValue="value" class="w-50" name="itemDurationUnit{{i}}" required></p-dropdown>
+            </div>
+
+            <!-- Instructions Textarea -->
+            <textarea pInputText [(ngModel)]="item.instructions" name="itemInstructions{{i}}" class="w-25 mr-2"
+              placeholder="Instructions" rows="1"></textarea>
+
             <p-button variant="text" severity="danger" (click)="removeItem(i)" icon="fa-solid fa-xmark" />
           </div>
         </div>
       </div>
     </div>
-
   </div>
 
   <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="isSaveDisabled()" (onCancelClick)="bsModalRef.hide()">

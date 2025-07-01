@@ -3883,6 +3883,390 @@ export class PharmacistServiceProxy {
 }
 
 @Injectable()
+export class PharmacistInventoryServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @param tenantId (optional) 
+     * @return OK
+     */
+    getAllByTenantId(tenantId: number | undefined): Observable<PharmacistInventoryDtoPagedResultDto> {
+        let url_ = this.baseUrl + "/api/services/app/PharmacistInventory/GetAllByTenantId?";
+        if (tenantId === null)
+            throw new Error("The parameter 'tenantId' cannot be null.");
+        else if (tenantId !== undefined)
+            url_ += "tenantId=" + encodeURIComponent("" + tenantId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAllByTenantId(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAllByTenantId(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PharmacistInventoryDtoPagedResultDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PharmacistInventoryDtoPagedResultDto>;
+        }));
+    }
+
+    protected processGetAllByTenantId(response: HttpResponseBase): Observable<PharmacistInventoryDtoPagedResultDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PharmacistInventoryDtoPagedResultDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    get(id: number | undefined): Observable<PharmacistInventoryDto> {
+        let url_ = this.baseUrl + "/api/services/app/PharmacistInventory/Get?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGet(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PharmacistInventoryDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PharmacistInventoryDto>;
+        }));
+    }
+
+    protected processGet(response: HttpResponseBase): Observable<PharmacistInventoryDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PharmacistInventoryDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param keyword (optional) 
+     * @param sorting (optional) 
+     * @param minStock (optional) 
+     * @param maxStock (optional) 
+     * @param fromExpiryDate (optional) 
+     * @param toExpiryDate (optional) 
+     * @param isAvailable (optional) 
+     * @param skipCount (optional) 
+     * @param maxResultCount (optional) 
+     * @return OK
+     */
+    getAll(keyword: string | undefined, sorting: string | undefined, minStock: number | undefined, maxStock: number | undefined, fromExpiryDate: moment.Moment | undefined, toExpiryDate: moment.Moment | undefined, isAvailable: boolean | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<PharmacistInventoryDtoPagedResultDto> {
+        let url_ = this.baseUrl + "/api/services/app/PharmacistInventory/GetAll?";
+        if (keyword === null)
+            throw new Error("The parameter 'keyword' cannot be null.");
+        else if (keyword !== undefined)
+            url_ += "Keyword=" + encodeURIComponent("" + keyword) + "&";
+        if (sorting === null)
+            throw new Error("The parameter 'sorting' cannot be null.");
+        else if (sorting !== undefined)
+            url_ += "Sorting=" + encodeURIComponent("" + sorting) + "&";
+        if (minStock === null)
+            throw new Error("The parameter 'minStock' cannot be null.");
+        else if (minStock !== undefined)
+            url_ += "MinStock=" + encodeURIComponent("" + minStock) + "&";
+        if (maxStock === null)
+            throw new Error("The parameter 'maxStock' cannot be null.");
+        else if (maxStock !== undefined)
+            url_ += "MaxStock=" + encodeURIComponent("" + maxStock) + "&";
+        if (fromExpiryDate === null)
+            throw new Error("The parameter 'fromExpiryDate' cannot be null.");
+        else if (fromExpiryDate !== undefined)
+            url_ += "FromExpiryDate=" + encodeURIComponent(fromExpiryDate ? "" + fromExpiryDate.toISOString() : "") + "&";
+        if (toExpiryDate === null)
+            throw new Error("The parameter 'toExpiryDate' cannot be null.");
+        else if (toExpiryDate !== undefined)
+            url_ += "ToExpiryDate=" + encodeURIComponent(toExpiryDate ? "" + toExpiryDate.toISOString() : "") + "&";
+        if (isAvailable === null)
+            throw new Error("The parameter 'isAvailable' cannot be null.");
+        else if (isAvailable !== undefined)
+            url_ += "IsAvailable=" + encodeURIComponent("" + isAvailable) + "&";
+        if (skipCount === null)
+            throw new Error("The parameter 'skipCount' cannot be null.");
+        else if (skipCount !== undefined)
+            url_ += "SkipCount=" + encodeURIComponent("" + skipCount) + "&";
+        if (maxResultCount === null)
+            throw new Error("The parameter 'maxResultCount' cannot be null.");
+        else if (maxResultCount !== undefined)
+            url_ += "MaxResultCount=" + encodeURIComponent("" + maxResultCount) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAll(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAll(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PharmacistInventoryDtoPagedResultDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PharmacistInventoryDtoPagedResultDto>;
+        }));
+    }
+
+    protected processGetAll(response: HttpResponseBase): Observable<PharmacistInventoryDtoPagedResultDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PharmacistInventoryDtoPagedResultDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    create(body: CreateUpdatePharmacistInventoryDto | undefined): Observable<PharmacistInventoryDto> {
+        let url_ = this.baseUrl + "/api/services/app/PharmacistInventory/Create";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PharmacistInventoryDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PharmacistInventoryDto>;
+        }));
+    }
+
+    protected processCreate(response: HttpResponseBase): Observable<PharmacistInventoryDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PharmacistInventoryDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    update(body: CreateUpdatePharmacistInventoryDto | undefined): Observable<PharmacistInventoryDto> {
+        let url_ = this.baseUrl + "/api/services/app/PharmacistInventory/Update";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PharmacistInventoryDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PharmacistInventoryDto>;
+        }));
+    }
+
+    protected processUpdate(response: HttpResponseBase): Observable<PharmacistInventoryDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PharmacistInventoryDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    delete(id: number | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/PharmacistInventory/Delete?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDelete(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDelete(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDelete(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
 export class PrescriptionServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -9097,6 +9481,93 @@ export interface ICreateUpdatePharmacistDto {
     abpUserId: number;
 }
 
+export class CreateUpdatePharmacistInventoryDto implements ICreateUpdatePharmacistInventoryDto {
+    id: number;
+    tenantId: number;
+    medicineName: string | undefined;
+    costPrice: number;
+    sellingPrice: number;
+    expiryDate: moment.Moment;
+    purchaseDate: moment.Moment;
+    unit: string | undefined;
+    stock: number;
+    minStock: number;
+    description: string | undefined;
+    isAvailable: boolean;
+
+    constructor(data?: ICreateUpdatePharmacistInventoryDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.medicineName = _data["medicineName"];
+            this.costPrice = _data["costPrice"];
+            this.sellingPrice = _data["sellingPrice"];
+            this.expiryDate = _data["expiryDate"] ? moment(_data["expiryDate"].toString()) : <any>undefined;
+            this.purchaseDate = _data["purchaseDate"] ? moment(_data["purchaseDate"].toString()) : <any>undefined;
+            this.unit = _data["unit"];
+            this.stock = _data["stock"];
+            this.minStock = _data["minStock"];
+            this.description = _data["description"];
+            this.isAvailable = _data["isAvailable"];
+        }
+    }
+
+    static fromJS(data: any): CreateUpdatePharmacistInventoryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateUpdatePharmacistInventoryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["medicineName"] = this.medicineName;
+        data["costPrice"] = this.costPrice;
+        data["sellingPrice"] = this.sellingPrice;
+        data["expiryDate"] = this.expiryDate ? this.expiryDate.toISOString() : <any>undefined;
+        data["purchaseDate"] = this.purchaseDate ? this.purchaseDate.toISOString() : <any>undefined;
+        data["unit"] = this.unit;
+        data["stock"] = this.stock;
+        data["minStock"] = this.minStock;
+        data["description"] = this.description;
+        data["isAvailable"] = this.isAvailable;
+        return data;
+    }
+
+    clone(): CreateUpdatePharmacistInventoryDto {
+        const json = this.toJSON();
+        let result = new CreateUpdatePharmacistInventoryDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ICreateUpdatePharmacistInventoryDto {
+    id: number;
+    tenantId: number;
+    medicineName: string | undefined;
+    costPrice: number;
+    sellingPrice: number;
+    expiryDate: moment.Moment;
+    purchaseDate: moment.Moment;
+    unit: string | undefined;
+    stock: number;
+    minStock: number;
+    description: string | undefined;
+    isAvailable: boolean;
+}
+
 export class CreateUpdatePrescriptionDto implements ICreateUpdatePrescriptionDto {
     id: number;
     tenantId: number;
@@ -12586,6 +13057,156 @@ export class PharmacistDtoPagedResultDto implements IPharmacistDtoPagedResultDto
 
 export interface IPharmacistDtoPagedResultDto {
     items: PharmacistDto[] | undefined;
+    totalCount: number;
+}
+
+export class PharmacistInventoryDto implements IPharmacistInventoryDto {
+    id: number;
+    tenantId: number;
+    medicineName: string | undefined;
+    costPrice: number;
+    sellingPrice: number;
+    expiryDate: moment.Moment;
+    purchaseDate: moment.Moment;
+    unit: string | undefined;
+    stock: number;
+    minStock: number;
+    description: string | undefined;
+    isAvailable: boolean;
+    stockStatus: string | undefined;
+    expiryStatus: string | undefined;
+
+    constructor(data?: IPharmacistInventoryDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.medicineName = _data["medicineName"];
+            this.costPrice = _data["costPrice"];
+            this.sellingPrice = _data["sellingPrice"];
+            this.expiryDate = _data["expiryDate"] ? moment(_data["expiryDate"].toString()) : <any>undefined;
+            this.purchaseDate = _data["purchaseDate"] ? moment(_data["purchaseDate"].toString()) : <any>undefined;
+            this.unit = _data["unit"];
+            this.stock = _data["stock"];
+            this.minStock = _data["minStock"];
+            this.description = _data["description"];
+            this.isAvailable = _data["isAvailable"];
+            this.stockStatus = _data["stockStatus"];
+            this.expiryStatus = _data["expiryStatus"];
+        }
+    }
+
+    static fromJS(data: any): PharmacistInventoryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PharmacistInventoryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["medicineName"] = this.medicineName;
+        data["costPrice"] = this.costPrice;
+        data["sellingPrice"] = this.sellingPrice;
+        data["expiryDate"] = this.expiryDate ? this.expiryDate.toISOString() : <any>undefined;
+        data["purchaseDate"] = this.purchaseDate ? this.purchaseDate.toISOString() : <any>undefined;
+        data["unit"] = this.unit;
+        data["stock"] = this.stock;
+        data["minStock"] = this.minStock;
+        data["description"] = this.description;
+        data["isAvailable"] = this.isAvailable;
+        data["stockStatus"] = this.stockStatus;
+        data["expiryStatus"] = this.expiryStatus;
+        return data;
+    }
+
+    clone(): PharmacistInventoryDto {
+        const json = this.toJSON();
+        let result = new PharmacistInventoryDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IPharmacistInventoryDto {
+    id: number;
+    tenantId: number;
+    medicineName: string | undefined;
+    costPrice: number;
+    sellingPrice: number;
+    expiryDate: moment.Moment;
+    purchaseDate: moment.Moment;
+    unit: string | undefined;
+    stock: number;
+    minStock: number;
+    description: string | undefined;
+    isAvailable: boolean;
+    stockStatus: string | undefined;
+    expiryStatus: string | undefined;
+}
+
+export class PharmacistInventoryDtoPagedResultDto implements IPharmacistInventoryDtoPagedResultDto {
+    items: PharmacistInventoryDto[] | undefined;
+    totalCount: number;
+
+    constructor(data?: IPharmacistInventoryDtoPagedResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(PharmacistInventoryDto.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): PharmacistInventoryDtoPagedResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PharmacistInventoryDtoPagedResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+
+    clone(): PharmacistInventoryDtoPagedResultDto {
+        const json = this.toJSON();
+        let result = new PharmacistInventoryDtoPagedResultDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IPharmacistInventoryDtoPagedResultDto {
+    items: PharmacistInventoryDto[] | undefined;
     totalCount: number;
 }
 
