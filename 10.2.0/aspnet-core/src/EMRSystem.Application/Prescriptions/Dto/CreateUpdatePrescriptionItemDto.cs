@@ -16,5 +16,7 @@ namespace EMRSystem.Prescriptions.Dto
         public string Duration { get; set; } // e.g. 5 days
         public string Instructions { get; set; }
         public long PrescriptionId { get; set; }
+        public int MedicineId { get; set; }
+
     }
 }

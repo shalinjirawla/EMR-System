@@ -2,8 +2,9 @@
 using EMRSystem.Authorization.Roles;
 using EMRSystem.Billings;
 using EMRSystem.BillingStaff.Dto;
-using EMRSystem.Prescriptions.Dto;
+using EMRSystem.Doctor.Dto;
 using EMRSystem.Prescriptions;
+using EMRSystem.Prescriptions.Dto;
 using EMRSystem.Roles.Dto;
 using System;
 using System.Collections.Generic;
@@ -13,16 +14,24 @@ using System.Threading.Tasks;
 
 namespace EMRSystem.Appointments.Dto
 {
-    class AppointmentMapProfile : Profile
+    public class AppointmentMapProfile : Profile
     {
         public AppointmentMapProfile()
         {
-            CreateMap<Appointment, AppointmentDto>().ReverseMap();
+            // Main appointment mapping
+            CreateMap<Appointment, AppointmentDto>()
+                .ForMember(dest => dest.Doctor, opt => opt.MapFrom(src => src.Doctor))
+                .ReverseMap();
+
+            // Doctor mapping
+            CreateMap<EMRSystem.Doctors.Doctor, DoctorDto>();
+
+            // Other mappings
             CreateMap<CreateUpdateAppointmentDto, Appointment>();
             CreateMap<Appointment, CreateUpdateAppointmentDto>()
-             .ForMember(dest => dest.NurseId, opt => opt.MapFrom(src => src.Nurse.Id))
-             .ForMember(dest => dest.DoctorId, opt => opt.MapFrom(src => src.Doctor.Id))
-             .ForMember(dest => dest.PatientId, opt => opt.MapFrom(src => src.Patient.Id));
+                .ForMember(dest => dest.NurseId, opt => opt.MapFrom(src => src.Nurse != null ? src.Nurse.Id : (long?)null))
+                .ForMember(dest => dest.DoctorId, opt => opt.MapFrom(src => src.Doctor != null ? src.Doctor.Id : (long?)null))
+                .ForMember(dest => dest.PatientId, opt => opt.MapFrom(src => src.Patient != null ? src.Patient.Id : (long?)null));
         }
     }
 }

@@ -6,6 +6,7 @@ using Abp.Domain.Repositories;
 using Abp.Extensions;
 using EMRSystem.Appointments.Dto;
 using EMRSystem.Authorization.Users;
+using EMRSystem.Doctors;
 using EMRSystem.Patients;
 using EMRSystem.Prescriptions;
 using EMRSystem.Prescriptions.Dto;
@@ -16,8 +17,8 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Linq.Dynamic.Core;
+using System.Threading.Tasks;
 
 
 namespace EMRSystem.Appointments
@@ -113,6 +114,19 @@ namespace EMRSystem.Appointments
 
             var mapped = ObjectMapper.Map<List<AppointmentDto>>(appointments);
             return new ListResultDto<AppointmentDto>(mapped);
+        }
+        public async Task<ListResultDto<AppointmentDto>> GetByPatient(long patientId)
+        {
+            // Get all appointments including Patient and Doctor
+            var appointments = await Repository.GetAllIncluding(x => x.Patient, x => x.Doctor)
+                .Where(x => x.PatientId == patientId)
+                .OrderByDescending(x => x.AppointmentDate)
+                .ToListAsync();
+
+            // Map to DTO with doctor information
+            var appointmentDtos = ObjectMapper.Map<List<AppointmentDto>>(appointments);
+
+            return new ListResultDto<AppointmentDto>(appointmentDtos);
         }
         public async Task<CreateUpdateAppointmentDto> GetAppointmentDetailsById(long id)
         {

@@ -9,8 +9,10 @@ import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { FormsModule } from '@node_modules/@angular/forms';
 import { NgIf } from '@node_modules/@angular/common';
 import { ChangeDetectorRef, Component, Injector, ViewChild } from '@angular/core';
-import { BillingDto, BillingDtoPagedResultDto, BillingServiceProxy, PatientServiceProxy, UserServiceProxy } from '@shared/service-proxies/service-proxies';
+import { BillingDto, BillingDtoPagedResultDto, BillingServiceProxy, InvoiceDto, InvoiceDtoPagedResultDto, InvoiceServiceProxy, PatientServiceProxy, UserServiceProxy } from '@shared/service-proxies/service-proxies';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
+import { CreateInvoiceComponent } from '../create-invoice/create-invoice.component';
+
 
 
 @Component({
@@ -19,9 +21,9 @@ import { appModuleAnimation } from '@shared/animations/routerTransition';
   animations: [appModuleAnimation()],
   templateUrl: './invoices.component.html',
   styleUrl: './invoices.component.css',
-   providers: [BillingServiceProxy,UserServiceProxy]
+   providers: [BillingServiceProxy,UserServiceProxy,InvoiceServiceProxy]
 })
-export class InvoicesComponent extends PagedListingComponentBase<BillingDto> {
+export class InvoicesComponent extends PagedListingComponentBase<InvoiceDto> {
     @ViewChild('dataTable', { static: true }) dataTable: Table;
     @ViewChild('paginator', { static: true }) paginator: Paginator;
 
@@ -36,6 +38,7 @@ export class InvoicesComponent extends PagedListingComponentBase<BillingDto> {
         private _activatedRoute: ActivatedRoute,
         private _userService: UserServiceProxy,
         private _billingService: BillingServiceProxy,
+        private _invoiceService: InvoiceServiceProxy,
         cd: ChangeDetectorRef
     ) {
         super(injector, cd);
@@ -45,6 +48,7 @@ export class InvoicesComponent extends PagedListingComponentBase<BillingDto> {
     clearFilters(): void {
         this.keyword = '';
         this.isActive = undefined;
+        this.list();
     }
 
     list(event?: LazyLoadEvent): void {
@@ -57,8 +61,9 @@ export class InvoicesComponent extends PagedListingComponentBase<BillingDto> {
         }
         this.primengTableHelper.showLoadingIndicator();
 
-        this._billingService
+        this._invoiceService
             .getAll(
+                this.keyword,
                 this.primengTableHelper.getSorting(this.dataTable),
                 this.primengTableHelper.getSkipCount(this.paginator, event),
                 this.primengTableHelper.getMaxResultCount(this.paginator, event)
@@ -68,7 +73,7 @@ export class InvoicesComponent extends PagedListingComponentBase<BillingDto> {
                     this.primengTableHelper.hideLoadingIndicator();
                 })
             )
-            .subscribe((result: BillingDtoPagedResultDto) => {
+            .subscribe((result: InvoiceDtoPagedResultDto) => {
                 
                 this.primengTableHelper.records = result.items;
                 this.primengTableHelper.totalRecordsCount = result.totalCount;
@@ -76,40 +81,55 @@ export class InvoicesComponent extends PagedListingComponentBase<BillingDto> {
                 this.cd.detectChanges();
             });
     }
-    delete(invoice: BillingDto): void {
+    delete(invoice: InvoiceDto): void {
         abp.message.confirm(this.l('UserDeleteWarningMessage'), undefined, (result: boolean) => {
             if (result) {
-                this._billingService.delete(invoice.id).subscribe(() => {
+                this._invoiceService.delete(invoice.id).subscribe(() => {
                     abp.notify.success(this.l('SuccessfullyDeleted'));
                     this.refresh();
                 });
             }
         });
     }
+    // Add these methods to your InvoicesComponent class
+getStatusString(status: number): string {
+    switch(status) {
+        case 0: return 'Unpaid';
+        case 1: return 'Paid';
+        case 2: return 'Partial Paid';
+    }
+}
 
-    createPrescription(): void {
-   // this.showCreateOrEditPrescriptionDialog();
+getPaymentMethodString(method: number): string {
+    switch(method) {
+        case 0: return 'Cash';
+        case 1: return 'Card';
+    }
+}
+
+    createInvoice(): void {
+   this.showCreateOrEditPrescriptionDialog();
   }
 
-  // showCreateOrEditPrescriptionDialog(id?: number): void {
-  //     let createOrEditUserDialog: BsModalRef;
-  //     if (!id) {
-  //       createOrEditUserDialog = this._modalService.show(CreateUserDialogComponent, {
-  //         class: 'modal-lg',
-  //       });
-  //     }
-  //     //  else {
-  //     //     createOrEditUserDialog = this._modalService.show(CreateAppoinmentComponent, {
-  //     //         class: 'modal-lg',
-  //     //         initialState: {
-  //     //             id: id,
-  //     //         },
-  //     //     });
-  //     // }
+  showCreateOrEditPrescriptionDialog(id?: number): void {
+      let createOrEditUserDialog: BsModalRef;
+      if (!id) {
+        createOrEditUserDialog = this._modalService.show(CreateInvoiceComponent, {
+          class: 'modal-lg',
+        });
+      }
+    //    else {
+    //       createOrEditUserDialog = this._modalService.show(CreateAppoinmentComponent, {
+    //           class: 'modal-lg',
+    //           initialState: {
+    //               id: id,
+    //           },
+    //       });
+    //   }
   
-  //     createOrEditUserDialog.content.onSave.subscribe(() => {
-  //       //this.refresh();
-  //     });
-  //   }
+      createOrEditUserDialog.content.onSave.subscribe(() => {
+        this.refresh();
+      });
+    }
 
 }

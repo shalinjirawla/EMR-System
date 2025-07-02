@@ -35,8 +35,19 @@
         <div class="row mt-3">
             <div class="col-md-12">
                 <label><b>Select Lab Tests (if required)</b></label>
-                <p-multiSelect [(ngModel)]="selectedLabTests" [options]="labTests" optionLabel="name" optionValue="id"
+                <p-multiSelect [(ngModel)]="selectedLabTests" [options]="labTests" optionLabel="name"
                     placeholder="Select Lab Tests" display="chip" class="w-100" name="labTests">
+                    <ng-template let-value pTemplate="selectedItems">
+                        <div class="flex align-items-center gap-2" *ngFor="let option of selectedLabTests">
+                            <div>{{option?.name || 'Loading...'}}</div>
+                        </div>
+                        <div *ngIf="!selectedLabTests || selectedLabTests.length === 0">Select Lab Tests</div>
+                    </ng-template>
+                    <ng-template let-option pTemplate="item">
+                        <div class="flex align-items-center gap-2">
+                            <div>{{option.name}}</div>
+                        </div>
+                    </ng-template>
                 </p-multiSelect>
             </div>
         </div>
@@ -81,9 +92,10 @@
                 <div *ngFor="let item of prescription.items; let i = index" class="mt-2">
                     <div class="d-flex align-items-center">
                         <!-- Medicine Dropdown -->
-                        <p-dropdown [(ngModel)]="item.medicineName" [options]="medicineOptions" optionLabel="label"
-                            optionValue="value" placeholder="Select Medicine" class="w-25 mr-2" name="itemName{{i}}"
-                            (onChange)="onMedicineChange(item, i)"></p-dropdown>
+                        <p-dropdown [(ngModel)]="item.medicineId" [options]="medicineOptions" optionLabel="label"
+                            optionValue="value" placeholder="Select Medicine" class="w-25 mr-2" name="itemMedicine{{i}}"
+                            (onChange)="onMedicineChange(item, i)">
+                        </p-dropdown>
 
                         <!-- Dosage Dropdown -->
                         <p-dropdown *ngIf="item.medicineName && medicineDosageOptions[item.medicineName]"
