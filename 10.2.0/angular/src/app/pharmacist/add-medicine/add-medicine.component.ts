@@ -60,8 +60,8 @@ export class AddMedicineComponent extends AppComponentBase implements OnInit {
     purchaseDate: null,
     unitValue: null,
     unitType: null,
-    stock: 0,
-    minStock: 0,
+    stock: 1,
+    minStock: 1,
     description: '',
     isAvailable: true
   };

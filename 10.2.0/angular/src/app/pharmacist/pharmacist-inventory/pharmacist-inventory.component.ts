@@ -36,7 +36,6 @@ export class PharmacistInventoryComponent extends PagedListingComponentBase<Phar
   PharmacistInventory: PharmacistInventoryDto[] = [];
   keyword = '';
   dateRange: Date[];
-  minStock = undefined;
   maxStock = undefined;
 
   isAvailable: boolean | null;
@@ -57,7 +56,6 @@ export class PharmacistInventoryComponent extends PagedListingComponentBase<Phar
     this.keyword = '';
     this.dateRange = [];
     this.isAvailable = undefined;
-    this.minStock = undefined;
     this.maxStock = undefined;
     this.list();
 }
@@ -80,7 +78,6 @@ list(event?: LazyLoadEvent): void {
         .getAll(
             this.keyword,
             this.primengTableHelper.getSorting(this.dataTable),
-            this.minStock,
             this.maxStock,
             fromExpiryDate,
             toExpiryDate,

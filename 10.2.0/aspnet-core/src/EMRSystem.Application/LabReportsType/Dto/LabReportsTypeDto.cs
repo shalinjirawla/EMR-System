@@ -11,5 +11,7 @@ namespace EMRSystem.LabReportsType.Dto
     {
         public int TenantId { get; set; }
         public string ReportType { get; set; }
+        public int ReportPrice { get; set; }
+
     }
 }

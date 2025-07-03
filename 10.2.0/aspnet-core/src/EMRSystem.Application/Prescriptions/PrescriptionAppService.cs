@@ -14,6 +14,7 @@ using EMRSystem.Prescriptions.Dto;
 using EMRSystem.Users.Dto;
 using EMRSystem.Vitals.Dto;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
@@ -36,6 +37,9 @@ namespace EMRSystem.Prescriptions
         }
         protected override IQueryable<Prescription> CreateFilteredQuery(PagedPrescriptionResultRequestDto input)
         {
+            try
+            {
+
             var userId = AbpSession.UserId;
             var doctor = _doctorAppService.GetDoctorDetailsByAbpUserID(userId.Value);
 
@@ -43,6 +47,7 @@ namespace EMRSystem.Prescriptions
                 .GetAll()
                 .Include(x => x.Patient)
                 .Include(x => x.Doctor)
+                .Include(x => x.LabTests) 
                 .WhereIf(!input.Keyword.IsNullOrWhiteSpace(), x =>
                     x.Diagnosis.Contains(input.Keyword) ||
                     x.Notes.Contains(input.Keyword) ||
@@ -51,7 +56,7 @@ namespace EMRSystem.Prescriptions
                     x.Items.Any(i => i.MedicineName.Contains(input.Keyword)))
                 .WhereIf(input.FromDate.HasValue, x => x.IssueDate >= input.FromDate.Value)
                 .WhereIf(input.ToDate.HasValue, x => x.IssueDate <= input.ToDate.Value)
-                 .WhereIf(doctor != null, x => x.Doctor.Id == doctor.Id)
+                .WhereIf(doctor != null, x => x.Doctor.Id == doctor.Id)
                 .Select(x => new Prescription
                 {
                     Id = x.Id,
@@ -78,8 +83,24 @@ namespace EMRSystem.Prescriptions
                         Frequency = i.Frequency,
                         Duration = i.Duration,
                         Instructions = i.Instructions,
+                    }).ToList(),
+                    LabTests = x.LabTests.Select(lt => new EMRSystem.LabReports.PrescriptionLabTest
+                    {
+                        Id = lt.Id,
+                        LabReportsTypeId = lt.LabReportsTypeId,
+                        TestStatus = lt.TestStatus,
+                        CreatedDate = lt.CreatedDate
                     }).ToList()
                 });
+            }
+            catch(SqlException sqlEx)
+            {
+                throw sqlEx;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
 
@@ -160,7 +181,7 @@ namespace EMRSystem.Prescriptions
             existingPrescription.LabTests.Clear();
             foreach (var labTestId in input.LabTestIds)
             {
-                existingPrescription.LabTests.Add(new  EMRSystem.PrescriptionLabTests.PrescriptionLabTest
+                existingPrescription.LabTests.Add(new  EMRSystem.LabReports.PrescriptionLabTest
                 {
                     LabReportsTypeId = labTestId,
                     PrescriptionId = input.Id
@@ -173,7 +194,15 @@ namespace EMRSystem.Prescriptions
 
         public async Task<CreateUpdatePrescriptionDto> GetPrescriptionDetailsById(long id)
         {
-            var details = await Repository.GetAllIncludingAsync(x => x.Patient, x => x.Doctor, x => x.Appointment).Result
+            var query = await Repository.GetAllIncludingAsync(
+                x => x.Patient,
+                x => x.Doctor,
+                x => x.Appointment,
+                x => x.LabTests,
+                x => x.Items); // Don't forget to include Items if needed
+
+            var details = await query
+                .Where(x => x.Id == id)
                 .Select(x => new Prescription
                 {
                     Id = x.Id,
@@ -192,7 +221,7 @@ namespace EMRSystem.Prescriptions
                         Id = x.Doctor.Id,
                         FullName = x.Doctor.FullName
                     },
-                    Appointment = x.Appointment == null ? null : new EMRSystem.Appointments.Appointment
+                    Appointment = x.Appointment == null ? null : new Appointment
                     {
                         Id = x.Appointment.Id,
                         AppointmentDate = x.Appointment.AppointmentDate,
@@ -203,19 +232,30 @@ namespace EMRSystem.Prescriptions
                     {
                         Id = i.Id,
                         MedicineName = i.MedicineName,
+                        MedicineId=i.MedicineId,
                         Dosage = i.Dosage,
                         Frequency = i.Frequency,
                         Duration = i.Duration,
                         Instructions = i.Instructions,
+                    }).ToList(),
+                    LabTests = x.LabTests.Select(lt => new EMRSystem.LabReports.PrescriptionLabTest
+                    {
+                        Id = lt.Id,
+                        LabReportsTypeId = lt.LabReportsTypeId,
+                        TestStatus = lt.TestStatus,
+                        CreatedDate = lt.CreatedDate
                     }).ToList()
                 })
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync();
 
             if (details == null)
             {
                 throw new EntityNotFoundException(typeof(Prescription), id);
             }
+
             var prescription = ObjectMapper.Map<CreateUpdatePrescriptionDto>(details);
+            prescription.LabTestIds = details.LabTests.Select(lt => (int)lt.LabReportsTypeId).ToList();
+
             return prescription;
         }
     }

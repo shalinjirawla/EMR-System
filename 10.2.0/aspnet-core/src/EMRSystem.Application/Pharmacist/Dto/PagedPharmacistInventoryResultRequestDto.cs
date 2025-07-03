@@ -12,8 +12,7 @@ namespace EMRSystem.Pharmacist.Dto
     {
         public string Keyword { get; set; }
         public string Sorting { get; set; }
-        public int? MinStock { get; set; }
-        public int? MaxStock { get; set; }
+        public int? Stock { get; set; }
         public DateTime? FromExpiryDate { get; set; }
         public DateTime? ToExpiryDate { get; set; }
         public bool? IsAvailable { get; set; }
