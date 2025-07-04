@@ -1,26 +1,37 @@
 <div class="card-container">
-  <div class="action-card report-card" (click)="createReport()">
+  <div class="action-card report-card">
     <div class="card-icon">
       <i class="fas fa-microscope"></i>
     </div>
     <div class="card-content">
-      <h3>Add Report</h3>
+      <h3>Add Report ({{medicalReportCount}})</h3>
       <p>Create new medical reports</p>
     </div>
-    <div class="card-badge">
+    <div class="card-badge" (click)="createReport()">
       <i class="pi pi-plus"></i>
     </div>
   </div>
-
-  <div class="action-card diagnosis-card" (click)="createDiagnosis()">
+  <!-- <div class="action-card diagnosis-card">
     <div class="card-icon">
-      <i class="fas fa-notes-medical"></i>
+      <i class="fa-solid fa-stethoscope"></i>
     </div>
     <div class="card-content">
       <h3>Add Diagnosis</h3>
       <p>Record patient diagnoses</p>
     </div>
-    <div class="card-badge">
+    <div class="card-badge" (click)="createDiagnosis()">
+      <i class="pi pi-plus"></i>
+    </div>
+  </div> -->
+  <div class="action-card department-card">
+    <div class="card-icon">
+      <i class="fa-solid fa-building"></i>
+    </div>
+    <div class="card-content">
+      <h3>Add Department ({{totalDepartmentCount}})</h3>
+      <p>Record departments</p>
+    </div>
+    <div class="card-badge" (click)="createDepartment()">
       <i class="pi pi-plus"></i>
     </div>
   </div>

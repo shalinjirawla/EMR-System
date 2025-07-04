@@ -6,14 +6,19 @@ import { PrescriptionsComponent } from './prescriptions/prescriptions.component'
 import { VisitsComponent } from './visits/visits.component';
 import { AppRouteGuard } from '@shared/auth/auth-route-guard';
 import { LabOrdersComponent } from './lab-orders/lab-orders.component';
+import { ViewAppoinmentComponent } from './view-appoinment/view-appoinment.component';
 
 
 const routes: Routes = [
     {
         path: '',
         component: DoctorsComponent,
-          canActivate: [AppRouteGuard],
+        canActivate: [AppRouteGuard],
         children: [
+            {
+                path: 'view-appointments',
+                component: ViewAppoinmentComponent,
+            },
             {
                 path: 'patients',
                 component: PatientComponent,
@@ -43,4 +48,4 @@ const routes: Routes = [
     imports: [RouterModule.forChild(routes)],
     exports: [RouterModule],
 })
-export class DoctorsRoutingModule {}
+export class DoctorsRoutingModule { }

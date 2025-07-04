@@ -94,7 +94,6 @@ export class EditMedicineComponent extends AppComponentBase implements OnInit {
     this._inventoryService.get(this.inventoryId).subscribe({
       
       next: (result: PharmacistInventoryDto) => {
-        debugger
         this.inventory.id = result.id;
         this.inventory.tenantId = result.tenantId;
         this.inventory.medicineName = result.medicineName;

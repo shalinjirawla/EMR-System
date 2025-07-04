@@ -6,13 +6,13 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { AppComponentBase } from '@shared/app-component-base';
-import { LabReportsTypeServiceProxy, CreateUpdateLabReportTypeDto } from '@shared/service-proxies/service-proxies';
+import { LabReportsTypeServiceProxy, CreateUpdateLabReportTypeDto, CreateUpdateDepartmentDto, DepartmentServiceProxy } from '@shared/service-proxies/service-proxies';
 
 @Component({
   selector: 'app-add-data-dialog',
   standalone: true,
   imports: [CommonModule, FormsModule, InputTextModule, ButtonModule, DialogModule],
-  providers:[LabReportsTypeServiceProxy],
+  providers: [LabReportsTypeServiceProxy],
   templateUrl: './add-data-dialog.component.html',
   styleUrls: ['./add-data-dialog.component.css']
 })
@@ -20,13 +20,14 @@ export class AddDataDialogComponent extends AppComponentBase {
   @Output() onSave = new EventEmitter<void>();
   saving = false;
   name: string = '';
-  dataType: 'report' | 'diagnosis';
+  dataType: 'report' | 'diagnosis' | 'department';
 
   constructor(
     injector: Injector,
     public ref: DynamicDialogRef,
     public config: DynamicDialogConfig,
     private _labReportTypeService: LabReportsTypeServiceProxy,
+    private _departmentService: DepartmentServiceProxy,
     // private _diagnosisService: DiagnosisServiceProxy
   ) {
     super(injector);
@@ -35,16 +36,27 @@ export class AddDataDialogComponent extends AppComponentBase {
 
   save(): void {
     if (!this.name.trim()) return;
-    
+
     this.saving = true;
 
     if (this.dataType === 'report') {
       this.saveReport();
-    } else {
+    }
+    else if (this.dataType === 'department') {
+      this.saveDepartment();
+    }
+    else {
       //this.saveDiagnosis();
     }
   }
-
+  getLabel(): string {
+    switch (this.dataType) {
+      case 'report': return 'Report';
+      case 'diagnosis': return 'Diagnosis';
+      case 'department': return 'Department';
+      default: return '';
+    }
+  }
   private saveReport(): void {
     const input = new CreateUpdateLabReportTypeDto();
     input.reportType = this.name.trim();
@@ -56,7 +68,17 @@ export class AddDataDialogComponent extends AppComponentBase {
       complete: () => this.saving = false
     });
   }
+  private saveDepartment(): void {
+    const input = new CreateUpdateDepartmentDto();
+    input.name = this.name.trim();
+    input.tenantId = abp.session.tenantId;
 
+    this._departmentService.create(input).subscribe({
+      next: () => this.handleSuccess(),
+      error: () => this.handleError(),
+      complete: () => this.saving = false
+    });
+  }
   // private saveDiagnosis(): void {
   //   const input = new CreateUpdateDiagnosisDto();
   //   input.name = this.name.trim();

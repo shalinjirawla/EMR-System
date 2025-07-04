@@ -26,6 +26,8 @@ using EMRSystem.Patients.Dto;
 using EMRSystem.Patients;
 using Abp.IdentityFramework;
 using Abp.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
 
 namespace EMRSystem.Doctor
 {
@@ -33,9 +35,13 @@ namespace EMRSystem.Doctor
     public class DoctorAppService : AsyncCrudAppService<EMRSystem.Doctors.Doctor, DoctorDto, long, PagedAndSortedResultRequestDto, CreateUpdateDoctorDto, CreateUpdateDoctorDto>,
    IDoctorAppService
     {
+        private readonly UserManager _userManager;
         public DoctorAppService(
-            IRepository<EMRSystem.Doctors.Doctor, long> doctorRepository) : base(doctorRepository)
+            IRepository<EMRSystem.Doctors.Doctor, long> doctorRepository,
+            UserManager userManager
+            ) : base(doctorRepository)
         {
+            _userManager = userManager;
         }
 
         public async Task<ListResultDto<DoctorDto>> GetAllDoctorsByTenantID(int tenantId)
@@ -56,6 +62,18 @@ namespace EMRSystem.Doctor
                 return null;
             }
             return doctor;
+        }
+
+        [HttpGet]
+        public async Task<List<string>> GetCurrentUserRolesAsync()
+        {
+            var user = await Repository.GetAll()
+                .Include(x => x.AbpUser)
+                .ThenInclude(x=>x.Roles)
+                .FirstOrDefaultAsync(x => x.AbpUser.Id == AbpSession.UserId.Value)
+                ;
+            var roles = await _userManager.GetRolesAsync(user.AbpUser);
+            return roles.ToList();
         }
     }
 }

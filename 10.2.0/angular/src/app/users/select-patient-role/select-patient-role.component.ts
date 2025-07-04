@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { AbpValidationSummaryComponent } from "../../../shared/components/validation/abp-validation.summary.component";
 import { FormsModule, NgForm } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -6,43 +6,43 @@ import { NurseDto, DoctorDto, DoctorServiceProxy, NurseServiceProxy } from '@sha
 
 @Component({
   selector: 'app-select-patient-role',
-  imports: [AbpValidationSummaryComponent,FormsModule,CommonModule],
+  imports: [AbpValidationSummaryComponent, FormsModule, CommonModule],
   templateUrl: './select-patient-role.component.html',
   styleUrl: './select-patient-role.component.css'
 })
 export class SelectPatientRoleComponent {
-   @Output() patientDataChange = new EventEmitter<any>();
-    @ViewChild('patientForm', { static: true }) patientForm: NgForm;
-
+  @Output() patientDataChange = new EventEmitter<any>();
+  @ViewChild('patientForm', { static: true }) patientForm: NgForm;
   genders = ['Male', 'Female', 'Other'];
-bloodGroups = ['A+', 'A−', 'B+', 'B−', 'AB+', 'AB−', 'O+', 'O−'];
+  bloodGroups = ['A+', 'A−', 'B+', 'B−', 'AB+', 'AB−', 'O+', 'O−'];
   nurseList!: NurseDto[];
   doctorList!: DoctorDto[];
-patient = {
-  gender: '',
-  dateOfBirth: null,
-  address: '',
-  bloodGroup: '',
-  emergencyContactName: '',
-  emergencyContactNumber: '',
-  assignedNurseId: null,
-  isAdmitted: false,
-  admissionDate: null,
-  dischargeDate: null,
-  insuranceProvider: '',
-  insurancePolicyNumber: '',
-  assignedDoctorId: null
-};
+  isDoctorLoggedIn: boolean = false;
+  patient = {
+    gender: '',
+    dateOfBirth: null,
+    address: '',
+    bloodGroup: '',
+    emergencyContactName: '',
+    emergencyContactNumber: '',
+    assignedNurseId: null,
+    isAdmitted: false,
+    admissionDate: null,
+    dischargeDate: null,
+    insuranceProvider: '',
+    insurancePolicyNumber: '',
+    assignedDoctorId: null
+  };
 
-constructor(
+  constructor(
     private _doctorService: DoctorServiceProxy,
-    private _nurseService: NurseServiceProxy,)
-    {
-      this.LoadDoctors();
-      this.LoadNurse();
-    }
+    private _nurseService: NurseServiceProxy,) {
+    // this.GetLoggedInUserRole();
+    this.LoadDoctors();
+    this.LoadNurse();
+  }
 
-LoadDoctors() {
+  LoadDoctors() {
     this._doctorService.getAllDoctorsByTenantID(abp.session.tenantId).subscribe({
       next: (res) => {
         this.doctorList = res.items;
@@ -58,17 +58,8 @@ LoadDoctors() {
       }
     })
   }
-// nurseList = [
-//   { id: 1, name: 'Nurse A' },
-//   { id: 2, name: 'Nurse B' }
-// ];
-
-// doctorList = [
-//   { id: 101, name: 'Dr. John' },
-//   { id: 102, name: 'Dr. Smith' }
-// ];
-
- onInputChange() {
+  
+  onInputChange() {
     this.patientDataChange.emit(this.patient);
   }
 
@@ -77,5 +68,14 @@ LoadDoctors() {
       this.patient.admissionDate = null;
     }
     this.onInputChange();
+  }
+  GetLoggedInUserRole() {
+    this._doctorService.getCurrentUserRoles().subscribe(res => {
+      if (res && res.includes('Doctors')) {
+        this.isDoctorLoggedIn = true;
+      } else {
+        this.isDoctorLoggedIn = false;
+      }
+    })
   }
 }

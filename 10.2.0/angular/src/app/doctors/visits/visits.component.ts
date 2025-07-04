@@ -1,24 +1,31 @@
+import { ChangeDetectorRef, Component, Injector, ViewChild } from '@angular/core';
 import { Table, TableModule } from 'primeng/table';
 import { Paginator, PaginatorModule } from 'primeng/paginator';
+import { appModuleAnimation } from '@shared/animations/routerTransition';
+import { VisitListDto, VisitListDtoPagedResultDto, VisitServiceProxy } from '@shared/service-proxies/service-proxies';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { ActivatedRoute } from '@angular/router';
 import { PagedListingComponentBase } from 'shared/paged-listing-component-base';
 import { LazyLoadEvent, PrimeTemplate } from 'primeng/api';
 import { finalize } from 'rxjs/operators';
-import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { FormsModule } from '@node_modules/@angular/forms';
+import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { NgIf } from '@node_modules/@angular/common';
-import { ChangeDetectorRef, Component, Injector, ViewChild } from '@angular/core';
-import { UserServiceProxy } from '@shared/service-proxies/service-proxies';
-
+import { OverlayPanel, OverlayPanelModule } from 'primeng/overlaypanel';
+import { MenuModule } from 'primeng/menu';
+import { ButtonModule } from 'primeng/button';
+import { CreateVisitComponent } from '@app/doctors/create-visit/create-visit.component';
+import { EditVisitComponent } from '@app/doctors/edit-visit/edit-visit.component';
 
 @Component({
-  selector: 'app-visits',
-//   imports: [FormsModule, TableModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe],
-  templateUrl: './visits.component.html',
-  styleUrl: './visits.component.css'
+    selector: 'app-visits',
+    animations: [appModuleAnimation()],
+    imports: [FormsModule, TableModule, ButtonModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, OverlayPanelModule, MenuModule],
+    templateUrl: './visits.component.html',
+    styleUrl: './visits.component.css',
+    providers: [VisitServiceProxy]
 })
-export class VisitsComponent  {
+export class VisitsComponent extends PagedListingComponentBase<VisitListDto> {
     @ViewChild('dataTable', { static: true }) dataTable: Table;
     @ViewChild('paginator', { static: true }) paginator: Paginator;
 
@@ -31,12 +38,11 @@ export class VisitsComponent  {
         injector: Injector,
         private _modalService: BsModalService,
         private _activatedRoute: ActivatedRoute,
-        private _userService: UserServiceProxy,
-        // private _patientService: PatientServiceProxy,
+        private _visitService: VisitServiceProxy,
         cd: ChangeDetectorRef
     ) {
-        // super(injector, cd);
-        // this.keyword = this._activatedRoute.snapshot.queryParams['filterText'] || '';
+        super(injector, cd);
+        this.keyword = this._activatedRoute.snapshot.queryParams['filterText'] || '';
     }
 
     clearFilters(): void {
@@ -44,42 +50,70 @@ export class VisitsComponent  {
         this.isActive = undefined;
     }
 
-    // list(event?: LazyLoadEvent): void {
-    //     if (this.primengTableHelper.shouldResetPaging(event)) {
-    //         this.paginator.changePage(0);
+    list(event?: LazyLoadEvent): void {
+        if (this.primengTableHelper.shouldResetPaging(event)) {
+            this.paginator.changePage(0);
 
-    //         if (this.primengTableHelper.records && this.primengTableHelper.records.length > 0) {
-    //             return;
-    //         }
-    //     }
-    //     this.primengTableHelper.showLoadingIndicator();
+            if (this.primengTableHelper.records && this.primengTableHelper.records.length > 0) {
+                return;
+            }
+        }
+        this.primengTableHelper.showLoadingIndicator();
 
-    //     this._patientService
-    //         .getAll(
-    //             this.primengTableHelper.getSorting(this.dataTable),
-    //             this.primengTableHelper.getSkipCount(this.paginator, event),
-    //             this.primengTableHelper.getMaxResultCount(this.paginator, event)
-    //         )
-    //         .pipe(
-    //             finalize(() => {
-    //                 this.primengTableHelper.hideLoadingIndicator();
-    //             })
-    //         )
-    //         .subscribe((result: PatientDtoPagedResultDto) => {
-    //             this.primengTableHelper.records = result.items;
-    //             this.primengTableHelper.totalRecordsCount = result.totalCount;
-    //             this.primengTableHelper.hideLoadingIndicator();
-    //             this.cd.detectChanges();
-    //         });
-    // }
-    // delete(visits: any): void {
-    //     abp.message.confirm(this.l('UserDeleteWarningMessage'), undefined, (result: boolean) => {
-    //         if (result) {
-    //             this._patientService.delete(visits.id).subscribe(() => {
-    //                 abp.notify.success(this.l('SuccessfullyDeleted'));
-    //                 this.refresh();
-    //             });
-    //         }
-    //     });
-    // }
+        this._visitService
+            .getAll(
+                this.primengTableHelper.getSorting(this.dataTable),
+                this.primengTableHelper.getSkipCount(this.paginator, event),
+                this.primengTableHelper.getMaxResultCount(this.paginator, event)
+            )
+            .pipe(
+                finalize(() => {
+                    this.primengTableHelper.hideLoadingIndicator();
+                })
+            )
+            .subscribe((result: VisitListDtoPagedResultDto) => {
+                this.primengTableHelper.records = result.items;
+                this.primengTableHelper.totalRecordsCount = result.totalCount;
+                this.primengTableHelper.hideLoadingIndicator();
+                this.cd.detectChanges();
+            });
+    }
+    delete(visits: any): void {
+        abp.message.confirm(this.l('UserDeleteWarningMessage'), undefined, (result: boolean) => {
+            if (result) {
+                this._visitService.delete(visits.id).subscribe(() => {
+                    abp.notify.success(this.l('SuccessfullyDeleted'));
+                    this.refresh();
+                });
+            }
+        });
+    }
+    showVistiteCreateUpdateDialog(id?: number): void {
+        let createOrEditVisitDialog: BsModalRef;
+        if (!id) {
+            createOrEditVisitDialog = this._modalService.show(CreateVisitComponent, {
+                class: 'modal-lg',
+            });
+        }
+        else {
+            createOrEditVisitDialog = this._modalService.show(EditVisitComponent, {
+                class: 'modal-lg',
+                initialState: {
+                    id: id,
+                },
+            });
+        }
+
+        createOrEditVisitDialog.content.onSave.subscribe(() => {
+            this.refresh();
+        });
+    }
+
+    createVisit(): void {
+        this.showVistiteCreateUpdateDialog();
+    }
+
+    editVisit(id: number): void {
+        this.showVistiteCreateUpdateDialog(id);
+    }
 }

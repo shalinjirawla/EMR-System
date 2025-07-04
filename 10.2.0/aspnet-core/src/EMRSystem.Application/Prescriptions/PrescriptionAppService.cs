@@ -160,7 +160,7 @@ namespace EMRSystem.Prescriptions
             existingPrescription.LabTests.Clear();
             foreach (var labTestId in input.LabTestIds)
             {
-                existingPrescription.LabTests.Add(new  EMRSystem.PrescriptionLabTests.PrescriptionLabTest
+                existingPrescription.LabTests.Add(new  EMRSystem.LabReports.PrescriptionLabTest
                 {
                     LabReportsTypeId = labTestId,
                     PrescriptionId = input.Id

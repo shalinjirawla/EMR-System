@@ -1,0 +1,85 @@
+<form class="form-horizontal" autocomplete="off" #createVisitForm="ngForm" (ngSubmit)="save()">
+    <abp-modal-header title="Create New Visit" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
+
+    <div class="modal-body">
+
+        <!-- Patient Selection -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <b>Select Patient</b>
+                    <p-button label="Add New Patient" variant="text" severity="info" *ngIf="showAddPatientButton"
+                        (onClick)="showCreatePatientDialog()" />
+                </div>
+                <p-select [(ngModel)]="visit.patientId" name="patientId" [options]="patients" [optionValue]="'id'"
+                    optionLabel="fullName" placeholder="Select a patient" class="w-100" required />
+            </div>
+        </div>
+
+        <!-- Department and nurse -->
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <label><b>Select Department</b></label>
+                <p-select [(ngModel)]="visit.departmentId" name="departmentId" [options]="departments"
+                    optionLabel="name" optionValue="id" placeholder="Select department" class="w-100" required />
+            </div>
+            <div class="col-md-6">
+                <label><b>Select Nurse</b></label>
+                <p-select [(ngModel)]="visit.nurseId" name="nurseId" [options]="nurse" optionLabel="fullName"
+                    optionValue="id" placeholder="Select nurse" class="w-100" required />
+            </div>
+        </div>
+
+        <!-- date and time -->
+        <div class="row mt-3">
+            <div class="col-md-4 d-flex flex-column">
+                <label>Date of Visit</label>
+                <p-datepicker [(ngModel)]="visit.dateOfVisit" name="dateOfVisit" [showIcon]="true"
+                    [minDate]="minVisitDate" placeholder="Select date of visit" required></p-datepicker>
+            </div>
+            <div class="col-md-4 d-flex flex-column">
+                <label>Time of Visit</label>
+                <p-datepicker [(ngModel)]="visit.timeOfVisit" name="timeOfVisit" [iconDisplay]="'input'"
+                    [showIcon]="true" [timeOnly]="true" inputId="templatedisplay" placeholder="Select time of visit"
+                    required>
+                    <ng-template #inputicon let-clickCallBack="clickCallBack">
+                        <i class="pi pi-clock" (click)="clickCallBack($event)"></i>
+                    </ng-template>
+                </p-datepicker>
+            </div>
+            <div class="col-md-4 d-flex flex-column">
+                <label>Consultation Fee</label>
+                <input pInputText min="0" [(ngModel)]="visit.consultationFee" type="number" name="consultationFee"
+                    class="w-100" placeholder="Enter consultation fee" required />
+            </div>
+        </div>
+
+        <!-- reason -->
+        <div class="row mt-3">
+            <div class="col-md-12 d-flex flex-column">
+                <label>Reason</label>
+                <textarea pTextarea [(ngModel)]="visit.reasonForVisit" name="reasonForVisit" rows="3" class="w-100"
+                    placeholder="Reason for visit" required></textarea>
+            </div>
+        </div>
+
+        <!-- payment methods -->
+        <div class="row mt-3">
+            <div class="col-md-12">
+                <label>Mode of Payment</label>
+                <div class="d-flex">
+                    <div class="cash-col" [class.active]="selectedPaymentMethod === 'Card'"
+                        (click)="togglePaymentMethod('Card')">
+                        Card
+                    </div>
+                    <div class="card-col ml-2" [class.active]="selectedPaymentMethod === 'Cash'"
+                        (click)="togglePaymentMethod('Cash')">
+                        Cash
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="isSaveDisabled()" (onCancelClick)="bsModalRef.hide()">
+    </abp-modal-footer>
+</form>

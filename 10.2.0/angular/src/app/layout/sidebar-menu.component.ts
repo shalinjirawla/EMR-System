@@ -53,8 +53,7 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
 
             // Doctor Section
             new MenuItem(this.l('Doctor'), '', 'fa fa-user-md', 'Pages.Doctors', [
-                new MenuItem(this.l('Appointments'), '/app/doctors/appointments', 'fas fa-calendar-check', 'Pages.Doctors.Appointments.View'),
-                new MenuItem(this.l('Schedule Appointment'), '/app/doctors/appointments/schedule', 'fas fa-calendar-plus', 'Pages.Doctors.Appointments.Schedule'),
+                new MenuItem(this.l('View Appointments'), '/app/doctors/view-appointments', 'fas fa-calendar-check', 'Pages.Doctors.Appointments.View'),
                 new MenuItem(this.l('Patients'), '/app/doctors/patients', 'fas fa-user-injured', 'Pages.Doctors.Patients.View'),
                 new MenuItem(this.l('Prescriptions'), '/app/doctors/prescriptions', 'fas fa-file-prescription', 'Pages.Doctors.Prescriptions.Create'),
                 new MenuItem(this.l('Visits'), '/app/doctors/visits', 'fas fa-procedures', 'Pages.Doctors.Visits.View'),
@@ -66,7 +65,7 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
                 new MenuItem(this.l('Appointments'), '/app/nurse/appointments', 'fas fa-procedures', 'Pages.Doctors.Appointments.Schedule'),
                 new MenuItem(this.l('Assigned Patients'), '/app/nurse/assigned-patients', 'fas fa-procedures', 'Pages.Nurse.Patients.View'),
                 new MenuItem(this.l('Vitals'), '/app/nurse/vitals-notes', 'fas fa-notes-medical', 'Pages.Nurse.Vitals.View'),
-                new MenuItem(this.l('Add Vitals'), '/app/nurse/vitals-notes/add', 'fas fa-plus-circle', 'Pages.Nurse.Vitals.Create'),
+                // new MenuItem(this.l('Add Vitals'), '/app/nurse/vitals-notes/add', 'fas fa-plus-circle', 'Pages.Nurse.Vitals.Create'),
                 new MenuItem(this.l('Medication Logs'), '/app/nurse/medication-log', 'fas fa-pills', 'Pages.Nurse.Medication.View'),
             ]),
 
@@ -80,15 +79,15 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
 
             // Lab Technician Section
             new MenuItem(this.l('Lab Technician'), '', 'fas fa-flask', 'Pages.LabTechnician', [
-                new MenuItem(this.l('Inventory'), '/app/lab-technician/inventory', 'fas fa-boxes', 'Pages.LabTechnician.Inventory.View'),
-                new MenuItem(this.l('Reports'), '/app/lab-technician/reports', 'fas fa-file-medical-alt', 'Pages.LabTechnician.Reports.View'),
+                // new MenuItem(this.l('Inventory'), '/app/lab-technician/inventory', 'fas fa-boxes', 'Pages.LabTechnician.Inventory.View'),
+                // new MenuItem(this.l('Reports'), '/app/lab-technician/reports', 'fas fa-file-medical-alt', 'Pages.LabTechnician.Reports.View'),
                 new MenuItem(this.l('Test Requests'), '/app/lab-technician/test-requests', 'fas fa-microscope', 'Pages.LabTechnician.TestRequests.Manage'),
             ]),
 
             // Pharmacist Section
             new MenuItem(this.l('Pharmacist'), '', 'fas fa-user-md', 'Pages.Pharmacist', [
                 new MenuItem(this.l('Inventory'), '/app/pharmacist/pharmacist-inventory', 'fas fa-capsules', 'Pages.Pharmacist.Inventory.View'),
-                new MenuItem(this.l('Prescriptions'), '/app/pharmacist/pharmacist-prescriptions', 'fas fa-prescription-bottle', 'Pages.Pharmacist.Prescriptions.View'),
+                // new MenuItem(this.l('Prescriptions'), '/app/pharmacist/pharmacist-prescriptions', 'fas fa-prescription-bottle', 'Pages.Pharmacist.Prescriptions.View'),
             ]),
         ];
     }

@@ -4,6 +4,7 @@ using Abp.Reflection.Extensions;
 using EMRSystem.Appointments.Dto;
 using EMRSystem.Authorization;
 using EMRSystem.BillingStaff.Dto;
+using EMRSystem.Departments.Dto;
 using EMRSystem.Doctor.Dto;
 using EMRSystem.LabReport.Dto;
 using EMRSystem.LabTechnician.Dto;
@@ -11,6 +12,7 @@ using EMRSystem.Nurse.Dto;
 using EMRSystem.Patients.Dto;
 using EMRSystem.Pharmacist.Dto;
 using EMRSystem.Prescriptions.Dto;
+using EMRSystem.Visits.Dto;
 using EMRSystem.Vitals.Dto;
 
 namespace EMRSystem;
@@ -46,5 +48,7 @@ public class EMRSystemApplicationModule : AbpModule
         Configuration.Modules.AbpAutoMapper().Configurators.Add(cfg => cfg.AddProfile<PharmacistMapProfile>());
         Configuration.Modules.AbpAutoMapper().Configurators.Add(cfg => cfg.AddProfile<AppointmentMapProfile>());
         Configuration.Modules.AbpAutoMapper().Configurators.Add(cfg => cfg.AddProfile<LabReportMapProfile>());
+        Configuration.Modules.AbpAutoMapper().Configurators.Add(cfg => cfg.AddProfile<VisitMapProfile>());
+        Configuration.Modules.AbpAutoMapper().Configurators.Add(cfg => cfg.AddProfile<DepartmentMapProfile>());
     }
 }

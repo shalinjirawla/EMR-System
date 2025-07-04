@@ -261,7 +261,6 @@ export class EditPrescriptionsComponent extends AppComponentBase implements OnIn
       });
       return dtoItem;
     });
-debugger
     this._prescriptionService.updatePrescriptionWithItem(input).subscribe({
       next: (res) => {
         this.notify.info(this.l('SavedSuccessfully'));
