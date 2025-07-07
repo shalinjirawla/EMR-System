@@ -1,39 +1,38 @@
 ﻿using Abp.Application.Services;
-using Abp.Application.Services.Dto;
-using Abp.Authorization;
 using Abp.Domain.Repositories;
 using Abp.EntityFrameworkCore.Repositories;
 using Abp.Extensions;
 using Abp.UI;
 using EMRSystem.Appointments;
-using EMRSystem.Authorization;
-using EMRSystem.Billings;
-using EMRSystem.BillingStaff;
-using EMRSystem.BillingStaff.Dto;
 using EMRSystem.Invoice.Dto;
 using EMRSystem.Invoices;
 using EMRSystem.Patients;
-using EMRSystem.Pharmacists;
-using EMRSystem.Prescriptions;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using Stripe;
+using Stripe.Checkout;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
+using InvoiceItem = EMRSystem.Invoices.InvoiceItem;
+using PaymentMethod = EMRSystem.Invoices.PaymentMethod;
 
 namespace EMRSystem.Invoice
 {
     public class InvoiceAppService : AsyncCrudAppService<EMRSystem.Invoices.Invoice, InvoiceDto, long,
      PagedInvoiceResultRequestDto, CreateUpdateInvoiceDto, CreateUpdateInvoiceDto>,
      IInvoiceAppService
-    {    
-        public InvoiceAppService(IRepository<EMRSystem.Invoices.Invoice, long> repository) : base(repository)
+    {
+        private readonly IConfiguration _configuration;
+        public InvoiceAppService(IRepository<EMRSystem.Invoices.Invoice, long> repository, IConfiguration configuration) : base(repository)
         {
+            _configuration = configuration;
+            StripeConfiguration.ApiKey = _configuration["Stripe:SecretKey"];
         }
 
         protected override IQueryable<EMRSystem.Invoices.Invoice> CreateFilteredQuery(PagedInvoiceResultRequestDto input)
@@ -246,6 +245,10 @@ namespace EMRSystem.Invoice
                 if (input.Items == null || !input.Items.Any())
                     throw new UserFriendlyException("Invoice must contain at least one item");
 
+                var initialStatus = input.PaymentMethod == PaymentMethod.Cash
+                       ? InvoiceStatus.Paid
+                       : InvoiceStatus.Unpaid;
+
                 // Create the invoice entity
                 var invoice = new EMRSystem.Invoices.Invoice
                 {
@@ -254,7 +257,7 @@ namespace EMRSystem.Invoice
                     AppointmentId = input.AppointmentId,
                     InvoiceDate = input.InvoiceDate,
                     DueDate = input.DueDate,
-                    Status = (InvoiceStatus)input.Status,
+                    Status = initialStatus,
                     PaymentMethod = (PaymentMethod?)input.PaymentMethod,
                     Items = new List<InvoiceItem>()
                 };
@@ -301,6 +304,65 @@ namespace EMRSystem.Invoice
             invoice.GstAmount = gstAmount;
             invoice.TotalAmount = subtotal + gstAmount;
         }
+        public async Task MarkAsPaid(long invoiceId)
+        {
+            try
+            {
+                var invoice = await Repository.GetAsync(invoiceId);
+                if (invoice == null)
+                    throw new UserFriendlyException("Invoice not found");
 
+                invoice.Status = InvoiceStatus.Paid;
+                await Repository.UpdateAsync(invoice);
+                await CurrentUnitOfWork.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Error marking invoice as paid", ex);
+                throw new UserFriendlyException("Error updating invoice status");
+            }
+        }
+
+        public async Task<string> CreateStripeCheckoutSession(long invoiceId, decimal amount, string successUrl, string cancelUrl)
+        {
+            try
+            {
+                var options = new SessionCreateOptions
+                {
+                    PaymentMethodTypes = new List<string> { "card" },
+                    LineItems = new List<SessionLineItemOptions>
+            {
+                new SessionLineItemOptions
+                {
+                    PriceData = new SessionLineItemPriceDataOptions
+                    {
+                        UnitAmount = (long)(amount * 100),
+                        Currency = "usd",
+                        ProductData = new SessionLineItemPriceDataProductDataOptions
+                        {
+                            Name = $"Invoice #{invoiceId}",
+                        },
+                    },
+                    Quantity = 1,
+                },
+            },
+                    Mode = "payment",
+                    SuccessUrl = successUrl,
+                    CancelUrl = cancelUrl,
+                    Metadata = new Dictionary<string, string>
+            {
+                { "invoiceId", invoiceId.ToString() }
+            }
+                };
+
+                var service = new SessionService();
+                var session = await service.CreateAsync(options);
+                return session.Url; 
+            }
+            catch (StripeException e)
+            {
+                throw new UserFriendlyException("Stripe checkout creation failed: " + e.Message);
+            }
+        }
     }
     }

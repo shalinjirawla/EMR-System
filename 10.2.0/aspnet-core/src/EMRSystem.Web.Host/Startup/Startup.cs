@@ -3,9 +3,10 @@ using Abp.AspNetCore.Mvc.Antiforgery;
 using Abp.AspNetCore.SignalR.Hubs;
 using Abp.Castle.Logging.Log4Net;
 using Abp.Extensions;
+using Castle.Facilities.Logging;
 using EMRSystem.Configuration;
 using EMRSystem.Identity;
-using Castle.Facilities.Logging;
+using EMRSystem.Stripe;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -13,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using Stripe;
 using System;
 using System.IO;
 using System.Linq;
@@ -38,6 +40,8 @@ namespace EMRSystem.Web.Host.Startup
         public void ConfigureServices(IServiceCollection services)
         {
             //MVC
+            services.Configure<StripeSettings>(_appConfiguration.GetSection("Stripe"));
+            StripeConfiguration.ApiKey = _appConfiguration["Stripe:SecretKey"];
             services.AddControllersWithViews(options =>
             {
                 options.Filters.Add(new AbpAutoValidateAntiforgeryTokenAttribute());
