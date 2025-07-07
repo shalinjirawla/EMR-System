@@ -1813,6 +1813,11 @@
   "resolved" "https://registry.npmjs.org/@socket.io/component-emitter/-/component-emitter-3.1.2.tgz"
   "version" "3.1.2"
 
+"@stripe/stripe-js@^7.4.0":
+  "integrity" "sha512-lQHQPfXPTBeh0XFjq6PqSBAyR7umwcJbvJhXV77uGCUDD6ymXJU/f2164ydLMLCCceNuPlbV9b+1smx98efwWQ=="
+  "resolved" "https://registry.npmjs.org/@stripe/stripe-js/-/stripe-js-7.4.0.tgz"
+  "version" "7.4.0"
+
 "@tsconfig/node10@^1.0.7":
   "integrity" "sha512-DcRjDCujK/kCk/cUe8Xz8ZSpm8mS3mNNpta+jGCA6USEDfktlNvm1+IuZ9eTcDbNk41BHwpHHeW+N1lKCz4zOw=="
   "resolved" "https://registry.npmjs.org/@tsconfig/node10/-/node10-1.0.11.tgz"
@@ -7015,6 +7020,11 @@
   dependencies:
     "fast-diff" "^1.1.2"
 
+"prettier@>=3.0.0":
+  "integrity" "sha512-I7AIg5boAr5R0FFtJ6rCfD+LFsWHp81dolrFD8S79U9tb8Az2nGrJncnMSnys+bpQJfRUzqs9hnA81OAA3hCuQ=="
+  "resolved" "https://registry.npmjs.org/prettier/-/prettier-3.6.2.tgz"
+  "version" "3.6.2"
+
 "primeicons@^7.0.0":
   "integrity" "sha512-jK3Et9UzwzTsd6tzl2RmwrVY/b8raJ3QZLzoDACj+oTJ0oX7L9Hy+XnVwgo4QVKlKpnP/Ur13SXV/pVh4LzaDw=="
   "resolved" "https://registry.npmjs.org/primeicons/-/primeicons-7.0.0.tgz"
@@ -9222,3 +9232,8 @@
   "integrity" "sha512-OdqJE9UDRPwWsrHjLN2F8bPxvwJBK22EHLWtanu0LSYr5YqzsaaW3RMgmjwr8Rypg5k+meEJdSPXJZXE/yqOMg=="
   "resolved" "https://registry.npmjs.org/zod/-/zod-3.24.4.tgz"
   "version" "3.24.4"
+
+"zone.js@~0.15.0":
+  "integrity" "sha512-XE96n56IQpJM7NAoXswY3XRLcWFW83xe0BiAOeMD7K5k5xecOeul3Qcpx6GqEeeHNkW5DWL5zOyTbEfB4eti8w=="
+  "resolved" "https://registry.npmjs.org/zone.js/-/zone.js-0.15.1.tgz"
+  "version" "0.15.1"

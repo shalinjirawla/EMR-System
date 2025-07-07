@@ -42,8 +42,34 @@ export class InvoicesComponent extends PagedListingComponentBase<InvoiceDto> {
         cd: ChangeDetectorRef
     ) {
         super(injector, cd);
+        this.processPaymentResult();
         this.keyword = this._activatedRoute.snapshot.queryParams['filterText'] || '';
     }
+    private processPaymentResult(): void {
+    const params = new URLSearchParams(window.location.search);
+    const paymentStatus = params.get('payment');
+    const invoiceId = params.get('invoiceId');
+
+    if (paymentStatus && invoiceId) {
+        const id = Number(invoiceId);
+
+        if (paymentStatus === 'success') {
+            this._invoiceService.markAsPaid(id).subscribe({
+                next: () => {  // Remove the success parameter
+                    this.notify.success('Payment processed successfully!');
+                    this.refresh(); // Refresh invoice list
+                },
+                error: () => this.notify.error('Error verifying payment')
+            });
+        } 
+        else if (paymentStatus === 'canceled') {
+            this.notify.warn('Payment was canceled');
+        }
+
+        // Clear URL parameters
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+}
 
     clearFilters(): void {
         this.keyword = '';

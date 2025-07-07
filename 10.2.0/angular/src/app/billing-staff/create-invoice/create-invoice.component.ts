@@ -1,40 +1,54 @@
+// Updated Component Class
 import { ChangeDetectorRef, Component, EventEmitter, Injector, OnInit, Output, ViewChild } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { CalendarModule } from 'primeng/calendar';
-import { DatePickerModule } from '@node_modules/primeng/datepicker';
 import { AppComponentBase } from '@shared/app-component-base';
 import { AppointmentServiceProxy, CreateUpdateInvoiceDto, InvoiceItemDto, InvoiceItemType, InvoiceServiceProxy, InvoiceStatus, PatientDropDownDto, PatientServiceProxy, PaymentMethod } from '@shared/service-proxies/service-proxies';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { CommonModule } from '@angular/common';
-
 import { AbpModalFooterComponent } from "../../../shared/components/modal/abp-modal-footer.component";
 import { AbpModalHeaderComponent } from "../../../shared/components/modal/abp-modal-header.component";
 import { DropdownModule } from 'primeng/dropdown';
 import { SelectModule } from 'primeng/select';
 import moment from 'moment';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 @Component({
   selector: 'app-create-invoice',
-  imports: [FormsModule, CalendarModule, DropdownModule, CommonModule, SelectModule, AbpModalFooterComponent, AbpModalHeaderComponent],
+  standalone: true,
+  imports: [
+    FormsModule,
+    CalendarModule,
+    DropdownModule,
+    CommonModule,
+    SelectModule,
+    AbpModalFooterComponent,
+    AbpModalHeaderComponent,
+    ProgressSpinnerModule
+  ],
   templateUrl: './create-invoice.component.html',
   styleUrl: './create-invoice.component.css',
-  providers: [PatientServiceProxy, AppointmentServiceProxy, InvoiceServiceProxy]
+  providers: [PatientServiceProxy, InvoiceServiceProxy]
 })
 export class CreateInvoiceComponent extends AppComponentBase implements OnInit {
   @ViewChild('invoiceForm') invoiceForm: NgForm;
   @Output() onSave = new EventEmitter<any>();
 
+  isProcessingPayment = false;
   saving = false;
   patients: PatientDropDownDto[] = [];
-  appointments: any[] = [];
-  invoiceData: any;
-  // Add this to your component class
   moment = moment;
+  minDate: Date;
+  maxDate: Date;
+  showDateError = false;
+  createdInvoice: any;
+  paymentProcessingError = '';
 
-  statusOptions = [
-    { label: 'Unpaid', value: InvoiceStatus._0 },
-    { label: 'Paid', value: InvoiceStatus._1 },
-    { label: 'Partial Paid', value: InvoiceStatus._2 }
+  // Item type options for dropdown
+  itemTypeOptions = [
+    { label: 'Consultation', value: InvoiceItemType._0 },
+    { label: 'Medicine', value: InvoiceItemType._1 },
+    { label: 'Lab Test', value: InvoiceItemType._2 }
   ];
 
   paymentMethodOptions = [
@@ -42,14 +56,25 @@ export class CreateInvoiceComponent extends AppComponentBase implements OnInit {
     { label: 'Card', value: PaymentMethod._1 }
   ];
 
-  // Update your invoice model in the component
+  // Template for new items
+  newItem = {
+    itemType: InvoiceItemType._0,  // Initialize with a specific enum value
+    description: '',
+    unitPrice: 0,
+    quantity: 1
+  };
+  
+    getItemTypeLabel(type: InvoiceItemType): string {
+  const option = this.itemTypeOptions.find(opt => opt.value === type);
+  return option ? option.label : 'Unknown';
+}
+
   invoice = {
     tenantId: abp.session.tenantId,
     patientId: null as number | null,
-    appointmentId: null as number | null,
     dueDate: moment().add(15, 'days'),
-    status: InvoiceStatus._0, // Unpaid
-    paymentMethod: null as PaymentMethod | null,
+    status: InvoiceStatus._0,
+    paymentMethod: PaymentMethod._0 as PaymentMethod | null,
     items: [] as InvoiceItemDto[]
   };
 
@@ -58,14 +83,29 @@ export class CreateInvoiceComponent extends AppComponentBase implements OnInit {
     public bsModalRef: BsModalRef,
     private cd: ChangeDetectorRef,
     private _patientService: PatientServiceProxy,
-    private _appointmentService: AppointmentServiceProxy,
     private _invoiceService: InvoiceServiceProxy
   ) {
     super(injector);
+    const today = new Date();
+    this.minDate = today;
+    this.maxDate = new Date();
+    this.maxDate.setDate(today.getDate() + 15);
   }
 
   ngOnInit(): void {
     this.loadPatients();
+  }
+
+  validateDueDate(): void {
+    if (this.invoice.dueDate) {
+      const selectedDate = moment(this.invoice.dueDate);
+      const today = moment();
+      const maxAllowedDate = moment().add(15, 'days');
+
+      this.showDateError = selectedDate.isBefore(today, 'day') || selectedDate.isAfter(maxAllowedDate, 'day');
+    } else {
+      this.showDateError = false;
+    }
   }
 
   loadPatients(): void {
@@ -76,170 +116,133 @@ export class CreateInvoiceComponent extends AppComponentBase implements OnInit {
       });
   }
 
-  onPatientChange(patientId: number): void {
-    this.invoice.appointmentId = null;
-    this.invoiceData = null;
-    this.invoice.items = [];
-
-    if (patientId) {
-      this.loadAppointments(patientId);
-    } else {
-      this.appointments = [];
-    }
+  // Item management methods
+  canAddItem(): boolean {
+    return this.newItem.description.trim() !== '' &&
+      this.newItem.unitPrice > 0 &&
+      this.newItem.quantity > 0;
   }
-
-  loadAppointments(patientId: number): void {
-    this._appointmentService.getByPatient(patientId)
-      .subscribe({
-        next: (res) => {
-          // Access appointments through res.result.items
-          this.appointments = res.items.map(appointment => ({
-            ...appointment,
-            displayText: `${this.formatTime(appointment.startTime)} - ${this.formatTime(appointment.endTime)} - ${appointment.doctor?.fullName || 'Unknown Doctor'}`
-          }));
-        },
-        error: (err) => {
-          this.notify.error('Failed to load appointments');
-          console.error('Error loading appointments:', err);
-        }
-      });
-  }
-
-  // Time formatting helper
-  private formatTime(timeString: string): string {
-    if (!timeString) return '';
-
-    try {
-      // Handle time strings like "11:00:53" or "15:10:36"
-      const timeParts = timeString.split(':');
-      const hours = parseInt(timeParts[0], 10);
-      const minutes = timeParts[1];
-
-      const period = hours >= 12 ? 'PM' : 'AM';
-      const displayHours = hours % 12 || 12; // Convert 0 to 12 for 12-hour format
-
-      return `${displayHours}:${minutes} ${period}`;
-    } catch (e) {
-      console.warn('Could not format time:', timeString);
-      return timeString; // Return original if formatting fails
-    }
-  }
-
-  onAppointmentChange(appointmentId: number): void {
-    if (appointmentId) {
-      this.loadInvoiceDetails(appointmentId);
-    } else {
-      this.invoiceData = null;
-      this.invoice.items = [];
-    }
-  }
-
-  loadInvoiceDetails(appointmentId: number): void {
-    this._invoiceService.getInvoiceDetailsByAppointmentIdUsingSp(appointmentId)
-      .subscribe({
-        next: (result) => {
-          this.invoiceData = result;
-          this.prepareInvoiceItems();
-        },
-        error: () => this.notify.error('No prescription found for the given appointment')
-      });
-  }
-
-  prepareInvoiceItems(): void {
-    this.invoice.items = [];
-    
-    // Add consultation fee
-    const consultationFee = this.invoiceData.consultationFee;
-    this.invoice.items.push({
-      itemType: InvoiceItemType._0, // Consultation
-      description: 'Consultation Fee',
-      unitPrice: consultationFee,
-      quantity: 1,
-      totalPrice: consultationFee * 1 // quantity is 1
-    } as InvoiceItemDto);
-
-    // Add lab tests
-    this.invoiceData.labTests.forEach(test => {
-      const testPrice = test.price;
-      const testQuantity = 1;
-      this.invoice.items.push({
-        itemType: InvoiceItemType._2, // LabTest
-        description: test.testName,
-        unitPrice: testPrice,
-        quantity: testQuantity,
-        totalPrice: testPrice * testQuantity,
-      } as InvoiceItemDto);
-    });
-
-    // Add medicines
-    this.invoiceData.medicines.forEach(medicine => {
-      const medicinePrice = medicine.price;
-      const medicineQuantity = medicine.quantity;
-      this.invoice.items.push({
-        itemType: InvoiceItemType._1, // Medicine
-        description: medicine.medicineName,
-        unitPrice: medicinePrice,
-        quantity: medicineQuantity,
-        totalPrice: medicinePrice * medicineQuantity
-      } as InvoiceItemDto);
-    });
+  // In your component class
+onItemTypeChange(event: any) {
+    this.newItem.itemType = event.value.value;
 }
+  addItem(): void {
+    const item = new InvoiceItemDto();
 
-  formatDate(dateString: string): string {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    // Set properties directly
+    item.itemType = this.newItem.itemType;
+    item.description = this.newItem.description;
+    item.unitPrice = this.newItem.unitPrice;
+    item.quantity = this.newItem.quantity;
+    item.totalPrice = this.newItem.unitPrice * this.newItem.quantity;
+
+    // Set default values for other required properties
+    item.id = 0;
+    item.invoiceId = 0;
+debugger
+    this.invoice.items.push(item);
+
+    // Reset new item form WITHOUT changing the itemType
+    this.newItem = {
+      itemType: this.newItem.itemType, // Keep the same item type
+      description: '',
+      unitPrice: 0,
+      quantity: 1
+    };
+  }
+
+  removeItem(index: number): void {
+    this.invoice.items.splice(index, 1);
+  }
+
+
+
+  // Calculation methods
+  calculateSubtotal(): number {
+    return this.invoice.items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
+  }
+
+  calculateGst(): number {
+    return this.calculateSubtotal() * 0.18; // 18% GST
+  }
+
+  calculateTotal(): number {
+    return this.calculateSubtotal() + this.calculateGst();
   }
 
   isSaveDisabled(): boolean {
-    return !this.invoiceForm?.valid || this.saving || !this.invoiceData;
+    return !this.invoiceForm?.valid ||
+      this.saving ||
+      this.invoice.items.length === 0 ||
+      !this.invoice.patientId ||
+      this.showDateError;
+  }
+
+  private async redirectToStripeCheckout(invoiceId: number, amount: number): Promise<void> {
+    this.isProcessingPayment = true;
+    this.paymentProcessingError = '';
+
+    try {
+      const baseUrl = window.location.origin + '/app/billing-staff';
+      const successUrl = `${baseUrl}/invoices?payment=success&invoiceId=${invoiceId}`;
+      const cancelUrl = `${baseUrl}/invoices?payment=canceled&invoiceId=${invoiceId}`;
+
+      const checkoutUrl = await this._invoiceService
+        .createStripeCheckoutSession(invoiceId, amount, successUrl, cancelUrl)
+        .toPromise();
+
+      window.location.href = checkoutUrl;
+    } catch (error) {
+      this.isProcessingPayment = false;
+      this.paymentProcessingError = error.message || 'Failed to start payment process';
+      this.notify.error(this.paymentProcessingError);
+    }
   }
 
   save(): void {
     this.saving = true;
+    this.isProcessingPayment = true;
 
-    // Create the invoice items first
-    const invoiceItems = this.invoice.items.map(item => {
-        const itemDto = new InvoiceItemDto();
-        itemDto.itemType = item.itemType;
-        itemDto.description = item.description;
-        itemDto.unitPrice = item.unitPrice;
-        itemDto.quantity = item.quantity;
-        return itemDto;
-    });
-
-    // Create the complete invoice DTO
     const input = new CreateUpdateInvoiceDto({
-       id: 0,
-        tenantId: abp.session.tenantId,
-        patientId: this.invoice.patientId,
-        appointmentId: this.invoice.appointmentId,
-        invoiceDate: moment(), // Current date/time
-        dueDate: moment(this.invoice.dueDate),
-        status: this.invoice.status,
-        paymentMethod: this.invoice.paymentMethod,
-        items: invoiceItems,
-        subTotal:this.invoiceData.subTotal , 
-        gstAmount: this.invoiceData.gstAmount,
-        totalAmount: this.invoiceData.totalAmount
+      id: 0,
+      tenantId: abp.session.tenantId,
+      appointmentId: 1,
+      patientId: this.invoice.patientId,
+      invoiceDate: moment(),
+      dueDate: moment(this.invoice.dueDate),
+      status: this.invoice.status,
+      paymentMethod: this.invoice.paymentMethod,
+      items: this.invoice.items,
+      subTotal: this.calculateSubtotal(),
+      gstAmount: this.calculateGst(),
+      totalAmount: this.calculateTotal()
     });
-debugger
-    this._invoiceService.create(input)
-        .subscribe({
-            next: () => {
-                this.notify.success('Invoice created successfully');
-                this.bsModalRef.hide();
-                this.onSave.emit();
-            },
-            error: (err) => {
-                this.notify.error('Failed to create invoice');
-                console.error('Invoice creation error:', err);
-                this.saving = false;
-            }
-        });
-}
+
+    this._invoiceService.create(input).subscribe({
+      next: (createdInvoice) => {
+        this.createdInvoice = createdInvoice;
+
+        if (this.invoice.paymentMethod === PaymentMethod._1) {
+          this.bsModalRef.hide();
+          this.redirectToStripeCheckout(
+            createdInvoice.id,
+            this.calculateTotal()
+          );
+        } else {
+          // Cash payment
+          this.isProcessingPayment = false;
+          this.saving = false;
+          this.notify.success('Invoice created successfully');
+          this.bsModalRef.hide();
+          this.onSave.emit();
+        }
+      },
+      error: (err) => {
+        this.isProcessingPayment = false;
+        this.saving = false;
+        this.notify.error('Failed to create invoice');
+        console.error('Invoice creation error:', err);
+      }
+    });
+  }
 }
