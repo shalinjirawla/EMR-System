@@ -109,6 +109,9 @@
                                     <th>
                                         Age/Gender
                                     </th>
+                                    <th style="min-width: 80px" *ngIf="showDoctorColumn">
+                                        Assigned Doctor
+                                    </th>
                                     <th style="min-width: 80px">
                                         Assigned Nurse
                                     </th>
@@ -124,6 +127,7 @@
                             <ng-template pTemplate="body" let-record="$implicit">
                                 <tr>
                                     <td>
+                                        <!-- <img [src]="getRandomAvatar()" class="rounded-circle mr-2" /> -->
                                         <span>
                                             {{ record.fullName }}
                                         </span>
@@ -136,6 +140,11 @@
                                     <td>
                                         <span>
                                             {{calculateAge(record.dateOfBirth)}} • {{record.gender}}
+                                        </span>
+                                    </td>
+                                     <td *ngIf="showDoctorColumn">
+                                        <span>
+                                            {{ record.doctorName }}
                                         </span>
                                     </td>
                                     <td>

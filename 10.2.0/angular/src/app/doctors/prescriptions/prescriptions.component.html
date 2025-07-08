@@ -86,7 +86,7 @@
                                         Patient
                                         <p-sortIcon field="patientName"></p-sortIcon>
                                     </th>
-                                    <th style="min-width: 150px" pSortableColumn="doctorName">
+                                    <th style="min-width: 150px" pSortableColumn="doctorName" *ngIf="showDoctorColumn">
                                         Doctor
                                         <p-sortIcon field="doctorName"></p-sortIcon>
                                     </th>
@@ -110,7 +110,7 @@
                                             {{ record.patient.fullName }}
                                         </span>
                                     </td>
-                                    <td>
+                                    <td *ngIf="showDoctorColumn">
                                         <span>
                                             Dr. {{ record.doctor.fullName }}
                                         </span>

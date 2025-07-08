@@ -3,6 +3,7 @@ using EMRSystem.Appointments;
 using EMRSystem.Authorization.Roles;
 using EMRSystem.Authorization.Users;
 using EMRSystem.Billings;
+using EMRSystem.Departments;
 using EMRSystem.Doctors;
 using EMRSystem.Invoices;
 using EMRSystem.LabReports;
@@ -12,6 +13,7 @@ using EMRSystem.Nurses;
 using EMRSystem.Patients;
 using EMRSystem.Pharmacists;
 using EMRSystem.Prescriptions;
+using EMRSystem.Visits;
 using EMRSystem.Vitals;
 using Microsoft.EntityFrameworkCore;
 
@@ -39,6 +41,8 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
     public DbSet<PrescriptionLabTest> PrescriptionLabTests { get; set; }
     public DbSet<Invoice> Invoices{ get; set; }
     public DbSet<InvoiceItem> InvoiceItems { get; set; }
+    public DbSet<Visit> Visits { get; set; }
+    public DbSet<Department> Departments { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -224,5 +228,28 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
             b.HasIndex(ii => ii.InvoiceId);
         });
 
+        modelBuilder.Entity<Visit>()
+           .HasOne(s => s.Patient)
+           .WithMany(e => e.Visit)
+           .HasForeignKey(s => s.PatientId)
+           .OnDelete(DeleteBehavior.NoAction); // or NoAction
+
+        modelBuilder.Entity<Visit>()
+          .HasOne(s => s.Nurse)
+          .WithMany(e => e.Visits)
+          .HasForeignKey(s => s.NurseId)
+          .OnDelete(DeleteBehavior.NoAction); // or NoAction
+
+        modelBuilder.Entity<Visit>()
+          .HasOne(s => s.Doctor)
+          .WithMany(e => e.Visits)
+          .HasForeignKey(s => s.DoctorId)
+          .OnDelete(DeleteBehavior.NoAction); // or NoAction
+
+        modelBuilder.Entity<Visit>()
+          .HasOne(s => s.Department)
+          .WithMany(e => e.Visits)
+          .HasForeignKey(s => s.DepartmentId)
+          .OnDelete(DeleteBehavior.NoAction); // or NoAction
     }
 }

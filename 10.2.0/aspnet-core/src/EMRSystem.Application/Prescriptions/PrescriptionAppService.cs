@@ -14,9 +14,11 @@ using EMRSystem.Prescriptions.Dto;
 using EMRSystem.Users.Dto;
 using EMRSystem.Vitals.Dto;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Linq.Dynamic.Core;
@@ -29,11 +31,13 @@ namespace EMRSystem.Prescriptions
    IPrescriptionAppService
     {
         private readonly IDoctorAppService _doctorAppService;
+        private readonly UserManager _userManager;
         public PrescriptionAppService(IRepository<Prescription, long> repository
-            , IDoctorAppService doctorAppService
+            , IDoctorAppService doctorAppService, UserManager userManager
             ) : base(repository)
         {
             _doctorAppService = doctorAppService;
+            _userManager = userManager;
         }
         protected override IQueryable<Prescription> CreateFilteredQuery(PagedPrescriptionResultRequestDto input)
         {
@@ -181,7 +185,7 @@ namespace EMRSystem.Prescriptions
             existingPrescription.LabTests.Clear();
             foreach (var labTestId in input.LabTestIds)
             {
-                existingPrescription.LabTests.Add(new  EMRSystem.LabReports.PrescriptionLabTest
+                existingPrescription.LabTests.Add(new EMRSystem.LabReports.PrescriptionLabTest
                 {
                     LabReportsTypeId = labTestId,
                     PrescriptionId = input.Id
@@ -257,6 +261,16 @@ namespace EMRSystem.Prescriptions
             prescription.LabTestIds = details.LabTests.Select(lt => (int)lt.LabReportsTypeId).ToList();
 
             return prescription;
+        }
+
+        [HttpGet]
+        public async Task<List<string>> GetCurrentUserRolesAsync()
+        {
+            if (!AbpSession.UserId.HasValue)
+                return null;
+            var user = await _userManager.GetUserByIdAsync(AbpSession.UserId.Value);
+            var roles = await _userManager.GetRolesAsync(user);
+            return roles.ToList();
         }
     }
 }

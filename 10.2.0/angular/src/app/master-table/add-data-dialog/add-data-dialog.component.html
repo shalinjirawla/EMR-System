@@ -2,7 +2,8 @@
   <div class="p-fluid p-3">
     <div class="field mb-4">
       <label for="name" class="block font-medium mb-2">
-        {{ dataType === 'report' ? 'Report' : 'Diagnosis' }} Name *
+        <!-- {{ dataType === 'report' ? 'Report' : 'Diagnosis' }} Name * -->
+        {{ getLabel() }} Name *
       </label>
       <input 
         pInputText 
@@ -12,7 +13,7 @@
         class="w-full" 
         autocomplete="off"
         (keyup.enter)="save()"
-        placeholder="Enter {{ dataType === 'report' ? 'report' : 'diagnosis' }} name..."
+        placeholder="Enter {{ getLabel().toLowerCase() }} name..."
         [disabled]="saving"
       />
     </div>

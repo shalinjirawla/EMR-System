@@ -102,7 +102,7 @@
                                     <th style="min-width: 100px">
                                         Appointment Date
                                     </th>
-                                    <th style="min-width: 100px" pSortableColumn="patientName">
+                                    <th style="min-width: 100px" pSortableColumn="doctorName" *ngIf="showDoctorColumn">
                                         Referred By
                                         <p-sortIcon field="patientName"></p-sortIcon>
                                     </th>
@@ -135,7 +135,7 @@
                                             {{ record.appointmentDate | date: 'dd/MM/yyyy' }}
                                         </span>
                                     </td>
-                                    <td>
+                                    <td *ngIf="showDoctorColumn">
                                         <span>
                                             Dr. {{ record.doctorName }}
                                         </span>

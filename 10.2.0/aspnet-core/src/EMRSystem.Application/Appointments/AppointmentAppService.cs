@@ -19,6 +19,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
+using EMRSystem.Doctor;
+using EMRSystem.Nurse;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Abp.Authorization.Users;
+using EMRSystem.LabReports;
 
 
 namespace EMRSystem.Appointments
@@ -27,13 +34,23 @@ namespace EMRSystem.Appointments
     public class AppointmentAppService : AsyncCrudAppService<EMRSystem.Appointments.Appointment, AppointmentDto, long, PagedAppoinmentResultRequestDto, CreateUpdateAppointmentDto, CreateUpdateAppointmentDto>,
   IAppointmentAppService
     {
-        public AppointmentAppService(IRepository<EMRSystem.Appointments.Appointment, long> repository) : base(repository)
+        private readonly IDoctorAppService _doctorAppService;
+        private readonly INurseAppService _nurseAppService;
+        private readonly UserManager _userManager;
+        public AppointmentAppService(IRepository<EMRSystem.Appointments.Appointment, long> repository
+            , IDoctorAppService doctorAppService, INurseAppService nurseAppService, UserManager userManager
+            ) : base(repository)
         {
+            _doctorAppService = doctorAppService;
+            _nurseAppService = nurseAppService;
+            _userManager = userManager;
         }
-
-
         protected override IQueryable<Appointment> CreateFilteredQuery(PagedAppoinmentResultRequestDto input)
         {
+            var userId = AbpSession.UserId;
+            var doctor = _doctorAppService.GetDoctorDetailsByAbpUserID(userId.Value);
+            var nurse = _nurseAppService.GetNurseDetailsByAbpUserID(userId.Value);
+
             // Start with base query without projection
             var baseQuery = Repository
                 .GetAll()
@@ -41,7 +58,16 @@ namespace EMRSystem.Appointments
                 .Include(x => x.Doctor)
                 .Include(x => x.Nurse);
 
-            var filteredQuery = baseQuery.AsQueryable(); // Explicitly convert to IQueryable
+            var filteredQuery = baseQuery.Where(x => x.TenantId == AbpSession.TenantId.Value).AsQueryable(); // Explicitly convert to IQueryable
+
+            if (doctor != null)
+            {
+                filteredQuery = filteredQuery.Where(i => i.DoctorId == doctor.Id);
+            }
+            else if (nurse != null)
+            {
+                filteredQuery = filteredQuery.Where(i => i.NurseId == nurse.Id);
+            }
 
             if (!input.Keyword.IsNullOrWhiteSpace())
             {
@@ -179,6 +205,22 @@ namespace EMRSystem.Appointments
         {
             var appointment = ObjectMapper.Map<Appointment>(input);
             await Repository.UpdateAsync(appointment);
+            CurrentUnitOfWork.SaveChanges();
+        }
+        [HttpGet]
+        public async Task<List<string>> GetCurrentUserRolesAsync()
+        {
+            var user = await _userManager.GetUserByIdAsync(AbpSession.UserId.Value);
+            var roles = await _userManager.GetRolesAsync(user);
+            return roles.ToList();
+        }
+        public async Task MarkAsAction(long id, AppointmentStatus appointmentStatus)
+        {
+            var data = await Repository.GetAsync(id);
+            if (data == null)
+                return;
+            data.Status = appointmentStatus;
+            await Repository.UpdateAsync(data);
             CurrentUnitOfWork.SaveChanges();
         }
     }

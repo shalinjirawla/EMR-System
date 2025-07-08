@@ -1,4 +1,4 @@
-import { Component, ViewChild, Injector, ChangeDetectorRef } from "@angular/core";
+import { Component, ViewChild, Injector, ChangeDetectorRef, OnInit } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
@@ -24,22 +24,21 @@ import moment from 'moment';
 @Component({
   selector: 'app-prescriptions',
   animations: [appModuleAnimation()],
-  imports: [FormsModule, TableModule, PrimeTemplate,CalendarModule, NgIf, PaginatorModule, ButtonModule, LocalizePipe, DatePipe, CommonModule, OverlayPanelModule, MenuModule],
+  imports: [FormsModule, TableModule, PrimeTemplate, CalendarModule, NgIf, PaginatorModule, ButtonModule, LocalizePipe, DatePipe, CommonModule, OverlayPanelModule, MenuModule],
   templateUrl: './prescriptions.component.html',
   styleUrl: './prescriptions.component.css',
   providers: [PrescriptionServiceProxy]
 })
-export class PrescriptionsComponent extends PagedListingComponentBase<PrescriptionDto> {
+export class PrescriptionsComponent extends PagedListingComponentBase<PrescriptionDto> implements OnInit {
   @ViewChild('dataTable', { static: true }) dataTable: Table;
   @ViewChild('paginator', { static: true }) paginator: Paginator;
-
   prescriptions: PrescriptionDto[] = [];
   keyword = '';
   dateRange: Date[];
-
   isActive: boolean | null;
   advancedFiltersVisible = false;
-
+  showDoctorColumn: boolean = false;
+  showNurseColumn: boolean = false;
   constructor(
     injector: Injector,
     private _modalService: BsModalService,
@@ -50,13 +49,14 @@ export class PrescriptionsComponent extends PagedListingComponentBase<Prescripti
     super(injector, cd);
     this.keyword = this._activatedRoute.snapshot.queryParams['filterText'] || '';
   }
-
+  ngOnInit(): void {
+    this.GetLoggedInUserRole();
+  }
   clearFilters(): void {
     this.keyword = '';
     this.dateRange = [];
     this.list();
   }
-
   list(event?: LazyLoadEvent): void {
     if (this.primengTableHelper.shouldResetPaging(event)) {
       this.paginator.changePage(0);
@@ -88,8 +88,6 @@ export class PrescriptionsComponent extends PagedListingComponentBase<Prescripti
         this.cd.detectChanges();
       });
   }
-
-
   protected delete(entity: PrescriptionDto): void {
     abp.message.confirm("Are you sure u want to delete this", undefined, (result: boolean) => {
       if (result) {
@@ -124,6 +122,24 @@ export class PrescriptionsComponent extends PagedListingComponentBase<Prescripti
 
     createOrEditUserDialog.content.onSave.subscribe(() => {
       this.refresh();
+    });
+  }
+  GetLoggedInUserRole() {
+    this._prescriptionService.getCurrentUserRoles().subscribe(res => {
+      this.showDoctorColumn = false;
+      this.showNurseColumn = false;
+      debugger
+      if (res && Array.isArray(res)) {
+        if (res.includes('Admin')) {
+          this.showDoctorColumn = true;
+          this.showNurseColumn = true;
+        } else if (res.includes('Doctors')) {
+          this.showNurseColumn = true;
+        } else if (res.includes('Nurse')) {
+          this.showDoctorColumn = true;
+        }
+      }
+      this.cd.detectChanges();
     });
   }
 }

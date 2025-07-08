@@ -1,4 +1,19 @@
-<!-- <div [@routerTransition]>
+<div [@routerTransition]>
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-6">
+                    <h1>Patients</h1>
+                </div>
+                <div class="col-6 text-right">
+                    <a href="javascript:;" class="btn bg-blue" (click)="createVisit()">
+                        <i class="fa fa-plus-square"></i>
+                        {{ 'Create' | localize }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
     <section class="content px-2 pb-3">
         <div class="container-fluid">
             <div class="card table-wrapper">
@@ -83,31 +98,19 @@
                             [tableStyle]="{ 'min-width': '50rem' }" (onLazyLoad)="list($event)">
                             <ng-template pTemplate="header">
                                 <tr>
-                                    <th style="min-width: 100px" pSortableColumn="userName">
-                                        {{ 'UserName' | localize }}
-                                        <p-sortIcon field="userName"></p-sortIcon>
+                                    <th style="min-width: 150px" pSortableColumn="patientName">
+                                        Patient Name
+                                        <p-sortIcon field="patientName"></p-sortIcon>
                                     </th>
-                                    <th style="min-width: 150px" pSortableColumn="name">
-                                        {{ 'FullName' | localize }}
-                                        <p-sortIcon field="name"></p-sortIcon>
+                                    <th style="min-width: 150px" pSortableColumn="department">
+                                        Department
+                                        <p-sortIcon field="department"></p-sortIcon>
                                     </th>
-                                    <th style="min-width: 150px" pSortableColumn="emailAddress">
-                                        {{ 'EmailAddress' | localize }}
-                                        <p-sortIcon field="emailAddress"></p-sortIcon>
-                                    </th>
-                                    <th style="min-width: 30px" pSortableColumn="bloodGroup">
-                                        {{ 'BloodGroup' | localize }}
-                                        <p-sortIcon field="bloodGroup"></p-sortIcon>
-                                    </th>
-                                    <th style="min-width: 150px" pSortableColumn="insuranceProvider">
-                                        {{ 'Insurance Provider' | localize }}
-                                        <p-sortIcon field="insuranceProvider"></p-sortIcon>
+                                    <th *ngIf="showDoctorColumn">
+                                        Doctor
                                     </th>
                                     <th style="min-width: 80px">
-                                        {{ 'Doctor' | localize }}
-                                    </th>
-                                    <th style="min-width: 50px">
-                                        {{ 'IsActive' | localize }}
+                                        Status
                                     </th>
                                     <th style="min-width: 130px">
                                         {{ 'Actions' | localize }}
@@ -119,50 +122,38 @@
                                 <tr>
                                     <td>
                                         <span>
-                                            {{ record.userName }}
+                                            {{ record.patient.fullName }}
                                         </span>
                                     </td>
                                     <td>
                                         <span>
-                                            {{ record.fullName }}
+                                            {{ record.department.name }}
+                                        </span>
+                                    </td>
+                                    <td *ngIf="showDoctorColumn">
+                                        <span>
+                                           Dr. {{ record.doctor.fullName }}
                                         </span>
                                     </td>
                                     <td>
                                         <span>
-                                            {{ record.emailAddress }}
+                                           Active
                                         </span>
                                     </td>
                                     <td>
-                                        <span>
-                                            {{ record.bloodGroup }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span>
-                                            {{ record.insuranceProvider }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span>
-                                            {{ record.doctors }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span>
-                                            {{ record.isActive }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <button type="button" class="btn btn-sm bg-secondary"
-                                            (click)="editAppoinment(record)">
-                                            <i class="fas fa-pencil-alt"></i>
-                                            {{ 'Edit' | localize }}
+                                        <button type="button" pButton icon="pi pi-ellipsis-v" class="p-button-text"
+                                            (click)="rowMenu.toggle($event); selectedRecord = record">
                                         </button>
-                                        <button type="button" class="btn btn-sm bg-danger mx-2"
-                                            (click)="delete(record)">
-                                            <i class="fas fa-trash"></i>
-                                            {{ 'Delete' | localize }}
-                                        </button>
+                                        <p-overlayPanel #rowMenu class="custom-overlay" [dismissable]="true">
+                                            <ul class="custom-overlay-menu">
+                                                <li (click)="editVisit(record.id)">
+                                                    <i class="pi pi-pencil"></i> Edit
+                                                </li>
+                                                <li (click)="delete(selectedRecord)">
+                                                    <i class="pi pi-trash"></i> Delete
+                                                </li>
+                                            </ul>
+                                        </p-overlayPanel>
                                     </td>
                                 </tr>
                             </ng-template>
@@ -200,4 +191,4 @@
             </div>
         </div>
     </section>
-</div> -->
+</div>

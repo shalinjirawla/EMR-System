@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Injector, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, Injector, OnInit, ViewChild } from '@angular/core';
 import { finalize } from 'rxjs/operators';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
@@ -27,10 +27,9 @@ import { ButtonModule } from 'primeng/button';
     imports: [FormsModule, TableModule, ChipModule, SelectModule, MenuModule, ButtonModule, OverlayPanelModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, DatePipe],
     providers: [AppointmentServiceProxy, UserServiceProxy]
 })
-export class AppointmentsComponent extends PagedListingComponentBase<AppointmentDto> {
+export class AppointmentsComponent extends PagedListingComponentBase<AppointmentDto> implements OnInit {
     @ViewChild('dataTable', { static: true }) dataTable: Table;
     @ViewChild('paginator', { static: true }) paginator: Paginator;
-
     appointMents: AppointmentDto[] = [];
     AppointmentStatus = AppointmentStatus;
     keyword = '';
@@ -51,10 +50,12 @@ export class AppointmentsComponent extends PagedListingComponentBase<Appointment
         private _activatedRoute: ActivatedRoute,
         private _userService: UserServiceProxy,
         private _apointMentService: AppointmentServiceProxy,
-        cd: ChangeDetectorRef
+        cd: ChangeDetectorRef,
     ) {
         super(injector, cd);
         this.keyword = this._activatedRoute.snapshot.queryParams['filterText'] || '';
+    }
+    ngOnInit(): void {
     }
     clearFilters(): void {
         this.keyword = '';

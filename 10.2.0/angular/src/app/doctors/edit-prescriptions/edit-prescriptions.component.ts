@@ -382,7 +382,6 @@ loadMedicines() {
       });
       return dtoItem;
     });
-
     this._prescriptionService.updatePrescriptionWithItem(input).subscribe({
       next: () => {
         this.notify.info(this.l('SavedSuccessfully'));

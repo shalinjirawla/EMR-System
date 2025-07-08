@@ -17,6 +17,7 @@ using Abp.EntityFrameworkCore.Extensions;
 using EMRSystem.LabReport.Dto;
 using EMRSystem.LabReports;
 using EMRSystem.Doctor;
+using EMRSystem.Authorization.Users;
 
 namespace EMRSystem.LabTechnician
 {
@@ -25,11 +26,13 @@ namespace EMRSystem.LabTechnician
             IPrescriptionLabTestsAppService
     {
         private readonly IDoctorAppService _doctorAppService;
+        private readonly UserManager _userManager;
         public PrescriptionLabTestsAppService(IRepository<LabReports.PrescriptionLabTest, long> repository
-            , IDoctorAppService doctorAppService
+            , IDoctorAppService doctorAppService, UserManager userManager
             ) : base(repository)
         {
             _doctorAppService = doctorAppService;
+            _userManager = userManager;
         }
         [HttpGet]
         public async Task<PagedResultDto<LabRequestListDto>> GetAllLabTestRequests(PagedAndSortedResultRequestDto input)
@@ -108,6 +111,15 @@ namespace EMRSystem.LabTechnician
             data.TestStatus = LabTestStatus.InProgress;
             await Repository.UpdateAsync(data);
             CurrentUnitOfWork.SaveChanges();
+        }
+        [HttpGet]
+        public async Task<List<string>> GetCurrentUserRolesAsync()
+        {
+            if (!AbpSession.UserId.HasValue)
+                return null;
+            var user = await _userManager.GetUserByIdAsync(AbpSession.UserId.Value);
+            var roles = await _userManager.GetRolesAsync(user);
+            return roles.ToList();
         }
     }
 }

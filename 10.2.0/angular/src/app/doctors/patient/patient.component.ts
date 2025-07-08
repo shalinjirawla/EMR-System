@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Injector, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, Injector, OnInit, ViewChild } from '@angular/core';
 import { Table, TableModule } from 'primeng/table';
 import { Paginator, PaginatorModule } from 'primeng/paginator';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
@@ -24,7 +24,7 @@ import { ButtonModule } from 'primeng/button';
     styleUrl: './patient.component.css',
     providers: [PatientServiceProxy, UserServiceProxy]
 })
-export class PatientComponent extends PagedListingComponentBase<PatientDto> {
+export class PatientComponent extends PagedListingComponentBase<PatientDto> implements OnInit {
     @ViewChild('dataTable', { static: true }) dataTable: Table;
     @ViewChild('paginator', { static: true }) paginator: Paginator;
 
@@ -32,7 +32,8 @@ export class PatientComponent extends PagedListingComponentBase<PatientDto> {
     keyword = '';
     isActive: boolean | null;
     advancedFiltersVisible = false;
-
+    showDoctorColumn: boolean = false;
+    showNurseColumn: boolean = false;
     constructor(
         injector: Injector,
         private _modalService: BsModalService,
@@ -44,12 +45,13 @@ export class PatientComponent extends PagedListingComponentBase<PatientDto> {
         super(injector, cd);
         this.keyword = this._activatedRoute.snapshot.queryParams['filterText'] || '';
     }
-
+    ngOnInit(): void {
+        this.GetLoggedInUserRole();
+    }
     clearFilters(): void {
         this.keyword = '';
         this.isActive = undefined;
     }
-
     list(event?: LazyLoadEvent): void {
         if (this.primengTableHelper.shouldResetPaging(event)) {
             this.paginator.changePage(0);
@@ -89,7 +91,6 @@ export class PatientComponent extends PagedListingComponentBase<PatientDto> {
             }
         });
     }
-
     showCreatePatientDialog(id?: number): void {
         let createOrEditPatientDialog: BsModalRef;
         if (!id) {
@@ -113,7 +114,6 @@ export class PatientComponent extends PagedListingComponentBase<PatientDto> {
             this.refresh();
         });
     }
-
     showPatientDetailsDialog(id: number): void {
         let patientDetailsDialog: BsModalRef;
         patientDetailsDialog = this._modalService.show(PatientProfileComponent, {
@@ -127,7 +127,6 @@ export class PatientComponent extends PagedListingComponentBase<PatientDto> {
         //     this.refresh();
         // });
     }
-
     calculateAge(dob: string | Date): number {
         const birthDate = new Date(dob);
         const today = new Date();
@@ -144,5 +143,25 @@ export class PatientComponent extends PagedListingComponentBase<PatientDto> {
 
         return age;
     }
-
+    getRandomAvatar(): string {
+        const randomId = Math.floor(Math.random() * 100) + 1; // IDs from 1 to 100
+        return `https://i.pravatar.cc/150?img=${randomId}`;
+    }
+    GetLoggedInUserRole() {
+        this._patientService.getCurrentUserRoles().subscribe(res => {
+            this.showDoctorColumn = false;
+            this.showNurseColumn = false;
+            if (res && Array.isArray(res)) {
+                if (res.includes('Admin')) {
+                    this.showDoctorColumn = true;
+                    this.showNurseColumn = true;
+                } else if (res.includes('Doctors')) {
+                    this.showNurseColumn = true;
+                } else if (res.includes('Nurse')) {
+                    this.showDoctorColumn = true;
+                }
+            }
+            this.cd.detectChanges();
+        });
+    }
 }

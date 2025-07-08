@@ -18,7 +18,9 @@ import moment from 'moment';
 import { TextareaModule } from 'primeng/textarea';
 import { AppSessionService } from '@shared/session/app-session.service';
 import { MultiSelectModule } from 'primeng/multiselect';
-
+import { PermissionCheckerService } from '@node_modules/abp-ng2-module';
+import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
+import { CreateUserDialogComponent } from '@app/users/create-user/create-user-dialog.component';
 @Component({
   selector: 'app-create-prescriptions',
   standalone: true,
@@ -39,7 +41,7 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
   labTests: any[] = [];
   selectedLabTests: any[] = [];
   doctorID!: number;
-
+  showAddPatientButton = false;
   // Medicine and Dosage related properties
   medicineOptions: any[] = [];
   medicineDosageOptions: { [medicineName: string]: string[] } = {};
@@ -86,12 +88,15 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
     private _sessionService: AppSessionService,
     private _prescriptionService: PrescriptionServiceProxy,
     private _labService: LabReportsTypeServiceProxy,
-    private _pharmacistInventoryService: PharmacistInventoryServiceProxy
+    private _pharmacistInventoryService: PharmacistInventoryServiceProxy,
+    private permissionChecker: PermissionCheckerService,
+    private _modalService: BsModalService,
   ) {
     super(injector);
   }
 
   ngOnInit(): void {
+    this.showAddPatientButton = this.permissionChecker.isGranted('Pages.Users');
     this.FetchDoctorID();
     this.LoadPatients();
     this.LoadLabReports();
@@ -300,6 +305,19 @@ debugger
       complete: () => {
         this.saving = false;
       }
+    });
+  }
+  showCreatePatientDialog(id?: number): void {
+    let createOrEditPatientDialog: BsModalRef;
+    createOrEditPatientDialog = this._modalService.show(CreateUserDialogComponent, {
+      class: 'modal-lg',
+      initialState: {
+        defaultRole: 'Patient',
+        disableRoleSelection: true
+      }
+    });
+    createOrEditPatientDialog.content.onSave.subscribe(() => {
+      this.LoadPatients();
     });
   }
 }

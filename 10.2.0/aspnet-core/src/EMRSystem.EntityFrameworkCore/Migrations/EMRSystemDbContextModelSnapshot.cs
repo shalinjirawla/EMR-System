@@ -1704,6 +1704,25 @@ namespace EMRSystem.Migrations
                     b.ToTable("BillItem");
                 });
 
+            modelBuilder.Entity("EMRSystem.Departments.Department", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Departments");
+                });
+
             modelBuilder.Entity("EMRSystem.Doctors.Doctor", b =>
                 {
                     b.Property<long>("Id")
@@ -2303,6 +2322,57 @@ namespace EMRSystem.Migrations
                     b.ToTable("PrescriptionItem");
                 });
 
+            modelBuilder.Entity("EMRSystem.Visits.Visit", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<decimal?>("ConsultationFee")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("DateOfVisit")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("DepartmentId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("DoctorId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("NurseId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("PatientId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("PaymentMode")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ReasonForVisit")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.Property<TimeSpan>("TimeOfVisit")
+                        .HasColumnType("time");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DepartmentId");
+
+                    b.HasIndex("DoctorId");
+
+                    b.HasIndex("NurseId");
+
+                    b.HasIndex("PatientId");
+
+                    b.ToTable("Visits");
+                });
+
             modelBuilder.Entity("EMRSystem.Vitals.Vital", b =>
                 {
                     b.Property<long>("Id")
@@ -2819,6 +2889,41 @@ namespace EMRSystem.Migrations
                     b.Navigation("Prescription");
                 });
 
+            modelBuilder.Entity("EMRSystem.Visits.Visit", b =>
+                {
+                    b.HasOne("EMRSystem.Departments.Department", "Department")
+                        .WithMany("Visits")
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("EMRSystem.Doctors.Doctor", "Doctor")
+                        .WithMany("Visits")
+                        .HasForeignKey("DoctorId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("EMRSystem.Nurses.Nurse", "Nurse")
+                        .WithMany("Visits")
+                        .HasForeignKey("NurseId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("EMRSystem.Patients.Patient", "Patient")
+                        .WithMany("Visit")
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Department");
+
+                    b.Navigation("Doctor");
+
+                    b.Navigation("Nurse");
+
+                    b.Navigation("Patient");
+                });
+
             modelBuilder.Entity("EMRSystem.Vitals.Vital", b =>
                 {
                     b.HasOne("EMRSystem.Nurses.Nurse", "Nurse")
@@ -2931,6 +3036,11 @@ namespace EMRSystem.Migrations
                     b.Navigation("Items");
                 });
 
+            modelBuilder.Entity("EMRSystem.Departments.Department", b =>
+                {
+                    b.Navigation("Visits");
+                });
+
             modelBuilder.Entity("EMRSystem.Doctors.Doctor", b =>
                 {
                     b.Navigation("Appointments");
@@ -2938,6 +3048,8 @@ namespace EMRSystem.Migrations
                     b.Navigation("Patients");
 
                     b.Navigation("Prescriptions");
+
+                    b.Navigation("Visits");
                 });
 
             modelBuilder.Entity("EMRSystem.Invoices.Invoice", b =>
@@ -2961,6 +3073,8 @@ namespace EMRSystem.Migrations
 
                     b.Navigation("Patients");
 
+                    b.Navigation("Visits");
+
                     b.Navigation("Vitals");
                 });
 
@@ -2969,6 +3083,8 @@ namespace EMRSystem.Migrations
                     b.Navigation("Appointments");
 
                     b.Navigation("Prescriptions");
+
+                    b.Navigation("Visit");
 
                     b.Navigation("Vitals");
                 });

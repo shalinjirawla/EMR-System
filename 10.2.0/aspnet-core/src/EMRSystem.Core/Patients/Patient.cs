@@ -5,6 +5,7 @@ using EMRSystem.Authorization.Users;
 using EMRSystem.Doctors;
 using EMRSystem.Nurses;
 using EMRSystem.Prescriptions;
+using EMRSystem.Visits;
 using EMRSystem.Vitals;
 using System;
 using System.Collections.Generic;
@@ -39,6 +40,7 @@ namespace EMRSystem.Patients
         public ICollection<Prescription> Prescriptions { get; set; }
         public ICollection<Vital> Vitals { get; set; }
         public virtual ICollection<Appointment> Appointments { get; set; }
+        public ICollection<Visit> Visit { get; set; }
 
     }
 }

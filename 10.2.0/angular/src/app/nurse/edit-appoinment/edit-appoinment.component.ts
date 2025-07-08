@@ -34,8 +34,8 @@ import { DatePickerModule } from 'primeng/datepicker';
 export class EditAppoinmentComponent extends AppComponentBase implements OnInit {
   @Output() onSave = new EventEmitter<any>();
   @ViewChild('editAppoinmentForm', { static: true }) editAppoinmentForm: NgForm;
-
   id: number;
+  status: AppointmentStatus;
   saving = false;
   appointment: any = {
     id: null,
@@ -71,6 +71,9 @@ export class EditAppoinmentComponent extends AppComponentBase implements OnInit 
   }
 
   ngOnInit(): void {
+    if (this.status) {
+      this.appointment.status = this.status;
+    }
     this.LoadDoctors();
     this.LoadNurse();
     this.LoadPatients();
@@ -97,6 +100,7 @@ export class EditAppoinmentComponent extends AppComponentBase implements OnInit 
     this._patientService.patientDropDown().subscribe({
       next: (res) => {
         this.patients = res;
+        this.cd.detectChanges();
       }, error: (err) => {
       }
     })
@@ -105,6 +109,7 @@ export class EditAppoinmentComponent extends AppComponentBase implements OnInit 
     this._doctorService.getAllDoctorsByTenantID(abp.session.tenantId).subscribe({
       next: (res) => {
         this.doctors = res.items;
+        this.cd.detectChanges();
       }, error: (err) => {
       }
     })
@@ -117,11 +122,13 @@ export class EditAppoinmentComponent extends AppComponentBase implements OnInit 
       { label: 'Cancelled', value: AppointmentStatus._3 },
       { label: 'Rescheduled', value: AppointmentStatus._4 },
     ];
+    this.cd.detectChanges();
   }
   LoadNurse() {
     this._nurseService.getAllNursesByTenantID(abp.session.tenantId).subscribe({
       next: (res) => {
         this.nurse = res.items;
+        this.cd.detectChanges();
       }, error: (err) => {
       }
     })
@@ -140,19 +147,24 @@ export class EditAppoinmentComponent extends AppComponentBase implements OnInit 
   save() {
     this.saving = true;
     if (!this.validateStartEndTime()) {
+      this.saving = false;
       return;
     }
-    if (!this.validateAppointmentDate()) {
-      return;
-    }
+    // if (!this.validateAppointmentDate()) {
+    //   this.saving = false;
+    //   return;
+    // }
     this.appointment.startTime = this.dateToTimeString(this.appointment.startTime);
     this.appointment.endTime = this.dateToTimeString(this.appointment.endTime);
     this._appointmentService.updateAppoinment(this.appointment).subscribe({
       next: (res) => {
+        this.saving = false;
+        this.cd.detectChanges();
         this.notify.info(this.l('SavedSuccessfully'));
         this.bsModalRef.hide();
         this.onSave.emit();
       }, error: (err) => {
+        this.cd.detectChanges();
         this.notify.info(this.l('SavedSuccessfully'));
         this.bsModalRef.hide();
         this.onSave.emit();

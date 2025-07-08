@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using EMRSystem.Patients.Dto;
 using Microsoft.AspNetCore.Mvc;
+using EMRSystem.Authorization.Users;
 
 namespace EMRSystem.LabTechnician
 {
@@ -20,13 +21,21 @@ namespace EMRSystem.LabTechnician
         AsyncCrudAppService<EMRSystem.LabReports.LabTechnician, LabTechniciansDto, long, PagedAndSortedResultRequestDto, CreateUpdateLabTechnicianDto, CreateUpdateLabTechnicianDto>,
             ILapTechnicianAppService
     {
-        public LapTechnicianAppService(IRepository<EMRSystem.LabReports.LabTechnician, long> repository) : base(repository)
+        private readonly UserManager _userManager;
+        public LapTechnicianAppService(IRepository<EMRSystem.LabReports.LabTechnician, long> repository
+            , UserManager userManager
+            ) : base(repository)
         {
+            _userManager = userManager;
         }
-        //[HttpGet]
-        //public async  Task<PagedResultDto<LabRequestListDto>> GetLabRequestList(PagedLabRequestResultRequestDto input)
-        //{
-
-        //}
+        [HttpGet]
+        public async Task<List<string>> GetCurrentUserRolesAsync()
+        {
+            if (!AbpSession.UserId.HasValue)
+                return null;
+            var user = await _userManager.GetUserByIdAsync(AbpSession.UserId.Value);
+            var roles = await _userManager.GetRolesAsync(user);
+            return roles.ToList();
+        }
     }
 }

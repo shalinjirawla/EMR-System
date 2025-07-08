@@ -3,6 +3,7 @@ using Abp.Domain.Entities.Auditing;
 using EMRSystem.Appointments;
 using EMRSystem.Authorization.Users;
 using EMRSystem.Patients;
+using EMRSystem.Visits;
 using EMRSystem.Vitals;
 using System;
 using System.Collections.Generic;
@@ -28,6 +29,7 @@ namespace EMRSystem.Nurses
         public ICollection<Vital> Vitals { get; set; }
         public ICollection<Patient> Patients { get; set; }
         public virtual ICollection<Appointment> Appointments { get; set; }
+        public ICollection<Visit> Visits { get; set; }
 
     }
 }

@@ -122,6 +122,7 @@ namespace EMRSystem.Patients
 
             var query = Repository.GetAll()
                 .Include(x => x.Nurses)
+                .Include(x=>x.Doctors)
                 .Include(x => x.AbpUser)
                 .WhereIf(doctorID > 0, i => i.AssignedDoctorId == doctorID)
                 .WhereIf(!input.Keyword.IsNullOrWhiteSpace(),
@@ -192,6 +193,16 @@ namespace EMRSystem.Patients
             var patients = query.ToList();
             var mapped = ObjectMapper.Map<List<PatientDropDownDto>>(patients);
             return mapped;
+        }
+
+        [HttpGet]
+        public async Task<List<string>> GetCurrentUserRolesAsync()
+        {
+            if (!AbpSession.UserId.HasValue)
+                return null;
+            var user = await _userManager.GetUserByIdAsync(AbpSession.UserId.Value);
+            var roles = await _userManager.GetRolesAsync(user);
+            return roles.ToList();
         }
     }
 }
