@@ -41,6 +41,7 @@ namespace EMRSystem.Patients
         public ICollection<Vital> Vitals { get; set; }
         public virtual ICollection<Appointment> Appointments { get; set; }
         public ICollection<Visit> Visit { get; set; }
+        public virtual ICollection<MedicineOrder.MedicineOrder> MedicineOrders { get; set; }
 
     }
 }
