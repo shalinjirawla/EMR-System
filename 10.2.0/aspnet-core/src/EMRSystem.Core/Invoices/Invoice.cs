@@ -22,6 +22,7 @@ namespace EMRSystem.Invoices
         public decimal SubTotal { get; set; }
         public decimal GstAmount { get; set; }
         public decimal TotalAmount { get; set; }
+        public decimal AmountPaid { get; set; }
         public InvoiceStatus Status { get; set; } = InvoiceStatus.Unpaid;
         public PaymentMethod? PaymentMethod { get; set; }
 
@@ -31,7 +32,7 @@ namespace EMRSystem.Invoices
     {
         Unpaid,
         Paid,
-        PartialPaid
+        PartiallyPaid
     }
 
     public enum PaymentMethod

@@ -12,6 +12,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { SelectModule } from 'primeng/select';
 import moment from 'moment';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { Calendar } from 'primeng/calendar';
 
 @Component({
   selector: 'app-create-invoice',
@@ -31,8 +32,10 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
   providers: [PatientServiceProxy, InvoiceServiceProxy]
 })
 export class CreateInvoiceComponent extends AppComponentBase implements OnInit {
-  @ViewChild('invoiceForm') invoiceForm: NgForm;
-  @Output() onSave = new EventEmitter<any>();
+  @ViewChild('invoiceForm', { static: true }) invoiceForm: NgForm;
+  @ViewChild(Calendar) calendar: Calendar;
+  @Output() onSave = new EventEmitter<void>();
+
 
   isProcessingPayment = false;
   saving = false;
@@ -43,6 +46,10 @@ export class CreateInvoiceComponent extends AppComponentBase implements OnInit {
   showDateError = false;
   createdInvoice: any;
   paymentProcessingError = '';
+  amountPaid: number = 0;
+  amountPaidError = false;
+  paymentMethodCashValue = PaymentMethod._0; // For template comparison
+  paymentMethodCardValue = PaymentMethod._1; // For template comparison
 
   // Item type options for dropdown
   itemTypeOptions = [
@@ -63,11 +70,18 @@ export class CreateInvoiceComponent extends AppComponentBase implements OnInit {
     unitPrice: 0,
     quantity: 1
   };
-  
-    getItemTypeLabel(type: InvoiceItemType): string {
-  const option = this.itemTypeOptions.find(opt => opt.value === type);
-  return option ? option.label : 'Unknown';
-}
+  ngAfterViewInit() {
+    if (this.calendar) {
+      this.calendar.ngOnInit();
+    }
+  }
+  getItemTypeLabel(type: InvoiceItemType): string {
+    const option = this.itemTypeOptions.find(opt => opt.value === type);
+    return option ? option.label : 'Unknown';
+  }
+  validateAmountPaid(): void {
+    this.amountPaidError = this.amountPaid > this.calculateTotal();
+  }
 
   invoice = {
     tenantId: abp.session.tenantId,
@@ -123,9 +137,9 @@ export class CreateInvoiceComponent extends AppComponentBase implements OnInit {
       this.newItem.quantity > 0;
   }
   // In your component class
-onItemTypeChange(event: any) {
+  onItemTypeChange(event: any) {
     this.newItem.itemType = event.value.value;
-}
+  }
   addItem(): void {
     const item = new InvoiceItemDto();
 
@@ -139,7 +153,7 @@ onItemTypeChange(event: any) {
     // Set default values for other required properties
     item.id = 0;
     item.invoiceId = 0;
-debugger
+
     this.invoice.items.push(item);
 
     // Reset new item form WITHOUT changing the itemType
@@ -169,13 +183,13 @@ debugger
   calculateTotal(): number {
     return this.calculateSubtotal() + this.calculateGst();
   }
-
   isSaveDisabled(): boolean {
     return !this.invoiceForm?.valid ||
       this.saving ||
       this.invoice.items.length === 0 ||
       !this.invoice.patientId ||
-      this.showDateError;
+      this.showDateError ||
+      this.amountPaidError;
   }
 
   private async redirectToStripeCheckout(invoiceId: number, amount: number): Promise<void> {
@@ -183,9 +197,12 @@ debugger
     this.paymentProcessingError = '';
 
     try {
-      const baseUrl = window.location.origin + '/app/billing-staff';
-      const successUrl = `${baseUrl}/invoices?payment=success&invoiceId=${invoiceId}`;
-      const cancelUrl = `${baseUrl}/invoices?payment=canceled&invoiceId=${invoiceId}`;
+      const baseUrl = window.location.origin;
+      const billingStaffBase = '/app/billing-staff/invoices';
+
+      // Properly format query parameters
+      const successUrl = `${baseUrl}${billingStaffBase}?payment=success&invoiceId=${invoiceId}&amount=${amount}`;
+      const cancelUrl = `${baseUrl}${billingStaffBase}?payment=canceled&invoiceId=${invoiceId}`;
 
       const checkoutUrl = await this._invoiceService
         .createStripeCheckoutSession(invoiceId, amount, successUrl, cancelUrl)
@@ -202,6 +219,15 @@ debugger
   save(): void {
     this.saving = true;
     this.isProcessingPayment = true;
+    this.cd.detectChanges();
+
+    let paymentStatus = InvoiceStatus._0;
+    const total = this.calculateTotal();
+    if (this.amountPaid === total) {
+      paymentStatus = InvoiceStatus._1; // Paid
+    } else if (this.amountPaid > 0) {
+      paymentStatus = InvoiceStatus._2; // Partially Paid
+    }
 
     const input = new CreateUpdateInvoiceDto({
       id: 0,
@@ -213,6 +239,7 @@ debugger
       status: this.invoice.status,
       paymentMethod: this.invoice.paymentMethod,
       items: this.invoice.items,
+      amountPaid: this.amountPaid,
       subTotal: this.calculateSubtotal(),
       gstAmount: this.calculateGst(),
       totalAmount: this.calculateTotal()
@@ -223,18 +250,21 @@ debugger
         this.createdInvoice = createdInvoice;
 
         if (this.invoice.paymentMethod === PaymentMethod._1) {
+          const remainingAmount = this.amountPaid;
+          const amountToCharge = remainingAmount > 0 ? remainingAmount : 0;
           this.bsModalRef.hide();
           this.redirectToStripeCheckout(
             createdInvoice.id,
-            this.calculateTotal()
+            amountToCharge
           );
         } else {
           // Cash payment
           this.isProcessingPayment = false;
           this.saving = false;
-          this.notify.success('Invoice created successfully');
-          this.bsModalRef.hide();
+          this.notify.info(this.l('InvoiceCreatedSuccessfully'));
           this.onSave.emit();
+          this.bsModalRef.hide();
+          this.cd.detectChanges();
         }
       },
       error: (err) => {

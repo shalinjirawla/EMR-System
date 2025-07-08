@@ -15,7 +15,7 @@ namespace EMRSystem.Invoice
    InvoiceDto, long, PagedInvoiceResultRequestDto, CreateUpdateInvoiceDto, CreateUpdateInvoiceDto>
     {
         Task<InvoiceDetailsDto> GetInvoiceDetailsByAppointmentIdUsingSp(long appointmentId);
-        Task MarkAsPaid(long invoiceId);
+        Task MarkAsPaid(long invoiceId, decimal? amount = null);
         public  Task<string> CreateStripeCheckoutSession(long invoiceId, decimal amount, string successUrl, string cancelUrl);
     }
 

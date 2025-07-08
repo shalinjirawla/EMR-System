@@ -45,6 +45,17 @@
         </p-dropdown>
       </div>
     </div>
+    <!-- Add after Payment Method section -->
+    <div class="row mt-3">
+      <div class="col-md-12">
+        <label><b>Amount Paid</b></label>
+        <input type="number" class="form-control" [(ngModel)]="amountPaid" name="amountPaid" [max]="calculateTotal()"
+          min="0" step="0.01" (input)="validateAmountPaid()">
+        <small *ngIf="amountPaidError" class="text-danger">
+          Amount paid cannot exceed total amount
+        </small>
+      </div>
+    </div>
 
     <!-- Invoice Items Section -->
     <div class="row mt-4">
@@ -61,30 +72,32 @@
               <!-- Item Type -->
               <div class="col-md-3 mb-3">
                 <label class="form-label">Item Type</label>
-                <p-dropdown [options]="itemTypeOptions" [ngModel]="newItem.itemType" (onChange)="onItemTypeChange($event)"
-                  optionLabel="label" placeholder="Select item type">
+                <p-dropdown [options]="itemTypeOptions" [ngModel]="newItem.itemType"
+                  (onChange)="onItemTypeChange($event)" optionLabel="label" placeholder="Select item type">
                 </p-dropdown>
               </div>
-              
+
               <!-- Description -->
               <div class="col-md-4 mb-2">
                 <label class="form-label">Description</label>
                 <input type="text" class="form-control" [(ngModel)]="newItem.description" name="newItemDescription">
               </div>
-              
+
               <!-- Unit Price -->
               <div class="col-md-2 mb-2">
                 <label class="form-label">Unit Price</label>
-                <input type="number" class="form-control" [(ngModel)]="newItem.unitPrice" name="newItemUnitPrice" min="0">
+                <input type="number" class="form-control" [(ngModel)]="newItem.unitPrice" name="newItemUnitPrice"
+                  min="0">
               </div>
-              
+
               <!-- Quantity -->
               <div class="col-md-2 mb-2">
                 <label class="form-label">Quantity</label>
-                <input type="number" class="form-control" [(ngModel)]="newItem.quantity" name="newItemQuantity" min="1" value="1">
+                <input type="number" class="form-control" [(ngModel)]="newItem.quantity" name="newItemQuantity" min="1"
+                  value="1">
               </div>
             </div>
-            
+
             <!-- Add Button -->
             <div class="row">
               <div class="col-md-12 text-end">

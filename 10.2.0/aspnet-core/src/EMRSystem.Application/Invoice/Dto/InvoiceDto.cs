@@ -20,6 +20,7 @@ namespace EMRSystem.Invoice.Dto
         public decimal SubTotal { get; set; }
         public decimal GstAmount { get; set; }
         public decimal TotalAmount { get; set; }
+        public decimal AmountPaid { get; set; }
         public InvoiceStatus Status { get; set; }
         public PaymentMethod? PaymentMethod { get; set; }
         //public List<InvoiceItemDto> Items { get; set; } = new();
