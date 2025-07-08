@@ -138,11 +138,28 @@
                                         </button>
                                         <p-overlayPanel #rowMenu class="custom-overlay" [dismissable]="true">
                                             <ul class="custom-overlay-menu">
-                                                <li *ngIf="record.status!=2" (click)="editAppoinment(selectedRecord)">
+                                                <!-- Edit: Only show if not Completed -->
+                                                <li *ngIf="record.status !== 2 && record.status!==3"
+                                                    (click)="editAppoinment(selectedRecord)">
                                                     <i class="pi pi-pencil"></i> Edit
                                                 </li>
-                                                <li (click)="delete(selectedRecord)">
+                                                <!-- Delete: Only if not CheckedIn -->
+                                                <li *ngIf="record.status !== 1" (click)="delete(selectedRecord)">
                                                     <i class="pi pi-trash"></i> Delete
+                                                </li>
+                                                <!-- Reschedule: Only if not CheckedIn -->
+                                                <li *ngIf="record.status !== 1 && record.status!==3"
+                                                    (click)="reschedulAppoinment(record.id)">
+                                                    <i class="pi pi-clock"></i> Rescheduled
+                                                </li>
+                                                <!-- Mark as In Progress: Only if not CheckedIn -->
+                                                <li (click)="changeStatusofAppoinment(record.id,1)"
+                                                    *ngIf="record.status !== 1 && record.status!==3">
+                                                    <i class="pi pi-check"></i> Mark as in progress
+                                                </li>
+                                                <!-- Cancel: Always visible -->
+                                                <li *ngIf="record.status!==3" (click)="changeStatusofAppoinment(record.id,3)">
+                                                    <i class="pi pi-times"></i> Cancel
                                                 </li>
                                             </ul>
                                         </p-overlayPanel>

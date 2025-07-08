@@ -10,6 +10,8 @@ using EMRSystem.Prescriptions;
 using EMRSystem.Prescriptions.Dto;
 using EMRSystem.Users.Dto;
 using EMRSystem.Vitals.Dto;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -24,8 +26,10 @@ namespace EMRSystem.Vitals
     public class VitalAppService : AsyncCrudAppService<Vital, VitalDto, long, PagedVitalResultRequestDto, CreateUpdateVitalDto, CreateUpdateVitalDto>,
   IVitalAppService
     {
-        public VitalAppService(IRepository<Vital, long> repository) : base(repository)
+        private readonly UserManager _userManager;
+        public VitalAppService(IRepository<Vital, long> repository, UserManager userManager) : base(repository)
         {
+            _userManager = userManager;
         }
 
         public override async Task<VitalDto> CreateAsync(CreateUpdateVitalDto input)
@@ -76,8 +80,14 @@ namespace EMRSystem.Vitals
                 .Include(x => x.Nurse)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
-
-
-
+        [HttpGet]
+        public async Task<List<string>> GetCurrentUserRolesAsync()
+        {
+            if (!AbpSession.UserId.HasValue)
+                return null;
+            var user = await _userManager.GetUserByIdAsync(AbpSession.UserId.Value);
+            var roles = await _userManager.GetRolesAsync(user);
+            return roles.ToList();
+        }
     }
 }

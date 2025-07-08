@@ -43,11 +43,8 @@ export class ViewAppoinmentComponent extends PagedListingComponentBase<Appointme
     { label: 'Cancelled', value: AppointmentStatus._3 },
     { label: 'Rescheduled', value: AppointmentStatus._4 },
   ];
-  appointmentStatus!: any;
   showDoctorColumn: boolean = false;
   showNurseColumn: boolean = false;
-
-
   constructor(
     injector: Injector,
     private _appSessionService: AppSessionService,
@@ -68,7 +65,6 @@ export class ViewAppoinmentComponent extends PagedListingComponentBase<Appointme
     this.status = undefined;
     this.list();
   }
-
   onStatusChange() {
     this.list(); // or this.list() depending on your implementation
   }
@@ -129,6 +125,18 @@ export class ViewAppoinmentComponent extends PagedListingComponentBase<Appointme
       this.refresh();
     });
   }
+  reschedulAppoinment(id?: number): void {
+    let reschedulAppoinmentDialog: BsModalRef;
+    if (id > 0) {
+      reschedulAppoinmentDialog = this._modalService.show(EditAppoinmentComponent, {
+        class: 'modal-lg',
+        initialState: {
+          id: id,
+          status: 4,
+        },
+      });
+    }
+  }
   getStatusLabel(value: number): string {
     const status = this.statusOptions.find(s => s.value === value);
     return status ? status.label : '';
@@ -160,4 +168,10 @@ export class ViewAppoinmentComponent extends PagedListingComponentBase<Appointme
       this.cd.detectChanges();
     });
   }
-}
+  changeStatusofAppoinment(id: number, status: AppointmentStatus) {
+    this._apointMentService.markAsAction(id, status).subscribe(res => {
+      this.list();
+      this.cd.detectChanges();
+    })
+  }
+} 

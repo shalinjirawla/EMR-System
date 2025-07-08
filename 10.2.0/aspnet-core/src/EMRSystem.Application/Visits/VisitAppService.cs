@@ -15,6 +15,8 @@ using EMRSystem.Appointments.Dto;
 using EMRSystem.Appointments;
 using Microsoft.EntityFrameworkCore;
 using Abp.Extensions;
+using Microsoft.AspNetCore.Mvc;
+using EMRSystem.Authorization.Users;
 
 namespace EMRSystem.Visits
 {
@@ -23,12 +25,14 @@ namespace EMRSystem.Visits
     {
         private readonly IDoctorAppService _doctorAppService;
         private readonly INurseAppService _nurseAppService;
+        private readonly UserManager _userManager;
         public VisitAppService(IRepository<Visit, long> repository
-             , IDoctorAppService doctorAppService, INurseAppService nurseAppService
+             , IDoctorAppService doctorAppService, INurseAppService nurseAppService, UserManager userManager
             ) : base(repository)
         {
             _doctorAppService = doctorAppService;
             _nurseAppService = nurseAppService;
+            _userManager = userManager;
         }
         public async Task CreateVisit(CreateUpdateVisitDto dto)
         {
@@ -111,6 +115,16 @@ namespace EMRSystem.Visits
             });
 
             return result;
+        }
+
+        [HttpGet]
+        public async Task<List<string>> GetCurrentUserRolesAsync()
+        {
+            if (!AbpSession.UserId.HasValue)
+                return null;
+            var user = await _userManager.GetUserByIdAsync(AbpSession.UserId.Value);
+            var roles = await _userManager.GetRolesAsync(user);
+            return roles.ToList();
         }
     }
 }

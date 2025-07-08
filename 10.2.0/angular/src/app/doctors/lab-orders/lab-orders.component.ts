@@ -8,7 +8,7 @@ import { finalize } from 'rxjs/operators';
 import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { FormsModule } from '@node_modules/@angular/forms';
 import { CommonModule, NgIf } from '@node_modules/@angular/common';
-import { ChangeDetectorRef, Component, Injector, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, Injector, OnInit, ViewChild } from '@angular/core';
 import { LabRequestListDto, LabTestStatus, PrescriptionLabTestDto, PrescriptionLabTestsServiceProxy } from '@shared/service-proxies/service-proxies';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
 import { ChipModule } from 'primeng/chip';
@@ -27,7 +27,7 @@ import { ViewLabReportComponent } from '@app/lab-technician/view-lab-report/view
   imports: [FormsModule, TableModule, CommonModule, PrimeTemplate, OverlayPanelModule, MenuModule, ButtonModule, NgIf, PaginatorModule, ChipModule, LocalizePipe],
   providers: [PrescriptionLabTestsServiceProxy]
 })
-export class LabOrdersComponent extends PagedListingComponentBase<PrescriptionLabTestDto> {
+export class LabOrdersComponent extends PagedListingComponentBase<PrescriptionLabTestDto> implements OnInit {
   @ViewChild('dataTable', { static: true }) dataTable: Table;
   @ViewChild('paginator', { static: true }) paginator: Paginator;
 
@@ -39,6 +39,8 @@ export class LabOrdersComponent extends PagedListingComponentBase<PrescriptionLa
     { label: 'In Progress', value: LabTestStatus._1 },
     { label: 'Completed', value: LabTestStatus._2 },
   ];
+  showDoctorColumn: boolean = false;
+  showNurseColumn: boolean = false;
   constructor(
     injector: Injector,
     private _modalService: BsModalService,
@@ -48,6 +50,9 @@ export class LabOrdersComponent extends PagedListingComponentBase<PrescriptionLa
   ) {
     super(injector, cd);
     this.keyword = this._activatedRoute.snapshot.queryParams['filterText'] || '';
+  }
+  ngOnInit(): void {
+    this.GetLoggedInUserRole();
   }
   clearFilters(): void {
     this.keyword = '';
@@ -142,5 +147,23 @@ export class LabOrdersComponent extends PagedListingComponentBase<PrescriptionLa
     // editReportDialog.content.onSave.subscribe(() => {
     //     this.refresh();
     // });
+  }
+  GetLoggedInUserRole() {
+    this._prescriptionLabTests.getCurrentUserRoles().subscribe(res => {
+      this.showDoctorColumn = false;
+      this.showNurseColumn = false;
+      debugger
+      if (res && Array.isArray(res)) {
+        if (res.includes('Admin')) {
+          this.showDoctorColumn = true;
+          this.showNurseColumn = true;
+        } else if (res.includes('Doctors')) {
+          this.showNurseColumn = true;
+        } else if (res.includes('Nurse')) {
+          this.showDoctorColumn = true;
+        }
+      }
+      this.cd.detectChanges();
+    });
   }
 }

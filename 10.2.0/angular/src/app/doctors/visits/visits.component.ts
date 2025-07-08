@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Injector, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, Injector, OnInit, ViewChild } from '@angular/core';
 import { Table, TableModule } from 'primeng/table';
 import { Paginator, PaginatorModule } from 'primeng/paginator';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
@@ -25,15 +25,15 @@ import { EditVisitComponent } from '@app/doctors/edit-visit/edit-visit.component
     styleUrl: './visits.component.css',
     providers: [VisitServiceProxy]
 })
-export class VisitsComponent extends PagedListingComponentBase<VisitListDto> {
+export class VisitsComponent extends PagedListingComponentBase<VisitListDto> implements OnInit {
     @ViewChild('dataTable', { static: true }) dataTable: Table;
     @ViewChild('paginator', { static: true }) paginator: Paginator;
-
     patients: any[] = [];
     keyword = '';
     isActive: boolean | null;
     advancedFiltersVisible = false;
-
+    showDoctorColumn: boolean = false;
+    showNurseColumn: boolean = false;
     constructor(
         injector: Injector,
         private _modalService: BsModalService,
@@ -44,12 +44,13 @@ export class VisitsComponent extends PagedListingComponentBase<VisitListDto> {
         super(injector, cd);
         this.keyword = this._activatedRoute.snapshot.queryParams['filterText'] || '';
     }
-
+    ngOnInit(): void {
+        this.GetLoggedInUserRole();
+    }
     clearFilters(): void {
         this.keyword = '';
         this.isActive = undefined;
     }
-
     list(event?: LazyLoadEvent): void {
         if (this.primengTableHelper.shouldResetPaging(event)) {
             this.paginator.changePage(0);
@@ -108,12 +109,28 @@ export class VisitsComponent extends PagedListingComponentBase<VisitListDto> {
             this.refresh();
         });
     }
-
     createVisit(): void {
         this.showVistiteCreateUpdateDialog();
     }
-
     editVisit(id: number): void {
         this.showVistiteCreateUpdateDialog(id);
+    }
+    GetLoggedInUserRole() {
+        this._visitService.getCurrentUserRoles().subscribe(res => {
+            this.showDoctorColumn = false;
+            this.showNurseColumn = false;
+            debugger
+            if (res && Array.isArray(res)) {
+                if (res.includes('Admin')) {
+                    this.showDoctorColumn = true;
+                    this.showNurseColumn = true;
+                } else if (res.includes('Doctors')) {
+                    this.showNurseColumn = true;
+                } else if (res.includes('Nurse')) {
+                    this.showDoctorColumn = true;
+                }
+            }
+            this.cd.detectChanges();
+        });
     }
 }

@@ -433,6 +433,63 @@ export class AppointmentServiceProxy {
 
     /**
      * @param id (optional) 
+     * @param body (optional) 
+     * @return OK
+     */
+    markAsAction(id: number | undefined, body: AppointmentStatus | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/Appointment/MarkAsAction?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processMarkAsAction(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processMarkAsAction(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processMarkAsAction(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
      * @return OK
      */
     get(id: number | undefined): Observable<AppointmentDto> {
@@ -737,6 +794,64 @@ export class BillingServiceProxy {
     constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
         this.http = http;
         this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @return OK
+     */
+    getCurrentUserRoles(): Observable<string[]> {
+        let url_ = this.baseUrl + "/api/services/app/Billing/GetCurrentUserRoles";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetCurrentUserRoles(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetCurrentUserRoles(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<string[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<string[]>;
+        }));
+    }
+
+    protected processGetCurrentUserRoles(response: HttpResponseBase): Observable<string[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200.push(item);
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
     }
 
     /**
@@ -2794,6 +2909,64 @@ export class LapTechnicianServiceProxy {
     }
 
     /**
+     * @return OK
+     */
+    getCurrentUserRoles(): Observable<string[]> {
+        let url_ = this.baseUrl + "/api/services/app/LapTechnician/GetCurrentUserRoles";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetCurrentUserRoles(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetCurrentUserRoles(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<string[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<string[]>;
+        }));
+    }
+
+    protected processGetCurrentUserRoles(response: HttpResponseBase): Observable<string[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200.push(item);
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * @param id (optional) 
      * @return OK
      */
@@ -3193,6 +3366,64 @@ export class NurseServiceProxy {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = Nurse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    getCurrentUserRoles(): Observable<string[]> {
+        let url_ = this.baseUrl + "/api/services/app/Nurse/GetCurrentUserRoles";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetCurrentUserRoles(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetCurrentUserRoles(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<string[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<string[]>;
+        }));
+    }
+
+    protected processGetCurrentUserRoles(response: HttpResponseBase): Observable<string[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200.push(item);
+            }
+            else {
+                result200 = <any>null;
+            }
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -3907,6 +4138,64 @@ export class PatientServiceProxy {
                 result200 = [] as any;
                 for (let item of resultData200)
                     result200.push(PatientDropDownDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    getCurrentUserRoles(): Observable<string[]> {
+        let url_ = this.baseUrl + "/api/services/app/Patient/GetCurrentUserRoles";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetCurrentUserRoles(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetCurrentUserRoles(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<string[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<string[]>;
+        }));
+    }
+
+    protected processGetCurrentUserRoles(response: HttpResponseBase): Observable<string[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200.push(item);
             }
             else {
                 result200 = <any>null;
@@ -4903,6 +5192,64 @@ export class PrescriptionServiceProxy {
     }
 
     /**
+     * @return OK
+     */
+    getCurrentUserRoles(): Observable<string[]> {
+        let url_ = this.baseUrl + "/api/services/app/Prescription/GetCurrentUserRoles";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetCurrentUserRoles(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetCurrentUserRoles(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<string[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<string[]>;
+        }));
+    }
+
+    protected processGetCurrentUserRoles(response: HttpResponseBase): Observable<string[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200.push(item);
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * @param id (optional) 
      * @return OK
      */
@@ -5852,6 +6199,64 @@ export class PrescriptionLabTestsServiceProxy {
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    getCurrentUserRoles(): Observable<string[]> {
+        let url_ = this.baseUrl + "/api/services/app/PrescriptionLabTests/GetCurrentUserRoles";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetCurrentUserRoles(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetCurrentUserRoles(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<string[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<string[]>;
+        }));
+    }
+
+    protected processGetCurrentUserRoles(response: HttpResponseBase): Observable<string[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200.push(item);
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -7802,6 +8207,64 @@ export class VisitServiceProxy {
     }
 
     /**
+     * @return OK
+     */
+    getCurrentUserRoles(): Observable<string[]> {
+        let url_ = this.baseUrl + "/api/services/app/Visit/GetCurrentUserRoles";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetCurrentUserRoles(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetCurrentUserRoles(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<string[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<string[]>;
+        }));
+    }
+
+    protected processGetCurrentUserRoles(response: HttpResponseBase): Observable<string[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200.push(item);
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * @param id (optional) 
      * @return OK
      */
@@ -8145,6 +8608,64 @@ export class VitalServiceProxy {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = VitalDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    getCurrentUserRoles(): Observable<string[]> {
+        let url_ = this.baseUrl + "/api/services/app/Vital/GetCurrentUserRoles";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetCurrentUserRoles(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetCurrentUserRoles(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<string[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<string[]>;
+        }));
+    }
+
+    protected processGetCurrentUserRoles(response: HttpResponseBase): Observable<string[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200.push(item);
+            }
+            else {
+                result200 = <any>null;
+            }
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -11091,9 +11612,9 @@ export class Doctor implements IDoctor {
     abpUserId: number;
     abpUser: User;
     patients: Patient[] | undefined;
-    visits: Visit[] | undefined;
     prescriptions: Prescription[] | undefined;
     appointments: Appointment[] | undefined;
+    visits: Visit[] | undefined;
 
     constructor(data?: IDoctor) {
         if (data) {
@@ -11123,11 +11644,6 @@ export class Doctor implements IDoctor {
                 for (let item of _data["patients"])
                     this.patients.push(Patient.fromJS(item));
             }
-            if (Array.isArray(_data["visits"])) {
-                this.visits = [] as any;
-                for (let item of _data["visits"])
-                    this.visits.push(Visit.fromJS(item));
-            }
             if (Array.isArray(_data["prescriptions"])) {
                 this.prescriptions = [] as any;
                 for (let item of _data["prescriptions"])
@@ -11137,6 +11653,11 @@ export class Doctor implements IDoctor {
                 this.appointments = [] as any;
                 for (let item of _data["appointments"])
                     this.appointments.push(Appointment.fromJS(item));
+            }
+            if (Array.isArray(_data["visits"])) {
+                this.visits = [] as any;
+                for (let item of _data["visits"])
+                    this.visits.push(Visit.fromJS(item));
             }
         }
     }
@@ -11167,11 +11688,6 @@ export class Doctor implements IDoctor {
             for (let item of this.patients)
                 data["patients"].push(item.toJSON());
         }
-        if (Array.isArray(this.visits)) {
-            data["visits"] = [];
-            for (let item of this.visits)
-                data["visits"].push(item.toJSON());
-        }
         if (Array.isArray(this.prescriptions)) {
             data["prescriptions"] = [];
             for (let item of this.prescriptions)
@@ -11181,6 +11697,11 @@ export class Doctor implements IDoctor {
             data["appointments"] = [];
             for (let item of this.appointments)
                 data["appointments"].push(item.toJSON());
+        }
+        if (Array.isArray(this.visits)) {
+            data["visits"] = [];
+            for (let item of this.visits)
+                data["visits"].push(item.toJSON());
         }
         return data;
     }
@@ -11207,9 +11728,9 @@ export interface IDoctor {
     abpUserId: number;
     abpUser: User;
     patients: Patient[] | undefined;
-    visits: Visit[] | undefined;
     prescriptions: Prescription[] | undefined;
     appointments: Appointment[] | undefined;
+    visits: Visit[] | undefined;
 }
 
 export class DoctorDto implements IDoctorDto {
@@ -12644,9 +13165,9 @@ export class Nurse implements INurse {
     abpUserId: number;
     abpUser: User;
     vitals: Vital[] | undefined;
-    visits: Visit[] | undefined;
     patients: Patient[] | undefined;
     appointments: Appointment[] | undefined;
+    visits: Visit[] | undefined;
 
     constructor(data?: INurse) {
         if (data) {
@@ -12675,11 +13196,6 @@ export class Nurse implements INurse {
                 for (let item of _data["vitals"])
                     this.vitals.push(Vital.fromJS(item));
             }
-            if (Array.isArray(_data["visits"])) {
-                this.visits = [] as any;
-                for (let item of _data["visits"])
-                    this.visits.push(Visit.fromJS(item));
-            }
             if (Array.isArray(_data["patients"])) {
                 this.patients = [] as any;
                 for (let item of _data["patients"])
@@ -12689,6 +13205,11 @@ export class Nurse implements INurse {
                 this.appointments = [] as any;
                 for (let item of _data["appointments"])
                     this.appointments.push(Appointment.fromJS(item));
+            }
+            if (Array.isArray(_data["visits"])) {
+                this.visits = [] as any;
+                for (let item of _data["visits"])
+                    this.visits.push(Visit.fromJS(item));
             }
         }
     }
@@ -12718,11 +13239,6 @@ export class Nurse implements INurse {
             for (let item of this.vitals)
                 data["vitals"].push(item.toJSON());
         }
-        if (Array.isArray(this.visits)) {
-            data["visits"] = [];
-            for (let item of this.visits)
-                data["visits"].push(item.toJSON());
-        }
         if (Array.isArray(this.patients)) {
             data["patients"] = [];
             for (let item of this.patients)
@@ -12732,6 +13248,11 @@ export class Nurse implements INurse {
             data["appointments"] = [];
             for (let item of this.appointments)
                 data["appointments"].push(item.toJSON());
+        }
+        if (Array.isArray(this.visits)) {
+            data["visits"] = [];
+            for (let item of this.visits)
+                data["visits"].push(item.toJSON());
         }
         return data;
     }
@@ -12757,9 +13278,9 @@ export interface INurse {
     abpUserId: number;
     abpUser: User;
     vitals: Vital[] | undefined;
-    visits: Visit[] | undefined;
     patients: Patient[] | undefined;
     appointments: Appointment[] | undefined;
+    visits: Visit[] | undefined;
 }
 
 export class NurseDto implements INurseDto {
@@ -12978,8 +13499,8 @@ export class Patient implements IPatient {
     doctors: Doctor;
     prescriptions: Prescription[] | undefined;
     vitals: Vital[] | undefined;
-    visit: Visit[] | undefined;
     appointments: Appointment[] | undefined;
+    visit: Visit[] | undefined;
 
     constructor(data?: IPatient) {
         if (data) {
@@ -13022,15 +13543,15 @@ export class Patient implements IPatient {
                 for (let item of _data["vitals"])
                     this.vitals.push(Vital.fromJS(item));
             }
-            if (Array.isArray(_data["visit"])) {
-                this.visit = [] as any;
-                for (let item of _data["visit"])
-                    this.visit.push(Visit.fromJS(item));
-            }
             if (Array.isArray(_data["appointments"])) {
                 this.appointments = [] as any;
                 for (let item of _data["appointments"])
                     this.appointments.push(Appointment.fromJS(item));
+            }
+            if (Array.isArray(_data["visit"])) {
+                this.visit = [] as any;
+                for (let item of _data["visit"])
+                    this.visit.push(Visit.fromJS(item));
             }
         }
     }
@@ -13074,15 +13595,15 @@ export class Patient implements IPatient {
             for (let item of this.vitals)
                 data["vitals"].push(item.toJSON());
         }
-        if (Array.isArray(this.visit)) {
-            data["visit"] = [];
-            for (let item of this.visit)
-                data["visit"].push(item.toJSON());
-        }
         if (Array.isArray(this.appointments)) {
             data["appointments"] = [];
             for (let item of this.appointments)
                 data["appointments"].push(item.toJSON());
+        }
+        if (Array.isArray(this.visit)) {
+            data["visit"] = [];
+            for (let item of this.visit)
+                data["visit"].push(item.toJSON());
         }
         return data;
     }
@@ -13118,8 +13639,8 @@ export interface IPatient {
     doctors: Doctor;
     prescriptions: Prescription[] | undefined;
     vitals: Vital[] | undefined;
-    visit: Visit[] | undefined;
     appointments: Appointment[] | undefined;
+    visit: Visit[] | undefined;
 }
 
 export class PatientAppointmentHistoryDto implements IPatientAppointmentHistoryDto {

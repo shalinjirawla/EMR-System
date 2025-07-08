@@ -24,6 +24,7 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Abp.Authorization.Users;
+using EMRSystem.LabReports;
 
 
 namespace EMRSystem.Appointments
@@ -43,8 +44,6 @@ namespace EMRSystem.Appointments
             _nurseAppService = nurseAppService;
             _userManager = userManager;
         }
-
-
         protected override IQueryable<Appointment> CreateFilteredQuery(PagedAppoinmentResultRequestDto input)
         {
             var userId = AbpSession.UserId;
@@ -200,6 +199,15 @@ namespace EMRSystem.Appointments
             var user = await _userManager.GetUserByIdAsync(AbpSession.UserId.Value);
             var roles = await _userManager.GetRolesAsync(user);
             return roles.ToList();
+        }
+        public async Task MarkAsAction(long id, AppointmentStatus appointmentStatus)
+        {
+            var data = await Repository.GetAsync(id);
+            if (data == null)
+                return;
+            data.Status = appointmentStatus;
+            await Repository.UpdateAsync(data);
+            CurrentUnitOfWork.SaveChanges();
         }
     }
 }

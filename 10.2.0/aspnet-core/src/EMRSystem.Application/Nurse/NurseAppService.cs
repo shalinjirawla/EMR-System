@@ -12,6 +12,8 @@ using EMRSystem.Nurse.Dto;
 using Abp.Authorization;
 using EMRSystem.Authorization;
 using Abp.Domain.Entities;
+using Microsoft.AspNetCore.Mvc;
+using EMRSystem.Authorization.Users;
 
 namespace EMRSystem.Nurse
 {
@@ -19,8 +21,12 @@ namespace EMRSystem.Nurse
     public class NurseAppService : AsyncCrudAppService<EMRSystem.Nurses.Nurse, NurseDto, long, PagedAndSortedResultRequestDto, CreateUpdateNurseDto, CreateUpdateNurseDto>,
    INurseAppService
     {
-        public NurseAppService(IRepository<EMRSystem.Nurses.Nurse, long> repository) : base(repository)
+        private readonly UserManager _userManager;
+        public NurseAppService(IRepository<EMRSystem.Nurses.Nurse, long> repository
+            , UserManager userManager
+            ) : base(repository)
         {
+            _userManager = userManager;
         }
 
         public async Task<ListResultDto<NurseDto>> GetAllNursesByTenantID(int tenantId)
@@ -40,6 +46,15 @@ namespace EMRSystem.Nurse
                 return null;
             }
             return doctor;
+        }
+        [HttpGet]
+        public async Task<List<string>> GetCurrentUserRolesAsync()
+        {
+            if (!AbpSession.UserId.HasValue)
+                return null;
+            var user = await _userManager.GetUserByIdAsync(AbpSession.UserId.Value);
+            var roles = await _userManager.GetRolesAsync(user);
+            return roles.ToList();
         }
     }
 }

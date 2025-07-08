@@ -135,11 +135,14 @@
                                         </button>
                                         <p-overlayPanel #rowMenu class="custom-overlay" [dismissable]="true">
                                             <ul class="custom-overlay-menu">
-                                                <li (click)="editAppoinment(selectedRecord)">   
+                                                <li (click)="editAppoinment(selectedRecord)">
                                                     <i class="pi pi-pencil"></i> Edit
                                                 </li>
                                                 <li (click)="delete(selectedRecord)">
                                                     <i class="pi pi-trash"></i> Delete
+                                                </li>
+                                                <li (click)="delete(selectedRecord)">
+                                                    <i class="pi pi-trash"></i> Cancel
                                                 </li>
                                             </ul>
                                         </p-overlayPanel>

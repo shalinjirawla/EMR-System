@@ -67,12 +67,10 @@ namespace EMRSystem.Doctor
         [HttpGet]
         public async Task<List<string>> GetCurrentUserRolesAsync()
         {
-            var user = await Repository.GetAll()
-                .Include(x => x.AbpUser)
-                .ThenInclude(x=>x.Roles)
-                .FirstOrDefaultAsync(x => x.AbpUser.Id == AbpSession.UserId.Value)
-                ;
-            var roles = await _userManager.GetRolesAsync(user.AbpUser);
+            if (!AbpSession.UserId.HasValue)
+                return null;
+            var user = await _userManager.GetUserByIdAsync(AbpSession.UserId.Value);
+            var roles = await _userManager.GetRolesAsync(user);
             return roles.ToList();
         }
     }

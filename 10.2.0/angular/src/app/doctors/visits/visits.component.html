@@ -106,7 +106,7 @@
                                         Department
                                         <p-sortIcon field="department"></p-sortIcon>
                                     </th>
-                                    <th>
+                                    <th *ngIf="showDoctorColumn">
                                         Doctor
                                     </th>
                                     <th style="min-width: 80px">
@@ -130,14 +130,14 @@
                                             {{ record.department.name }}
                                         </span>
                                     </td>
-                                    <td>
+                                    <td *ngIf="showDoctorColumn">
                                         <span>
                                            Dr. {{ record.doctor.fullName }}
                                         </span>
                                     </td>
                                     <td>
                                         <span>
-                                            {{ record.nurse.fullName }}
+                                           Active
                                         </span>
                                     </td>
                                     <td>
