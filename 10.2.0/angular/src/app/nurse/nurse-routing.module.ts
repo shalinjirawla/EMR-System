@@ -3,7 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { NurseComponent } from './nurse.component';
 import { AppRouteGuard } from '@shared/auth/auth-route-guard';
 import { AssignedPatientsComponent } from './assigned-patients/assigned-patients.component';
-import { MedicationLogComponent } from './medication-log/medication-log.component';
+import { OrderMedicineComponent } from './order-medicine/order-medicine.component';
 import { VitalsNotesComponent } from './vitals-notes/vitals-notes.component';
 import { AppointmentsComponent } from './appointments/appointments.component'
 const routes: Routes = [
@@ -21,8 +21,8 @@ const routes: Routes = [
                 component: AssignedPatientsComponent,
             },
             {
-                path: 'medication-log',
-                component: MedicationLogComponent,
+                path: 'order-medicine',
+                component: OrderMedicineComponent,
             },
             {
                 path: 'vitals-notes',

@@ -30,6 +30,8 @@ namespace EMRSystem.Nurses
         public ICollection<Patient> Patients { get; set; }
         public virtual ICollection<Appointment> Appointments { get; set; }
         public ICollection<Visit> Visits { get; set; }
+        public virtual ICollection<MedicineOrder.MedicineOrder> MedicineOrders { get; set; }
+
 
     }
 }

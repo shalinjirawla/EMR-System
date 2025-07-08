@@ -66,7 +66,7 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
                 new MenuItem(this.l('Assigned Patients'), '/app/nurse/assigned-patients', 'fas fa-procedures', 'Pages.Nurse.Patients.View'),
                 new MenuItem(this.l('Vitals'), '/app/nurse/vitals-notes', 'fas fa-notes-medical', 'Pages.Nurse.Vitals.View'),
                 // new MenuItem(this.l('Add Vitals'), '/app/nurse/vitals-notes/add', 'fas fa-plus-circle', 'Pages.Nurse.Vitals.Create'),
-                new MenuItem(this.l('Medication Logs'), '/app/nurse/medication-log', 'fas fa-pills', 'Pages.Nurse.Medication.View'),
+                new MenuItem(this.l('Order Medication'), '/app/nurse/order-medicine', 'fas fa-pills', 'Pages.Nurse.Medication.View'),
             ]),
 
             // Billing Staff Section
@@ -87,7 +87,7 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
             // Pharmacist Section
             new MenuItem(this.l('Pharmacist'), '', 'fas fa-user-md', 'Pages.Pharmacist', [
                 new MenuItem(this.l('Inventory'), '/app/pharmacist/pharmacist-inventory', 'fas fa-capsules', 'Pages.Pharmacist.Inventory.View'),
-                // new MenuItem(this.l('Prescriptions'), '/app/pharmacist/pharmacist-prescriptions', 'fas fa-prescription-bottle', 'Pages.Pharmacist.Prescriptions.View'),
+                new MenuItem(this.l('Prescriptions'), '/app/pharmacist/pharmacist-prescriptions', 'fas fa-prescription-bottle', 'Pages.Pharmacist.Prescriptions.View'),
             ]),
         ];
     }

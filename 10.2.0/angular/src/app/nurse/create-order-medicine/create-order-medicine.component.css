@@ -1,0 +1,18 @@
+/* Scroll modal content if too tall */
+:host ::ng-deep .modal-body {
+  max-height: 75vh;
+  overflow-y: auto;
+}
+
+/* Consistent height for dropdowns and inputs */
+:host ::ng-deep .p-dropdown,
+:host ::ng-deep .form-control {
+  min-height: 2.5rem;
+  overflow: visible;
+}
+
+/* Style for card */
+.card {
+  border-radius: 0.5rem;
+  background-color: #f8f9fa;
+}
