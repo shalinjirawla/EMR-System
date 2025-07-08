@@ -1623,14 +1623,19 @@ export class InvoiceServiceProxy {
 
     /**
      * @param invoiceId (optional) 
+     * @param amount (optional) 
      * @return OK
      */
-    markAsPaid(invoiceId: number | undefined): Observable<void> {
+    markAsPaid(invoiceId: number | undefined, amount: number | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/services/app/Invoice/MarkAsPaid?";
         if (invoiceId === null)
             throw new Error("The parameter 'invoiceId' cannot be null.");
         else if (invoiceId !== undefined)
             url_ += "invoiceId=" + encodeURIComponent("" + invoiceId) + "&";
+        if (amount === null)
+            throw new Error("The parameter 'amount' cannot be null.");
+        else if (amount !== undefined)
+            url_ += "amount=" + encodeURIComponent("" + amount) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -6803,6 +6808,53 @@ export class StripeServiceProxy {
         }
         return _observableOf(null as any);
     }
+
+    /**
+     * @return OK
+     */
+    stripeWebhook(): Observable<void> {
+        let url_ = this.baseUrl + "/api/stripe/stripe-webhook";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processStripeWebhook(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processStripeWebhook(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processStripeWebhook(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
 }
 
 @Injectable()
@@ -9563,6 +9615,7 @@ export class CreateUpdateInvoiceDto implements ICreateUpdateInvoiceDto {
     subTotal: number;
     gstAmount: number;
     totalAmount: number;
+    amountPaid: number;
     status: InvoiceStatus;
     paymentMethod: PaymentMethod;
     items: InvoiceItemDto[] | undefined;
@@ -9587,6 +9640,7 @@ export class CreateUpdateInvoiceDto implements ICreateUpdateInvoiceDto {
             this.subTotal = _data["subTotal"];
             this.gstAmount = _data["gstAmount"];
             this.totalAmount = _data["totalAmount"];
+            this.amountPaid = _data["amountPaid"];
             this.status = _data["status"];
             this.paymentMethod = _data["paymentMethod"];
             if (Array.isArray(_data["items"])) {
@@ -9615,6 +9669,7 @@ export class CreateUpdateInvoiceDto implements ICreateUpdateInvoiceDto {
         data["subTotal"] = this.subTotal;
         data["gstAmount"] = this.gstAmount;
         data["totalAmount"] = this.totalAmount;
+        data["amountPaid"] = this.amountPaid;
         data["status"] = this.status;
         data["paymentMethod"] = this.paymentMethod;
         if (Array.isArray(this.items)) {
@@ -9643,6 +9698,7 @@ export interface ICreateUpdateInvoiceDto {
     subTotal: number;
     gstAmount: number;
     totalAmount: number;
+    amountPaid: number;
     status: InvoiceStatus;
     paymentMethod: PaymentMethod;
     items: InvoiceItemDto[] | undefined;
@@ -11247,6 +11303,7 @@ export class InvoiceDto implements IInvoiceDto {
     subTotal: number;
     gstAmount: number;
     totalAmount: number;
+    amountPaid: number;
     status: InvoiceStatus;
     paymentMethod: PaymentMethod;
 
@@ -11272,6 +11329,7 @@ export class InvoiceDto implements IInvoiceDto {
             this.subTotal = _data["subTotal"];
             this.gstAmount = _data["gstAmount"];
             this.totalAmount = _data["totalAmount"];
+            this.amountPaid = _data["amountPaid"];
             this.status = _data["status"];
             this.paymentMethod = _data["paymentMethod"];
         }
@@ -11297,6 +11355,7 @@ export class InvoiceDto implements IInvoiceDto {
         data["subTotal"] = this.subTotal;
         data["gstAmount"] = this.gstAmount;
         data["totalAmount"] = this.totalAmount;
+        data["amountPaid"] = this.amountPaid;
         data["status"] = this.status;
         data["paymentMethod"] = this.paymentMethod;
         return data;
@@ -11322,6 +11381,7 @@ export interface IInvoiceDto {
     subTotal: number;
     gstAmount: number;
     totalAmount: number;
+    amountPaid: number;
     status: InvoiceStatus;
     paymentMethod: PaymentMethod;
 }

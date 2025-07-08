@@ -83,6 +83,7 @@ namespace EMRSystem.Invoice
                 TotalAmount = x.TotalAmount,
                 Status = x.Status,
                 PaymentMethod = x.PaymentMethod,
+                AmountPaid=x.AmountPaid,
                 PatientId = x.PatientId,
                 AppointmentId = x.AppointmentId,
                 Patient = x.Patient == null ? null : new Patient
@@ -245,9 +246,19 @@ namespace EMRSystem.Invoice
                 if (input.Items == null || !input.Items.Any())
                     throw new UserFriendlyException("Invoice must contain at least one item");
 
-                var initialStatus = input.PaymentMethod == PaymentMethod.Cash
-                       ? InvoiceStatus.Paid
-                       : InvoiceStatus.Unpaid;
+                if(input.PaymentMethod==PaymentMethod.Cash)
+                {
+                    if (input.AmountPaid >= input.TotalAmount)
+                    {
+                        input.Status = InvoiceStatus.Paid;
+                    }
+                    else
+                    {
+                        input.Status = InvoiceStatus.PartiallyPaid;
+                    }
+
+                }
+
 
                 // Create the invoice entity
                 var invoice = new EMRSystem.Invoices.Invoice
@@ -255,9 +266,10 @@ namespace EMRSystem.Invoice
                     TenantId = input.TenantId,
                     PatientId = input.PatientId,
                     AppointmentId = input.AppointmentId,
+                    AmountPaid = input.AmountPaid,
                     InvoiceDate = input.InvoiceDate,
                     DueDate = input.DueDate,
-                    Status = initialStatus,
+                    Status = input.Status,
                     PaymentMethod = (PaymentMethod?)input.PaymentMethod,
                     Items = new List<InvoiceItem>()
                 };
@@ -304,7 +316,7 @@ namespace EMRSystem.Invoice
             invoice.GstAmount = gstAmount;
             invoice.TotalAmount = subtotal + gstAmount;
         }
-        public async Task MarkAsPaid(long invoiceId)
+        public async Task MarkAsPaid(long invoiceId, decimal? amount = null)
         {
             try
             {
@@ -312,14 +324,47 @@ namespace EMRSystem.Invoice
                 if (invoice == null)
                     throw new UserFriendlyException("Invoice not found");
 
-                invoice.Status = InvoiceStatus.Paid;
+                // Determine payment amount
+                decimal paymentAmount = amount.HasValue
+                    ? amount.Value
+                    : invoice.TotalAmount - invoice.AmountPaid;
+
+                // Validate payment amount
+                if (paymentAmount <= 0)
+                {
+                    throw new UserFriendlyException(
+                        "Payment amount must be greater than zero");
+                }
+
+                decimal newAmountPaid = invoice.AmountPaid;
+
+                // Validate payment doesn't exceed total
+                if (newAmountPaid > invoice.TotalAmount)
+                {
+                    throw new UserFriendlyException(
+                        $"Payment amount exceeds total due. Maximum allowed: {invoice.TotalAmount - invoice.AmountPaid:C}");
+                }
+
+                // Update payment information
+                invoice.AmountPaid = newAmountPaid;
+
+                // Update status based on payment
+                if (invoice.AmountPaid >= invoice.TotalAmount)
+                {
+                    invoice.Status = InvoiceStatus.Paid;
+                }
+                else
+                {
+                    invoice.Status = InvoiceStatus.PartiallyPaid;
+                }
+
                 await Repository.UpdateAsync(invoice);
                 await CurrentUnitOfWork.SaveChangesAsync();
             }
             catch (Exception ex)
             {
-                Logger.Error("Error marking invoice as paid", ex);
-                throw new UserFriendlyException("Error updating invoice status");
+                Logger.Error("Error recording payment", ex);
+                throw new UserFriendlyException("Error updating payment information");
             }
         }
 
@@ -327,6 +372,10 @@ namespace EMRSystem.Invoice
         {
             try
             {
+                if (amount <= 0)
+                {
+                    throw new UserFriendlyException("Payment amount must be greater than zero");
+                }
                 var options = new SessionCreateOptions
                 {
                     PaymentMethodTypes = new List<string> { "card" },
@@ -341,6 +390,7 @@ namespace EMRSystem.Invoice
                         ProductData = new SessionLineItemPriceDataProductDataOptions
                         {
                             Name = $"Invoice #{invoiceId}",
+                             Description = "Partial payment for medical services"
                         },
                     },
                     Quantity = 1,
@@ -351,7 +401,8 @@ namespace EMRSystem.Invoice
                     CancelUrl = cancelUrl,
                     Metadata = new Dictionary<string, string>
             {
-                { "invoiceId", invoiceId.ToString() }
+                { "invoiceId", invoiceId.ToString() },
+                { "paymentType", amount > 0 ? "partial" : "full" }
             }
                 };
 

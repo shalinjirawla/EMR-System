@@ -36,25 +36,28 @@ export class InvoicesComponent extends PagedListingComponentBase<InvoiceDto> {
         injector: Injector,
         private _modalService: BsModalService,
         private _activatedRoute: ActivatedRoute,
-        private _userService: UserServiceProxy,
-        private _billingService: BillingServiceProxy,
         private _invoiceService: InvoiceServiceProxy,
         cd: ChangeDetectorRef
     ) {
         super(injector, cd);
-        this.processPaymentResult();
         this.keyword = this._activatedRoute.snapshot.queryParams['filterText'] || '';
+        this.processPaymentResult();
     }
     private processPaymentResult(): void {
     const params = new URLSearchParams(window.location.search);
     const paymentStatus = params.get('payment');
     const invoiceId = params.get('invoiceId');
+    const amountpaid = params.get('amount');
 
-    if (paymentStatus && invoiceId) {
+
+
+    if (paymentStatus && invoiceId && amountpaid) {
         const id = Number(invoiceId);
+        const amount = Number(amountpaid);
+
 
         if (paymentStatus === 'success') {
-            this._invoiceService.markAsPaid(id).subscribe({
+            this._invoiceService.markAsPaid(id,amount).subscribe({
                 next: () => {  // Remove the success parameter
                     this.notify.success('Payment processed successfully!');
                     this.refresh(); // Refresh invoice list
@@ -78,6 +81,7 @@ export class InvoicesComponent extends PagedListingComponentBase<InvoiceDto> {
     }
 
     list(event?: LazyLoadEvent): void {
+        debugger
         if (this.primengTableHelper.shouldResetPaging(event)) {
             this.paginator.changePage(0);
 
@@ -154,7 +158,8 @@ getPaymentMethodString(method: number): string {
     //   }
   
       createOrEditUserDialog.content.onSave.subscribe(() => {
-        this.refresh();
+        debugger
+       this.refresh();
       });
     }
 
