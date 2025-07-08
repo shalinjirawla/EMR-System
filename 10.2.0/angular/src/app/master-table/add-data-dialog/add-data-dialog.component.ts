@@ -20,7 +20,8 @@ export class AddDataDialogComponent extends AppComponentBase {
   @Output() onSave = new EventEmitter<void>();
   saving = false;
   name: string = '';
-  dataType: 'report' | 'diagnosis' | 'department';
+  price:number=0;
+    dataType: 'report' | 'diagnosis' | 'department';
 
   constructor(
     injector: Injector,
@@ -60,6 +61,7 @@ export class AddDataDialogComponent extends AppComponentBase {
   private saveReport(): void {
     const input = new CreateUpdateLabReportTypeDto();
     input.reportType = this.name.trim();
+    input.reportPrice=this.price
     input.tenantId = abp.session.tenantId;
 
     this._labReportTypeService.create(input).subscribe({

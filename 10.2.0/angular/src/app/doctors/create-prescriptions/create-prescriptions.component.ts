@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
+import { BsModalRef } from 'ngx-bootstrap/modal';
 import { AppointmentServiceProxy, CreateUpdatePrescriptionItemDto, LabReportsTypeServiceProxy, PharmacistInventoryDtoPagedResultDto, PharmacistInventoryServiceProxy, PrescriptionItemDto, PrescriptionServiceProxy, PatientDropDownDto } from '@shared/service-proxies/service-proxies';
 import { AbpModalHeaderComponent } from '../../../shared/components/modal/abp-modal-header.component';
 import { AbpModalFooterComponent } from '../../../shared/components/modal/abp-modal-footer.component';
@@ -110,7 +111,6 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
       undefined,  // minStock
       undefined,  // maxStock
       undefined,  // fromExpiryDate
-      undefined,  // toExpiryDate
       true,       // isAvailable (only get available medicines)
       undefined,  // skipCount
       undefined   // maxResultCount
@@ -119,8 +119,10 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
         if (res.items && res.items.length > 0) {
           this.medicineOptions = res.items.map(item => ({
             label: item.medicineName,
-            value: item.medicineName
+            value: item.id, // Use medicineId as value
+            name: item.medicineName // Store name separately
           }));
+
 
           // Prepare dosage options for each medicine
           res.items.forEach(medicine => {
@@ -150,15 +152,19 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
   }
 
   onMedicineChange(item: any, index: number) {
-    const selectedMedicine = item.medicineName;
+  const selected = this.medicineOptions.find(m => m.value === item.medicineId);
+  if (selected) {
+    item.medicineName = selected.name;
 
-    // Set dosage to the first available unit for selected medicine
-    if (selectedMedicine && this.medicineDosageOptions[selectedMedicine]) {
-      item.dosage = this.selectedMedicineUnits[selectedMedicine];
+    // Set default dosage
+    if (this.medicineDosageOptions[selected.name]) {
+      item.dosage = this.selectedMedicineUnits[selected.name];
     } else {
       item.dosage = '';
     }
   }
+}
+
 
   LoadPatients() {
     this._patientService.patientDropDown().subscribe({
@@ -211,7 +217,8 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
       frequency: '',
       duration: '',
       instructions: '',
-      prescriptionId: 0
+      prescriptionId: 0,
+      medicineId: 0
     });
 
     // Add our custom properties
@@ -276,13 +283,15 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
 
     // Prepare items properly
     input.items = this.prescription.items.map(item => {
-      const dtoItem = new CreateUpdatePrescriptionItemDto();
-      dtoItem.init({
-        ...item,
-        duration: `${(item as any).durationValue} ${(item as any).durationUnit}`
-      });
-      return dtoItem;
-    });
+  const dtoItem = new CreateUpdatePrescriptionItemDto();
+  dtoItem.init({
+    ...item,
+    duration: `${(item as any).durationValue} ${(item as any).durationUnit}`,
+    medicineId: item.medicineId // <-- Make sure this is included
+  });
+  return dtoItem;
+});
+debugger
     this._prescriptionService.createPrescriptionWithItem(input).subscribe({
       next: (res) => {
         this.notify.info(this.l('SavedSuccessfully'));

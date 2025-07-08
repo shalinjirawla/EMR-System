@@ -12,6 +12,7 @@ namespace EMRSystem.LabReportsTypes
     {
         public int TenantId { get; set; }
         public string ReportType { get; set; }
+        public int ReportPrice { get; set; }
         public virtual ICollection<PrescriptionLabTest> PrescriptionLabTests { get; set; }
 
     }

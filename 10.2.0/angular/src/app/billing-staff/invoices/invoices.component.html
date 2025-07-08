@@ -6,7 +6,7 @@
                     <h1>Invoice</h1>
                 </div>
                 <div class="col-6 text-right">
-                    <a href="javascript:;" class="btn bg-blue" (click)="createPrescription()">
+                    <a href="javascript:;" class="btn bg-blue" (click)="createInvoice()">
                         <i class="fa fa-plus-square"></i>
                         {{ 'Create' | localize }}
                     </a>
@@ -106,13 +106,14 @@
                                         {{ 'TotalAmount' | localize }}
                                         <p-sortIcon field="totalAmount"></p-sortIcon>
                                     </th>
-                                    <th style="min-width: 150px" pSortableColumn="paymentStatus">
-                                        {{ 'PaymentStatus' | localize }}
-                                        <p-sortIcon field="paymentStatus"></p-sortIcon>
+                                    <th style="min-width: 150px">
+                                        {{ 'RemainingAmount' | localize }}
                                     </th>
-                                    <th style="min-width: 30px" pSortableColumn="paymentMethod">
+                                    <th style="min-width: 150px" >
+                                        {{ 'PaymentStatus' | localize }}
+                                    </th>
+                                    <th style="min-width: 30px" >
                                         {{ 'PaymentMethod' | localize }}
-                                        <p-sortIcon field="paymentMethod"></p-sortIcon>
                                     </th>
                                     <th style="min-width: 130px">
                                         {{ 'Actions' | localize }}
@@ -134,12 +135,17 @@
                                     </td>
                                     <td>
                                         <span>
-                                            {{ record.paymentStatus }}
+                                            {{ record.totalAmount-record.amountPaid }}
                                         </span>
                                     </td>
                                     <td>
                                         <span>
-                                            {{ record.paymentMethod }}
+                                            {{ getStatusString(record.status) }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span>
+                                            {{ getPaymentMethodString(record.paymentMethod) }}
                                         </span>
                                     </td>
                                     <td>

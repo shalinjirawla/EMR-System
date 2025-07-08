@@ -82,10 +82,10 @@
         <div *ngFor="let item of prescription.items; let i = index" class="mt-2">
           <div class="d-flex align-items-center">
             <!-- Medicine Dropdown -->
-            <p-dropdown [(ngModel)]="item.medicineName" [options]="medicineOptions" optionLabel="label"
-              optionValue="value" placeholder="Select Medicine" class="w-25 mr-2" name="itemName{{i}}"
-              (onChange)="onMedicineChange(item, i)"></p-dropdown>
-
+            <p-dropdown [(ngModel)]="item.medicineId" [options]="medicineOptions" optionLabel="label"
+              optionValue="value" placeholder="Select Medicine" class="w-25 mr-2" name="itemMedicine{{i}}"
+              (onChange)="onMedicineChange(item, i)">
+            </p-dropdown>
             <!-- Dosage Dropdown -->
             <p-dropdown *ngIf="item.medicineName && medicineDosageOptions[item.medicineName]" [(ngModel)]="item.dosage"
               [options]="getDosageOptions(item.medicineName)" optionLabel="label" optionValue="value"

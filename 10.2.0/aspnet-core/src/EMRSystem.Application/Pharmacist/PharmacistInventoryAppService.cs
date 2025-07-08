@@ -31,8 +31,7 @@ namespace EMRSystem.Pharmacist
                     x.MedicineName.Contains(input.Keyword) ||
                     x.Description.Contains(input.Keyword) ||
                     x.Unit.Contains(input.Keyword))
-                .WhereIf(input.MinStock.HasValue, x => x.MinStock <= input.MinStock.Value)
-                .WhereIf(input.MaxStock.HasValue, x => x.Stock >= input.MaxStock.Value)
+                .WhereIf(input.Stock.HasValue, x => x.Stock == input.Stock.Value)
                 .WhereIf(input.FromExpiryDate.HasValue, x => x.ExpiryDate >= input.FromExpiryDate.Value)
                 .WhereIf(input.ToExpiryDate.HasValue, x => x.ExpiryDate <= input.ToExpiryDate.Value)
                 .WhereIf(input.IsAvailable.HasValue, x => x.IsAvailable == input.IsAvailable.Value)

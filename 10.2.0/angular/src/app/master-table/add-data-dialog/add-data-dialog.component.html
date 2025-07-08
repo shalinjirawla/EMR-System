@@ -17,6 +17,22 @@
         [disabled]="saving"
       />
     </div>
+    <div class="field mb-4">
+      <label for="price" class="block font-medium mb-2">
+        {{ dataType === 'report' ? 'Report' : 'Diagnosis' }} Price *
+      </label>
+      <input 
+        pInputText 
+        id="price" 
+        type="number" 
+        [(ngModel)]="price" 
+        class="w-full" 
+        autocomplete="off"
+        (keyup.enter)="save()"
+        placeholder="Enter {{ dataType === 'report' ? 'report' : 'diagnosis' }} price..."
+        [disabled]="saving"
+      />
+    </div>
     
     <div class="flex justify-content-end gap-2">
       <button pButton 

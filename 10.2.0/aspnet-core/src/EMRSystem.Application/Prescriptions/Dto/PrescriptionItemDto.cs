@@ -15,6 +15,8 @@ namespace EMRSystem.Prescriptions.Dto
         public string Frequency { get; set; } // e.g. Twice a day
         public string Duration { get; set; } // e.g. 5 days
         public string Instructions { get; set; }
+        public int MedicineId { get; set; }
+
         public virtual PrescriptionDto Prescription { get; set; }
     }
 }

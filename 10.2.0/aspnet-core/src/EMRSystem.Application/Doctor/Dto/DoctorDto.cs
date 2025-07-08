@@ -26,7 +26,7 @@ namespace EMRSystem.Doctor.Dto
         public string RegistrationNumber { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public virtual UserDto AbpUser { get; set; }
-        public List<PatientDto> Patients { get; set; }
+        //public List<PatientDto> Patients { get; set; }
         public List<PrescriptionDto> Prescriptions { get; set; }
     }
 }

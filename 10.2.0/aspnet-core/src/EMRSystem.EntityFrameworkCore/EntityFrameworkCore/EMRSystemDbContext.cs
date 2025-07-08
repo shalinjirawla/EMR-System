@@ -5,6 +5,7 @@ using EMRSystem.Authorization.Users;
 using EMRSystem.Billings;
 using EMRSystem.Departments;
 using EMRSystem.Doctors;
+using EMRSystem.Invoices;
 using EMRSystem.LabReports;
 using EMRSystem.LabReportsTypes;
 using EMRSystem.MultiTenancy;
@@ -36,9 +37,13 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
     public DbSet<Patient> Patients { get; set; }
     public DbSet<Prescription> Prescriptions { get; set; }
     public DbSet<Vital> Vitals { get; set; }
+    //public DbSet<PrescriptionItem> PrescriptionItems { get; set; }
     public DbSet<PrescriptionLabTest> PrescriptionLabTests { get; set; }
+    public DbSet<Invoice> Invoices{ get; set; }
+    public DbSet<InvoiceItem> InvoiceItems { get; set; }
     public DbSet<Visit> Visits { get; set; }
     public DbSet<Department> Departments { get; set; }
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -170,6 +175,58 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
            .HasForeignKey(plt => plt.PrescriptionLabTestId)
            .OnDelete(DeleteBehavior.NoAction);
 
+        modelBuilder.Entity<Invoice>(b =>
+        {
+            b.ToTable("Invoices");
+
+            // Decimal precision
+            b.Property(x => x.SubTotal).HasColumnType("decimal(18,2)");
+            b.Property(x => x.GstAmount).HasColumnType("decimal(18,2)");
+            b.Property(x => x.TotalAmount).HasColumnType("decimal(18,2)");
+
+            // Enum conversions
+            b.Property(e => e.Status)
+                .HasConversion<string>()
+                .HasMaxLength(20);
+
+            b.Property(e => e.PaymentMethod)
+                .HasConversion<string?>()
+                .HasMaxLength(30);
+
+            // Relationships
+            b.HasOne(i => i.Patient)
+                .WithMany()
+                .HasForeignKey(i => i.PatientId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(i => i.Appointment)
+                .WithMany()
+                .HasForeignKey(i => i.AppointmentId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<InvoiceItem>(b =>
+        {
+            b.ToTable("InvoiceItems");
+
+            // Configure decimal precision
+            b.Property(x => x.UnitPrice)
+                .HasColumnType("decimal(18,2)");
+
+            // Configure enum as string
+            b.Property(e => e.ItemType)
+                .HasConversion<string>()
+                .HasMaxLength(20);
+
+            // Relationship with Invoice
+            b.HasOne(ii => ii.Invoice)
+                .WithMany(i => i.Items)
+                .HasForeignKey(ii => ii.InvoiceId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Optional: Add indexes for performance
+            b.HasIndex(ii => ii.InvoiceId);
+        });
 
         modelBuilder.Entity<Visit>()
            .HasOne(s => s.Patient)
