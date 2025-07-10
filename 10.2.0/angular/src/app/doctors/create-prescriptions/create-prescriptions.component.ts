@@ -174,20 +174,26 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
     });
   }
 
-  LoadAppoinments() {
-    const patientId = this.prescription.patientId;
-    const doctorId = this.doctorID;
-    if (!patientId) return;
-    this._appointmentService.getPatientAppointment(patientId, doctorId).subscribe({
-      next: (res) => {
-        this.appointments = res.items;
-        this.appointments.forEach(app => {
-          app['title'] = `${app.startTime} - ${app.endTime} - ${app.patient?.fullName}`;
-        });
-      }, error: (err) => {
-      }
-    });
-  }
+ LoadAppoinments() {
+  const patientId = this.prescription.patientId;
+  const doctorId = this.doctorID;
+
+  if (!patientId) return;
+
+  this._appointmentService.getPatientAppointment(patientId, doctorId).subscribe({
+    next: (res) => {
+      // Filter out completed (status == 2)
+      this.appointments = res.items.filter(app => app.status == 0 || app.status==1);
+    },
+    error: (err) => {
+      // Handle error if needed
+    }
+  });
+}
+
+
+ 
+
 
   LoadLabReports() {
     this._labService.getAllTestByTenantID(abp.session.tenantId).subscribe({

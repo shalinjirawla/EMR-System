@@ -30,7 +30,8 @@ namespace EMRSystem.Appointments.Dto
             }
             else
             {
-                Sorting = "Patient.FullName, Doctor.FullName";
+                //Sorting = "Patient.FullName, Doctor.FullName";
+                Sorting = "Status";
             }
 
             Keyword = Keyword?.Trim();

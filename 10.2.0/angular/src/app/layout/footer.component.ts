@@ -20,7 +20,7 @@ export class FooterComponent extends AppComponentBase {
         this.versionText =
             this.appSession.application.version +
             ' [' +
-            this.appSession.application.releaseDate.format('YYYYDDMM') +
+            this.appSession.application.releaseDate.format('DD-MM-YYYY') +
             ']';
     }
 }

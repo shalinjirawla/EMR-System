@@ -37,6 +37,8 @@ export class EditAppoinmentComponent extends AppComponentBase implements OnInit 
   id: number;
   status: AppointmentStatus;
   saving = false;
+  tomorrow!: Date;
+
   appointment: any = {
     id: null,
     patientId: null,
@@ -71,6 +73,7 @@ export class EditAppoinmentComponent extends AppComponentBase implements OnInit 
   }
 
   ngOnInit(): void {
+    this.tomorrow = moment().add(1, 'day').toDate();
     if (this.status) {
       this.appointment.status = this.status;
     }
@@ -117,10 +120,10 @@ export class EditAppoinmentComponent extends AppComponentBase implements OnInit 
   LoadStatus() {
     this.statusOptions = [
       { label: 'Scheduled', value: AppointmentStatus._0 },
-      { label: 'Checked In', value: AppointmentStatus._1 },
-      { label: 'Completed', value: AppointmentStatus._2 },
-      { label: 'Cancelled', value: AppointmentStatus._3 },
-      { label: 'Rescheduled', value: AppointmentStatus._4 },
+      { label: 'Rescheduled', value: AppointmentStatus._1 },
+      { label: 'Checked In', value: AppointmentStatus._2 },
+      { label: 'Completed', value: AppointmentStatus._3 },
+      { label: 'Cancelled', value: AppointmentStatus._4 },
     ];
     this.cd.detectChanges();
   }

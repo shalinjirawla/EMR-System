@@ -34,9 +34,9 @@ namespace EMRSystem.Appointments
     public enum AppointmentStatus
     {
         Scheduled,
+        Rescheduled,
         CheckedIn,
         Completed,
-        Cancelled,
-        Rescheduled
+        Cancelled
     }
 }

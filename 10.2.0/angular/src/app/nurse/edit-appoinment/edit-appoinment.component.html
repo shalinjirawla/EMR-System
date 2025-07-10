@@ -44,7 +44,7 @@
             <div class="col-md-6 d-flex flex-column">
                 <label for="buttondisplay"> Appointment Date </label>
                 <p-datepicker [(ngModel)]="appointment.appointmentDate" name="appointmentDate" [showIcon]="true"
-                    placeholder="Select appointment date" required />
+                    placeholder="Select appointment date" [minDate]="tomorrow" required />
             </div>
             <div class="col-md-6">
                 <div class="row">

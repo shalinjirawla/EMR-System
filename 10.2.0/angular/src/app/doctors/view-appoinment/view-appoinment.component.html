@@ -132,38 +132,39 @@
                                         <p-chip [label]="getStatusLabel(record.status)"
                                             [class]="getStatusClass(record.status)" />
                                     </td>
-                                    <td>
+                                    <td *ngIf="record.status !== 3">
                                         <button type="button" pButton icon="pi pi-ellipsis-v" class="p-button-text"
                                             (click)="rowMenu.toggle($event); selectedRecord = record">
                                         </button>
                                         <p-overlayPanel #rowMenu class="custom-overlay" [dismissable]="true">
                                             <ul class="custom-overlay-menu">
                                                 <!-- Edit: Only show if not Completed -->
-                                                <li *ngIf="record.status !== 2 && record.status!==3"
+                                                <!-- <li *ngIf="record.status !== 0 || record.status!==1"
                                                     (click)="editAppoinment(selectedRecord)">
                                                     <i class="pi pi-pencil"></i> Edit
-                                                </li>
+                                                </li> -->
                                                 <!-- Delete: Only if not CheckedIn -->
-                                                <li *ngIf="record.status !== 1" (click)="delete(selectedRecord)">
+                                                <!-- <li *ngIf="record.status !== 0 && record.status!==1" (click)="delete(selectedRecord)">
                                                     <i class="pi pi-trash"></i> Delete
-                                                </li>
+                                                </li> -->
                                                 <!-- Reschedule: Only if not CheckedIn -->
-                                                <li *ngIf="record.status !== 1 && record.status!==3"
+                                                <li *ngIf="record.status !== 0 || record.status!==1"
                                                     (click)="reschedulAppoinment(record.id)">
                                                     <i class="pi pi-clock"></i> Rescheduled
                                                 </li>
                                                 <!-- Mark as In Progress: Only if not CheckedIn -->
-                                                <li (click)="changeStatusofAppoinment(record.id,1)"
-                                                    *ngIf="record.status !== 1 && record.status!==3">
+                                                <li (click)="changeStatusofAppoinment(record.id,2)"
+                                                    *ngIf="record.status !== 1 || record.status!==0">
                                                     <i class="pi pi-check"></i> Mark as in progress
                                                 </li>
                                                 <!-- Cancel: Always visible -->
-                                                <li *ngIf="record.status!==3" (click)="changeStatusofAppoinment(record.id,3)">
+                                                <li *ngIf="record.status!==3" (click)="changeStatusofAppoinment(record.id,4)">
                                                     <i class="pi pi-times"></i> Cancel
                                                 </li>
                                             </ul>
                                         </p-overlayPanel>
                                     </td>
+                                    <td *ngIf="record.status === 3"></td> 
                                 </tr>
                             </ng-template>
                         </p-table>
