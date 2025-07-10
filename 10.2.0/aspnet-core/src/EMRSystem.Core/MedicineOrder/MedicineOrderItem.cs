@@ -13,7 +13,7 @@ namespace EMRSystem.MedicineOrder
     {
         public long MedicineOrderId { get; set; }
         public virtual MedicineOrder MedicineOrder { get; set; }
-
+        public string MedicineName { get; set; }
         [Required]
         public long MedicineId { get; set; }
         public virtual PharmacistInventory Medicine { get; set; }

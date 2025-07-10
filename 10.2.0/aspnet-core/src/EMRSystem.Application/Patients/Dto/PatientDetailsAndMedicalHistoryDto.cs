@@ -1,4 +1,5 @@
 ﻿using Abp.Application.Services.Dto;
+using EMRSystem.Invoices;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,11 +20,13 @@ namespace EMRSystem.Patients.Dto
         public string BloodGroup { get; set; }
         public string EmergencyContactName { get; set; }
         public string EmergencyContactNumber { get; set; }
-        public bool IsAdmitted { get; set; }
+        public BillingMethod BillingMethod { get; set; }
+        public PaymentMethod? PaymentMethod { get; set; }
+        //public bool IsAdmitted { get; set; }
         public DateTime? AdmissionDate { get; set; }
-        public DateTime? DischargeDate { get; set; }
-        public string? InsuranceProvider { get; set; }
-        public string? InsurancePolicyNumber { get; set; }
+        //public DateTime? DischargeDate { get; set; }
+        //public string? InsuranceProvider { get; set; }
+        //public string? InsurancePolicyNumber { get; set; }
         public long AbpUserId { get; set; }
         public long? AssignedNurseId { get; set; }
         public long? AssignedDoctorId { get; set; }

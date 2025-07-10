@@ -5,46 +5,22 @@
     <!-- Nurse -->
     <div class="mb-3">
       <label class="form-label">Select Nurse</label>
-      <p-dropdown
-        [(ngModel)]="order.nurseId"
-        name="nurseId"
-        [options]="nurses"
-        optionLabel="fullName"
-        optionValue="id"
-        placeholder="Select Nurse"
-        class="w-100"
-        required
-      ></p-dropdown>
+      <p-dropdown [(ngModel)]="order.nurseId" name="nurseId" [options]="nurses" optionLabel="fullName" optionValue="id"
+        placeholder="Select Nurse" class="w-100" required></p-dropdown>
     </div>
 
     <!-- Patient -->
     <div class="mb-3">
       <label class="form-label">Select Patient</label>
-      <p-dropdown
-        [(ngModel)]="order.patientId"
-        name="patientId"
-        [options]="patients"
-        optionLabel="fullName"
-        optionValue="id"
-        placeholder="Select Patient"
-        class="w-100"
-        required
-      ></p-dropdown>
+      <p-dropdown [(ngModel)]="order.patientId" name="patientId" [options]="patients" optionLabel="fullName"
+        optionValue="id" placeholder="Select Patient" class="w-100" required></p-dropdown>
     </div>
 
     <!-- Priority -->
     <div class="mb-3">
       <label class="form-label">Select Priority</label>
-      <p-dropdown
-        [(ngModel)]="order.priority"
-        name="priority"
-        [options]="priorities"
-        optionLabel="label"
-        optionValue="value"
-        placeholder="Select Priority"
-        class="w-100"
-        required
-      ></p-dropdown>
+      <p-dropdown [(ngModel)]="order.priority" name="priority" [options]="priorities" optionLabel="label"
+        optionValue="value" placeholder="Select Priority" class="w-100" required></p-dropdown>
     </div>
 
     <!-- Medicine Items -->
@@ -55,59 +31,29 @@
             <!-- Medicine -->
             <div class="col-md-4">
               <label class="form-label">Medicine</label>
-              <p-dropdown
-                [(ngModel)]="item.medicineId"
-                name="medicineId{{ i }}"
-                [options]="medicineOptions"
-                optionLabel="label"
-                optionValue="value"
-                placeholder="Select Medicine"
-                class="w-100"
-                (onChange)="onMedicineChange(item)"
-                required
-              ></p-dropdown>
+              <p-dropdown [(ngModel)]="item.medicineId" name="medicineId{{ i }}" [options]="medicineOptions"
+                optionLabel="label" optionValue="value" placeholder="Select Medicine" class="w-100"
+                (onChange)="onMedicineChange(item)" required></p-dropdown>
             </div>
 
             <!-- Dosage -->
             <div class="col-md-4">
               <label class="form-label">Dosage</label>
-              <p-dropdown
-                [(ngModel)]="item.dosage"
-                name="dosage{{ i }}"
-                [options]="getDosageOptions(item.medicineId)"
-                optionLabel="label"
-                optionValue="value"
-                placeholder="Select Dosage"
-                class="w-100"
-                required
-              ></p-dropdown>
+              <p-dropdown [(ngModel)]="item.dosage" name="dosage{{ i }}" [options]="getDosageOptions(item.medicineId)"
+                optionLabel="label" optionValue="value" placeholder="Select Dosage" class="w-100" required></p-dropdown>
             </div>
 
             <!-- Quantity -->
             <div class="col-md-3">
               <label class="form-label">Quantity</label>
-              <input
-                type="number"
-                pInputText
-                [(ngModel)]="item.quantity"
-                name="quantity{{ i }}"
-                class="form-control"
-                placeholder="Qty"
-                min="1"
-                required
-              />
+              <input type="number" pInputText [(ngModel)]="item.quantity" name="quantity{{ i }}" class="form-control"
+                placeholder="Qty" min="1" required />
             </div>
 
             <!-- Remove Button -->
             <div class="col-md-1 text-end">
-              <button
-                type="button"
-                pButton
-                icon="pi pi-trash"
-                class="p-button-danger"
-                (click)="removeItem(i)"
-                *ngIf="order.items.length > 1"
-              ></button>
+              <button type="button" pButton icon="pi pi-trash" class="p-button-danger" (click)="removeItem(i)"
+                *ngIf="order.items.length > 1"></button>
             </div>
           </div>
         </div>
@@ -116,14 +62,8 @@
 
     <!-- Add More Button -->
     <div class="text-end mt-2">
-      <button
-        type="button"
-        pButton
-        icon="pi pi-plus"
-        label="Add Item"
-        class="p-button-success p-button-sm"
-        (click)="addItem()"
-      ></button>
+      <button type="button" pButton icon="pi pi-plus" label="Add Item" class="p-button-success p-button-sm"
+        (click)="addItem()"></button>
     </div>
   </div>
 

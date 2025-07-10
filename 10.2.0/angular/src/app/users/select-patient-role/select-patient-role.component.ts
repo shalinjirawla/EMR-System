@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core
 import { AbpValidationSummaryComponent } from "../../../shared/components/validation/abp-validation.summary.component";
 import { FormsModule, NgForm } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { NurseDto, DoctorDto, DoctorServiceProxy, NurseServiceProxy } from '@shared/service-proxies/service-proxies';
+import { NurseDto, DoctorDto, DoctorServiceProxy, NurseServiceProxy, PaymentMethod, BillingMethod } from '@shared/service-proxies/service-proxies';
 
 @Component({
   selector: 'app-select-patient-role',
@@ -15,6 +15,17 @@ export class SelectPatientRoleComponent {
   @ViewChild('patientForm', { static: true }) patientForm: NgForm;
   genders = ['Male', 'Female', 'Other'];
   bloodGroups = ['A+', 'A−', 'B+', 'B−', 'AB+', 'AB−', 'O+', 'O−'];
+  paymentMethodOptions = [
+    { label: 'Cash', value: PaymentMethod._0 },
+    { label: 'Card', value: PaymentMethod._1 }
+  ];
+  billingMethods = [
+    { label: 'Insurance Only', value: BillingMethod._0 },
+    { label: 'Self Pay', value: BillingMethod._1 },
+    { label: 'Insurance + SelfPay', value: BillingMethod._2 }
+  ];
+  BillingMethod = BillingMethod; // Add this line
+
   nurseList!: NurseDto[];
   doctorList!: DoctorDto[];
   isDoctorLoggedIn: boolean = false;
@@ -26,11 +37,14 @@ export class SelectPatientRoleComponent {
     emergencyContactName: '',
     emergencyContactNumber: '',
     assignedNurseId: null,
-    isAdmitted: false,
+    billingMethod: null,
+    paymentMethod: null,
+    depositAmount:0,
+    //isAdmitted: false,
     admissionDate: null,
-    dischargeDate: null,
-    insuranceProvider: '',
-    insurancePolicyNumber: '',
+    // dischargeDate: null,
+    // insuranceProvider: '',
+    // insurancePolicyNumber: '',
     assignedDoctorId: null
   };
 
@@ -58,17 +72,24 @@ export class SelectPatientRoleComponent {
       }
     })
   }
-  
-  onInputChange() {
-    this.patientDataChange.emit(this.patient);
-  }
 
-  onAdmitChange() {
-    if (!this.patient.isAdmitted) {
-      this.patient.admissionDate = null;
-    }
-    this.onInputChange();
+  // onInputChange() {
+  //   this.patientDataChange.emit(this.patient);
+  // }
+
+  // onAdmitChange() {
+  //   if (!this.patient.isAdmitted) {
+  //     this.patient.admissionDate = null;
+  //   }
+  //   this.onInputChange();
+  // }
+  onInputChange() {
+  if (this.patient.billingMethod === BillingMethod._0) {
+
+    this.patient.paymentMethod = null;
   }
+  this.patientDataChange.emit(this.patient);
+}
   GetLoggedInUserRole() {
     this._doctorService.getCurrentUserRoles().subscribe(res => {
       if (res && res.includes('Doctors')) {

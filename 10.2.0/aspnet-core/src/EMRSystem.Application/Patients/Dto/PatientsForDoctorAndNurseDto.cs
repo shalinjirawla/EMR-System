@@ -1,4 +1,5 @@
 ﻿using Abp.Application.Services.Dto;
+using EMRSystem.Invoices;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,11 +24,13 @@ namespace EMRSystem.Patients.Dto
         public long? AssignedDoctorId { get; set; }
         public string DoctorName { get; set; }
         public long AbpUserId { get; set; }
-        public bool IsAdmitted { get; set; }
+        //public bool IsAdmitted { get; set; }
         public bool IsActive { get; set; }
         public DateTime? AdmissionDate { get; set; }
-        public DateTime? DischargeDate { get; set; }
-        public string? InsuranceProvider { get; set; }
-        public string? InsurancePolicyNumber { get; set; }
+        public BillingMethod BillingMethod { get; set; }
+        public PaymentMethod? PaymentMethod { get; set; }
+        //public DateTime? DischargeDate { get; set; }
+        //public string? InsuranceProvider { get; set; }
+        //public string? InsurancePolicyNumber { get; set; }
     }
 }

@@ -3861,6 +3861,58 @@ export class MedicineOrderServiceProxy {
     }
 
     /**
+     * @param body (optional) 
+     * @return OK
+     */
+    updateMedicineOrderWithItem(body: CreateUpdateMedicineOrderDto | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/MedicineOrder/UpdateMedicineOrderWithItem";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateMedicineOrderWithItem(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateMedicineOrderWithItem(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processUpdateMedicineOrderWithItem(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * @param id (optional) 
      * @return OK
      */
@@ -5150,6 +5202,135 @@ export class PatientServiceProxy {
             else {
                 result200 = <any>null;
             }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    createWithStripe(body: CreateUpdatePatientDto | undefined): Observable<string> {
+        let url_ = this.baseUrl + "/api/services/app/Patient/CreateWithStripe";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreateWithStripe(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreateWithStripe(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<string>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<string>;
+        }));
+    }
+
+    protected processCreateWithStripe(response: HttpResponseBase): Observable<string> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param patientId (optional) 
+     * @param amount (optional) 
+     * @param successUrl (optional) 
+     * @param cancelUrl (optional) 
+     * @return OK
+     */
+    createStripeCheckoutSessionForDeposit(patientId: number | undefined, amount: number | undefined, successUrl: string | undefined, cancelUrl: string | undefined): Observable<string> {
+        let url_ = this.baseUrl + "/api/services/app/Patient/CreateStripeCheckoutSessionForDeposit?";
+        if (patientId === null)
+            throw new Error("The parameter 'patientId' cannot be null.");
+        else if (patientId !== undefined)
+            url_ += "patientId=" + encodeURIComponent("" + patientId) + "&";
+        if (amount === null)
+            throw new Error("The parameter 'amount' cannot be null.");
+        else if (amount !== undefined)
+            url_ += "amount=" + encodeURIComponent("" + amount) + "&";
+        if (successUrl === null)
+            throw new Error("The parameter 'successUrl' cannot be null.");
+        else if (successUrl !== undefined)
+            url_ += "successUrl=" + encodeURIComponent("" + successUrl) + "&";
+        if (cancelUrl === null)
+            throw new Error("The parameter 'cancelUrl' cannot be null.");
+        else if (cancelUrl !== undefined)
+            url_ += "cancelUrl=" + encodeURIComponent("" + cancelUrl) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreateStripeCheckoutSessionForDeposit(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreateStripeCheckoutSessionForDeposit(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<string>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<string>;
+        }));
+    }
+
+    protected processCreateStripeCheckoutSessionForDeposit(response: HttpResponseBase): Observable<string> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -10831,6 +11012,12 @@ export interface IBillingDtoPagedResultDto {
     totalCount: number;
 }
 
+export enum BillingMethod {
+    _0 = 0,
+    _1 = 1,
+    _2 = 2,
+}
+
 export class ChangePasswordDto implements IChangePasswordDto {
     currentPassword: string;
     newPassword: string;
@@ -11985,11 +12172,10 @@ export class CreateUpdatePatientDto implements ICreateUpdatePatientDto {
     emergencyContactName: string | undefined;
     emergencyContactNumber: string | undefined;
     assignedNurseId: number | undefined;
-    isAdmitted: boolean;
+    billingMethod: BillingMethod;
+    paymentMethod: PaymentMethod;
+    depositAmount: number | undefined;
     admissionDate: moment.Moment | undefined;
-    dischargeDate: moment.Moment | undefined;
-    insuranceProvider: string | undefined;
-    insurancePolicyNumber: string | undefined;
     abpUserId: number;
     assignedDoctorId: number | undefined;
 
@@ -12014,11 +12200,10 @@ export class CreateUpdatePatientDto implements ICreateUpdatePatientDto {
             this.emergencyContactName = _data["emergencyContactName"];
             this.emergencyContactNumber = _data["emergencyContactNumber"];
             this.assignedNurseId = _data["assignedNurseId"];
-            this.isAdmitted = _data["isAdmitted"];
+            this.billingMethod = _data["billingMethod"];
+            this.paymentMethod = _data["paymentMethod"];
+            this.depositAmount = _data["depositAmount"];
             this.admissionDate = _data["admissionDate"] ? moment(_data["admissionDate"].toString()) : <any>undefined;
-            this.dischargeDate = _data["dischargeDate"] ? moment(_data["dischargeDate"].toString()) : <any>undefined;
-            this.insuranceProvider = _data["insuranceProvider"];
-            this.insurancePolicyNumber = _data["insurancePolicyNumber"];
             this.abpUserId = _data["abpUserId"];
             this.assignedDoctorId = _data["assignedDoctorId"];
         }
@@ -12043,11 +12228,10 @@ export class CreateUpdatePatientDto implements ICreateUpdatePatientDto {
         data["emergencyContactName"] = this.emergencyContactName;
         data["emergencyContactNumber"] = this.emergencyContactNumber;
         data["assignedNurseId"] = this.assignedNurseId;
-        data["isAdmitted"] = this.isAdmitted;
+        data["billingMethod"] = this.billingMethod;
+        data["paymentMethod"] = this.paymentMethod;
+        data["depositAmount"] = this.depositAmount;
         data["admissionDate"] = this.admissionDate ? this.admissionDate.toISOString() : <any>undefined;
-        data["dischargeDate"] = this.dischargeDate ? this.dischargeDate.toISOString() : <any>undefined;
-        data["insuranceProvider"] = this.insuranceProvider;
-        data["insurancePolicyNumber"] = this.insurancePolicyNumber;
         data["abpUserId"] = this.abpUserId;
         data["assignedDoctorId"] = this.assignedDoctorId;
         return data;
@@ -12072,11 +12256,10 @@ export interface ICreateUpdatePatientDto {
     emergencyContactName: string | undefined;
     emergencyContactNumber: string | undefined;
     assignedNurseId: number | undefined;
-    isAdmitted: boolean;
+    billingMethod: BillingMethod;
+    paymentMethod: PaymentMethod;
+    depositAmount: number | undefined;
     admissionDate: moment.Moment | undefined;
-    dischargeDate: moment.Moment | undefined;
-    insuranceProvider: string | undefined;
-    insurancePolicyNumber: string | undefined;
     abpUserId: number;
     assignedDoctorId: number | undefined;
 }
@@ -15107,6 +15290,7 @@ export class MedicineOrderItem implements IMedicineOrderItem {
     id: number;
     medicineOrderId: number;
     medicineOrder: MedicineOrder;
+    medicineName: string | undefined;
     medicineId: number;
     medicine: PharmacistInventory;
     quantity: number;
@@ -15126,6 +15310,7 @@ export class MedicineOrderItem implements IMedicineOrderItem {
             this.id = _data["id"];
             this.medicineOrderId = _data["medicineOrderId"];
             this.medicineOrder = _data["medicineOrder"] ? MedicineOrder.fromJS(_data["medicineOrder"]) : <any>undefined;
+            this.medicineName = _data["medicineName"];
             this.medicineId = _data["medicineId"];
             this.medicine = _data["medicine"] ? PharmacistInventory.fromJS(_data["medicine"]) : <any>undefined;
             this.quantity = _data["quantity"];
@@ -15145,6 +15330,7 @@ export class MedicineOrderItem implements IMedicineOrderItem {
         data["id"] = this.id;
         data["medicineOrderId"] = this.medicineOrderId;
         data["medicineOrder"] = this.medicineOrder ? this.medicineOrder.toJSON() : <any>undefined;
+        data["medicineName"] = this.medicineName;
         data["medicineId"] = this.medicineId;
         data["medicine"] = this.medicine ? this.medicine.toJSON() : <any>undefined;
         data["quantity"] = this.quantity;
@@ -15164,6 +15350,7 @@ export interface IMedicineOrderItem {
     id: number;
     medicineOrderId: number;
     medicineOrder: MedicineOrder;
+    medicineName: string | undefined;
     medicineId: number;
     medicine: PharmacistInventory;
     quantity: number;
@@ -15590,11 +15777,10 @@ export class Patient implements IPatient {
     bloodGroup: string | undefined;
     emergencyContactName: string | undefined;
     emergencyContactNumber: string | undefined;
-    isAdmitted: boolean;
     admissionDate: moment.Moment | undefined;
-    dischargeDate: moment.Moment | undefined;
-    insuranceProvider: string | undefined;
-    insurancePolicyNumber: string | undefined;
+    billingMethod: BillingMethod;
+    paymentMethod: PaymentMethod;
+    depositAmount: number | undefined;
     abpUserId: number;
     assignedNurseId: number | undefined;
     assignedDoctorId: number | undefined;
@@ -15627,11 +15813,10 @@ export class Patient implements IPatient {
             this.bloodGroup = _data["bloodGroup"];
             this.emergencyContactName = _data["emergencyContactName"];
             this.emergencyContactNumber = _data["emergencyContactNumber"];
-            this.isAdmitted = _data["isAdmitted"];
             this.admissionDate = _data["admissionDate"] ? moment(_data["admissionDate"].toString()) : <any>undefined;
-            this.dischargeDate = _data["dischargeDate"] ? moment(_data["dischargeDate"].toString()) : <any>undefined;
-            this.insuranceProvider = _data["insuranceProvider"];
-            this.insurancePolicyNumber = _data["insurancePolicyNumber"];
+            this.billingMethod = _data["billingMethod"];
+            this.paymentMethod = _data["paymentMethod"];
+            this.depositAmount = _data["depositAmount"];
             this.abpUserId = _data["abpUserId"];
             this.assignedNurseId = _data["assignedNurseId"];
             this.assignedDoctorId = _data["assignedDoctorId"];
@@ -15684,11 +15869,10 @@ export class Patient implements IPatient {
         data["bloodGroup"] = this.bloodGroup;
         data["emergencyContactName"] = this.emergencyContactName;
         data["emergencyContactNumber"] = this.emergencyContactNumber;
-        data["isAdmitted"] = this.isAdmitted;
         data["admissionDate"] = this.admissionDate ? this.admissionDate.toISOString() : <any>undefined;
-        data["dischargeDate"] = this.dischargeDate ? this.dischargeDate.toISOString() : <any>undefined;
-        data["insuranceProvider"] = this.insuranceProvider;
-        data["insurancePolicyNumber"] = this.insurancePolicyNumber;
+        data["billingMethod"] = this.billingMethod;
+        data["paymentMethod"] = this.paymentMethod;
+        data["depositAmount"] = this.depositAmount;
         data["abpUserId"] = this.abpUserId;
         data["assignedNurseId"] = this.assignedNurseId;
         data["assignedDoctorId"] = this.assignedDoctorId;
@@ -15741,11 +15925,10 @@ export interface IPatient {
     bloodGroup: string | undefined;
     emergencyContactName: string | undefined;
     emergencyContactNumber: string | undefined;
-    isAdmitted: boolean;
     admissionDate: moment.Moment | undefined;
-    dischargeDate: moment.Moment | undefined;
-    insuranceProvider: string | undefined;
-    insurancePolicyNumber: string | undefined;
+    billingMethod: BillingMethod;
+    paymentMethod: PaymentMethod;
+    depositAmount: number | undefined;
     abpUserId: number;
     assignedNurseId: number | undefined;
     assignedDoctorId: number | undefined;
@@ -15846,11 +16029,9 @@ export class PatientDetailsAndMedicalHistoryDto implements IPatientDetailsAndMed
     bloodGroup: string | undefined;
     emergencyContactName: string | undefined;
     emergencyContactNumber: string | undefined;
-    isAdmitted: boolean;
+    billingMethod: BillingMethod;
+    paymentMethod: PaymentMethod;
     admissionDate: moment.Moment | undefined;
-    dischargeDate: moment.Moment | undefined;
-    insuranceProvider: string | undefined;
-    insurancePolicyNumber: string | undefined;
     abpUserId: number;
     assignedNurseId: number | undefined;
     assignedDoctorId: number | undefined;
@@ -15882,11 +16063,9 @@ export class PatientDetailsAndMedicalHistoryDto implements IPatientDetailsAndMed
             this.bloodGroup = _data["bloodGroup"];
             this.emergencyContactName = _data["emergencyContactName"];
             this.emergencyContactNumber = _data["emergencyContactNumber"];
-            this.isAdmitted = _data["isAdmitted"];
+            this.billingMethod = _data["billingMethod"];
+            this.paymentMethod = _data["paymentMethod"];
             this.admissionDate = _data["admissionDate"] ? moment(_data["admissionDate"].toString()) : <any>undefined;
-            this.dischargeDate = _data["dischargeDate"] ? moment(_data["dischargeDate"].toString()) : <any>undefined;
-            this.insuranceProvider = _data["insuranceProvider"];
-            this.insurancePolicyNumber = _data["insurancePolicyNumber"];
             this.abpUserId = _data["abpUserId"];
             this.assignedNurseId = _data["assignedNurseId"];
             this.assignedDoctorId = _data["assignedDoctorId"];
@@ -15926,11 +16105,9 @@ export class PatientDetailsAndMedicalHistoryDto implements IPatientDetailsAndMed
         data["bloodGroup"] = this.bloodGroup;
         data["emergencyContactName"] = this.emergencyContactName;
         data["emergencyContactNumber"] = this.emergencyContactNumber;
-        data["isAdmitted"] = this.isAdmitted;
+        data["billingMethod"] = this.billingMethod;
+        data["paymentMethod"] = this.paymentMethod;
         data["admissionDate"] = this.admissionDate ? this.admissionDate.toISOString() : <any>undefined;
-        data["dischargeDate"] = this.dischargeDate ? this.dischargeDate.toISOString() : <any>undefined;
-        data["insuranceProvider"] = this.insuranceProvider;
-        data["insurancePolicyNumber"] = this.insurancePolicyNumber;
         data["abpUserId"] = this.abpUserId;
         data["assignedNurseId"] = this.assignedNurseId;
         data["assignedDoctorId"] = this.assignedDoctorId;
@@ -15970,11 +16147,9 @@ export interface IPatientDetailsAndMedicalHistoryDto {
     bloodGroup: string | undefined;
     emergencyContactName: string | undefined;
     emergencyContactNumber: string | undefined;
-    isAdmitted: boolean;
+    billingMethod: BillingMethod;
+    paymentMethod: PaymentMethod;
     admissionDate: moment.Moment | undefined;
-    dischargeDate: moment.Moment | undefined;
-    insuranceProvider: string | undefined;
-    insurancePolicyNumber: string | undefined;
     abpUserId: number;
     assignedNurseId: number | undefined;
     assignedDoctorId: number | undefined;
@@ -16043,11 +16218,10 @@ export class PatientDto implements IPatientDto {
     emergencyContactName: string | undefined;
     emergencyContactNumber: string | undefined;
     assignedNurseId: number | undefined;
-    isAdmitted: boolean;
+    billingMethod: BillingMethod;
+    paymentMethod: PaymentMethod;
+    depositAmount: number | undefined;
     admissionDate: moment.Moment | undefined;
-    dischargeDate: moment.Moment | undefined;
-    insuranceProvider: string | undefined;
-    insurancePolicyNumber: string | undefined;
     abpUser: UserDto;
     doctors: DoctorDto;
     nurses: NurseDto;
@@ -16074,11 +16248,10 @@ export class PatientDto implements IPatientDto {
             this.emergencyContactName = _data["emergencyContactName"];
             this.emergencyContactNumber = _data["emergencyContactNumber"];
             this.assignedNurseId = _data["assignedNurseId"];
-            this.isAdmitted = _data["isAdmitted"];
+            this.billingMethod = _data["billingMethod"];
+            this.paymentMethod = _data["paymentMethod"];
+            this.depositAmount = _data["depositAmount"];
             this.admissionDate = _data["admissionDate"] ? moment(_data["admissionDate"].toString()) : <any>undefined;
-            this.dischargeDate = _data["dischargeDate"] ? moment(_data["dischargeDate"].toString()) : <any>undefined;
-            this.insuranceProvider = _data["insuranceProvider"];
-            this.insurancePolicyNumber = _data["insurancePolicyNumber"];
             this.abpUser = _data["abpUser"] ? UserDto.fromJS(_data["abpUser"]) : <any>undefined;
             this.doctors = _data["doctors"] ? DoctorDto.fromJS(_data["doctors"]) : <any>undefined;
             this.nurses = _data["nurses"] ? NurseDto.fromJS(_data["nurses"]) : <any>undefined;
@@ -16109,11 +16282,10 @@ export class PatientDto implements IPatientDto {
         data["emergencyContactName"] = this.emergencyContactName;
         data["emergencyContactNumber"] = this.emergencyContactNumber;
         data["assignedNurseId"] = this.assignedNurseId;
-        data["isAdmitted"] = this.isAdmitted;
+        data["billingMethod"] = this.billingMethod;
+        data["paymentMethod"] = this.paymentMethod;
+        data["depositAmount"] = this.depositAmount;
         data["admissionDate"] = this.admissionDate ? this.admissionDate.toISOString() : <any>undefined;
-        data["dischargeDate"] = this.dischargeDate ? this.dischargeDate.toISOString() : <any>undefined;
-        data["insuranceProvider"] = this.insuranceProvider;
-        data["insurancePolicyNumber"] = this.insurancePolicyNumber;
         data["abpUser"] = this.abpUser ? this.abpUser.toJSON() : <any>undefined;
         data["doctors"] = this.doctors ? this.doctors.toJSON() : <any>undefined;
         data["nurses"] = this.nurses ? this.nurses.toJSON() : <any>undefined;
@@ -16144,11 +16316,10 @@ export interface IPatientDto {
     emergencyContactName: string | undefined;
     emergencyContactNumber: string | undefined;
     assignedNurseId: number | undefined;
-    isAdmitted: boolean;
+    billingMethod: BillingMethod;
+    paymentMethod: PaymentMethod;
+    depositAmount: number | undefined;
     admissionDate: moment.Moment | undefined;
-    dischargeDate: moment.Moment | undefined;
-    insuranceProvider: string | undefined;
-    insurancePolicyNumber: string | undefined;
     abpUser: UserDto;
     doctors: DoctorDto;
     nurses: NurseDto;
@@ -16419,12 +16590,10 @@ export class PatientsForDoctorAndNurseDto implements IPatientsForDoctorAndNurseD
     assignedDoctorId: number | undefined;
     doctorName: string | undefined;
     abpUserId: number;
-    isAdmitted: boolean;
     isActive: boolean;
     admissionDate: moment.Moment | undefined;
-    dischargeDate: moment.Moment | undefined;
-    insuranceProvider: string | undefined;
-    insurancePolicyNumber: string | undefined;
+    billingMethod: BillingMethod;
+    paymentMethod: PaymentMethod;
 
     constructor(data?: IPatientsForDoctorAndNurseDto) {
         if (data) {
@@ -16452,12 +16621,10 @@ export class PatientsForDoctorAndNurseDto implements IPatientsForDoctorAndNurseD
             this.assignedDoctorId = _data["assignedDoctorId"];
             this.doctorName = _data["doctorName"];
             this.abpUserId = _data["abpUserId"];
-            this.isAdmitted = _data["isAdmitted"];
             this.isActive = _data["isActive"];
             this.admissionDate = _data["admissionDate"] ? moment(_data["admissionDate"].toString()) : <any>undefined;
-            this.dischargeDate = _data["dischargeDate"] ? moment(_data["dischargeDate"].toString()) : <any>undefined;
-            this.insuranceProvider = _data["insuranceProvider"];
-            this.insurancePolicyNumber = _data["insurancePolicyNumber"];
+            this.billingMethod = _data["billingMethod"];
+            this.paymentMethod = _data["paymentMethod"];
         }
     }
 
@@ -16485,12 +16652,10 @@ export class PatientsForDoctorAndNurseDto implements IPatientsForDoctorAndNurseD
         data["assignedDoctorId"] = this.assignedDoctorId;
         data["doctorName"] = this.doctorName;
         data["abpUserId"] = this.abpUserId;
-        data["isAdmitted"] = this.isAdmitted;
         data["isActive"] = this.isActive;
         data["admissionDate"] = this.admissionDate ? this.admissionDate.toISOString() : <any>undefined;
-        data["dischargeDate"] = this.dischargeDate ? this.dischargeDate.toISOString() : <any>undefined;
-        data["insuranceProvider"] = this.insuranceProvider;
-        data["insurancePolicyNumber"] = this.insurancePolicyNumber;
+        data["billingMethod"] = this.billingMethod;
+        data["paymentMethod"] = this.paymentMethod;
         return data;
     }
 
@@ -16518,12 +16683,10 @@ export interface IPatientsForDoctorAndNurseDto {
     assignedDoctorId: number | undefined;
     doctorName: string | undefined;
     abpUserId: number;
-    isAdmitted: boolean;
     isActive: boolean;
     admissionDate: moment.Moment | undefined;
-    dischargeDate: moment.Moment | undefined;
-    insuranceProvider: string | undefined;
-    insurancePolicyNumber: string | undefined;
+    billingMethod: BillingMethod;
+    paymentMethod: PaymentMethod;
 }
 
 export class PatientsForDoctorAndNurseDtoPagedResultDto implements IPatientsForDoctorAndNurseDtoPagedResultDto {
