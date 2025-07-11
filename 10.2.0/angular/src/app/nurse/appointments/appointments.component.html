@@ -55,10 +55,10 @@
                                                     name="status" (change)="onStatusChange()">
                                                     <option [ngValue]="undefined ">All</option>
                                                     <option [ngValue]="0">Scheduled</option>
-                                                    <option [ngValue]="1">Checked In</option>
-                                                    <option [ngValue]="2">Completed</option>
-                                                    <option [ngValue]="3">Cancelled</option>
-                                                    <option [ngValue]="4">Rescheduled</option>
+                                                    <option [ngValue]="1">Rescheduled</option>
+                                                    <option [ngValue]="2">Checked In</option>
+                                                    <option [ngValue]="3">Completed</option>
+                                                    <option [ngValue]="4">Cancelled</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -129,7 +129,7 @@
                                         <p-chip [label]="getStatusLabel(record.status)"
                                             [class]="getStatusClass(record.status)" />
                                     </td>
-                                    <td>
+                                    <td  *ngIf="record.status !== 3">
                                         <button type="button" pButton icon="pi pi-ellipsis-v" class="p-button-text"
                                             (click)="rowMenu.toggle($event); selectedRecord = record">
                                         </button>
@@ -138,15 +138,17 @@
                                                 <li (click)="editAppoinment(selectedRecord)">
                                                     <i class="pi pi-pencil"></i> Edit
                                                 </li>
-                                                <li (click)="delete(selectedRecord)">
+                                                <!-- <li (click)="delete(selectedRecord)">
                                                     <i class="pi pi-trash"></i> Delete
-                                                </li>
-                                                <li (click)="delete(selectedRecord)">
-                                                    <i class="pi pi-trash"></i> Cancel
+                                                </li> -->
+                                                <li *ngIf="record.status !== 3" (click)="changeStatusofAppoinment(record.id,4)">
+                                                    <i class="pi pi-times"></i> Cancel
                                                 </li>
                                             </ul>
                                         </p-overlayPanel>
                                     </td>
+                                    <td *ngIf="record.status === 3"></td> 
+
                                 </tr>
                             </ng-template>
                         </p-table>

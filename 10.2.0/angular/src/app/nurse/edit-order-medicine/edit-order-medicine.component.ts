@@ -1,9 +1,11 @@
 import {
   ChangeDetectorRef,
   Component,
+  EventEmitter,
   Injector,
   Input,
   OnInit,
+  Output,
   ViewChild
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
@@ -50,6 +52,8 @@ import { AbpModalHeaderComponent } from '@shared/components/modal/abp-modal-head
 export class EditOrderMedicineComponent extends AppComponentBase implements OnInit {
   @Input() orderId: number;
   @ViewChild('editOrderForm', { static: true }) editOrderForm: NgForm;
+  @Output() onSave = new EventEmitter<void>();
+  
 
   saving = false;
 
@@ -162,11 +166,32 @@ export class EditOrderMedicineComponent extends AppComponentBase implements OnIn
     }
 
     this.saving = true;
+    const input = new CreateUpdateMedicineOrderDto();
+    input.init({
+      id:this.order.id,
+      tenantId: this.order.tenantId,
+      patientId: this.order.patientId,
+      nurseId: this.order.nurseId,
+      priority:this.order.priority,
+    });
 
-    this._orderMedicineService.update(this.order).subscribe({
+    // Prepare items properly
+    input.items = this.order.items.map(item => {
+  const dtoItem = new CreateUpdateMedicineOrderItemDto();
+  dtoItem.init({
+    ...item,
+    dosage:item.dosage,
+    quantity:item.quantity,
+    medicineId: item.medicineId // <-- Make sure this is included
+  });
+  return dtoItem;
+});
+
+    this._orderMedicineService.updateMedicineOrderWithItem(input).subscribe({
       next: () => {
         this.notify.info(this.l('UpdatedSuccessfully'));
         this.bsModalRef.hide();
+        this.onSave.emit();
       },
       error: (err) => {
         console.error(err);
@@ -175,3 +200,4 @@ export class EditOrderMedicineComponent extends AppComponentBase implements OnIn
     });
   }
 }
+

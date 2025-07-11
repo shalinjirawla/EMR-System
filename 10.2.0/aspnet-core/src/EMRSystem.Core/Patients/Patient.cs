@@ -3,6 +3,7 @@ using Abp.Domain.Entities.Auditing;
 using EMRSystem.Appointments;
 using EMRSystem.Authorization.Users;
 using EMRSystem.Doctors;
+using EMRSystem.Invoices;
 using EMRSystem.Nurses;
 using EMRSystem.Prescriptions;
 using EMRSystem.Visits;
@@ -26,11 +27,15 @@ namespace EMRSystem.Patients
         public string BloodGroup { get; set; }
         public string EmergencyContactName { get; set; }
         public string EmergencyContactNumber { get; set; }
-        public bool IsAdmitted { get; set; }
+        //public bool IsAdmitted { get; set; }
         public DateTime? AdmissionDate { get; set; }
-        public DateTime? DischargeDate { get; set; }
-        public string? InsuranceProvider { get; set; }
-        public string? InsurancePolicyNumber { get; set; }
+        public BillingMethod BillingMethod { get; set; }
+        public PaymentMethod? PaymentMethod { get; set; }
+        public long? DepositAmount { get; set; }
+        //public DateTime? DischargeDate { get; set; }
+        //public string? InsuranceProvider { get; set; }
+        //public string? InsurancePolicyNumber { get; set; }
+
         public long AbpUserId { get; set; }
         public long? AssignedNurseId { get; set; }
         public long? AssignedDoctorId { get; set; }
@@ -43,5 +48,11 @@ namespace EMRSystem.Patients
         public ICollection<Visit> Visit { get; set; }
         public virtual ICollection<MedicineOrder.MedicineOrder> MedicineOrders { get; set; }
 
+    }
+    public enum BillingMethod
+    {
+        InsuranceOnly,
+        SelfPay,
+        InsuranceSelfPay
     }
 }

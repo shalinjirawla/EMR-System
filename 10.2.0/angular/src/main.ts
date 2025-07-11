@@ -28,7 +28,7 @@ import { RootRoutingModule } from './root-routing.module';
 import { RootComponent } from './root.component';
 import { providePrimeNG } from 'primeng/config';
 import Lara from '@primeng/themes/lara';
-
+import MyPreset from '../src/mypreset';
 if (environment.production) {
     enableProdMode();
 }
@@ -67,7 +67,7 @@ const bootstrap = () => {
             provideHttpClient(withInterceptorsFromDi()),
             providePrimeNG({
                 theme: {
-                    preset: Lara,
+                    preset: MyPreset,
                 },
             }),
         ],

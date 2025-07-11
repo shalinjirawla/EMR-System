@@ -154,11 +154,14 @@ export class EditUserDialogComponent extends AppComponentBase implements OnInit 
     }
 
     private setLabTechnicianData(data: any): void {
+        debugger
         const tech = data.labTechnicians?.[0];
         if (!tech) return;
 
         this.technicianData = {
             gender: tech.gender,
+            qualification:tech.qualification,
+            certificationNumber:tech.certificationNumber,
             department: tech.department,
             yearsOfExperience: tech.yearsOfExperience,
             dateOfBirth: tech.dateOfBirth?.format('YYYY-MM-DD') ?? null,
@@ -268,7 +271,8 @@ export class EditUserDialogComponent extends AppComponentBase implements OnInit 
     }
 
     updateTechnician(): void {
-        // Add lab technician update logic here if applicable
+        this.technicianData.fullName = `${this.user.name} ${this.user.surname}`;
+        this._labTechnicianService.update(this.technicianData).subscribe();
     }
 
     updatePatient(): void {

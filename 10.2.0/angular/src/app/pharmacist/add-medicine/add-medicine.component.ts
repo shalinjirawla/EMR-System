@@ -42,7 +42,7 @@ export class AddMedicineComponent extends AppComponentBase implements OnInit {
   unitTypeOptions = [
     { label: 'mg', value: 'mg' },
     { label: 'ml', value: 'ml' },
-    // { label: 'g', value: 'g' },
+    { label: 'g', value: 'g' },
     // { label: 'L', value: 'L' },
     // { label: 'IU', value: 'IU' },
     // { label: 'mcg', value: 'mcg' },

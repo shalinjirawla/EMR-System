@@ -22,20 +22,25 @@ namespace EMRSystem.MedicineOrder.Dto
                 .ForMember(dest => dest.Priority, opt => opt.MapFrom(src => src.Priority.ToString()));
             CreateMap<MedicineOrderDto, MedicineOrder>();
 
-            CreateMap<MedicineOrder, CreateUpdateMedicineOrderDto>().ReverseMap();
-
             CreateMap<MedicineOrder, CreateUpdateMedicineOrderDto>()
-    .ForMember(dest => dest.NurseId, opt => opt.MapFrom(src => src.NurseId))
-    .ForMember(dest => dest.PatientId, opt => opt.MapFrom(src => src.PatientId))
-    .ForMember(dest => dest.Nurse, opt => opt.MapFrom(src => src.Nurse)) // Optional, if you include nested nurse info
-    .ForMember(dest => dest.Patient, opt => opt.MapFrom(src => src.Patient)) // Optional
-    .ForMember(dest => dest.Priority, opt => opt.MapFrom(src => src.Priority.ToString()));
+                .ForMember(dest => dest.NurseId, opt => opt.MapFrom(src => src.NurseId))
+                .ForMember(dest => dest.PatientId, opt => opt.MapFrom(src => src.PatientId))
+                .ForMember(dest => dest.Nurse, opt => opt.MapFrom(src => src.Nurse))
+                .ForMember(dest => dest.Patient, opt => opt.MapFrom(src => src.Patient))
+                .ForMember(dest => dest.Priority, opt => opt.MapFrom(src => src.Priority.ToString()))
+                .ReverseMap();
 
-            CreateMap<MedicineOrderItemDto, MedicineOrderItem>();
-
+            // Items
             CreateMap<MedicineOrderItem, CreateUpdateMedicineOrderItemDto>().ReverseMap();
+            CreateMap<MedicineOrderItem, MedicineOrderItemDto>()
+    .ForMember(dest => dest.MedicineName, opt => opt.MapFrom(src => src.Medicine.MedicineName))
+    .ReverseMap();
+
+
+            // Nurse and Patient
             CreateMap<EMRSystem.Nurses.Nurse, NurseDto>();
             CreateMap<Patient, PatientDto>();
         }
     }
+
 }

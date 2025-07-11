@@ -104,10 +104,10 @@ export class CreateAppoinmentComponent extends AppComponentBase implements OnIni
   LoadStatus() {
     this.statusOptions = [
       { label: 'Scheduled', value: AppointmentStatus._0 },
-      { label: 'Checked In', value: AppointmentStatus._1 },
-      { label: 'Completed', value: AppointmentStatus._2 },
-      { label: 'Cancelled', value: AppointmentStatus._3 },
-      { label: 'Rescheduled', value: AppointmentStatus._4 },
+      { label: 'Rescheduled', value: AppointmentStatus._1 },
+      { label: 'Checked In', value: AppointmentStatus._2 },
+      { label: 'Completed', value: AppointmentStatus._3 },
+      { label: 'Cancelled', value: AppointmentStatus._4 },
     ];
   }
   LoadNurse() {

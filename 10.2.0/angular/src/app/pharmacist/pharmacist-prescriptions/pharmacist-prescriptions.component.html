@@ -86,9 +86,9 @@
                                         Patient
                                         <p-sortIcon field="patientName"></p-sortIcon>
                                     </th>
-                                    <th style="min-width: 150px" pSortableColumn="doctorName">
-                                        Doctor
-                                        <p-sortIcon field="doctorName"></p-sortIcon>
+                                    <th style="min-width: 150px" pSortableColumn="nurseName">
+                                        Nurse
+                                        <p-sortIcon field="nurseName"></p-sortIcon>
                                     </th>
                                     <th style="min-width: 150px">
                                         Date
@@ -112,17 +112,17 @@
                                     </td>
                                     <td>
                                         <span>
-                                            Dr. {{ record.doctor.fullName }}
+                                        {{ record.nurse.fullName }}
                                         </span>
                                     </td>
                                     <td>
                                         <span>
-                                            {{ record.issueDate| date: 'dd/MM/yyyy' }}
+                                            {{ record.orderDate| date: 'dd/MM/yyyy' }}
                                         </span>
                                     </td>
                                     <td>
                                         <div *ngFor="let itm of record.items">
-                                            <span>{{ itm.medicineName}} {{itm.dosage}} ({{itm.frequency}})</span>
+                                            <span>{{ itm.medicineName}} {{itm.dosage}} ({{itm.quantity}})</span>
                                         </div>
                                     </td>
                                     <td>

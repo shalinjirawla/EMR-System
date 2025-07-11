@@ -31,11 +31,11 @@ export class EditPatientsComponent implements OnInit {
     emergencyContactName: string,
     emergencyContactNumber: string,
     assignedNurseId: number,
-    isAdmitted: boolean | false,
+    //isAdmitted: boolean | false,
     admissionDate: string | null,
-    dischargeDate: string | null,
-    insuranceProvider: string,
-    insurancePolicyNumber: string,
+    //dischargeDate: string | null,
+    //insuranceProvider: string,
+    //insurancePolicyNumber: string,
     assignedDoctorId: number
   };
   constructor(
@@ -77,9 +77,7 @@ export class EditPatientsComponent implements OnInit {
     this.updateData();
   }
   onAdmitChange() {
-    if (!this.patientData.isAdmitted) {
-      this.patientData.admissionDate = null;
-    }
+    
     this.onInputChange();
   }
   updateData() {

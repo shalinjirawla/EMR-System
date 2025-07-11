@@ -8,8 +8,8 @@
       <div class="col-md-12">
         <div class="d-flex justify-content-between align-items-center">
           <b>Select Patient</b>
-          <p-button label="Add New Patient" variant="text" severity="info"  *ngIf="showAddPatientButton"
-                        (onClick)="showCreatePatientDialog()" />
+          <p-button label="Add New Patient" variant="text" severity="info" *ngIf="showAddPatientButton"
+            (onClick)="showCreatePatientDialog()" />
         </div>
         <p-select [(ngModel)]="prescription.patientId" name="patientId" [options]="patients" [optionValue]="'id'"
           optionLabel="fullName" placeholder="Select a patient" class="w-100" required (onChange)="LoadAppoinments()" />
@@ -21,7 +21,18 @@
       <div class="col-md-12">
         <label><b>Appointment</b></label>
         <p-select [(ngModel)]="prescription.appointmentId" name="appointmentId" [options]="appointments"
-          optionLabel="title" optionValue="id" placeholder="Select appointment" class="w-100" />
+          optionValue="id" placeholder="Select appointment" class="w-100">
+          <!-- List item rendering -->
+          <ng-template let-app pTemplate="item">
+            {{ app.startTime }} - {{ app.endTime }} - {{ app.patient?.fullName }}
+          </ng-template>
+
+          <!-- Selected item rendering -->
+          <ng-template let-app pTemplate="selectedItem">
+            {{ app?.startTime }} - {{ app?.endTime }} - {{ app?.patient?.fullName }}
+          </ng-template>
+        </p-select>
+
       </div>
     </div>
 

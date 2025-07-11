@@ -6,7 +6,7 @@ import { PagedListingComponentBase } from 'shared/paged-listing-component-base';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { LazyLoadEvent, PrimeTemplate } from 'primeng/api';
 import { finalize } from 'rxjs/operators';
-import { PrescriptionDto, PrescriptionDtoPagedResultDto, PrescriptionServiceProxy } from '@shared/service-proxies/service-proxies';
+import { MedicineOrderDto, MedicineOrderDtoPagedResultDto, MedicineOrderServiceProxy, PrescriptionDto, PrescriptionDtoPagedResultDto, PrescriptionServiceProxy } from '@shared/service-proxies/service-proxies';
 import moment from 'moment';
 import { NgIf, DatePipe, CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -24,104 +24,114 @@ import { appModuleAnimation } from "../../../shared/animations/routerTransition"
      ButtonModule, LocalizePipe, DatePipe, CommonModule, OverlayPanelModule, MenuModule],
   templateUrl: './pharmacist-prescriptions.component.html',
   styleUrl: './pharmacist-prescriptions.component.css',
-  providers: [PrescriptionServiceProxy]
+  providers: [PrescriptionServiceProxy,MedicineOrderServiceProxy]
 
 })
-export class PharmacistPrescriptionsComponent extends PagedListingComponentBase<PrescriptionDto> {
-  @ViewChild('dataTable', { static: true }) dataTable: Table;
-  @ViewChild('paginator', { static: true }) paginator: Paginator;
+export class PharmacistPrescriptionsComponent extends PagedListingComponentBase<MedicineOrderDto> {
+    @ViewChild('dataTable', { static: true }) dataTable: Table;
+    @ViewChild('paginator', { static: true }) paginator: Paginator;
 
-  prescriptions: PrescriptionDto[] = [];
-  keyword = '';
-  dateRange: Date[];
+   medicineorder: MedicineOrderDto[] = [];
+    keyword = '';
+    isActive: boolean | null;
+    advancedFiltersVisible = false;
 
-  isActive: boolean | null;
-  advancedFiltersVisible = false;
-
-  constructor(
-    injector: Injector,
-    private _modalService: BsModalService,
-    private _activatedRoute: ActivatedRoute,
-    private _prescriptionService: PrescriptionServiceProxy,
-    cd: ChangeDetectorRef
-  ) {
-    super(injector, cd);
-    this.keyword = this._activatedRoute.snapshot.queryParams['filterText'] || '';
-  }
-
-  clearFilters(): void {
-    this.keyword = '';
-    this.dateRange = [];
-    this.list();
-  }
-
-  list(event?: LazyLoadEvent): void {
-    if (this.primengTableHelper.shouldResetPaging(event)) {
-      this.paginator.changePage(0);
-      if (this.primengTableHelper.records && this.primengTableHelper.records.length > 0) {
-        return;
-      }
+    constructor(
+        injector: Injector,
+        private _orderService: MedicineOrderServiceProxy,
+        private _modalService: BsModalService,
+        private _activatedRoute: ActivatedRoute,
+        cd: ChangeDetectorRef
+    ) {
+        super(injector, cd);
+        this.keyword = this._activatedRoute.snapshot.queryParams['filterText'] || '';
     }
 
-    const fromDate = this.dateRange?.[0] ? moment(this.dateRange[0]) : undefined;
-    const toDate = this.dateRange?.[1] ? moment(this.dateRange[1]) : undefined;
+    // createOrder(): void {
+    //     this.showCreateOrEditOrderDialog();
+    // }
 
-    this.primengTableHelper.showLoadingIndicator();
+    // editOrder(medicineorder: MedicineOrderDto): void {
+    //     this.showCreateOrEditOrderDialog(medicineorder.id);
+    // }
 
-    this._prescriptionService
-      .getAll(
-        this.keyword,
-        this.primengTableHelper.getSorting(this.dataTable),
-        fromDate,
-        toDate,
-        this.primengTableHelper.getSkipCount(this.paginator, event),
-        this.primengTableHelper.getMaxResultCount(this.paginator, event)
-      )
-      .pipe(finalize(() => {
-        this.primengTableHelper.hideLoadingIndicator();
-      }))
-      .subscribe((result: PrescriptionDtoPagedResultDto) => {
-        this.primengTableHelper.records = result.items;
-        this.primengTableHelper.totalRecordsCount = result.totalCount;
-        this.cd.detectChanges();
-      });
-  }
+    // public resetPassword(medicineorder: MedicineOrderDto): void {
+    //     this.showResetPasswordUserDialog(medicineorder.id);
+    // }
 
+    clearFilters(): void {
+        this.keyword = '';
+        this.isActive = undefined;
+    }
 
-  protected delete(entity: PrescriptionDto): void {
-    abp.message.confirm("Are you sure u want to delete this", undefined, (result: boolean) => {
-      if (result) {
-        this._prescriptionService.delete(entity.id).subscribe(() => {
-          abp.notify.success(this.l('SuccessfullyDeleted'));
-          this.refresh();
+    list(event?: LazyLoadEvent): void {
+        if (this.primengTableHelper.shouldResetPaging(event)) {
+            this.paginator.changePage(0);
+
+            if (this.primengTableHelper.records && this.primengTableHelper.records.length > 0) {
+                return;
+            }
+        }
+
+        this.primengTableHelper.showLoadingIndicator();
+
+        this._orderService
+            .getAll(
+                this.primengTableHelper.getSorting(this.dataTable),
+                this.primengTableHelper.getSkipCount(this.paginator, event),
+                this.primengTableHelper.getMaxResultCount(this.paginator, event)
+            )
+            .pipe(
+                finalize(() => {
+                    this.primengTableHelper.hideLoadingIndicator();
+                })
+            )
+            .subscribe((result: MedicineOrderDtoPagedResultDto) => {
+                this.primengTableHelper.records = result.items;
+                this.primengTableHelper.totalRecordsCount = result.totalCount;
+                this.primengTableHelper.hideLoadingIndicator();
+                this.cd.detectChanges();
+            });
+    }
+
+    delete(medicineorder: MedicineOrderDto): void {
+        abp.message.confirm(this.l('UserDeleteWarningMessage'), undefined, (result: boolean) => {
+            if (result) {
+                this._orderService.delete(medicineorder.id).subscribe(() => {
+                    abp.notify.success(this.l('SuccessfullyDeleted'));
+                    this.refresh();
+                });
+            }
         });
-      }
-    });
-  }
-  // createPrescription(): void {
-  //   this.showCreateOrEditPrescriptionDialog();
-  // }
-  // editPrescription(dto: PrescriptionDto): void {
-  //   this.showCreateOrEditPrescriptionDialog(dto.id);
-  // }
-  // showCreateOrEditPrescriptionDialog(id?: number): void {
-  //   let createOrEditUserDialog: BsModalRef;
-  //   if (!id) {
-  //     createOrEditUserDialog = this._modalService.show(CreatePrescriptionsComponent, {
-  //       class: 'modal-lg',
-  //     });
-  //   }
-  //   else {
-  //     createOrEditUserDialog = this._modalService.show(EditPrescriptionsComponent, {
-  //       class: 'modal-lg',
-  //       initialState: {
-  //         id: id,
-  //       },
-  //     });
-  //   }
+    }
 
-  //   createOrEditUserDialog.content.onSave.subscribe(() => {
-  //     this.refresh();
-  //   });
-  // }
+    // private showResetPasswordUserDialog(id?: number): void {
+    //     this._modalService.show(ResetPasswordDialogComponent, {
+    //         class: 'modal-lg',
+    //         initialState: {
+    //             id: id,
+    //         },
+    //     });
+    // }
+
+    // private showCreateOrEditOrderDialog(id?: number): void {
+    //     let createOrEditUserDialog: BsModalRef;
+    //     if (!id) {
+    //         createOrEditUserDialog = this._modalService.show(CreateOrderMedicineComponent, {
+    //             class: 'modal-lg',
+    //         });
+    //     } else {
+    //         createOrEditUserDialog = this._modalService.show(EditOrderMedicineComponent, {
+    //             class: 'modal-lg',
+    //             initialState: {
+    //                 orderId: id,
+    //             },
+    //         });
+    //     }
+
+    //     createOrEditUserDialog.content.onSave.subscribe(() => {
+    //         this.refresh();
+    //     });
+    // }
 }
+

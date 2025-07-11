@@ -38,10 +38,10 @@ export class AppointmentsComponent extends PagedListingComponentBase<Appointment
     patients!: UserDto[];
     statusOptions = [
         { label: 'Scheduled', value: AppointmentStatus._0 },
-        { label: 'Checked In', value: AppointmentStatus._1 },
-        { label: 'Completed', value: AppointmentStatus._2 },
-        { label: 'Cancelled', value: AppointmentStatus._3 },
-        { label: 'Rescheduled', value: AppointmentStatus._4 },
+        { label: 'Rescheduled', value: AppointmentStatus._1 },
+        { label: 'Checked In', value: AppointmentStatus._2 },
+        { label: 'Completed', value: AppointmentStatus._3 },
+        { label: 'Cancelled', value: AppointmentStatus._4 }
     ];
     appointmentStatus!: any;
     constructor(
@@ -138,11 +138,17 @@ export class AppointmentsComponent extends PagedListingComponentBase<Appointment
     getStatusClass(value: number): string {
         switch (value) {
             case AppointmentStatus._0: return 'status-scheduled';    // Scheduled
-            case AppointmentStatus._1: return 'status-checkedin';    // Checked In
-            case AppointmentStatus._2: return 'status-completed';    // Completed
-            case AppointmentStatus._3: return 'status-cancelled';    // Cancelled
-            case AppointmentStatus._4: return 'status-rescheduled';  // Rescheduled
+            case AppointmentStatus._1: return 'status-rescheduled';  // Rescheduled
+            case AppointmentStatus._2: return 'status-checkedin';    // Checked In
+            case AppointmentStatus._3: return 'status-completed';    // Completed
+            case AppointmentStatus._4: return 'status-cancelled';    // Cancelled
             default: return '';
         }
     }
+    changeStatusofAppoinment(id: number, status: AppointmentStatus) {
+    this._apointMentService.markAsAction(id, status).subscribe(res => {
+      this.list();
+      this.cd.detectChanges();
+    })
+  }
 }

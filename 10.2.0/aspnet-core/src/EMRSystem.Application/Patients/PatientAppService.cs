@@ -5,10 +5,12 @@ using Abp.Collections.Extensions;
 using Abp.Domain.Repositories;
 using Abp.Extensions;
 using Abp.Linq.Extensions;
+using Abp.UI;
 using EMRSystem.Appointments;
 using EMRSystem.Appointments.Dto;
 using EMRSystem.Authorization.Users;
 using EMRSystem.Doctor;
+using EMRSystem.Invoices;
 using EMRSystem.Nurse;
 using EMRSystem.Nurse.Dto;
 using EMRSystem.Nurses;
@@ -16,6 +18,7 @@ using EMRSystem.Patients.Dto;
 using EMRSystem.Prescriptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Stripe.Checkout;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
@@ -204,5 +207,73 @@ namespace EMRSystem.Patients
             var roles = await _userManager.GetRolesAsync(user);
             return roles.ToList();
         }
+
+        public async Task<string> CreateWithStripeAsync(CreateUpdatePatientDto input)
+        {
+            if (input.PaymentMethod == PaymentMethod.Cash)
+            {
+                await CreateAsync(input);
+                return "CASH_SUCCESS";
+            }
+
+            if (!input.DepositAmount.HasValue || input.DepositAmount <= 0)
+                throw new UserFriendlyException("Deposit amount must be greater than 0");
+
+            // ✅ Safely create patient and get ID
+            var result = await CreateAsync(input);
+            long patientId = result.Id;
+
+            string baseUrl = "http://localhost:4200/app/users";
+            string successUrl = $"{baseUrl}?payment=success&patientId={patientId}";
+            string cancelUrl = $"{baseUrl}?payment=cancel&patientId={patientId}";
+
+            string stripeUrl = await CreateStripeCheckoutSessionForDeposit(
+                patientId,
+                input.DepositAmount.Value,
+                successUrl,
+                cancelUrl
+            );
+
+            return stripeUrl;
+        }
+
+        public async Task<string> CreateStripeCheckoutSessionForDeposit(long patientId, long amount, string successUrl, string cancelUrl)
+        {
+            var options = new SessionCreateOptions
+            {
+                PaymentMethodTypes = new List<string> { "card" },
+                LineItems = new List<SessionLineItemOptions>
+        {
+            new SessionLineItemOptions
+            {
+                PriceData = new SessionLineItemPriceDataOptions
+                {
+                    UnitAmount = (long)(amount * 100),
+                    Currency = "usd",
+                    ProductData = new SessionLineItemPriceDataProductDataOptions
+                    {
+                        Name = $"Patient Deposit #{patientId}",
+                        Description = "Initial deposit for registration"
+                    },
+                },
+                Quantity = 1,
+            }
+        },
+                Mode = "payment",
+                SuccessUrl = successUrl,
+                CancelUrl = cancelUrl,
+                Metadata = new Dictionary<string, string>
+        {
+            { "patientId", patientId.ToString() },
+            { "purpose", "deposit" }
+        }
+            };
+
+            var service = new SessionService();
+            var session = await service.CreateAsync(options);
+            return session.Url;
+        }
+
+
     }
 }
