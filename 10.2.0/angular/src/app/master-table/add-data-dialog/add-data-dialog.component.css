@@ -23,3 +23,11 @@
 .gap-2 {
   gap: 0.5rem;
 }
+
+:host ::ng-deep .p-multiselect {
+  width: 100% !important;
+}
+
+:host ::ng-deep .p-multiselect-panel {
+  width: 100% !important;
+}

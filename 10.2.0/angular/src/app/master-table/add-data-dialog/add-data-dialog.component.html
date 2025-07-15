@@ -15,7 +15,37 @@
     <input pInputText id="price" type="number" [(ngModel)]="price" class="w-full" autocomplete="off"
       (keyup.enter)="save()" placeholder="Enter report price..." [disabled]="saving" />
   </div>
+  <div class="field mb-4" *ngIf="dataType === 'roomtype'">
+    <label for="defaultPricePerDay" class="block font-medium mb-2">
+      Default Price PerDay *
+    </label>
+    <input pInputText id="defaultPricePerDay" type="number" [(ngModel)]="price" class="w-full" autocomplete="off"
+      (keyup.enter)="save()" placeholder="Default Price PerDay..." [disabled]="saving" />
 
+    <label for="defaultPricePerDay" class="block font-medium mb-2">
+      Description *
+    </label>
+    <input pInputText id="description" type="text" [(ngModel)]="description" class="w-full" autocomplete="off"
+      (keyup.enter)="save()" placeholder="Enter description..." [disabled]="saving" />
+
+    <label for="facilities" class="block font-medium mb-2">
+      Facilities
+    </label>
+
+    <p-multiSelect
+  id="facilities"
+  [options]="allFacilities"
+  optionLabel="facilityName"
+  optionValue="id"
+  [(ngModel)]="selectedFacilityIds"
+  placeholder="Select facilities"
+  [disabled]="saving"
+  class="w-full"
+  panelStyleClass="w-full"
+  style="width: 100%">
+</p-multiSelect>
+
+  </div>
   <div class="flex justify-content-end gap-2">
     <button pButton type="button" label="Cancel" icon="pi pi-times" class="p-button-text" (click)="cancel()"
       [disabled]="saving">

@@ -106,3 +106,31 @@
   color: rgb(163, 135, 82);
   border: 1px solid rgb(240, 186, 87);
 }
+
+.roomtype-card {
+  border-left: 4px solid #9333ea; /* purple */
+}
+
+.roomtype-card .card-icon {
+  background: #f3e8ff;
+  color: #6b21a8;
+}
+
+.roomtype-card .card-badge {
+  color: #6b21a8;
+  border: 1px solid #e9d5ff;
+}
+
+.roomfacility-card {
+  border-left: 4px solid #10b981; /* emerald */
+}
+
+.roomfacility-card .card-icon {
+  background: #d1fae5;
+  color: #047857;
+}
+
+.roomfacility-card .card-badge {
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
