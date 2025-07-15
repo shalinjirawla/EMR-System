@@ -8146,6 +8146,1355 @@ export class RoleServiceProxy {
 }
 
 @Injectable()
+export class RoomServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    createRoomWithFacilities(body: CreateUpdateRoomDto | undefined): Observable<RoomDto> {
+        let url_ = this.baseUrl + "/api/services/app/Room/CreateRoomWithFacilities";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreateRoomWithFacilities(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreateRoomWithFacilities(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<RoomDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<RoomDto>;
+        }));
+    }
+
+    protected processCreateRoomWithFacilities(response: HttpResponseBase): Observable<RoomDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RoomDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    updateRoomWithFacilities(body: CreateUpdateRoomDto | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/Room/UpdateRoomWithFacilities";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateRoomWithFacilities(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateRoomWithFacilities(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processUpdateRoomWithFacilities(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    getRoomDetailsById(id: number | undefined): Observable<CreateUpdateRoomDto> {
+        let url_ = this.baseUrl + "/api/services/app/Room/GetRoomDetailsById?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetRoomDetailsById(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetRoomDetailsById(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<CreateUpdateRoomDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<CreateUpdateRoomDto>;
+        }));
+    }
+
+    protected processGetRoomDetailsById(response: HttpResponseBase): Observable<CreateUpdateRoomDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CreateUpdateRoomDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    get(id: number | undefined): Observable<RoomDto> {
+        let url_ = this.baseUrl + "/api/services/app/Room/Get?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGet(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<RoomDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<RoomDto>;
+        }));
+    }
+
+    protected processGet(response: HttpResponseBase): Observable<RoomDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RoomDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param keyword (optional) 
+     * @param roomTypeMasterId (optional) 
+     * @param status (optional) 
+     * @param sorting (optional) 
+     * @param skipCount (optional) 
+     * @param maxResultCount (optional) 
+     * @return OK
+     */
+    getAll(keyword: string | undefined, roomTypeMasterId: number | undefined, status: RoomStatus | undefined, sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<RoomDtoPagedResultDto> {
+        let url_ = this.baseUrl + "/api/services/app/Room/GetAll?";
+        if (keyword === null)
+            throw new Error("The parameter 'keyword' cannot be null.");
+        else if (keyword !== undefined)
+            url_ += "Keyword=" + encodeURIComponent("" + keyword) + "&";
+        if (roomTypeMasterId === null)
+            throw new Error("The parameter 'roomTypeMasterId' cannot be null.");
+        else if (roomTypeMasterId !== undefined)
+            url_ += "RoomTypeMasterId=" + encodeURIComponent("" + roomTypeMasterId) + "&";
+        if (status === null)
+            throw new Error("The parameter 'status' cannot be null.");
+        else if (status !== undefined)
+            url_ += "Status=" + encodeURIComponent("" + status) + "&";
+        if (sorting === null)
+            throw new Error("The parameter 'sorting' cannot be null.");
+        else if (sorting !== undefined)
+            url_ += "Sorting=" + encodeURIComponent("" + sorting) + "&";
+        if (skipCount === null)
+            throw new Error("The parameter 'skipCount' cannot be null.");
+        else if (skipCount !== undefined)
+            url_ += "SkipCount=" + encodeURIComponent("" + skipCount) + "&";
+        if (maxResultCount === null)
+            throw new Error("The parameter 'maxResultCount' cannot be null.");
+        else if (maxResultCount !== undefined)
+            url_ += "MaxResultCount=" + encodeURIComponent("" + maxResultCount) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAll(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAll(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<RoomDtoPagedResultDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<RoomDtoPagedResultDto>;
+        }));
+    }
+
+    protected processGetAll(response: HttpResponseBase): Observable<RoomDtoPagedResultDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RoomDtoPagedResultDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    create(body: CreateUpdateRoomDto | undefined): Observable<RoomDto> {
+        let url_ = this.baseUrl + "/api/services/app/Room/Create";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<RoomDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<RoomDto>;
+        }));
+    }
+
+    protected processCreate(response: HttpResponseBase): Observable<RoomDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RoomDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    update(body: CreateUpdateRoomDto | undefined): Observable<RoomDto> {
+        let url_ = this.baseUrl + "/api/services/app/Room/Update";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<RoomDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<RoomDto>;
+        }));
+    }
+
+    protected processUpdate(response: HttpResponseBase): Observable<RoomDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RoomDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    delete(id: number | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/Room/Delete?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDelete(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDelete(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDelete(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
+export class RoomFacilityMasterServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @param tenantId (optional) 
+     * @return OK
+     */
+    getAllRoomFacilityByTenantID(tenantId: number | undefined): Observable<RoomFacilityMasterDtoListResultDto> {
+        let url_ = this.baseUrl + "/api/services/app/RoomFacilityMaster/GetAllRoomFacilityByTenantID?";
+        if (tenantId === null)
+            throw new Error("The parameter 'tenantId' cannot be null.");
+        else if (tenantId !== undefined)
+            url_ += "tenantId=" + encodeURIComponent("" + tenantId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAllRoomFacilityByTenantID(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAllRoomFacilityByTenantID(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<RoomFacilityMasterDtoListResultDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<RoomFacilityMasterDtoListResultDto>;
+        }));
+    }
+
+    protected processGetAllRoomFacilityByTenantID(response: HttpResponseBase): Observable<RoomFacilityMasterDtoListResultDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RoomFacilityMasterDtoListResultDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    get(id: number | undefined): Observable<RoomFacilityMasterDto> {
+        let url_ = this.baseUrl + "/api/services/app/RoomFacilityMaster/Get?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGet(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<RoomFacilityMasterDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<RoomFacilityMasterDto>;
+        }));
+    }
+
+    protected processGet(response: HttpResponseBase): Observable<RoomFacilityMasterDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RoomFacilityMasterDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param sorting (optional) 
+     * @param skipCount (optional) 
+     * @param maxResultCount (optional) 
+     * @return OK
+     */
+    getAll(sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<RoomFacilityMasterDtoPagedResultDto> {
+        let url_ = this.baseUrl + "/api/services/app/RoomFacilityMaster/GetAll?";
+        if (sorting === null)
+            throw new Error("The parameter 'sorting' cannot be null.");
+        else if (sorting !== undefined)
+            url_ += "Sorting=" + encodeURIComponent("" + sorting) + "&";
+        if (skipCount === null)
+            throw new Error("The parameter 'skipCount' cannot be null.");
+        else if (skipCount !== undefined)
+            url_ += "SkipCount=" + encodeURIComponent("" + skipCount) + "&";
+        if (maxResultCount === null)
+            throw new Error("The parameter 'maxResultCount' cannot be null.");
+        else if (maxResultCount !== undefined)
+            url_ += "MaxResultCount=" + encodeURIComponent("" + maxResultCount) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAll(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAll(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<RoomFacilityMasterDtoPagedResultDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<RoomFacilityMasterDtoPagedResultDto>;
+        }));
+    }
+
+    protected processGetAll(response: HttpResponseBase): Observable<RoomFacilityMasterDtoPagedResultDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RoomFacilityMasterDtoPagedResultDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    create(body: CreateUpdateRoomFacilityMasterDto | undefined): Observable<RoomFacilityMasterDto> {
+        let url_ = this.baseUrl + "/api/services/app/RoomFacilityMaster/Create";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<RoomFacilityMasterDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<RoomFacilityMasterDto>;
+        }));
+    }
+
+    protected processCreate(response: HttpResponseBase): Observable<RoomFacilityMasterDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RoomFacilityMasterDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    update(body: CreateUpdateRoomFacilityMasterDto | undefined): Observable<RoomFacilityMasterDto> {
+        let url_ = this.baseUrl + "/api/services/app/RoomFacilityMaster/Update";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<RoomFacilityMasterDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<RoomFacilityMasterDto>;
+        }));
+    }
+
+    protected processUpdate(response: HttpResponseBase): Observable<RoomFacilityMasterDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RoomFacilityMasterDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    delete(id: number | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/RoomFacilityMaster/Delete?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDelete(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDelete(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDelete(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
+export class RoomTypeMasterServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    createWithFacilities(body: CreateUpdateRoomTypeMasterDto | undefined): Observable<RoomTypeMasterDto> {
+        let url_ = this.baseUrl + "/api/services/app/RoomTypeMaster/CreateWithFacilities";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreateWithFacilities(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreateWithFacilities(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<RoomTypeMasterDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<RoomTypeMasterDto>;
+        }));
+    }
+
+    protected processCreateWithFacilities(response: HttpResponseBase): Observable<RoomTypeMasterDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RoomTypeMasterDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param tenantId (optional) 
+     * @return OK
+     */
+    getAllRoomTypeByTenantID(tenantId: number | undefined): Observable<RoomTypeMasterDtoListResultDto> {
+        let url_ = this.baseUrl + "/api/services/app/RoomTypeMaster/GetAllRoomTypeByTenantID?";
+        if (tenantId === null)
+            throw new Error("The parameter 'tenantId' cannot be null.");
+        else if (tenantId !== undefined)
+            url_ += "tenantId=" + encodeURIComponent("" + tenantId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAllRoomTypeByTenantID(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAllRoomTypeByTenantID(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<RoomTypeMasterDtoListResultDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<RoomTypeMasterDtoListResultDto>;
+        }));
+    }
+
+    protected processGetAllRoomTypeByTenantID(response: HttpResponseBase): Observable<RoomTypeMasterDtoListResultDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RoomTypeMasterDtoListResultDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    updateWithFacilities(body: CreateUpdateRoomTypeMasterDto | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/RoomTypeMaster/UpdateWithFacilities";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateWithFacilities(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateWithFacilities(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processUpdateWithFacilities(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    getForEdit(id: number | undefined): Observable<CreateUpdateRoomTypeMasterDto> {
+        let url_ = this.baseUrl + "/api/services/app/RoomTypeMaster/GetForEdit?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetForEdit(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetForEdit(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<CreateUpdateRoomTypeMasterDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<CreateUpdateRoomTypeMasterDto>;
+        }));
+    }
+
+    protected processGetForEdit(response: HttpResponseBase): Observable<CreateUpdateRoomTypeMasterDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CreateUpdateRoomTypeMasterDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    get(id: number | undefined): Observable<RoomTypeMasterDto> {
+        let url_ = this.baseUrl + "/api/services/app/RoomTypeMaster/Get?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGet(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<RoomTypeMasterDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<RoomTypeMasterDto>;
+        }));
+    }
+
+    protected processGet(response: HttpResponseBase): Observable<RoomTypeMasterDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RoomTypeMasterDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param sorting (optional) 
+     * @param skipCount (optional) 
+     * @param maxResultCount (optional) 
+     * @return OK
+     */
+    getAll(sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<RoomTypeMasterDtoPagedResultDto> {
+        let url_ = this.baseUrl + "/api/services/app/RoomTypeMaster/GetAll?";
+        if (sorting === null)
+            throw new Error("The parameter 'sorting' cannot be null.");
+        else if (sorting !== undefined)
+            url_ += "Sorting=" + encodeURIComponent("" + sorting) + "&";
+        if (skipCount === null)
+            throw new Error("The parameter 'skipCount' cannot be null.");
+        else if (skipCount !== undefined)
+            url_ += "SkipCount=" + encodeURIComponent("" + skipCount) + "&";
+        if (maxResultCount === null)
+            throw new Error("The parameter 'maxResultCount' cannot be null.");
+        else if (maxResultCount !== undefined)
+            url_ += "MaxResultCount=" + encodeURIComponent("" + maxResultCount) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAll(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAll(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<RoomTypeMasterDtoPagedResultDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<RoomTypeMasterDtoPagedResultDto>;
+        }));
+    }
+
+    protected processGetAll(response: HttpResponseBase): Observable<RoomTypeMasterDtoPagedResultDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RoomTypeMasterDtoPagedResultDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    create(body: CreateUpdateRoomTypeMasterDto | undefined): Observable<RoomTypeMasterDto> {
+        let url_ = this.baseUrl + "/api/services/app/RoomTypeMaster/Create";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<RoomTypeMasterDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<RoomTypeMasterDto>;
+        }));
+    }
+
+    protected processCreate(response: HttpResponseBase): Observable<RoomTypeMasterDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RoomTypeMasterDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    update(body: CreateUpdateRoomTypeMasterDto | undefined): Observable<RoomTypeMasterDto> {
+        let url_ = this.baseUrl + "/api/services/app/RoomTypeMaster/Update";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<RoomTypeMasterDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<RoomTypeMasterDto>;
+        }));
+    }
+
+    protected processUpdate(response: HttpResponseBase): Observable<RoomTypeMasterDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RoomTypeMasterDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    delete(id: number | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/RoomTypeMaster/Delete?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDelete(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDelete(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDelete(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
 export class SessionServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -12598,6 +13947,211 @@ export interface ICreateUpdatePrescriptionItemDto {
     instructions: string | undefined;
     prescriptionId: number;
     medicineId: number;
+}
+
+export class CreateUpdateRoomDto implements ICreateUpdateRoomDto {
+    id: number;
+    tenantId: number;
+    roomNumber: string | undefined;
+    floor: number;
+    roomTypeMasterId: number;
+    status: RoomStatus;
+    pricePerDay: number;
+    description: string | undefined;
+    facilityIds: number[] | undefined;
+
+    constructor(data?: ICreateUpdateRoomDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.roomNumber = _data["roomNumber"];
+            this.floor = _data["floor"];
+            this.roomTypeMasterId = _data["roomTypeMasterId"];
+            this.status = _data["status"];
+            this.pricePerDay = _data["pricePerDay"];
+            this.description = _data["description"];
+            if (Array.isArray(_data["facilityIds"])) {
+                this.facilityIds = [] as any;
+                for (let item of _data["facilityIds"])
+                    this.facilityIds.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): CreateUpdateRoomDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateUpdateRoomDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["roomNumber"] = this.roomNumber;
+        data["floor"] = this.floor;
+        data["roomTypeMasterId"] = this.roomTypeMasterId;
+        data["status"] = this.status;
+        data["pricePerDay"] = this.pricePerDay;
+        data["description"] = this.description;
+        if (Array.isArray(this.facilityIds)) {
+            data["facilityIds"] = [];
+            for (let item of this.facilityIds)
+                data["facilityIds"].push(item);
+        }
+        return data;
+    }
+
+    clone(): CreateUpdateRoomDto {
+        const json = this.toJSON();
+        let result = new CreateUpdateRoomDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ICreateUpdateRoomDto {
+    id: number;
+    tenantId: number;
+    roomNumber: string | undefined;
+    floor: number;
+    roomTypeMasterId: number;
+    status: RoomStatus;
+    pricePerDay: number;
+    description: string | undefined;
+    facilityIds: number[] | undefined;
+}
+
+export class CreateUpdateRoomFacilityMasterDto implements ICreateUpdateRoomFacilityMasterDto {
+    id: number;
+    tenantId: number;
+    facilityName: string | undefined;
+
+    constructor(data?: ICreateUpdateRoomFacilityMasterDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.facilityName = _data["facilityName"];
+        }
+    }
+
+    static fromJS(data: any): CreateUpdateRoomFacilityMasterDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateUpdateRoomFacilityMasterDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["facilityName"] = this.facilityName;
+        return data;
+    }
+
+    clone(): CreateUpdateRoomFacilityMasterDto {
+        const json = this.toJSON();
+        let result = new CreateUpdateRoomFacilityMasterDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ICreateUpdateRoomFacilityMasterDto {
+    id: number;
+    tenantId: number;
+    facilityName: string | undefined;
+}
+
+export class CreateUpdateRoomTypeMasterDto implements ICreateUpdateRoomTypeMasterDto {
+    id: number;
+    tenantId: number;
+    typeName: string | undefined;
+    description: string | undefined;
+    defaultPricePerDay: number;
+    facilityIds: number[] | undefined;
+
+    constructor(data?: ICreateUpdateRoomTypeMasterDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.typeName = _data["typeName"];
+            this.description = _data["description"];
+            this.defaultPricePerDay = _data["defaultPricePerDay"];
+            if (Array.isArray(_data["facilityIds"])) {
+                this.facilityIds = [] as any;
+                for (let item of _data["facilityIds"])
+                    this.facilityIds.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): CreateUpdateRoomTypeMasterDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateUpdateRoomTypeMasterDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["typeName"] = this.typeName;
+        data["description"] = this.description;
+        data["defaultPricePerDay"] = this.defaultPricePerDay;
+        if (Array.isArray(this.facilityIds)) {
+            data["facilityIds"] = [];
+            for (let item of this.facilityIds)
+                data["facilityIds"].push(item);
+        }
+        return data;
+    }
+
+    clone(): CreateUpdateRoomTypeMasterDto {
+        const json = this.toJSON();
+        let result = new CreateUpdateRoomTypeMasterDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ICreateUpdateRoomTypeMasterDto {
+    id: number;
+    tenantId: number;
+    typeName: string | undefined;
+    description: string | undefined;
+    defaultPricePerDay: number;
+    facilityIds: number[] | undefined;
 }
 
 export class CreateUpdateVisitDto implements ICreateUpdateVisitDto {
@@ -18450,6 +20004,576 @@ export class RoleListDtoListResultDto implements IRoleListDtoListResultDto {
 
 export interface IRoleListDtoListResultDto {
     items: RoleListDto[] | undefined;
+}
+
+export class RoomDto implements IRoomDto {
+    id: number;
+    tenantId: number;
+    roomNumber: string | undefined;
+    floor: number;
+    roomTypeMasterId: number;
+    roomTypeName: string | undefined;
+    status: RoomStatus;
+    pricePerDay: number;
+    description: string | undefined;
+    facilityIds: number[] | undefined;
+    facilities: RoomFacilityDto[] | undefined;
+
+    constructor(data?: IRoomDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.roomNumber = _data["roomNumber"];
+            this.floor = _data["floor"];
+            this.roomTypeMasterId = _data["roomTypeMasterId"];
+            this.roomTypeName = _data["roomTypeName"];
+            this.status = _data["status"];
+            this.pricePerDay = _data["pricePerDay"];
+            this.description = _data["description"];
+            if (Array.isArray(_data["facilityIds"])) {
+                this.facilityIds = [] as any;
+                for (let item of _data["facilityIds"])
+                    this.facilityIds.push(item);
+            }
+            if (Array.isArray(_data["facilities"])) {
+                this.facilities = [] as any;
+                for (let item of _data["facilities"])
+                    this.facilities.push(RoomFacilityDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): RoomDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RoomDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["roomNumber"] = this.roomNumber;
+        data["floor"] = this.floor;
+        data["roomTypeMasterId"] = this.roomTypeMasterId;
+        data["roomTypeName"] = this.roomTypeName;
+        data["status"] = this.status;
+        data["pricePerDay"] = this.pricePerDay;
+        data["description"] = this.description;
+        if (Array.isArray(this.facilityIds)) {
+            data["facilityIds"] = [];
+            for (let item of this.facilityIds)
+                data["facilityIds"].push(item);
+        }
+        if (Array.isArray(this.facilities)) {
+            data["facilities"] = [];
+            for (let item of this.facilities)
+                data["facilities"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): RoomDto {
+        const json = this.toJSON();
+        let result = new RoomDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IRoomDto {
+    id: number;
+    tenantId: number;
+    roomNumber: string | undefined;
+    floor: number;
+    roomTypeMasterId: number;
+    roomTypeName: string | undefined;
+    status: RoomStatus;
+    pricePerDay: number;
+    description: string | undefined;
+    facilityIds: number[] | undefined;
+    facilities: RoomFacilityDto[] | undefined;
+}
+
+export class RoomDtoPagedResultDto implements IRoomDtoPagedResultDto {
+    items: RoomDto[] | undefined;
+    totalCount: number;
+
+    constructor(data?: IRoomDtoPagedResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(RoomDto.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): RoomDtoPagedResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RoomDtoPagedResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+
+    clone(): RoomDtoPagedResultDto {
+        const json = this.toJSON();
+        let result = new RoomDtoPagedResultDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IRoomDtoPagedResultDto {
+    items: RoomDto[] | undefined;
+    totalCount: number;
+}
+
+export class RoomFacilityDto implements IRoomFacilityDto {
+    id: number;
+    tenantId: number;
+    roomTypeMasterId: number;
+    roomTypeName: string | undefined;
+    roomFacilityMasterId: number;
+    facilityName: string | undefined;
+
+    constructor(data?: IRoomFacilityDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.roomTypeMasterId = _data["roomTypeMasterId"];
+            this.roomTypeName = _data["roomTypeName"];
+            this.roomFacilityMasterId = _data["roomFacilityMasterId"];
+            this.facilityName = _data["facilityName"];
+        }
+    }
+
+    static fromJS(data: any): RoomFacilityDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RoomFacilityDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["roomTypeMasterId"] = this.roomTypeMasterId;
+        data["roomTypeName"] = this.roomTypeName;
+        data["roomFacilityMasterId"] = this.roomFacilityMasterId;
+        data["facilityName"] = this.facilityName;
+        return data;
+    }
+
+    clone(): RoomFacilityDto {
+        const json = this.toJSON();
+        let result = new RoomFacilityDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IRoomFacilityDto {
+    id: number;
+    tenantId: number;
+    roomTypeMasterId: number;
+    roomTypeName: string | undefined;
+    roomFacilityMasterId: number;
+    facilityName: string | undefined;
+}
+
+export class RoomFacilityMasterDto implements IRoomFacilityMasterDto {
+    id: number;
+    tenantId: number;
+    facilityName: string | undefined;
+
+    constructor(data?: IRoomFacilityMasterDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.facilityName = _data["facilityName"];
+        }
+    }
+
+    static fromJS(data: any): RoomFacilityMasterDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RoomFacilityMasterDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["facilityName"] = this.facilityName;
+        return data;
+    }
+
+    clone(): RoomFacilityMasterDto {
+        const json = this.toJSON();
+        let result = new RoomFacilityMasterDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IRoomFacilityMasterDto {
+    id: number;
+    tenantId: number;
+    facilityName: string | undefined;
+}
+
+export class RoomFacilityMasterDtoListResultDto implements IRoomFacilityMasterDtoListResultDto {
+    items: RoomFacilityMasterDto[] | undefined;
+
+    constructor(data?: IRoomFacilityMasterDtoListResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(RoomFacilityMasterDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): RoomFacilityMasterDtoListResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RoomFacilityMasterDtoListResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): RoomFacilityMasterDtoListResultDto {
+        const json = this.toJSON();
+        let result = new RoomFacilityMasterDtoListResultDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IRoomFacilityMasterDtoListResultDto {
+    items: RoomFacilityMasterDto[] | undefined;
+}
+
+export class RoomFacilityMasterDtoPagedResultDto implements IRoomFacilityMasterDtoPagedResultDto {
+    items: RoomFacilityMasterDto[] | undefined;
+    totalCount: number;
+
+    constructor(data?: IRoomFacilityMasterDtoPagedResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(RoomFacilityMasterDto.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): RoomFacilityMasterDtoPagedResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RoomFacilityMasterDtoPagedResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+
+    clone(): RoomFacilityMasterDtoPagedResultDto {
+        const json = this.toJSON();
+        let result = new RoomFacilityMasterDtoPagedResultDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IRoomFacilityMasterDtoPagedResultDto {
+    items: RoomFacilityMasterDto[] | undefined;
+    totalCount: number;
+}
+
+export enum RoomStatus {
+    _0 = 0,
+    _1 = 1,
+    _2 = 2,
+    _3 = 3,
+}
+
+export class RoomTypeMasterDto implements IRoomTypeMasterDto {
+    id: number;
+    tenantId: number;
+    typeName: string | undefined;
+    description: string | undefined;
+    defaultPricePerDay: number;
+    facilityIds: number[] | undefined;
+    facilities: RoomFacilityMasterDto[] | undefined;
+
+    constructor(data?: IRoomTypeMasterDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.typeName = _data["typeName"];
+            this.description = _data["description"];
+            this.defaultPricePerDay = _data["defaultPricePerDay"];
+            if (Array.isArray(_data["facilityIds"])) {
+                this.facilityIds = [] as any;
+                for (let item of _data["facilityIds"])
+                    this.facilityIds.push(item);
+            }
+            if (Array.isArray(_data["facilities"])) {
+                this.facilities = [] as any;
+                for (let item of _data["facilities"])
+                    this.facilities.push(RoomFacilityMasterDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): RoomTypeMasterDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RoomTypeMasterDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["typeName"] = this.typeName;
+        data["description"] = this.description;
+        data["defaultPricePerDay"] = this.defaultPricePerDay;
+        if (Array.isArray(this.facilityIds)) {
+            data["facilityIds"] = [];
+            for (let item of this.facilityIds)
+                data["facilityIds"].push(item);
+        }
+        if (Array.isArray(this.facilities)) {
+            data["facilities"] = [];
+            for (let item of this.facilities)
+                data["facilities"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): RoomTypeMasterDto {
+        const json = this.toJSON();
+        let result = new RoomTypeMasterDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IRoomTypeMasterDto {
+    id: number;
+    tenantId: number;
+    typeName: string | undefined;
+    description: string | undefined;
+    defaultPricePerDay: number;
+    facilityIds: number[] | undefined;
+    facilities: RoomFacilityMasterDto[] | undefined;
+}
+
+export class RoomTypeMasterDtoListResultDto implements IRoomTypeMasterDtoListResultDto {
+    items: RoomTypeMasterDto[] | undefined;
+
+    constructor(data?: IRoomTypeMasterDtoListResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(RoomTypeMasterDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): RoomTypeMasterDtoListResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RoomTypeMasterDtoListResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): RoomTypeMasterDtoListResultDto {
+        const json = this.toJSON();
+        let result = new RoomTypeMasterDtoListResultDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IRoomTypeMasterDtoListResultDto {
+    items: RoomTypeMasterDto[] | undefined;
+}
+
+export class RoomTypeMasterDtoPagedResultDto implements IRoomTypeMasterDtoPagedResultDto {
+    items: RoomTypeMasterDto[] | undefined;
+    totalCount: number;
+
+    constructor(data?: IRoomTypeMasterDtoPagedResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(RoomTypeMasterDto.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): RoomTypeMasterDtoPagedResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RoomTypeMasterDtoPagedResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+
+    clone(): RoomTypeMasterDtoPagedResultDto {
+        const json = this.toJSON();
+        let result = new RoomTypeMasterDtoPagedResultDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IRoomTypeMasterDtoPagedResultDto {
+    items: RoomTypeMasterDto[] | undefined;
+    totalCount: number;
 }
 
 export class Setting implements ISetting {

@@ -4,6 +4,7 @@ using EMRSystem.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EMRSystem.Migrations
 {
     [DbContext(typeof(EMRSystemDbContext))]
-    partial class EMRSystemDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250711090928_AddRoomAndRoomFacility")]
+    partial class AddRoomAndRoomFacility
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2394,14 +2397,22 @@ namespace EMRSystem.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Floor")
                         .HasColumnType("int");
+
+                    b.Property<decimal>("PricePerDay")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("RoomNumber")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("RoomTypeMasterId")
-                        .HasColumnType("bigint");
+                    b.Property<string>("RoomType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -2413,12 +2424,10 @@ namespace EMRSystem.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RoomTypeMasterId");
-
                     b.ToTable("Rooms", (string)null);
                 });
 
-            modelBuilder.Entity("EMRSystem.RoomMaster.RoomFacilityMaster", b =>
+            modelBuilder.Entity("EMRSystem.Room.RoomFacility", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -2426,34 +2435,12 @@ namespace EMRSystem.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("FacilityName")
+                    b.Property<string>("Facility")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TenantId", "FacilityName")
-                        .IsUnique();
-
-                    b.ToTable("RoomFacilityMasters", (string)null);
-                });
-
-            modelBuilder.Entity("EMRSystem.RoomMaster.RoomTypeFacility", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("RoomFacilityMasterId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("RoomTypeMasterId")
+                    b.Property<long>("RoomId")
                         .HasColumnType("bigint");
 
                     b.Property<int>("TenantId")
@@ -2461,45 +2448,12 @@ namespace EMRSystem.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RoomFacilityMasterId");
+                    b.HasIndex("RoomId");
 
-                    b.HasIndex("RoomTypeMasterId");
-
-                    b.HasIndex("TenantId", "RoomTypeMasterId", "RoomFacilityMasterId")
+                    b.HasIndex("TenantId", "RoomId", "Facility")
                         .IsUnique();
 
-                    b.ToTable("RoomTypeFacilities", (string)null);
-                });
-
-            modelBuilder.Entity("EMRSystem.RoomMaster.RoomTypeMaster", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<decimal>("DefaultPricePerDay")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
-
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("TypeName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TenantId", "TypeName")
-                        .IsUnique();
-
-                    b.ToTable("RoomTypeMasters", (string)null);
+                    b.ToTable("RoomFacilities", (string)null);
                 });
 
             modelBuilder.Entity("EMRSystem.Visits.Visit", b =>
@@ -3106,34 +3060,15 @@ namespace EMRSystem.Migrations
                     b.Navigation("Prescription");
                 });
 
-            modelBuilder.Entity("EMRSystem.Room.Room", b =>
+            modelBuilder.Entity("EMRSystem.Room.RoomFacility", b =>
                 {
-                    b.HasOne("EMRSystem.RoomMaster.RoomTypeMaster", "RoomTypeMaster")
-                        .WithMany()
-                        .HasForeignKey("RoomTypeMasterId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("RoomTypeMaster");
-                });
-
-            modelBuilder.Entity("EMRSystem.RoomMaster.RoomTypeFacility", b =>
-                {
-                    b.HasOne("EMRSystem.RoomMaster.RoomFacilityMaster", "RoomFacilityMaster")
-                        .WithMany()
-                        .HasForeignKey("RoomFacilityMasterId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("EMRSystem.RoomMaster.RoomTypeMaster", "RoomTypeMaster")
+                    b.HasOne("EMRSystem.Room.Room", "Room")
                         .WithMany("Facilities")
-                        .HasForeignKey("RoomTypeMasterId")
+                        .HasForeignKey("RoomId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("RoomFacilityMaster");
-
-                    b.Navigation("RoomTypeMaster");
+                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("EMRSystem.Visits.Visit", b =>
@@ -3352,7 +3287,7 @@ namespace EMRSystem.Migrations
                     b.Navigation("LabTests");
                 });
 
-            modelBuilder.Entity("EMRSystem.RoomMaster.RoomTypeMaster", b =>
+            modelBuilder.Entity("EMRSystem.Room.Room", b =>
                 {
                     b.Navigation("Facilities");
                 });

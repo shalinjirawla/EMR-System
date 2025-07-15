@@ -4,6 +4,7 @@ using EMRSystem.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EMRSystem.Migrations
 {
     [DbContext(typeof(EMRSystemDbContext))]
-    partial class EMRSystemDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250711103129_RefactorRoomToMasterFk")]
+    partial class RefactorRoomToMasterFk
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2394,8 +2397,35 @@ namespace EMRSystem.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("CreatorUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("DeleterUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Floor")
                         .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("LastModifierUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<decimal>("PricePerDay")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("RoomNumber")
                         .HasColumnType("nvarchar(max)");
@@ -2416,6 +2446,41 @@ namespace EMRSystem.Migrations
                     b.HasIndex("RoomTypeMasterId");
 
                     b.ToTable("Rooms", (string)null);
+                });
+
+            modelBuilder.Entity("EMRSystem.Room.RoomFacility", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("CreatorUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("RoomFacilityMasterId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("RoomId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoomFacilityMasterId");
+
+                    b.HasIndex("RoomId");
+
+                    b.HasIndex("TenantId", "RoomId", "RoomFacilityMasterId")
+                        .IsUnique();
+
+                    b.ToTable("RoomFacilities", (string)null);
                 });
 
             modelBuilder.Entity("EMRSystem.RoomMaster.RoomFacilityMaster", b =>
@@ -2450,6 +2515,12 @@ namespace EMRSystem.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("CreatorUserId")
+                        .HasColumnType("bigint");
+
                     b.Property<long>("RoomFacilityMasterId")
                         .HasColumnType("bigint");
 
@@ -2479,12 +2550,33 @@ namespace EMRSystem.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("CreatorUserId")
+                        .HasColumnType("bigint");
+
                     b.Property<decimal>("DefaultPricePerDay")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<long?>("DeleterUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .HasMaxLength(250)
                         .HasColumnType("nvarchar(250)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("LastModifierUserId")
+                        .HasColumnType("bigint");
 
                     b.Property<int>("TenantId")
                         .HasColumnType("int");
@@ -3117,6 +3209,25 @@ namespace EMRSystem.Migrations
                     b.Navigation("RoomTypeMaster");
                 });
 
+            modelBuilder.Entity("EMRSystem.Room.RoomFacility", b =>
+                {
+                    b.HasOne("EMRSystem.RoomMaster.RoomFacilityMaster", "RoomFacilityMaster")
+                        .WithMany()
+                        .HasForeignKey("RoomFacilityMasterId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("EMRSystem.Room.Room", "Room")
+                        .WithMany("Facilities")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Room");
+
+                    b.Navigation("RoomFacilityMaster");
+                });
+
             modelBuilder.Entity("EMRSystem.RoomMaster.RoomTypeFacility", b =>
                 {
                     b.HasOne("EMRSystem.RoomMaster.RoomFacilityMaster", "RoomFacilityMaster")
@@ -3350,6 +3461,11 @@ namespace EMRSystem.Migrations
                     b.Navigation("Items");
 
                     b.Navigation("LabTests");
+                });
+
+            modelBuilder.Entity("EMRSystem.Room.Room", b =>
+                {
+                    b.Navigation("Facilities");
                 });
 
             modelBuilder.Entity("EMRSystem.RoomMaster.RoomTypeMaster", b =>

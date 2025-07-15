@@ -35,4 +35,29 @@
       <i class="pi pi-plus"></i>
     </div>
   </div>
+   <div class="action-card roomtype-card">
+    <div class="card-icon">
+      <i class="fa-solid fa-bed"></i>
+    </div>
+    <div class="card-content">
+      <h3>Add Room Type ({{ totalRoomTypeCount }})</h3>
+      <p>Manage room categories</p>
+    </div>
+    <div class="card-badge" (click)="createRoomType()">
+      <i class="pi pi-plus"></i>
+    </div>
+  </div>
+  <div class="action-card roomfacility-card">
+    <div class="card-icon">
+      <i class="fas fa-lightbulb"></i> <!-- Works in Font Awesome 5 -->
+
+    </div>
+    <div class="card-content">
+      <h3>Add Facility ({{ totalRoomFacilityCount }})</h3>
+      <p>Manage room facilities</p>
+    </div>
+    <div class="card-badge" (click)="createRoomFacility()">
+      <i class="pi pi-plus"></i>
+    </div>
+  </div>
 </div>

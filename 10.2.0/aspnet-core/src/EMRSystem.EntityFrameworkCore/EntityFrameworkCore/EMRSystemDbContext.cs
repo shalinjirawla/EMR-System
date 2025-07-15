@@ -13,9 +13,12 @@ using EMRSystem.Nurses;
 using EMRSystem.Patients;
 using EMRSystem.Pharmacists;
 using EMRSystem.Prescriptions;
+using EMRSystem.Room;
+using EMRSystem.RoomMaster;
 using EMRSystem.Visits;
 using EMRSystem.Vitals;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;    // NEW
+
 
 namespace EMRSystem.EntityFrameworkCore;
 
@@ -45,7 +48,10 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
     public DbSet<Department> Departments { get; set; }
     public DbSet<EMRSystem.MedicineOrder.MedicineOrder> MedicineOrders { get; set; }
     public DbSet<EMRSystem.MedicineOrder.MedicineOrderItem> MedicineOrderItems { get; set; }
-
+    public DbSet<EMRSystem.Room.Room> Rooms { get; set; }
+    public DbSet<RoomTypeMaster> RoomTypes { get; set; }
+    public DbSet<RoomFacilityMaster> RoomFacilitiesMaster { get; set; }
+    public DbSet<RoomTypeFacility> RoomTypeFacilities { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -256,6 +262,50 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
 
             // Optional: Add indexes for performance
             b.HasIndex(ii => ii.InvoiceId);
+        });
+
+        modelBuilder.Entity<EMRSystem.Room.Room>(b =>
+        {
+            b.ToTable("Rooms");
+
+            b.HasOne(r => r.RoomTypeMaster)             // FK to master
+             .WithMany()
+             .HasForeignKey(r => r.RoomTypeMasterId)
+             .OnDelete(DeleteBehavior.Restrict);
+
+            b.Property(r => r.Status)
+             .HasConversion<string>()
+             .HasMaxLength(20);
+        });
+
+
+        modelBuilder.Entity<RoomFacilityMaster>(b =>
+        {
+            b.ToTable("RoomFacilityMasters");
+            b.HasIndex(x => new { x.TenantId, x.FacilityName }).IsUnique();
+        });
+        modelBuilder.Entity<RoomTypeMaster>(b =>
+        {
+            b.ToTable("RoomTypeMasters");
+            b.Property(x => x.DefaultPricePerDay).HasColumnType("decimal(18,2)");
+            b.HasIndex(x => new { x.TenantId, x.TypeName }).IsUnique();
+        });
+
+        modelBuilder.Entity<RoomTypeFacility>(b =>
+        {
+            b.ToTable("RoomTypeFacilities");
+
+            b.HasIndex(x => new { x.TenantId, x.RoomTypeMasterId, x.RoomFacilityMasterId }).IsUnique();
+
+            b.HasOne(rt => rt.RoomTypeMaster)
+             .WithMany(rtm => rtm.Facilities)
+             .HasForeignKey(rt => rt.RoomTypeMasterId)
+             .OnDelete(DeleteBehavior.Cascade);
+
+            b.HasOne(rt => rt.RoomFacilityMaster)
+             .WithMany()
+             .HasForeignKey(rt => rt.RoomFacilityMasterId)
+             .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<Visit>()
