@@ -27,10 +27,12 @@ namespace EMRSystem.Nurses
         public long AbpUserId { get; set; }
         public virtual User AbpUser { get; set; }
         public ICollection<Vital> Vitals { get; set; }
-        public ICollection<Patient> Patients { get; set; }
+       // public ICollection<Patient> Patients { get; set; }
         public virtual ICollection<Appointment> Appointments { get; set; }
         public ICollection<Visit> Visits { get; set; }
         public virtual ICollection<MedicineOrder.MedicineOrder> MedicineOrders { get; set; }
+        public virtual ICollection<EMRSystem.Admission.Admission> Admissions { get; set; }
+
 
 
     }

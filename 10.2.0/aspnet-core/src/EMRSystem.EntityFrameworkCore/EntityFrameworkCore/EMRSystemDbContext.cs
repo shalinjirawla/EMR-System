@@ -52,6 +52,10 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
     public DbSet<RoomTypeMaster> RoomTypes { get; set; }
     public DbSet<RoomFacilityMaster> RoomFacilitiesMaster { get; set; }
     public DbSet<RoomTypeFacility> RoomTypeFacilities { get; set; }
+    public DbSet<EMRSystem.Admission.Admission> Admissions { get; set; }
+    public DbSet<EMRSystem.Deposit.Deposit> Deposits { get; set; }
+    public DbSet<EMRSystem.DoctorMaster.DoctorMaster> DoctorMasters { get; set; }
+
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -101,17 +105,23 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
                 .HasForeignKey(s => s.AbpUserId)
                 .OnDelete(DeleteBehavior.NoAction); // or NoAction
 
-        modelBuilder.Entity<Patient>()
-                .HasOne(s => s.Doctors)
-                .WithMany(e => e.Patients)
-                .HasForeignKey(s => s.AssignedDoctorId)
-                .OnDelete(DeleteBehavior.NoAction); // or NoAction
+        modelBuilder.Entity<EMRSystem.DoctorMaster.DoctorMaster>()
+                .HasOne(dm => dm.Doctor)
+                .WithMany() // or `.WithOne()` if one-to-one
+                .HasForeignKey(dm => dm.DoctorId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<Patient>()
-               .HasOne(s => s.Nurses)
-               .WithMany(e => e.Patients)
-               .HasForeignKey(s =>s.AssignedNurseId )
-               .OnDelete(DeleteBehavior.NoAction); // or NoAction
+        //modelBuilder.Entity<Patient>()
+        //        .HasOne(s => s.Doctors)
+        //        .WithMany(e => e.Patients)
+        //        .HasForeignKey(s => s.AssignedDoctorId)
+        //        .OnDelete(DeleteBehavior.NoAction); // or NoAction
+
+        //modelBuilder.Entity<Patient>()
+        //       .HasOne(s => s.Nurses)
+        //       .WithMany(e => e.Patients)
+        //       .HasForeignKey(s =>s.AssignedNurseId )
+        //       .OnDelete(DeleteBehavior.NoAction); // or NoAction
 
         modelBuilder.Entity<Prescription>()
               .HasOne(s => s.Appointment)
@@ -306,6 +316,52 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
              .WithMany()
              .HasForeignKey(rt => rt.RoomFacilityMasterId)
              .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<EMRSystem.Admission.Admission>(b =>
+        {
+            b.ToTable("Admissions");
+            b.HasOne(a => a.Patient)
+                .WithMany(p => p.Admissions)
+                .HasForeignKey(a => a.PatientId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            b.HasOne(a => a.Doctor)
+                .WithMany(d => d.Admissions)
+                .HasForeignKey(a => a.DoctorId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            b.HasOne(a => a.Nurse)
+                .WithMany(n => n.Admissions)
+                .HasForeignKey(a => a.NurseId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            b.HasOne(a => a.Room)
+                .WithMany(r => r.Admissions)
+                .HasForeignKey(a => a.RoomId)
+                .OnDelete(DeleteBehavior.NoAction);
+        });
+
+        // STEP 4‑b Deposit configuration
+        modelBuilder.Entity<EMRSystem.Deposit.Deposit>(b =>
+        {
+            b.ToTable("Deposits");
+
+            b.Property(d => d.Amount)
+             .HasColumnType("decimal(18,2)");
+
+            b.Property(d => d.PaymentMethod)
+             .HasConversion<string>()
+             .HasMaxLength(20);
+
+            b.HasOne(d => d.Patient)
+             .WithMany(a => a.Deposits)
+             .HasForeignKey(d => d.PatientId)
+             .OnDelete(DeleteBehavior.NoAction);
+
+            b.Property(e => e.BillingMethod)
+            .HasConversion<string>()
+            .HasMaxLength(30);
         });
 
         modelBuilder.Entity<Visit>()

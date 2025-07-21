@@ -1,0 +1,70 @@
+<form class="form-horizontal" autocomplete="off" #createDepositForm="ngForm" (ngSubmit)="save()">
+    <abp-modal-header title="Create New Deposit" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-md-12">
+                <label><b>Select Patient</b></label>
+                <p-select [options]="patients"
+                          optionLabel="fullName"
+                          optionValue="id"
+                          [(ngModel)]="deposit.patientId"
+                          name="patientId"
+                          class="w-100"
+                          placeholder="Select a patient"
+                          required>
+                </p-select>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-md-6 d-flex flex-column">
+                <label>Payment Method</label>
+                <p-dropdown [options]="paymentMethodOptions"
+                            optionLabel="label"
+                            optionValue="value"
+                            [(ngModel)]="deposit.paymentMethod"
+                            name="paymentMethod"
+                            class="w-100"
+                            placeholder="Select payment method"
+                            required>
+                </p-dropdown>
+            </div>
+            <div class="col-md-6 d-flex flex-column">
+                <label>Billing Method</label>
+                <p-dropdown [options]="billingMethodOptions"
+                            optionLabel="label"
+                            optionValue="value"
+                            [(ngModel)]="deposit.billingMethod"
+                            name="billingMethod"
+                            class="w-100"
+                            placeholder="Select billing method"
+                            required>
+                </p-dropdown>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-md-6 d-flex flex-column">
+                <label>Amount</label>
+                <input type="number"
+                       class="form-control"
+                       [(ngModel)]="deposit.amount"
+                       name="amount"
+                       min="0"
+                       step="0.01"
+                       placeholder="Enter amount"
+                       required />
+            </div>
+            <div class="col-md-6 d-flex flex-column">
+                <label>Deposit Date & Time</label>
+                <p-datepicker [(ngModel)]="deposit.depositDateTime"
+                              name="depositDateTime"
+                              [showIcon]="true"
+                              showTime="true"
+                              placeholder="Select date and time"
+                              required>
+                </p-datepicker>
+            </div>
+        </div>
+    </div>
+    <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="!isFormValid || saving"
+        (onCancelClick)="bsModalRef.hide()"></abp-modal-footer>
+</form>

@@ -2,13 +2,22 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { SharedModule } from 'primeng/api';
 import {MasterTableRoutingModule} from '../master-table/master-table-routing.module';
+import { RoomFacilitiesComponent } from './room-facilities/room-facilities.component';
+import { RoomTypesComponent } from './room-types/room-types.component';
+import { LabReportTypeComponent } from './lab-report-type/lab-report-type.component';
+import { DoctorMasterComponent } from './doctor-master/doctor-master.component';
+
 
 
 @NgModule({
     imports: [
         SharedModule,
         CommonModule,
-        MasterTableRoutingModule
+        MasterTableRoutingModule,
+        RoomFacilitiesComponent,
+        RoomTypesComponent,
+        LabReportTypeComponent,
+        DoctorMasterComponent
     ],
 })
 export class MasterTableModule {}

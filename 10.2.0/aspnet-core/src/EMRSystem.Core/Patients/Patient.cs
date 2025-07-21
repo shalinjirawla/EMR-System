@@ -28,21 +28,28 @@ namespace EMRSystem.Patients
         public string EmergencyContactName { get; set; }
         public string EmergencyContactNumber { get; set; }
         //public bool IsAdmitted { get; set; }
-        public DateTime? AdmissionDate { get; set; }
-        public BillingMethod BillingMethod { get; set; }
-        public PaymentMethod? PaymentMethod { get; set; }
-        public long? DepositAmount { get; set; }
+        //public DateTime? AdmissionDate { get; set; }
+        //public BillingMethod BillingMethod { get; set; }
+        //public PaymentMethod? PaymentMethod { get; set; }
+        //public long? RoomId { get; set; }
+        //public virtual EMRSystem.Room.Room Room { get; set; }
+
+        //public long? DepositAmount { get; set; }
         //public DateTime? DischargeDate { get; set; }
         //public string? InsuranceProvider { get; set; }
         //public string? InsurancePolicyNumber { get; set; }
 
         public long AbpUserId { get; set; }
-        public long? AssignedNurseId { get; set; }
-        public long? AssignedDoctorId { get; set; }
+        //public long? AssignedNurseId { get; set; }
+        //public long? AssignedDoctorId { get; set; }
         public virtual User AbpUser { get; set; }
-        public virtual Nurse Nurses { get; set; }
-        public virtual Doctor Doctors { get; set; }
+        //public virtual Nurse Nurses { get; set; }
+        //public virtual Doctor Doctors { get; set; }
         public ICollection<Prescription> Prescriptions { get; set; }
+        public virtual ICollection<EMRSystem.Admission.Admission> Admissions { get; set; }
+        public virtual ICollection<EMRSystem.Deposit.Deposit> Deposits { get; set; }
+
+
         public ICollection<Vital> Vitals { get; set; }
         public virtual ICollection<Appointment> Appointments { get; set; }
         public ICollection<Visit> Visit { get; set; }

@@ -29,6 +29,32 @@ namespace EMRSystem.RoomMaster
         public RoomTypeMasterAppService(IRepository<RoomTypeMaster, long> repo)
             : base(repo) { }
 
+        public override async Task<RoomTypeMasterDto> GetAsync(EntityDto<long> input)
+        {
+            var entity = await Repository.GetAll()
+                .Include(r => r.Facilities)
+                .ThenInclude(f => f.RoomFacilityMaster)
+                .FirstOrDefaultAsync(r => r.Id == input.Id);
+
+            if (entity == null)
+                throw new EntityNotFoundException(typeof(RoomTypeMaster), input.Id);
+
+            return ObjectMapper.Map<RoomTypeMasterDto>(entity);
+        }
+        public override async Task<RoomTypeMasterDto> CreateAsync(CreateUpdateRoomTypeMasterDto input)
+        {
+            return await CreateWithFacilitiesAsync(input);
+        }
+
+        public override async Task<RoomTypeMasterDto> UpdateAsync(CreateUpdateRoomTypeMasterDto input)
+        {
+            await UpdateWithFacilitiesAsync(input);
+            var updated = await GetAsync(new EntityDto<long>(input.Id));
+            return updated;
+        }
+
+
+
         /* -------- Query filter (optional keyword search) -------- */
         //protected override IQueryable<RoomTypeMaster> CreateFilteredQuery(PagedAndSortedResultRequestDto input)
         //{

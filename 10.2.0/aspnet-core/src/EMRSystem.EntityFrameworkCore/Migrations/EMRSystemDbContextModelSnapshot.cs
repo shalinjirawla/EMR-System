@@ -1380,6 +1380,48 @@ namespace EMRSystem.Migrations
                     b.ToTable("AbpWebhookSubscriptions");
                 });
 
+            modelBuilder.Entity("EMRSystem.Admission.Admission", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("AdmissionDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("AdmissionType")
+                        .HasColumnType("int");
+
+                    b.Property<long>("DoctorId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("NurseId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("PatientId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("RoomId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DoctorId");
+
+                    b.HasIndex("NurseId");
+
+                    b.HasIndex("PatientId");
+
+                    b.HasIndex("RoomId");
+
+                    b.ToTable("Admissions", (string)null);
+                });
+
             modelBuilder.Entity("EMRSystem.Appointments.Appointment", b =>
                 {
                     b.Property<long>("Id")
@@ -1721,6 +1763,67 @@ namespace EMRSystem.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Departments");
+                });
+
+            modelBuilder.Entity("EMRSystem.Deposit.Deposit", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("BillingMethod")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<DateTime>("DepositDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("PatientId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("PaymentMethod")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PatientId");
+
+                    b.ToTable("Deposits", (string)null);
+                });
+
+            modelBuilder.Entity("EMRSystem.DoctorMaster.DoctorMaster", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("DoctorId")
+                        .HasColumnType("bigint");
+
+                    b.Property<decimal>("Fee")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DoctorId");
+
+                    b.ToTable("DoctorMasters");
                 });
 
             modelBuilder.Entity("EMRSystem.Doctors.Doctor", b =>
@@ -2172,26 +2275,11 @@ namespace EMRSystem.Migrations
                     b.Property<string>("Address")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("AdmissionDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long?>("AssignedDoctorId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long?>("AssignedNurseId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("BillingMethod")
-                        .HasColumnType("int");
-
                     b.Property<string>("BloodGroup")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("DateOfBirth")
                         .HasColumnType("datetime2");
-
-                    b.Property<long?>("DepositAmount")
-                        .HasColumnType("bigint");
 
                     b.Property<string>("EmergencyContactName")
                         .HasColumnType("nvarchar(max)");
@@ -2205,19 +2293,12 @@ namespace EMRSystem.Migrations
                     b.Property<string>("Gender")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("PaymentMethod")
-                        .HasColumnType("int");
-
                     b.Property<int>("TenantId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AbpUserId");
-
-                    b.HasIndex("AssignedDoctorId");
-
-                    b.HasIndex("AssignedNurseId");
 
                     b.ToTable("Patients");
                 });
@@ -2785,6 +2866,40 @@ namespace EMRSystem.Migrations
                     b.Navigation("WebhookEvent");
                 });
 
+            modelBuilder.Entity("EMRSystem.Admission.Admission", b =>
+                {
+                    b.HasOne("EMRSystem.Doctors.Doctor", "Doctor")
+                        .WithMany("Admissions")
+                        .HasForeignKey("DoctorId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("EMRSystem.Nurses.Nurse", "Nurse")
+                        .WithMany("Admissions")
+                        .HasForeignKey("NurseId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("EMRSystem.Patients.Patient", "Patient")
+                        .WithMany("Admissions")
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("EMRSystem.Room.Room", "Room")
+                        .WithMany("Admissions")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Doctor");
+
+                    b.Navigation("Nurse");
+
+                    b.Navigation("Patient");
+
+                    b.Navigation("Room");
+                });
+
             modelBuilder.Entity("EMRSystem.Appointments.Appointment", b =>
                 {
                     b.HasOne("EMRSystem.Doctors.Doctor", "Doctor")
@@ -2873,6 +2988,28 @@ namespace EMRSystem.Migrations
                         .IsRequired();
 
                     b.Navigation("Bill");
+                });
+
+            modelBuilder.Entity("EMRSystem.Deposit.Deposit", b =>
+                {
+                    b.HasOne("EMRSystem.Patients.Patient", "Patient")
+                        .WithMany("Deposits")
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Patient");
+                });
+
+            modelBuilder.Entity("EMRSystem.DoctorMaster.DoctorMaster", b =>
+                {
+                    b.HasOne("EMRSystem.Doctors.Doctor", "Doctor")
+                        .WithMany()
+                        .HasForeignKey("DoctorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Doctor");
                 });
 
             modelBuilder.Entity("EMRSystem.Doctors.Doctor", b =>
@@ -3040,21 +3177,7 @@ namespace EMRSystem.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("EMRSystem.Doctors.Doctor", "Doctors")
-                        .WithMany("Patients")
-                        .HasForeignKey("AssignedDoctorId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("EMRSystem.Nurses.Nurse", "Nurses")
-                        .WithMany("Patients")
-                        .HasForeignKey("AssignedNurseId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
                     b.Navigation("AbpUser");
-
-                    b.Navigation("Doctors");
-
-                    b.Navigation("Nurses");
                 });
 
             modelBuilder.Entity("EMRSystem.Pharmacists.Pharmacist", b =>
@@ -3290,9 +3413,9 @@ namespace EMRSystem.Migrations
 
             modelBuilder.Entity("EMRSystem.Doctors.Doctor", b =>
                 {
-                    b.Navigation("Appointments");
+                    b.Navigation("Admissions");
 
-                    b.Navigation("Patients");
+                    b.Navigation("Appointments");
 
                     b.Navigation("Prescriptions");
 
@@ -3321,11 +3444,11 @@ namespace EMRSystem.Migrations
 
             modelBuilder.Entity("EMRSystem.Nurses.Nurse", b =>
                 {
+                    b.Navigation("Admissions");
+
                     b.Navigation("Appointments");
 
                     b.Navigation("MedicineOrders");
-
-                    b.Navigation("Patients");
 
                     b.Navigation("Visits");
 
@@ -3334,7 +3457,11 @@ namespace EMRSystem.Migrations
 
             modelBuilder.Entity("EMRSystem.Patients.Patient", b =>
                 {
+                    b.Navigation("Admissions");
+
                     b.Navigation("Appointments");
+
+                    b.Navigation("Deposits");
 
                     b.Navigation("MedicineOrders");
 
@@ -3350,6 +3477,11 @@ namespace EMRSystem.Migrations
                     b.Navigation("Items");
 
                     b.Navigation("LabTests");
+                });
+
+            modelBuilder.Entity("EMRSystem.Room.Room", b =>
+                {
+                    b.Navigation("Admissions");
                 });
 
             modelBuilder.Entity("EMRSystem.RoomMaster.RoomTypeMaster", b =>

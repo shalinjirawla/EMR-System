@@ -5,7 +5,7 @@
     <div class="col-md-9">
       <div *ngFor="let gender of genders" class="form-check form-check-inline">
         <input class="form-check-input" type="radio" name="gender" [id]="'gender_' + gender" [value]="gender"
-               [(ngModel)]="patientData.gender" (ngModelChange)="onInputChange()" required #genderModel="ngModel" #genderEl>
+          [(ngModel)]="patientData.gender" (ngModelChange)="onInputChange()" required #genderModel="ngModel" #genderEl>
         <label class="form-check-label" [for]="'gender_' + gender">{{ gender }}</label>
       </div>
     </div>
@@ -15,8 +15,8 @@
   <div class="form-group row required">
     <label class="col-md-3 col-form-label" for="dob">Date of Birth</label>
     <div class="col-md-9">
-      <input type="date" id="dob" name="dob" class="form-control" required
-             [(ngModel)]="patientData.dateOfBirth" (ngModelChange)="onInputChange()" #dobModel="ngModel" #dobEl>
+      <input type="date" id="dob" name="dob" class="form-control" required [(ngModel)]="patientData.dateOfBirth"
+        (ngModelChange)="onInputChange()" #dobModel="ngModel" #dobEl>
       <abp-validation-summary [control]="dobModel" [controlEl]="dobEl"></abp-validation-summary>
     </div>
   </div>
@@ -25,8 +25,8 @@
   <div class="form-group row required">
     <label class="col-md-3 col-form-label" for="address">Address</label>
     <div class="col-md-9">
-      <textarea id="address" name="address" rows="3" class="form-control" required
-                [(ngModel)]="patientData.address" (ngModelChange)="onInputChange()" #addressModel="ngModel" #addressEl></textarea>
+      <textarea id="address" name="address" rows="3" class="form-control" required [(ngModel)]="patientData.address"
+        (ngModelChange)="onInputChange()" #addressModel="ngModel" #addressEl></textarea>
       <abp-validation-summary [control]="addressModel" [controlEl]="addressEl"></abp-validation-summary>
     </div>
   </div>
@@ -35,8 +35,8 @@
   <div class="form-group row required">
     <label class="col-md-3 col-form-label" for="bloodGroup">Blood Group</label>
     <div class="col-md-9">
-      <select id="bloodGroup" name="bloodGroup" class="form-control" required
-              [(ngModel)]="patientData.bloodGroup" (ngModelChange)="onInputChange()" #bloodGroupModel="ngModel" #bloodGroupEl>
+      <select id="bloodGroup" name="bloodGroup" class="form-control" required [(ngModel)]="patientData.bloodGroup"
+        (ngModelChange)="onInputChange()" #bloodGroupModel="ngModel" #bloodGroupEl>
         <option *ngFor="let bg of bloodGroups" [value]="bg">{{ bg }}</option>
       </select>
       <abp-validation-summary [control]="bloodGroupModel" [controlEl]="bloodGroupEl"></abp-validation-summary>
@@ -48,7 +48,8 @@
     <label class="col-md-3 col-form-label" for="emergencyName">Emergency Contact Name</label>
     <div class="col-md-9">
       <input type="text" id="emergencyName" name="emergencyName" class="form-control" required
-             [(ngModel)]="patientData.emergencyContactName" (ngModelChange)="onInputChange()" #emergencyNameModel="ngModel" #emergencyNameEl>
+        [(ngModel)]="patientData.emergencyContactName" (ngModelChange)="onInputChange()" #emergencyNameModel="ngModel"
+        #emergencyNameEl>
       <abp-validation-summary [control]="emergencyNameModel" [controlEl]="emergencyNameEl"></abp-validation-summary>
     </div>
   </div>
@@ -58,11 +59,12 @@
     <label class="col-md-3 col-form-label" for="emergencyNumber">Emergency Contact Number</label>
     <div class="col-md-9">
       <input type="text" id="emergencyNumber" name="emergencyNumber" class="form-control" required
-             [(ngModel)]="patientData.emergencyContactNumber" (ngModelChange)="onInputChange()" #emergencyNumberModel="ngModel" #emergencyNumberEl>
+        [(ngModel)]="patientData.emergencyContactNumber" (ngModelChange)="onInputChange()"
+        #emergencyNumberModel="ngModel" #emergencyNumberEl>
       <abp-validation-summary [control]="emergencyNumberModel" [controlEl]="emergencyNumberEl"></abp-validation-summary>
     </div>
   </div>
-    <!-- Insurance Provider -->
+  <!-- Insurance Provider -->
   <!-- <div class="form-group row">
     <label class="col-md-3 col-form-label" for="insuranceProvider">Insurance Provider</label>
     <div class="col-md-9">
@@ -72,7 +74,7 @@
             </div>
   </div> -->
 
-    <!-- Insurance Policy Number -->
+  <!-- Insurance Policy Number -->
   <!-- <div class="form-group row">
     <label class="col-md-3 col-form-label" for="policyNumber">Insurance Policy Number</label>
     <div class="col-md-9">
@@ -83,27 +85,27 @@
   </div> -->
 
   <!-- Assigned Nurse -->
-  <div class="form-group row">
+  <!-- <div class="form-group row">
     <label class="col-md-3 col-form-label" for="nurse">Assigned Nurse</label>
     <div class="col-md-9">
-      <select id="nurse" name="assignedNurseId" class="form-control"
-              [(ngModel)]="patientData.assignedNurseId" (ngModelChange)="onInputChange()">
+      <select id="nurse" name="assignedNurseId" class="form-control" [(ngModel)]="patientData.assignedNurseId"
+        (ngModelChange)="onInputChange()">
         <option [ngValue]="null">-- Select Nurse --</option>
         <option *ngFor="let nurse of nurseList" [ngValue]="nurse.id">{{ nurse.fullName }}</option>
       </select>
     </div>
   </div>
- <!-- Assigned Doctor -->
-   <div class="form-group row">
+  <!-- Assigned Doctor -->
+  <!-- <div class="form-group row">
     <label class="col-md-3 col-form-label" for="doctor">Assigned Doctor</label>
     <div class="col-md-9">
-      <select id="doctor" name="assignedDoctorId" class="form-control" 
-              [(ngModel)]="patientData.assignedDoctorId" (ngModelChange)="onInputChange()">
+      <select id="doctor" name="assignedDoctorId" class="form-control" [(ngModel)]="patientData.assignedDoctorId"
+        (ngModelChange)="onInputChange()">
         <option [ngValue]="null">-- Select Doctor --</option>
         <option *ngFor="let doctor of doctorList" [ngValue]="doctor.id">{{ doctor.fullName }}</option>
       </select>
     </div>
-  </div>
+  </div> -->
 
   <!-- Is Admitted -->
   <!-- <div class="form-group row">
@@ -114,14 +116,29 @@
   </div> -->
 
   <!-- Admission Date -->
-  <div class="form-group row" >
+  <!-- <div class="form-group row">
     <label class="col-md-3 col-form-label" for="admissionDate">Admission Date</label>
     <div class="col-md-9">
       <input type="date" id="admissionDate" name="admissionDate" class="form-control"
-             [(ngModel)]="patientData.admissionDate" (ngModelChange)="onInputChange()">
-      <!-- <abp-validation-summary [control]="admissionModel" [controlEl]="admissionEl"></abp-validation-summary> -->
+        [(ngModel)]="patientData.admissionDate" (ngModelChange)="onInputChange()">
+      <!-- <abp-validation-summary [control]="admissionModel" [controlEl]="admissionEl"></abp-validation-summary> 
     </div>
-  </div>
+  </div> -->
+
+  <!-- Room -->
+  <!--<div class="form-group row required">
+    <label class="col-md-3 col-form-label" for="room">Room</label>
+    <div class="col-md-9">
+      <select id="room" name="roomId" class="form-control" required [(ngModel)]="patientData.roomId"
+        (ngModelChange)="onInputChange()">
+        <option [ngValue]="null">-- Select Room --</option>
+        <option *ngFor="let room of roomList" [ngValue]="room.id">
+          {{ room.roomNumber }} – {{ room.roomTypeName }}
+        </option>
+      </select>
+    </div>
+  </div>-->
+
 
   <!-- Discharge Date -->
   <!-- <div class="form-group row">

@@ -1,0 +1,27 @@
+<form class="form-horizontal" autocomplete="off" #facilityForm="ngForm" (ngSubmit)="save()">
+    <abp-modal-header [title]="id ? 'Edit Room Facility' : 'Create Room Facility'" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-md-12 d-flex flex-column">
+                <label for="facilityName"><b>Facility Name</b></label>
+                <input
+                    pInputText
+                    type="text"
+                    id="facilityName"
+                    name="facilityName"
+                    class="form-control"
+                    [(ngModel)]="facility.facilityName"
+                    required
+                    maxlength="100"
+                    placeholder="Enter facility name"
+                    autocomplete="off"
+                />
+            </div>
+        </div>
+    </div>
+    <abp-modal-footer
+        [cancelDisabled]="saving"
+        [saveDisabled]="!isFormValid || saving"
+        (onCancelClick)="bsModalRef.hide()"
+    ></abp-modal-footer>
+</form>

@@ -14,8 +14,11 @@ namespace EMRSystem.Room
          CreateUpdateRoomDto,
          CreateUpdateRoomDto>
     {
-        Task<RoomDto> CreateRoomWithFacilitiesAsync(CreateUpdateRoomDto input);
-        Task UpdateRoomWithFacilitiesAsync(CreateUpdateRoomDto input);
+        //Task<RoomDto> CreateRoomWithFacilitiesAsync(CreateUpdateRoomDto input);
+        //Task UpdateRoomWithFacilitiesAsync(CreateUpdateRoomDto input);
+        Task<List<RoomDto>> GetAvailableRoomsAsync(int tenantId);
+        Task<List<RoomDto>> CreateBulkRoomsAsync(List<CreateUpdateRoomDto> input);
+
         Task<CreateUpdateRoomDto> GetRoomDetailsByIdAsync(long id);
     }
 }

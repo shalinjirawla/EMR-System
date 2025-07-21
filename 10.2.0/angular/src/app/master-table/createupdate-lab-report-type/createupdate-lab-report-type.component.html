@@ -1,0 +1,41 @@
+<form class="form-horizontal" autocomplete="off" #labReportTypeForm="ngForm" (ngSubmit)="save()">
+    <abp-modal-header [title]="id ? 'Edit Lab Report Type' : 'Create Lab Report Type'" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-md-12 d-flex flex-column">
+                <label for="reportType"><b>Report Type</b></label>
+                <input
+                    pInputText
+                    type="text"
+                    id="reportType"
+                    name="reportType"
+                    class="form-control"
+                    [(ngModel)]="labReportType.reportType"
+                    required
+                    maxlength="100"
+                    placeholder="Enter report type"
+                    autocomplete="off"
+                />
+            </div>
+            <div class="col-md-12 d-flex flex-column">
+                <label for="reportPrice"><b>Report Price</b></label>
+                <input
+                    pInputText
+                    type="number"
+                    id="reportPrice"
+                    name="reportPrice"
+                    class="form-control"
+                    [(ngModel)]="labReportType.reportPrice"
+                    required
+                    placeholder="Enter report price"
+                    autocomplete="off"
+                />
+            </div>
+            </div>
+    </div>
+    <abp-modal-footer
+        [cancelDisabled]="saving"
+        [saveDisabled]="!isFormValid || saving"
+        (onCancelClick)="bsModalRef.hide()"
+    ></abp-modal-footer>
+</form>
