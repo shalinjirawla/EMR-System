@@ -31,14 +31,35 @@ namespace EMRSystem.Patients.Dto
               .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
               .ForMember(dest => dest.BloodGroup, opt => opt.MapFrom(src => src.BloodGroup))
               .ForMember(dest => dest.EmergencyContactName, opt => opt.MapFrom(src => src.EmergencyContactName))
-              .ForMember(dest => dest.EmergencyContactNumber, opt => opt.MapFrom(src => src.EmergencyContactNumber))
-               .ForMember(dest => dest.AssignedNurseId, opt => opt.MapFrom(src => src.Nurses != null ? src.Nurses.Id : (long?)null))
-               .ForMember(dest => dest.AssignedDoctorId, opt => opt.MapFrom(src => src.Doctors != null ? src.Doctors.Id : (long?)null))
-               .ForMember(dest => dest.NurseName, opt => opt.MapFrom(src => src.Nurses != null ? src.Nurses.FullName : null))
-               .ForMember(dest => dest.DoctorName, opt => opt.MapFrom(src => src.Doctors != null ? src.Doctors.FullName : null))
+              .ForMember(d => d.AssignedDoctorId,
+               opt => opt.MapFrom(s => s.Admissions
+                   .OrderByDescending(a => a.AdmissionDateTime)
+                   .Select(a => (long?)a.DoctorId)
+                   .FirstOrDefault()))
+    .ForMember(d => d.DoctorName,
+               opt => opt.MapFrom(s => s.Admissions
+                   .OrderByDescending(a => a.AdmissionDateTime)
+                   .Select(a => a.Doctor.FullName)
+                   .FirstOrDefault()))
+
+    .ForMember(d => d.AssignedNurseId,
+               opt => opt.MapFrom(s => s.Admissions
+                   .OrderByDescending(a => a.AdmissionDateTime)
+                   .Select(a => a.NurseId)
+                   .FirstOrDefault()))
+    .ForMember(d => d.NurseName,
+               opt => opt.MapFrom(s => s.Admissions
+                   .OrderByDescending(a => a.AdmissionDateTime)
+                   .Select(a => a.Nurse.FullName)
+                   .FirstOrDefault()))
+              //.ForMember(dest => dest.EmergencyContactNumber, opt => opt.MapFrom(src => src.EmergencyContactNumber))
+              // .ForMember(dest => dest.AssignedNurseId, opt => opt.MapFrom(src => src.Nurses != null ? src.Nurses.Id : (long?)null))
+              // .ForMember(dest => dest.AssignedDoctorId, opt => opt.MapFrom(src => src.Doctors != null ? src.Doctors.Id : (long?)null))
+              // .ForMember(dest => dest.NurseName, opt => opt.MapFrom(src => src.Nurses != null ? src.Nurses.FullName : null))
+              // .ForMember(dest => dest.DoctorName, opt => opt.MapFrom(src => src.Doctors != null ? src.Doctors.FullName : null))
               .ForMember(dest => dest.AbpUserId, opt => opt.MapFrom(src => src.AbpUserId))
               //.ForMember(dest => dest.IsAdmitted, opt => opt.MapFrom(src => src.IsAdmitted))
-              .ForMember(dest => dest.AdmissionDate, opt => opt.MapFrom(src => src.AdmissionDate))
+              //.ForMember(dest => dest.AdmissionDate, opt => opt.MapFrom(src => src.AdmissionDate))
               //.ForMember(dest => dest.DischargeDate, opt => opt.MapFrom(src => src.DischargeDate))
               //.ForMember(dest => dest.InsuranceProvider, opt => opt.MapFrom(src => src.InsuranceProvider))
               //.ForMember(dest => dest.InsurancePolicyNumber, opt => opt.MapFrom(src => src.InsurancePolicyNumber))
@@ -56,16 +77,36 @@ namespace EMRSystem.Patients.Dto
                  .ForMember(dest => dest.BloodGroup, opt => opt.MapFrom(src => src.BloodGroup))
                  .ForMember(dest => dest.EmergencyContactName, opt => opt.MapFrom(src => src.EmergencyContactName))
                  .ForMember(dest => dest.EmergencyContactNumber, opt => opt.MapFrom(src => src.EmergencyContactNumber))
+                 .ForMember(dest => dest.AssignedDoctorId,
+                            opt => opt.MapFrom(src => src.Admissions
+                                .OrderByDescending(a => a.AdmissionDateTime)
+                                .Select(a => (long?)a.DoctorId)
+                                .FirstOrDefault()))
+                 .ForMember(dest => dest.AssignedDoctorName,
+                            opt => opt.MapFrom(src => src.Admissions
+                                .OrderByDescending(a => a.AdmissionDateTime)
+                                .Select(a => a.Doctor.FullName)
+                                .FirstOrDefault()))
+                 .ForMember(dest => dest.AssignedNurseId,
+                            opt => opt.MapFrom(src => src.Admissions
+                                .OrderByDescending(a => a.AdmissionDateTime)
+                                .Select(a => (long?)a.NurseId)
+                                .FirstOrDefault()))
+                 .ForMember(dest => dest.AssignedNurseName,
+                            opt => opt.MapFrom(src => src.Admissions
+                                .OrderByDescending(a => a.AdmissionDateTime)
+                                .Select(a => a.Nurse.FullName)
+                                .FirstOrDefault()))
                  //.ForMember(dest => dest.IsAdmitted, opt => opt.MapFrom(src => src.IsAdmitted))
-                 .ForMember(dest => dest.AdmissionDate, opt => opt.MapFrom(src => src.AdmissionDate))
+                 //.ForMember(dest => dest.AdmissionDate, opt => opt.MapFrom(src => src.AdmissionDate))
                  //.ForMember(dest => dest.DischargeDate, opt => opt.MapFrom(src => src.DischargeDate))
                  //.ForMember(dest => dest.InsuranceProvider, opt => opt.MapFrom(src => src.InsuranceProvider))
                  //.ForMember(dest => dest.InsurancePolicyNumber, opt => opt.MapFrom(src => src.InsurancePolicyNumber))
                  .ForMember(dest => dest.AbpUserId, opt => opt.MapFrom(src => src.AbpUserId))
-                 .ForMember(dest => dest.AssignedNurseId, opt => opt.MapFrom(src => src.AssignedNurseId))
-                 .ForMember(dest => dest.AssignedNurseName, opt => opt.MapFrom(src => src.Nurses.FullName))
-                 .ForMember(dest => dest.AssignedDoctorId, opt => opt.MapFrom(src => src.AssignedDoctorId))
-                 .ForMember(dest => dest.AssignedDoctorName, opt => opt.MapFrom(src => src.Doctors.FullName))
+                 //.ForMember(dest => dest.AssignedNurseId, opt => opt.MapFrom(src => src.AssignedNurseId))
+                 //.ForMember(dest => dest.AssignedNurseName, opt => opt.MapFrom(src => src.Nurses.FullName))
+                 //.ForMember(dest => dest.AssignedDoctorId, opt => opt.MapFrom(src => src.AssignedDoctorId))
+                 //.ForMember(dest => dest.AssignedDoctorName, opt => opt.MapFrom(src => src.Doctors.FullName))
                  .ForMember(dest => dest.patientVitalsDetails, opt => opt.MapFrom(src => src.Vitals.FirstOrDefault()))
                  .ForMember(dest => dest.patientPrescriptionsHistory, opt => opt.MapFrom(src => src.Prescriptions))
                  .ForMember(dest => dest.patientAppointmentHistory, opt => opt.MapFrom(src => src.Appointments));

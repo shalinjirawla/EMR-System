@@ -85,6 +85,8 @@
   </div> -->
 
   <!-- Assigned Nurse -->
+  <!-- Assigned Nurse Dropdown -->
+  <!--
   <div class="form-group row">
     <label class="col-md-3 col-form-label" for="nurse">Assigned Nurse</label>
     <div class="col-md-9">
@@ -95,7 +97,10 @@
       </select>
     </div>
   </div>
-  <!-- Assigned Doctor -->
+  -->
+
+  <!-- Assigned Doctor Dropdown -->
+  <!--
   <div class="form-group row">
     <label class="col-md-3 col-form-label" for="doctor">Assigned Doctor</label>
     <div class="col-md-9">
@@ -106,24 +111,48 @@
       </select>
     </div>
   </div>
+  -->
 
-  <!-- Is Admitted -->
-  <!-- <div class="form-group row">
+  <!-- Is Admitted Checkbox (Commented Out) -->
+  <!--
+  <div class="form-group row">
     <label class="col-md-3 col-form-label">Is Admitted</label>
     <div class="col-md-9">
       <input type="checkbox" name="isAdmitted" [(ngModel)]="patient.isAdmitted" (change)="onAdmitChange()">
     </div>
-  </div> -->
+  </div>
+  -->
 
-  <!-- Admission Date -->
+  <!-- Admission Date Input -->
+  <!--
   <div class="form-group row">
     <label class="col-md-3 col-form-label" for="admissionDate">Admission Date</label>
     <div class="col-md-9">
       <input type="date" id="admissionDate" name="admissionDate" class="form-control"
         [(ngModel)]="patient.admissionDate" (ngModelChange)="onInputChange()">
-      <!-- <abp-validation-summary [control]="admissionModel" [controlEl]="admissionEl"></abp-validation-summary> -->
+      <!-- <abp-validation-summary [control]="admissionModel" [controlEl]="admissionEl"></abp-validation-summary>
     </div>
   </div>
+  -->
+
+  <!-- Room Dropdown -->
+  <!--
+  <div class="form-group row required">
+    <label class="col-md-3 col-form-label" for="room">Room</label>
+    <div class="col-md-9">
+      <select id="room" name="room" class="form-control" required [(ngModel)]="patient.roomId"
+        (ngModelChange)="onInputChange()">
+        <option [ngValue]="null">-- Select Room --</option>
+        <option *ngFor="let room of roomList" [ngValue]="room.id">
+          {{ room.roomNumber }} – {{ room.roomTypeName }}
+        </option>
+      </select>
+    </div>
+  </div>
+  -->
+
+  <!-- Billing Method Dropdown -->
+  <!--
   <div class="form-group row required">
     <label class="col-md-3 col-form-label" for="billingMethod">Billing Method</label>
     <div class="col-md-9">
@@ -135,7 +164,12 @@
       <abp-validation-summary [control]="billingModel" [controlEl]="billingEl"></abp-validation-summary>
     </div>
   </div>
-  <div class="form-group row required"  *ngIf="patient.billingMethod === BillingMethod._1 || patient.billingMethod === BillingMethod._2">
+  -->
+
+  <!-- Deposit Amount Input (Shown for certain Billing Methods) -->
+  <!--
+  <div class="form-group row required"
+    *ngIf="patient.billingMethod === BillingMethod._1 || patient.billingMethod === BillingMethod._2">
     <label class="col-md-3 col-form-label" for="depositAmount">Deposit Amount</label>
     <div class="col-md-9">
       <input type="number" id="depositAmount" name="depositAmount" class="form-control" required
@@ -144,7 +178,10 @@
       <abp-validation-summary [control]="depositAmountModel" [controlEl]="depositAmountEl"></abp-validation-summary>
     </div>
   </div>
+  -->
 
+  <!-- Payment Method Dropdown (Shown for certain Billing Methods) -->
+  <!--
   <div class="form-group row required"
     *ngIf="patient.billingMethod === BillingMethod._1 || patient.billingMethod === BillingMethod._2">
     <label class="col-md-3 col-form-label" for="paymentMethod">Payment Method</label>
@@ -157,8 +194,9 @@
       <abp-validation-summary [control]="paymentModel" [controlEl]="paymentEl"></abp-validation-summary>
     </div>
   </div>
+  -->
 
-  
+
 
 
 

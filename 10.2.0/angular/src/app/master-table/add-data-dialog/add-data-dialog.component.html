@@ -32,18 +32,10 @@
       Facilities
     </label>
 
-    <p-multiSelect
-  id="facilities"
-  [options]="allFacilities"
-  optionLabel="facilityName"
-  optionValue="id"
-  [(ngModel)]="selectedFacilityIds"
-  placeholder="Select facilities"
-  [disabled]="saving"
-  class="w-full"
-  panelStyleClass="w-full"
-  style="width: 100%">
-</p-multiSelect>
+    <p-multiSelect id="facilities" [options]="allFacilities" optionLabel="facilityName" optionValue="id" display="chip"
+      [(ngModel)]="selectedFacilityIds" placeholder="Select facilities" [disabled]="saving" class="w-full"
+      panelStyleClass="w-full" style="width: 100%">
+    </p-multiSelect>
 
   </div>
   <div class="flex justify-content-end gap-2">

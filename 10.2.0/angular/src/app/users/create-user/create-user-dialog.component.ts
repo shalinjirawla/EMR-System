@@ -232,25 +232,6 @@ export class CreateUserDialogComponent extends AppComponentBase implements OnIni
   this.patientData.fullName = this.user.name + " " + this.user.surname;
   this.patientData.abpUserId = this.newlyCreatedUserId;
 
-  // Stripe flow start
-  debugger
-  if (this.patientData.paymentMethod === 1 && this.patientData.depositAmount > 0) {
-    this._patientService.createWithStripe(this.patientData).subscribe({
-      next: (res) => {
-        if (res === 'CASH_SUCCESS') {
-          this.notify.success('Patient created with cash');
-        } else {
-          // Stripe URL received
-          window.location.href = res;
-        }
-        this.newlyCreatedUserId = 0;
-      },
-      error: (err) => {
-        this.notify.error('Failed to create patient');
-      }
-    });
-  } else {
-    // Cash or free
     this._patientService.create(this.patientData).subscribe({
       next: () => {
         this.notify.success('Patient created successfully');
@@ -261,6 +242,6 @@ export class CreateUserDialogComponent extends AppComponentBase implements OnIni
       }
     });
   }
-}
+
 
 }

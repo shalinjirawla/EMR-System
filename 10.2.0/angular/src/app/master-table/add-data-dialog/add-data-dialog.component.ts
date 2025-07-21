@@ -57,7 +57,7 @@ allFacilities: RoomFacilityMasterDto[] = [];
     }
   }
   private loadFacilities() {
-    this._facilitySvc.getAll(undefined,undefined,undefined).subscribe({
+    this._facilitySvc.getAllRoomFacilityByTenantID(abp.session.tenantId).subscribe({
       next: res => (this.allFacilities = res.items),
       error: () => this.notify.warn('Could not load facilities')
     });

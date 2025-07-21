@@ -16,6 +16,7 @@ using EMRSystem.Nurse.Dto;
 using EMRSystem.Nurses;
 using EMRSystem.Patients.Dto;
 using EMRSystem.Prescriptions;
+using EMRSystem.Room;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Stripe.Checkout;
@@ -33,11 +34,13 @@ namespace EMRSystem.Patients
         private readonly UserManager _userManager;
         private readonly IDoctorAppService _doctorAppService;
         private readonly INurseAppService _nurseAppService;
-        public PatientAppService(IRepository<Patient, long> repository, UserManager userManager, IDoctorAppService doctorAppService, INurseAppService nurseAppService) : base(repository)
+        private readonly IRepository<EMRSystem.Room.Room, long> _roomRepository;
+        public PatientAppService(IRepository<Patient, long> repository, UserManager userManager, IDoctorAppService doctorAppService, INurseAppService nurseAppService, IRepository<Room.Room, long> roomRepository) : base(repository)
         {
             _userManager = userManager;
             _doctorAppService = doctorAppService;
             _nurseAppService = nurseAppService;
+            _roomRepository = roomRepository;
         }
 
         protected override IQueryable<Patient> CreateFilteredQuery(PagedPatientResultRequestDto input)
@@ -48,12 +51,55 @@ namespace EMRSystem.Patients
         public override async Task<PatientDto> CreateAsync(CreateUpdatePatientDto input)
         {
             CheckCreatePermission();
-            var user = ObjectMapper.Map<Patient>(input);
-            await _userManager.InitializeOptionsAsync(AbpSession.TenantId);
-            await Repository.InsertAsync(user);
-            CurrentUnitOfWork.SaveChanges();
-            return MapToEntityDto(user);
+
+
+            var patient = ObjectMapper.Map<Patient>(input);
+                await Repository.InsertAsync(patient);
+                await CurrentUnitOfWork.SaveChangesAsync();
+                return MapToEntityDto(patient);
         }
+
+
+        //public override async Task<PatientDto> UpdateAsync(CreateUpdatePatientDto input)
+        //{
+        //    CheckUpdatePermission();
+
+        //    var patient = await Repository.GetAsync(input.Id);
+        //    var oldRoomId = patient.RoomId;       
+
+        //    //MapToEntity(input, patient);        
+
+        //    using (CurrentUnitOfWork.SetTenantId(AbpSession.TenantId))
+        //    {
+
+        //        if (oldRoomId != input.RoomId)
+        //        {
+
+        //            if (oldRoomId.HasValue)
+        //            {
+        //                var oldRoom = await _roomRepository.GetAsync(oldRoomId.Value);
+        //                oldRoom.Status = RoomStatus.Available;
+        //            }
+
+
+        //            if (patient.RoomId.HasValue)
+        //            {
+        //                var newRoom = await _roomRepository.GetAsync(patient.RoomId.Value);
+
+        //                if (newRoom.Status != RoomStatus.Available)
+        //                    throw new UserFriendlyException("Selected room is already occupied.");
+
+        //                newRoom.Status = RoomStatus.Occupied;
+        //            }
+        //        }
+        //        patient.RoomId = input.RoomId;
+
+        //        await Repository.UpdateAsync(patient);
+        //        await CurrentUnitOfWork.SaveChangesAsync();
+        //    }
+
+        //    return MapToEntityDto(patient);
+        //}
 
         public override async Task<PatientDto> UpdateAsync(CreateUpdatePatientDto input)
         {
@@ -63,6 +109,7 @@ namespace EMRSystem.Patients
             await Repository.UpdateAsync(user);
             return await GetAsync(input);
         }
+
 
         public override async Task DeleteAsync(EntityDto<long> input)
         {
@@ -82,9 +129,9 @@ namespace EMRSystem.Patients
             }
 
             var query = Repository.GetAll()
-                .Include(x => x.Doctors)
+                //.Include(x => x.Doctors)
                 .Include(x => x.AbpUser)
-                .WhereIf(nurseID > 0, i => i.AssignedNurseId == nurseID)
+                //.WhereIf(nurseID > 0, i => i.AssignedNurseId == nurseID)
                 .WhereIf(!input.Keyword.IsNullOrWhiteSpace(),
                     x => x.FullName.Contains(input.Keyword) ||
                          (x.AbpUser != null && x.AbpUser.EmailAddress.Contains(input.Keyword)));
@@ -109,7 +156,7 @@ namespace EMRSystem.Patients
             return new PagedResultDto<PatientsForDoctorAndNurseDto>(totalCount, mapped);
         }
 
-      
+
         [HttpGet]
         public async Task<PagedResultDto<PatientsForDoctorAndNurseDto>> PatientsForDoctor(PagedPatientResultRequestDto input)
         {
@@ -124,12 +171,16 @@ namespace EMRSystem.Patients
 
 
             var query = Repository.GetAll()
-                .Include(x => x.Nurses)
-                .Include(x=>x.Doctors)
+                //.Include(x => x.Nurses)
+                //.Include(x => x.Doctors)
                 .Include(x => x.AbpUser)
-                .WhereIf(doctorID > 0, i => i.AssignedDoctorId == doctorID)
+                .Include(p => p.Admissions)
+                  .ThenInclude(a => a.Doctor)
+                .Include(p => p.Admissions)
+                  .ThenInclude(a => a.Nurse)
+                //.WhereIf(doctorID > 0, i => i.AssignedDoctorId == doctorID)
                 .WhereIf(!input.Keyword.IsNullOrWhiteSpace(),
-                    x=>x.FullName.Contains(input.Keyword)||
+                    x => x.FullName.Contains(input.Keyword) ||
                      (x.AbpUser != null && x.AbpUser.EmailAddress.Contains(input.Keyword)));
 
             var totalCount = await query.CountAsync();
@@ -146,27 +197,30 @@ namespace EMRSystem.Patients
                 .PageBy(input)
                 .ToListAsync();
             var mapped = ObjectMapper.Map<List<PatientsForDoctorAndNurseDto>>(patients);
-            return new PagedResultDto<PatientsForDoctorAndNurseDto>(totalCount,mapped);
+            return new PagedResultDto<PatientsForDoctorAndNurseDto>(totalCount, mapped);
         }
 
         [HttpGet]
         public async Task<PatientDetailsAndMedicalHistoryDto> PatientDetailsAndMedicalHistory(long patientId)
         {
             var data = await Repository.GetAll()
-                            .Include(x => x.AbpUser)
-                            .Include(x => x.Nurses)
-                            .Include(x => x.Doctors)
-                            .Include(x => x.Prescriptions)
-                            .ThenInclude(x => x.Items)
-                            .Include(x => x.Vitals)
-                            .Include(x => x.Appointments).ThenInclude(x => x.Doctor)
-                            .Include(x => x.Appointments).ThenInclude(x => x.Nurse)
-                            .FirstOrDefaultAsync(x => x.Id == patientId);
+                .Include(x => x.AbpUser)
+                .Include(x => x.Admissions)
+                    .ThenInclude(a => a.Doctor)
+                .Include(x => x.Admissions)
+                    .ThenInclude(a => a.Nurse)
+                .Include(x => x.Prescriptions)
+                    .ThenInclude(x => x.Items)
+                .Include(x => x.Vitals)
+                .Include(x => x.Appointments)
+                    .ThenInclude(x => x.Doctor)
+                .Include(x => x.Appointments)
+                    .ThenInclude(x => x.Nurse)
+                .FirstOrDefaultAsync(x => x.Id == patientId);
 
-            var result = ObjectMapper.Map<PatientDetailsAndMedicalHistoryDto>(data);
-            return result;
-
+            return ObjectMapper.Map<PatientDetailsAndMedicalHistoryDto>(data);
         }
+
 
         [HttpGet]
         public List<PatientDropDownDto> PatientDropDown()
@@ -180,15 +234,15 @@ namespace EMRSystem.Patients
 
             var query = Repository.GetAll();
 
-            if (doctor != null)
-            {
-                query = query.Where(i => i.AssignedDoctorId == doctor.Id);
-            }
-            else if (nurse != null)
-            {
-                query = query.Where(i => i.AssignedNurseId == nurse.Id);
-            }
-            else if (AbpSession.TenantId.HasValue)
+            //if (doctor != null)
+            //{
+            //    query = query.Where(i => i.AssignedDoctorId == doctor.Id);
+            //}
+            //else if (nurse != null)
+            //{
+            //    query = query.Where(i => i.AssignedNurseId == nurse.Id);
+            //}
+             if (AbpSession.TenantId.HasValue)
             {
                 query = query.Where(i => i.TenantId == AbpSession.TenantId.Value);
             }
@@ -208,34 +262,34 @@ namespace EMRSystem.Patients
             return roles.ToList();
         }
 
-        public async Task<string> CreateWithStripeAsync(CreateUpdatePatientDto input)
-        {
-            if (input.PaymentMethod == PaymentMethod.Cash)
-            {
-                await CreateAsync(input);
-                return "CASH_SUCCESS";
-            }
+        //public async Task<string> CreateWithStripeAsync(CreateUpdatePatientDto input)
+        //{
+        //    if (input.PaymentMethod == PaymentMethod.Cash)
+        //    {
+        //        await CreateAsync(input);
+        //        return "CASH_SUCCESS";
+        //    }
 
-            if (!input.DepositAmount.HasValue || input.DepositAmount <= 0)
-                throw new UserFriendlyException("Deposit amount must be greater than 0");
+        //    if (!input.DepositAmount.HasValue || input.DepositAmount <= 0)
+        //        throw new UserFriendlyException("Deposit amount must be greater than 0");
 
-            // ✅ Safely create patient and get ID
-            var result = await CreateAsync(input);
-            long patientId = result.Id;
+        //    // ✅ Safely create patient and get ID
+        //    var result = await CreateAsync(input);
+        //    long patientId = result.Id;
 
-            string baseUrl = "http://localhost:4200/app/users";
-            string successUrl = $"{baseUrl}?payment=success&patientId={patientId}";
-            string cancelUrl = $"{baseUrl}?payment=cancel&patientId={patientId}";
+        //    string baseUrl = "http://localhost:4200/app/users";
+        //    string successUrl = $"{baseUrl}?payment=success&patientId={patientId}";
+        //    string cancelUrl = $"{baseUrl}?payment=cancel&patientId={patientId}";
 
-            string stripeUrl = await CreateStripeCheckoutSessionForDeposit(
-                patientId,
-                input.DepositAmount.Value,
-                successUrl,
-                cancelUrl
-            );
+        //    string stripeUrl = await CreateStripeCheckoutSessionForDeposit(
+        //        patientId,
+        //        input.DepositAmount.Value,
+        //        successUrl,
+        //        cancelUrl
+        //    );
 
-            return stripeUrl;
-        }
+        //    return stripeUrl;
+        //}
 
         public async Task<string> CreateStripeCheckoutSessionForDeposit(long patientId, long amount, string successUrl, string cancelUrl)
         {

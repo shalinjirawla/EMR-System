@@ -1,0 +1,43 @@
+<form class="form-horizontal" #createRoomModal="ngForm" (ngSubmit)="save()" autocomplete="off">
+
+  <abp-modal-header title="Create New Room" (onCloseClick)="bsModalRef.hide()">
+  </abp-modal-header>
+
+  <div class="modal-body">
+    <!-- Room number + floor row -->
+    <div class="row">
+      <div class="col-md-6">
+        <label><b>Room Numbers *</b></label>
+        <p-autoComplete [(ngModel)]="selectedRoomNos" name="roomNos" [suggestions]="filteredRoomNos"
+          (completeMethod)="filterRoomNos($event)" [multiple]="true" [typeahead]="false" required
+          placeholder="Enter or select multiple room numbers" class="w-100">
+        </p-autoComplete>
+      </div>
+      <div class="col-md-6">
+        <label><b>Floor *</b></label>
+        <input pInputText type="number" name="floor" [(ngModel)]="room.floor" required min="0" class="w-100" />
+      </div>
+    </div>
+
+    <!-- Room‑type & status row -->
+    <div class="row mt-3">
+      <div class="col-md-6">
+        <label><b>Room Type *</b></label>
+        <p-select name="roomTypeMasterId" [options]="roomTypeOptions" optionLabel="typeName" optionValue="id"
+          [(ngModel)]="room.roomTypeMasterId" placeholder="Select room type" class="w-100" required>
+        </p-select>
+      </div>
+
+      <div class="col-md-6">
+        <label><b>Status *</b></label>
+        <p-select name="status" [options]="statusOptions" optionLabel="label" optionValue="value"
+          [(ngModel)]="room.status" placeholder="Select status" class="w-100" required>
+        </p-select>
+      </div>
+    </div>
+  </div>
+
+  <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="!createRoomModal.form.valid || saving"
+    (onCancelClick)="bsModalRef.hide()">
+  </abp-modal-footer>
+</form>

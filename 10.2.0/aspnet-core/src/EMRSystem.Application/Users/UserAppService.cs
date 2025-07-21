@@ -12,7 +12,11 @@ using Abp.UI;
 using EMRSystem.Authorization;
 using EMRSystem.Authorization.Roles;
 using EMRSystem.Authorization.Users;
+using EMRSystem.Doctor.Dto;
+using EMRSystem.Nurse.Dto;
+using EMRSystem.Patients.Dto;
 using EMRSystem.Roles.Dto;
+using EMRSystem.Room;
 using EMRSystem.Users.Dto;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -268,14 +272,19 @@ public class UserAppService : AsyncCrudAppService<User, UserDto, long, PagedUser
                      BloodGroup = i.BloodGroup,
                      EmergencyContactName = i.EmergencyContactName,
                      EmergencyContactNumber = i.EmergencyContactNumber,
-                     AssignedNurseId = i.AssignedNurseId,
+                     //AssignedNurseId = i.AssignedNurseId,
+                     //RoomId = i.RoomId,
+                     //Room = i.Room,
+                     //BillingMethod=i.BillingMethod,
+                     //PaymentMethod=i.PaymentMethod,
+                     //DepositAmount=i.DepositAmount,
                      //IsAdmitted = i.IsAdmitted,
-                     AdmissionDate = i.AdmissionDate,
+                     //AdmissionDate = i.AdmissionDate,
                      //DischargeDate = i.DischargeDate,
                      //InsuranceProvider = i.InsuranceProvider,
                      //InsurancePolicyNumber = i.InsurancePolicyNumber,
                      AbpUserId = i.AbpUserId,
-                     AssignedDoctorId = i.AssignedDoctorId,
+                     //AssignedDoctorId = i.AssignedDoctorId,
                  }).ToList(),
                  Nurses = x.Nurses.Select(i => new EMRSystem.Nurses.Nurse
                  {
@@ -341,6 +350,99 @@ public class UserAppService : AsyncCrudAppService<User, UserDto, long, PagedUser
             .FirstOrDefaultAsync(x => x.Id == id);
         return details;
     }
+
+    //public async Task<UserDetailsDto> GetUserDetailsById(long id)
+    //{
+    //    // 1️⃣ user graph load करो (RoleId तक)
+    //    var user = await Repository.GetAll()
+    //        .Include(u => u.Patients)
+    //            .ThenInclude(p => p.Room)
+    //                .ThenInclude(r => r.RoomTypeMaster)
+    //        .Include(u => u.Roles)  // RoleId
+    //        .Include(u => u.Doctors)
+    //        .Include(u => u.Nurses)
+    //        .Include(u => u.LabTechnicians)
+    //        .AsNoTracking()
+    //        .FirstOrDefaultAsync(u => u.Id == id);
+
+    //    if (user == null) return null;
+
+    //    // 2️⃣ Role entities + permissions निकालो
+    //    var roleIds = user.Roles.Select(ur => ur.RoleId).ToList();
+    //    var roleEntities = await _roleRepository.GetAllListAsync(r => roleIds.Contains(r.Id));
+
+    //    var roleDtos = new List<RoleDto>();
+    //    foreach (var role in roleEntities)
+    //    {
+    //        var granted = (await _roleManager.GetGrantedPermissionsAsync(role))
+    //                      .Select(p => p.Name)
+    //                      .ToList();
+
+    //        roleDtos.Add(new RoleDto
+    //        {
+    //            Id = role.Id,
+    //            Name = role.Name,
+    //            DisplayName = role.DisplayName,
+    //            NormalizedName = role.NormalizedName,
+    //            Description = role.Description,
+    //            GrantedPermissions = granted
+    //        });
+    //    }
+
+    //    // 3️⃣ final DTO compose
+    //    return new UserDetailsDto
+    //    {
+    //        Id = user.Id,
+    //        TenantId = user.TenantId ?? 0,
+    //        UserName = user.UserName,
+    //        Name = user.Name,
+    //        Surname = user.Surname,
+    //        EmailAddress = user.EmailAddress,
+
+    //        Roles = roleDtos,   // 👈 full detail list
+
+    //        Patients = user.Patients.Select(p => new PatientDto
+    //        {
+    //            Id = p.Id,
+    //            FullName = p.FullName,
+    //            AdmissionDate = p.AdmissionDate,
+    //            DateOfBirth = p.DateOfBirth,
+    //            Gender = p.Gender,
+    //            Address = p.Address,
+    //            BloodGroup = p.BloodGroup,
+    //            EmergencyContactName = p.EmergencyContactName,
+    //            EmergencyContactNumber = p.EmergencyContactNumber,
+    //            AssignedNurseId = p.AssignedNurseId,
+
+    //            RoomId = p.RoomId,
+    //            RoomNumber = p.Room?.RoomNumber,
+    //            Floor = p.Room?.Floor,
+    //            RoomStatus = p.Room?.Status,
+    //            RoomTypeName = p.Room?.RoomTypeMaster?.TypeName
+    //        }).ToList(),
+
+    //        Doctors = user.Doctors.Select(d => new DoctorDto
+    //        {
+    //            Id = d.Id,
+    //            FullName = d.FullName,
+    //            Department = d.Department
+    //        }).ToList(),
+
+    //        Nurses = user.Nurses.Select(n => new NurseDto
+    //        {
+    //            Id = n.Id,
+    //            FullName = n.FullName,
+    //            ShiftTiming = n.ShiftTiming
+    //        }).ToList(),
+
+    //        LabTechnicians = user.LabTechnicians.Select(l => new EMRSystem.LabReports.LabTechnician
+    //        {
+    //            Id = l.Id,
+    //            FullName = l.FullName,
+    //            Department = l.Department
+    //        }).ToList()
+    //    };
+    //}
 
 }
 

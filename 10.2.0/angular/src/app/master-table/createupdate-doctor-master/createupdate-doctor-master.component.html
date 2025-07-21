@@ -1,0 +1,43 @@
+<form class="form-horizontal" autocomplete="off" #doctorMasterForm="ngForm" (ngSubmit)="save()">
+    <abp-modal-header [title]="id ? 'Edit Doctor Fee' : 'Create Doctor Fee'" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-md-12 mb-3">
+          <label for="doctor"><b>Select Doctors</b></label>
+          <p-multiSelect
+            [options]="doctors"
+            [(ngModel)]="selectedDoctorIds"
+            name="doctorIds"
+            optionLabel="fullName"
+            optionValue="id"
+            placeholder="Select Doctors"
+            display="chip"
+            [filter]="true"
+            required
+          ></p-multiSelect>
+        </div>
+  
+        <div class="col-md-12">
+          <label for="fee"><b>Fee</b></label>
+          <input
+            pInputText
+            type="number"
+            id="fee"
+            name="fee"
+            class="form-control"
+            [(ngModel)]="fee"
+            required
+            min="0"
+            placeholder="Enter Fee Amount"
+          />
+        </div>
+      </div>
+    </div>
+  
+    <abp-modal-footer
+      [cancelDisabled]="saving"
+      [saveDisabled]="!isFormValid || saving"
+      (onCancelClick)="bsModalRef.hide()"
+    ></abp-modal-footer>
+  </form>
+  

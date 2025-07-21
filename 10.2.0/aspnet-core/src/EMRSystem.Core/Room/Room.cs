@@ -19,6 +19,8 @@ namespace EMRSystem.Room
         /* FK to master */
         public long RoomTypeMasterId { get; set; }
         public virtual RoomTypeMaster RoomTypeMaster { get; set; }
+        public virtual ICollection<EMRSystem.Admission.Admission> Admissions { get; set; }
+
 
         public RoomStatus Status { get; set; }
     }

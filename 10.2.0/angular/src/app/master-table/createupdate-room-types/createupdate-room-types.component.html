@@ -1,0 +1,37 @@
+<form class="form-horizontal" autocomplete="off" #roomTypeForm="ngForm" (ngSubmit)="save()">
+    <abp-modal-header [title]="id ? 'Edit Room Type' : 'Create Room Type'"
+        (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-md-12 d-flex flex-column">
+                <label for="typeName"><b>Room Type</b></label>
+                <input pInputText type="text" id="typeName" name="typeName" class="form-control"
+                    [(ngModel)]="roomType.typeName" required maxlength="100" placeholder="Enter room type name"
+                    autocomplete="off" />
+            </div>
+            <div class="col-md-12 d-flex flex-column">
+                <label for="facilities"><b>Select Facilities</b></label>
+                <p-multiSelect id="facilities" [options]="facilityOptions" name="facilityIds" optionLabel="label"
+                    optionValue="value" display="chip" [(ngModel)]="roomType.facilityIds"
+                    placeholder="Select facilities" [disabled]="saving" class="w-full" panelStyleClass="w-full"
+                    style="width: 100%">
+                </p-multiSelect>
+
+            </div>
+            <div class="col-md-12 d-flex flex-column">
+                <label for="description"><b>Description</b></label>
+                <input pInputText type="text" id="description" name="description" class="form-control"
+                    [(ngModel)]="roomType.description" required maxlength="100" placeholder="Enter description"
+                    autocomplete="off" />
+            </div>
+            <div class="col-md-12 d-flex flex-column">
+                <label for="defaultPricePerDay"><b>Price Per Day</b></label>
+                <input pInputText type="number" id="defaultPricePerDay" name="defaultPricePerDay" class="form-control"
+                    [(ngModel)]="roomType.defaultPricePerDay" required placeholder="Enter price per day"
+                    autocomplete="off" />
+            </div>
+        </div>
+    </div>
+    <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="!isFormValid || saving"
+        (onCancelClick)="bsModalRef.hide()"></abp-modal-footer>
+</form>

@@ -1,0 +1,39 @@
+<form class="form-horizontal"  #editRoomForm="ngForm" (ngSubmit)="save()" autocomplete="off">
+
+  <abp-modal-header title="Edit Room" (onCloseClick)="bsModalRef.hide()">
+  </abp-modal-header>
+
+  <div class="modal-body">
+    <div class="row">
+      <div class="col-md-6">
+        <label><b>Room Number *</b></label>
+        <input pInputText name="roomNumber" [(ngModel)]="room.roomNumber" required class="w-100" />
+      </div>
+
+      <div class="col-md-6">
+        <label><b>Floor *</b></label>
+        <input pInputText type="number" min="0" name="floor" [(ngModel)]="room.floor" required class="w-100" />
+      </div>
+    </div>
+
+    <div class="row mt-3">
+      <div class="col-md-6">
+        <label><b>Room Type *</b></label>
+        <p-select [options]="roomTypeOptions" optionLabel="typeName" optionValue="id"
+          [(ngModel)]="room.roomTypeMasterId" name="roomTypeId" placeholder="Select room type" class="w-100" required>
+        </p-select>
+      </div>
+
+      <div class="col-md-6">
+        <label><b>Status *</b></label>
+        <p-select [options]="statusOptions" optionLabel="label" optionValue="value" [(ngModel)]="room.status"
+          name="status" placeholder="Select status" class="w-100" required>
+        </p-select>
+      </div>
+    </div>
+  </div>
+
+  <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="!editRoomForm.valid || saving"
+    (onCancelClick)="bsModalRef.hide()">
+  </abp-modal-footer>
+</form>

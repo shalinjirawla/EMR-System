@@ -7,19 +7,20 @@
 
     namespace EMRSystem.Room.Dto
     {
-        public class RoomMapProfile : Profile
+    public class RoomMapProfile : Profile
+    {
+        public RoomMapProfile()
         {
-            public RoomMapProfile()
-            {
-            /* Entity ➜ DTO */
             CreateMap<Room, RoomDto>()
                 .ForMember(d => d.RoomTypeName,
                            o => o.MapFrom(s => s.RoomTypeMaster.TypeName));
-                /* Create / Update */
-                CreateMap<CreateUpdateRoomDto, Room>()
-        .ForMember(d => d.RoomTypeMasterId, o => o.MapFrom(s => s.RoomTypeMasterId));
 
-            }
+            CreateMap<CreateUpdateRoomDto, Room>()
+                .ForMember(d => d.RoomTypeMasterId,
+                           o => o.MapFrom(s => s.RoomTypeMasterId))
+                .ReverseMap();                      
         }
-
     }
+
+
+}
