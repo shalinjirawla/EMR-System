@@ -18,13 +18,15 @@ import { ChipModule } from 'primeng/chip';
 import { OverlayPanel, OverlayPanelModule } from 'primeng/overlaypanel';
 import { MenuModule } from 'primeng/menu';
 import { ButtonModule } from 'primeng/button';
+import { ViewAppointmentReceiptComponent } from '../view-appointment-receipt/view-appointment-receipt.component';
+import { TagModule } from 'primeng/tag';
 @Component({
     selector: 'app-appointments',
     templateUrl: './appointments.component.html',
     styleUrl: './appointments.component.css',
     animations: [appModuleAnimation()],
     standalone: true,
-    imports: [FormsModule, TableModule, ChipModule, SelectModule, MenuModule, ButtonModule, OverlayPanelModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, DatePipe],
+    imports: [FormsModule, TableModule, ChipModule,TagModule, SelectModule, MenuModule, ButtonModule,TagModule, OverlayPanelModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, DatePipe],
     providers: [AppointmentServiceProxy, UserServiceProxy]
 })
 export class AppointmentsComponent extends PagedListingComponentBase<AppointmentDto> implements OnInit {
@@ -105,6 +107,36 @@ export class AppointmentsComponent extends PagedListingComponentBase<Appointment
             }
         });
     }
+    // Add to component class
+makePayment(appointment: AppointmentDto): void {
+    this._apointMentService.initiatePaymentForAppointment(appointment.id)
+        .subscribe({
+            next: (stripeUrl) => {
+                localStorage.setItem('pendingAppointment', JSON.stringify({
+                    id: appointment.id,
+                    date: appointment.appointmentDate,
+                    doctor: appointment.doctor.fullName
+                }));
+                window.location.href = stripeUrl;
+            },
+            error: (err) => {
+                this.notify.error('Failed to initiate payment');
+                console.error(err);
+            }
+        });
+}
+
+    viewReceipt(record: AppointmentDto): void {
+        const modalRef: BsModalRef = this._modalService.show(
+          ViewAppointmentReceiptComponent,
+          {
+            class: 'modal-lg',
+            initialState: {
+              appointmentId: record.id
+            }
+          }
+        );
+      }
     createAppoinment(): void {
         this.showCreateOrEditAppoinmentDialog();
     }
@@ -135,16 +167,17 @@ export class AppointmentsComponent extends PagedListingComponentBase<Appointment
         const status = this.statusOptions.find(s => s.value === value);
         return status ? status.label : '';
     }
-    getStatusClass(value: number): string {
+    getStatusSeverity(value: number): 'info' | 'warn' | 'success' | 'danger' | 'secondary' | 'contrast' {
         switch (value) {
-            case AppointmentStatus._0: return 'status-scheduled';    // Scheduled
-            case AppointmentStatus._1: return 'status-rescheduled';  // Rescheduled
-            case AppointmentStatus._2: return 'status-checkedin';    // Checked In
-            case AppointmentStatus._3: return 'status-completed';    // Completed
-            case AppointmentStatus._4: return 'status-cancelled';    // Cancelled
-            default: return '';
+            case AppointmentStatus._0: return 'info';        // Scheduled
+            case AppointmentStatus._1: return 'secondary';   // Rescheduled
+            case AppointmentStatus._2: return 'success';     // Checked In
+            case AppointmentStatus._3: return 'success';     // Completed
+            case AppointmentStatus._4: return 'danger';      // Cancelled
+            default: return 'contrast';
         }
     }
+    
     changeStatusofAppoinment(id: number, status: AppointmentStatus) {
     this._apointMentService.markAsAction(id, status).subscribe(res => {
       this.list();

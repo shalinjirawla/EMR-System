@@ -6,6 +6,7 @@ import { RoomFacilitiesComponent } from './room-facilities/room-facilities.compo
 import { RoomTypesComponent } from './room-types/room-types.component';
 import { LabReportTypeComponent } from './lab-report-type/lab-report-type.component';
 import { DoctorMasterComponent } from './doctor-master/doctor-master.component';
+import { AppointmentTypesComponent } from './appointment-types/appointment-types.component';
 
 
 
@@ -17,7 +18,8 @@ import { DoctorMasterComponent } from './doctor-master/doctor-master.component';
         RoomFacilitiesComponent,
         RoomTypesComponent,
         LabReportTypeComponent,
-        DoctorMasterComponent
+        DoctorMasterComponent,
+        AppointmentTypesComponent
     ],
 })
 export class MasterTableModule {}

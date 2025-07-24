@@ -627,7 +627,7 @@ export class AppointmentServiceProxy {
      * @param body (optional) 
      * @return OK
      */
-    createAppoinment(body: CreateUpdateAppointmentDto | undefined): Observable<void> {
+    createAppoinment(body: CreateUpdateAppointmentDto | undefined): Observable<AppointmentCreationResultDto> {
         let url_ = this.baseUrl + "/api/services/app/Appointment/CreateAppoinment";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -639,6 +639,7 @@ export class AppointmentServiceProxy {
             responseType: "blob",
             headers: new HttpHeaders({
                 "Content-Type": "application/json",
+                "Accept": "text/plain"
             })
         };
 
@@ -649,14 +650,14 @@ export class AppointmentServiceProxy {
                 try {
                     return this.processCreateAppoinment(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<void>;
+                    return _observableThrow(e) as any as Observable<AppointmentCreationResultDto>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<void>;
+                return _observableThrow(response_) as any as Observable<AppointmentCreationResultDto>;
         }));
     }
 
-    protected processCreateAppoinment(response: HttpResponseBase): Observable<void> {
+    protected processCreateAppoinment(response: HttpResponseBase): Observable<AppointmentCreationResultDto> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -665,7 +666,67 @@ export class AppointmentServiceProxy {
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return _observableOf(null as any);
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = AppointmentCreationResultDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param appointmentId (optional) 
+     * @return OK
+     */
+    initiatePaymentForAppointment(appointmentId: number | undefined): Observable<string> {
+        let url_ = this.baseUrl + "/api/services/app/Appointment/InitiatePaymentForAppointment?";
+        if (appointmentId === null)
+            throw new Error("The parameter 'appointmentId' cannot be null.");
+        else if (appointmentId !== undefined)
+            url_ += "appointmentId=" + encodeURIComponent("" + appointmentId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processInitiatePaymentForAppointment(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processInitiatePaymentForAppointment(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<string>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<string>;
+        }));
+    }
+
+    protected processInitiatePaymentForAppointment(response: HttpResponseBase): Observable<string> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
+            return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -833,6 +894,179 @@ export class AppointmentServiceProxy {
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param appointmentId (optional) 
+     * @param paymentMethod (optional) 
+     * @return OK
+     */
+    generateAppointmentReceipt(appointmentId: number | undefined, paymentMethod: string | undefined): Observable<AppointmentReceiptDto> {
+        let url_ = this.baseUrl + "/api/services/app/Appointment/GenerateAppointmentReceipt?";
+        if (appointmentId === null)
+            throw new Error("The parameter 'appointmentId' cannot be null.");
+        else if (appointmentId !== undefined)
+            url_ += "appointmentId=" + encodeURIComponent("" + appointmentId) + "&";
+        if (paymentMethod === null)
+            throw new Error("The parameter 'paymentMethod' cannot be null.");
+        else if (paymentMethod !== undefined)
+            url_ += "paymentMethod=" + encodeURIComponent("" + paymentMethod) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGenerateAppointmentReceipt(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGenerateAppointmentReceipt(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<AppointmentReceiptDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<AppointmentReceiptDto>;
+        }));
+    }
+
+    protected processGenerateAppointmentReceipt(response: HttpResponseBase): Observable<AppointmentReceiptDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = AppointmentReceiptDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param appointmentId (optional) 
+     * @return OK
+     */
+    getReceiptForAppointment(appointmentId: number | undefined): Observable<AppointmentReceiptDto> {
+        let url_ = this.baseUrl + "/api/services/app/Appointment/GetReceiptForAppointment?";
+        if (appointmentId === null)
+            throw new Error("The parameter 'appointmentId' cannot be null.");
+        else if (appointmentId !== undefined)
+            url_ += "appointmentId=" + encodeURIComponent("" + appointmentId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetReceiptForAppointment(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetReceiptForAppointment(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<AppointmentReceiptDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<AppointmentReceiptDto>;
+        }));
+    }
+
+    protected processGetReceiptForAppointment(response: HttpResponseBase): Observable<AppointmentReceiptDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = AppointmentReceiptDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param patientId (optional) 
+     * @return OK
+     */
+    getPatientReceipts(patientId: number | undefined): Observable<AppointmentReceiptDtoListResultDto> {
+        let url_ = this.baseUrl + "/api/services/app/Appointment/GetPatientReceipts?";
+        if (patientId === null)
+            throw new Error("The parameter 'patientId' cannot be null.");
+        else if (patientId !== undefined)
+            url_ += "patientId=" + encodeURIComponent("" + patientId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetPatientReceipts(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetPatientReceipts(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<AppointmentReceiptDtoListResultDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<AppointmentReceiptDtoListResultDto>;
+        }));
+    }
+
+    protected processGetPatientReceipts(response: HttpResponseBase): Observable<AppointmentReceiptDtoListResultDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = AppointmentReceiptDtoListResultDto.fromJS(resultData200);
+            return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -1092,6 +1326,350 @@ export class AppointmentServiceProxy {
      */
     delete(id: number | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/services/app/Appointment/Delete?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDelete(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDelete(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDelete(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
+export class AppointmentTypeServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @return OK
+     */
+    getAllForTenant(): Observable<AppointmentTypeDtoListResultDto> {
+        let url_ = this.baseUrl + "/api/services/app/AppointmentType/GetAllForTenant";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAllForTenant(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAllForTenant(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<AppointmentTypeDtoListResultDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<AppointmentTypeDtoListResultDto>;
+        }));
+    }
+
+    protected processGetAllForTenant(response: HttpResponseBase): Observable<AppointmentTypeDtoListResultDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = AppointmentTypeDtoListResultDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    get(id: number | undefined): Observable<AppointmentTypeDto> {
+        let url_ = this.baseUrl + "/api/services/app/AppointmentType/Get?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGet(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<AppointmentTypeDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<AppointmentTypeDto>;
+        }));
+    }
+
+    protected processGet(response: HttpResponseBase): Observable<AppointmentTypeDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = AppointmentTypeDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param skipCount (optional) 
+     * @param maxResultCount (optional) 
+     * @return OK
+     */
+    getAll(skipCount: number | undefined, maxResultCount: number | undefined): Observable<AppointmentTypeDtoPagedResultDto> {
+        let url_ = this.baseUrl + "/api/services/app/AppointmentType/GetAll?";
+        if (skipCount === null)
+            throw new Error("The parameter 'skipCount' cannot be null.");
+        else if (skipCount !== undefined)
+            url_ += "SkipCount=" + encodeURIComponent("" + skipCount) + "&";
+        if (maxResultCount === null)
+            throw new Error("The parameter 'maxResultCount' cannot be null.");
+        else if (maxResultCount !== undefined)
+            url_ += "MaxResultCount=" + encodeURIComponent("" + maxResultCount) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAll(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAll(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<AppointmentTypeDtoPagedResultDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<AppointmentTypeDtoPagedResultDto>;
+        }));
+    }
+
+    protected processGetAll(response: HttpResponseBase): Observable<AppointmentTypeDtoPagedResultDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = AppointmentTypeDtoPagedResultDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    create(body: CreateUpdateAppointmentTypeDto | undefined): Observable<AppointmentTypeDto> {
+        let url_ = this.baseUrl + "/api/services/app/AppointmentType/Create";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<AppointmentTypeDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<AppointmentTypeDto>;
+        }));
+    }
+
+    protected processCreate(response: HttpResponseBase): Observable<AppointmentTypeDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = AppointmentTypeDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    update(body: CreateUpdateAppointmentTypeDto | undefined): Observable<AppointmentTypeDto> {
+        let url_ = this.baseUrl + "/api/services/app/AppointmentType/Update";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<AppointmentTypeDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<AppointmentTypeDto>;
+        }));
+    }
+
+    protected processUpdate(response: HttpResponseBase): Observable<AppointmentTypeDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = AppointmentTypeDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    delete(id: number | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/AppointmentType/Delete?";
         if (id === null)
             throw new Error("The parameter 'id' cannot be null.");
         else if (id !== undefined)
@@ -12790,17 +13368,16 @@ export class Appointment implements IAppointment {
     id: number;
     tenantId: number;
     appointmentDate: moment.Moment;
-    startTime: string;
-    endTime: string;
     reasonForVisit: string | undefined;
     status: AppointmentStatus;
     isFollowUp: boolean;
+    isPaid: boolean;
     patientId: number;
     patient: Patient;
     doctorId: number;
     doctor: Doctor;
-    nurseId: number | undefined;
-    nurse: Nurse;
+    appointmentTypeId: number | undefined;
+    appointmentType: AppointmentType;
     prescriptions: Prescription[] | undefined;
 
     constructor(data?: IAppointment) {
@@ -12817,17 +13394,16 @@ export class Appointment implements IAppointment {
             this.id = _data["id"];
             this.tenantId = _data["tenantId"];
             this.appointmentDate = _data["appointmentDate"] ? moment(_data["appointmentDate"].toString()) : <any>undefined;
-            this.startTime = _data["startTime"];
-            this.endTime = _data["endTime"];
             this.reasonForVisit = _data["reasonForVisit"];
             this.status = _data["status"];
             this.isFollowUp = _data["isFollowUp"];
+            this.isPaid = _data["isPaid"];
             this.patientId = _data["patientId"];
             this.patient = _data["patient"] ? Patient.fromJS(_data["patient"]) : <any>undefined;
             this.doctorId = _data["doctorId"];
             this.doctor = _data["doctor"] ? Doctor.fromJS(_data["doctor"]) : <any>undefined;
-            this.nurseId = _data["nurseId"];
-            this.nurse = _data["nurse"] ? Nurse.fromJS(_data["nurse"]) : <any>undefined;
+            this.appointmentTypeId = _data["appointmentTypeId"];
+            this.appointmentType = _data["appointmentType"] ? AppointmentType.fromJS(_data["appointmentType"]) : <any>undefined;
             if (Array.isArray(_data["prescriptions"])) {
                 this.prescriptions = [] as any;
                 for (let item of _data["prescriptions"])
@@ -12848,17 +13424,16 @@ export class Appointment implements IAppointment {
         data["id"] = this.id;
         data["tenantId"] = this.tenantId;
         data["appointmentDate"] = this.appointmentDate ? this.appointmentDate.toISOString() : <any>undefined;
-        data["startTime"] = this.startTime;
-        data["endTime"] = this.endTime;
         data["reasonForVisit"] = this.reasonForVisit;
         data["status"] = this.status;
         data["isFollowUp"] = this.isFollowUp;
+        data["isPaid"] = this.isPaid;
         data["patientId"] = this.patientId;
         data["patient"] = this.patient ? this.patient.toJSON() : <any>undefined;
         data["doctorId"] = this.doctorId;
         data["doctor"] = this.doctor ? this.doctor.toJSON() : <any>undefined;
-        data["nurseId"] = this.nurseId;
-        data["nurse"] = this.nurse ? this.nurse.toJSON() : <any>undefined;
+        data["appointmentTypeId"] = this.appointmentTypeId;
+        data["appointmentType"] = this.appointmentType ? this.appointmentType.toJSON() : <any>undefined;
         if (Array.isArray(this.prescriptions)) {
             data["prescriptions"] = [];
             for (let item of this.prescriptions)
@@ -12879,32 +13454,82 @@ export interface IAppointment {
     id: number;
     tenantId: number;
     appointmentDate: moment.Moment;
-    startTime: string;
-    endTime: string;
     reasonForVisit: string | undefined;
     status: AppointmentStatus;
     isFollowUp: boolean;
+    isPaid: boolean;
     patientId: number;
     patient: Patient;
     doctorId: number;
     doctor: Doctor;
-    nurseId: number | undefined;
-    nurse: Nurse;
+    appointmentTypeId: number | undefined;
+    appointmentType: AppointmentType;
     prescriptions: Prescription[] | undefined;
+}
+
+export class AppointmentCreationResultDto implements IAppointmentCreationResultDto {
+    isStripeRedirect: boolean;
+    stripeSessionUrl: string | undefined;
+    receipt: AppointmentReceiptDto;
+
+    constructor(data?: IAppointmentCreationResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.isStripeRedirect = _data["isStripeRedirect"];
+            this.stripeSessionUrl = _data["stripeSessionUrl"];
+            this.receipt = _data["receipt"] ? AppointmentReceiptDto.fromJS(_data["receipt"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): AppointmentCreationResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new AppointmentCreationResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["isStripeRedirect"] = this.isStripeRedirect;
+        data["stripeSessionUrl"] = this.stripeSessionUrl;
+        data["receipt"] = this.receipt ? this.receipt.toJSON() : <any>undefined;
+        return data;
+    }
+
+    clone(): AppointmentCreationResultDto {
+        const json = this.toJSON();
+        let result = new AppointmentCreationResultDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IAppointmentCreationResultDto {
+    isStripeRedirect: boolean;
+    stripeSessionUrl: string | undefined;
+    receipt: AppointmentReceiptDto;
 }
 
 export class AppointmentDto implements IAppointmentDto {
     id: number;
     tenantId: number;
     appointmentDate: moment.Moment;
-    startTime: string;
-    endTime: string;
     reasonForVisit: string | undefined;
     status: AppointmentStatus;
     isFollowUp: boolean;
+    appointmentTypeId: number;
+    isPaid: boolean;
+    appointmentType: AppointmentType;
     patient: PatientDto;
     doctor: DoctorDto;
-    nurse: NurseDto;
     prescriptions: PrescriptionDto[] | undefined;
 
     constructor(data?: IAppointmentDto) {
@@ -12921,14 +13546,14 @@ export class AppointmentDto implements IAppointmentDto {
             this.id = _data["id"];
             this.tenantId = _data["tenantId"];
             this.appointmentDate = _data["appointmentDate"] ? moment(_data["appointmentDate"].toString()) : <any>undefined;
-            this.startTime = _data["startTime"];
-            this.endTime = _data["endTime"];
             this.reasonForVisit = _data["reasonForVisit"];
             this.status = _data["status"];
             this.isFollowUp = _data["isFollowUp"];
+            this.appointmentTypeId = _data["appointmentTypeId"];
+            this.isPaid = _data["isPaid"];
+            this.appointmentType = _data["appointmentType"] ? AppointmentType.fromJS(_data["appointmentType"]) : <any>undefined;
             this.patient = _data["patient"] ? PatientDto.fromJS(_data["patient"]) : <any>undefined;
             this.doctor = _data["doctor"] ? DoctorDto.fromJS(_data["doctor"]) : <any>undefined;
-            this.nurse = _data["nurse"] ? NurseDto.fromJS(_data["nurse"]) : <any>undefined;
             if (Array.isArray(_data["prescriptions"])) {
                 this.prescriptions = [] as any;
                 for (let item of _data["prescriptions"])
@@ -12949,14 +13574,14 @@ export class AppointmentDto implements IAppointmentDto {
         data["id"] = this.id;
         data["tenantId"] = this.tenantId;
         data["appointmentDate"] = this.appointmentDate ? this.appointmentDate.toISOString() : <any>undefined;
-        data["startTime"] = this.startTime;
-        data["endTime"] = this.endTime;
         data["reasonForVisit"] = this.reasonForVisit;
         data["status"] = this.status;
         data["isFollowUp"] = this.isFollowUp;
+        data["appointmentTypeId"] = this.appointmentTypeId;
+        data["isPaid"] = this.isPaid;
+        data["appointmentType"] = this.appointmentType ? this.appointmentType.toJSON() : <any>undefined;
         data["patient"] = this.patient ? this.patient.toJSON() : <any>undefined;
         data["doctor"] = this.doctor ? this.doctor.toJSON() : <any>undefined;
-        data["nurse"] = this.nurse ? this.nurse.toJSON() : <any>undefined;
         if (Array.isArray(this.prescriptions)) {
             data["prescriptions"] = [];
             for (let item of this.prescriptions)
@@ -12977,14 +13602,14 @@ export interface IAppointmentDto {
     id: number;
     tenantId: number;
     appointmentDate: moment.Moment;
-    startTime: string;
-    endTime: string;
     reasonForVisit: string | undefined;
     status: AppointmentStatus;
     isFollowUp: boolean;
+    appointmentTypeId: number;
+    isPaid: boolean;
+    appointmentType: AppointmentType;
     patient: PatientDto;
     doctor: DoctorDto;
-    nurse: NurseDto;
     prescriptions: PrescriptionDto[] | undefined;
 }
 
@@ -13094,12 +13719,394 @@ export interface IAppointmentDtoPagedResultDto {
     totalCount: number;
 }
 
+export class AppointmentReceiptDto implements IAppointmentReceiptDto {
+    id: number;
+    tenantId: number;
+    appointmentId: number;
+    patientId: number;
+    doctorId: number;
+    consultationFee: number;
+    receiptNumber: string | undefined;
+    paymentDate: moment.Moment;
+    paymentMethod: string | undefined;
+    patientName: string | undefined;
+    doctorName: string | undefined;
+    status: string | undefined;
+    appointmentDate: string | undefined;
+
+    constructor(data?: IAppointmentReceiptDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.appointmentId = _data["appointmentId"];
+            this.patientId = _data["patientId"];
+            this.doctorId = _data["doctorId"];
+            this.consultationFee = _data["consultationFee"];
+            this.receiptNumber = _data["receiptNumber"];
+            this.paymentDate = _data["paymentDate"] ? moment(_data["paymentDate"].toString()) : <any>undefined;
+            this.paymentMethod = _data["paymentMethod"];
+            this.patientName = _data["patientName"];
+            this.doctorName = _data["doctorName"];
+            this.status = _data["status"];
+            this.appointmentDate = _data["appointmentDate"];
+        }
+    }
+
+    static fromJS(data: any): AppointmentReceiptDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new AppointmentReceiptDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["appointmentId"] = this.appointmentId;
+        data["patientId"] = this.patientId;
+        data["doctorId"] = this.doctorId;
+        data["consultationFee"] = this.consultationFee;
+        data["receiptNumber"] = this.receiptNumber;
+        data["paymentDate"] = this.paymentDate ? this.paymentDate.toISOString() : <any>undefined;
+        data["paymentMethod"] = this.paymentMethod;
+        data["patientName"] = this.patientName;
+        data["doctorName"] = this.doctorName;
+        data["status"] = this.status;
+        data["appointmentDate"] = this.appointmentDate;
+        return data;
+    }
+
+    clone(): AppointmentReceiptDto {
+        const json = this.toJSON();
+        let result = new AppointmentReceiptDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IAppointmentReceiptDto {
+    id: number;
+    tenantId: number;
+    appointmentId: number;
+    patientId: number;
+    doctorId: number;
+    consultationFee: number;
+    receiptNumber: string | undefined;
+    paymentDate: moment.Moment;
+    paymentMethod: string | undefined;
+    patientName: string | undefined;
+    doctorName: string | undefined;
+    status: string | undefined;
+    appointmentDate: string | undefined;
+}
+
+export class AppointmentReceiptDtoListResultDto implements IAppointmentReceiptDtoListResultDto {
+    items: AppointmentReceiptDto[] | undefined;
+
+    constructor(data?: IAppointmentReceiptDtoListResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(AppointmentReceiptDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): AppointmentReceiptDtoListResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new AppointmentReceiptDtoListResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): AppointmentReceiptDtoListResultDto {
+        const json = this.toJSON();
+        let result = new AppointmentReceiptDtoListResultDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IAppointmentReceiptDtoListResultDto {
+    items: AppointmentReceiptDto[] | undefined;
+}
+
 export enum AppointmentStatus {
     _0 = 0,
     _1 = 1,
     _2 = 2,
     _3 = 3,
     _4 = 4,
+}
+
+export class AppointmentType implements IAppointmentType {
+    id: number;
+    tenantId: number;
+    name: string | undefined;
+    description: string | undefined;
+    fee: number;
+    isActive: boolean;
+    creationTime: moment.Moment;
+
+    constructor(data?: IAppointmentType) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.name = _data["name"];
+            this.description = _data["description"];
+            this.fee = _data["fee"];
+            this.isActive = _data["isActive"];
+            this.creationTime = _data["creationTime"] ? moment(_data["creationTime"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): AppointmentType {
+        data = typeof data === 'object' ? data : {};
+        let result = new AppointmentType();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["name"] = this.name;
+        data["description"] = this.description;
+        data["fee"] = this.fee;
+        data["isActive"] = this.isActive;
+        data["creationTime"] = this.creationTime ? this.creationTime.toISOString() : <any>undefined;
+        return data;
+    }
+
+    clone(): AppointmentType {
+        const json = this.toJSON();
+        let result = new AppointmentType();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IAppointmentType {
+    id: number;
+    tenantId: number;
+    name: string | undefined;
+    description: string | undefined;
+    fee: number;
+    isActive: boolean;
+    creationTime: moment.Moment;
+}
+
+export class AppointmentTypeDto implements IAppointmentTypeDto {
+    id: number;
+    tenantId: number;
+    name: string | undefined;
+    description: string | undefined;
+    fee: number;
+    isActive: boolean;
+    creationTime: moment.Moment;
+
+    constructor(data?: IAppointmentTypeDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.name = _data["name"];
+            this.description = _data["description"];
+            this.fee = _data["fee"];
+            this.isActive = _data["isActive"];
+            this.creationTime = _data["creationTime"] ? moment(_data["creationTime"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): AppointmentTypeDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new AppointmentTypeDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["name"] = this.name;
+        data["description"] = this.description;
+        data["fee"] = this.fee;
+        data["isActive"] = this.isActive;
+        data["creationTime"] = this.creationTime ? this.creationTime.toISOString() : <any>undefined;
+        return data;
+    }
+
+    clone(): AppointmentTypeDto {
+        const json = this.toJSON();
+        let result = new AppointmentTypeDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IAppointmentTypeDto {
+    id: number;
+    tenantId: number;
+    name: string | undefined;
+    description: string | undefined;
+    fee: number;
+    isActive: boolean;
+    creationTime: moment.Moment;
+}
+
+export class AppointmentTypeDtoListResultDto implements IAppointmentTypeDtoListResultDto {
+    items: AppointmentTypeDto[] | undefined;
+
+    constructor(data?: IAppointmentTypeDtoListResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(AppointmentTypeDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): AppointmentTypeDtoListResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new AppointmentTypeDtoListResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): AppointmentTypeDtoListResultDto {
+        const json = this.toJSON();
+        let result = new AppointmentTypeDtoListResultDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IAppointmentTypeDtoListResultDto {
+    items: AppointmentTypeDto[] | undefined;
+}
+
+export class AppointmentTypeDtoPagedResultDto implements IAppointmentTypeDtoPagedResultDto {
+    items: AppointmentTypeDto[] | undefined;
+    totalCount: number;
+
+    constructor(data?: IAppointmentTypeDtoPagedResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(AppointmentTypeDto.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): AppointmentTypeDtoPagedResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new AppointmentTypeDtoPagedResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+
+    clone(): AppointmentTypeDtoPagedResultDto {
+        const json = this.toJSON();
+        let result = new AppointmentTypeDtoPagedResultDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IAppointmentTypeDtoPagedResultDto {
+    items: AppointmentTypeDto[] | undefined;
+    totalCount: number;
 }
 
 export class AuthenticateModel implements IAuthenticateModel {
@@ -13931,14 +14938,14 @@ export class CreateUpdateAppointmentDto implements ICreateUpdateAppointmentDto {
     id: number;
     tenantId: number;
     appointmentDate: moment.Moment;
-    startTime: string;
-    endTime: string;
     reasonForVisit: string | undefined;
     status: AppointmentStatus;
     isFollowUp: boolean;
+    isPaid: boolean;
+    paymentMethod: PaymentMethod;
     patientId: number;
     doctorId: number;
-    nurseId: number | undefined;
+    appointmentTypeId: number | undefined;
 
     constructor(data?: ICreateUpdateAppointmentDto) {
         if (data) {
@@ -13954,14 +14961,14 @@ export class CreateUpdateAppointmentDto implements ICreateUpdateAppointmentDto {
             this.id = _data["id"];
             this.tenantId = _data["tenantId"];
             this.appointmentDate = _data["appointmentDate"] ? moment(_data["appointmentDate"].toString()) : <any>undefined;
-            this.startTime = _data["startTime"];
-            this.endTime = _data["endTime"];
             this.reasonForVisit = _data["reasonForVisit"];
             this.status = _data["status"];
             this.isFollowUp = _data["isFollowUp"];
+            this.isPaid = _data["isPaid"];
+            this.paymentMethod = _data["paymentMethod"];
             this.patientId = _data["patientId"];
             this.doctorId = _data["doctorId"];
-            this.nurseId = _data["nurseId"];
+            this.appointmentTypeId = _data["appointmentTypeId"];
         }
     }
 
@@ -13977,14 +14984,14 @@ export class CreateUpdateAppointmentDto implements ICreateUpdateAppointmentDto {
         data["id"] = this.id;
         data["tenantId"] = this.tenantId;
         data["appointmentDate"] = this.appointmentDate ? this.appointmentDate.toISOString() : <any>undefined;
-        data["startTime"] = this.startTime;
-        data["endTime"] = this.endTime;
         data["reasonForVisit"] = this.reasonForVisit;
         data["status"] = this.status;
         data["isFollowUp"] = this.isFollowUp;
+        data["isPaid"] = this.isPaid;
+        data["paymentMethod"] = this.paymentMethod;
         data["patientId"] = this.patientId;
         data["doctorId"] = this.doctorId;
-        data["nurseId"] = this.nurseId;
+        data["appointmentTypeId"] = this.appointmentTypeId;
         return data;
     }
 
@@ -14000,14 +15007,77 @@ export interface ICreateUpdateAppointmentDto {
     id: number;
     tenantId: number;
     appointmentDate: moment.Moment;
-    startTime: string;
-    endTime: string;
     reasonForVisit: string | undefined;
     status: AppointmentStatus;
     isFollowUp: boolean;
+    isPaid: boolean;
+    paymentMethod: PaymentMethod;
     patientId: number;
     doctorId: number;
-    nurseId: number | undefined;
+    appointmentTypeId: number | undefined;
+}
+
+export class CreateUpdateAppointmentTypeDto implements ICreateUpdateAppointmentTypeDto {
+    id: number;
+    tenantId: number;
+    name: string | undefined;
+    description: string | undefined;
+    fee: number;
+    isActive: boolean;
+
+    constructor(data?: ICreateUpdateAppointmentTypeDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.name = _data["name"];
+            this.description = _data["description"];
+            this.fee = _data["fee"];
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): CreateUpdateAppointmentTypeDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateUpdateAppointmentTypeDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["name"] = this.name;
+        data["description"] = this.description;
+        data["fee"] = this.fee;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+
+    clone(): CreateUpdateAppointmentTypeDto {
+        const json = this.toJSON();
+        let result = new CreateUpdateAppointmentTypeDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ICreateUpdateAppointmentTypeDto {
+    id: number;
+    tenantId: number;
+    name: string | undefined;
+    description: string | undefined;
+    fee: number;
+    isActive: boolean;
 }
 
 export class CreateUpdateBillingDto implements ICreateUpdateBillingDto {
@@ -18779,7 +19849,6 @@ export class Nurse implements INurse {
     abpUserId: number;
     abpUser: User;
     vitals: Vital[] | undefined;
-    appointments: Appointment[] | undefined;
     visits: Visit[] | undefined;
     medicineOrders: MedicineOrder[] | undefined;
     admissions: Admission[] | undefined;
@@ -18810,11 +19879,6 @@ export class Nurse implements INurse {
                 this.vitals = [] as any;
                 for (let item of _data["vitals"])
                     this.vitals.push(Vital.fromJS(item));
-            }
-            if (Array.isArray(_data["appointments"])) {
-                this.appointments = [] as any;
-                for (let item of _data["appointments"])
-                    this.appointments.push(Appointment.fromJS(item));
             }
             if (Array.isArray(_data["visits"])) {
                 this.visits = [] as any;
@@ -18859,11 +19923,6 @@ export class Nurse implements INurse {
             for (let item of this.vitals)
                 data["vitals"].push(item.toJSON());
         }
-        if (Array.isArray(this.appointments)) {
-            data["appointments"] = [];
-            for (let item of this.appointments)
-                data["appointments"].push(item.toJSON());
-        }
         if (Array.isArray(this.visits)) {
             data["visits"] = [];
             for (let item of this.visits)
@@ -18903,7 +19962,6 @@ export interface INurse {
     abpUserId: number;
     abpUser: User;
     vitals: Vital[] | undefined;
-    appointments: Appointment[] | undefined;
     visits: Visit[] | undefined;
     medicineOrders: MedicineOrder[] | undefined;
     admissions: Admission[] | undefined;
@@ -19123,6 +20181,7 @@ export class Patient implements IPatient {
     bloodGroup: string | undefined;
     emergencyContactName: string | undefined;
     emergencyContactNumber: string | undefined;
+    isAdmitted: boolean;
     abpUserId: number;
     abpUser: User;
     prescriptions: Prescription[] | undefined;
@@ -19153,6 +20212,7 @@ export class Patient implements IPatient {
             this.bloodGroup = _data["bloodGroup"];
             this.emergencyContactName = _data["emergencyContactName"];
             this.emergencyContactNumber = _data["emergencyContactNumber"];
+            this.isAdmitted = _data["isAdmitted"];
             this.abpUserId = _data["abpUserId"];
             this.abpUser = _data["abpUser"] ? User.fromJS(_data["abpUser"]) : <any>undefined;
             if (Array.isArray(_data["prescriptions"])) {
@@ -19211,6 +20271,7 @@ export class Patient implements IPatient {
         data["bloodGroup"] = this.bloodGroup;
         data["emergencyContactName"] = this.emergencyContactName;
         data["emergencyContactNumber"] = this.emergencyContactNumber;
+        data["isAdmitted"] = this.isAdmitted;
         data["abpUserId"] = this.abpUserId;
         data["abpUser"] = this.abpUser ? this.abpUser.toJSON() : <any>undefined;
         if (Array.isArray(this.prescriptions)) {
@@ -19269,6 +20330,7 @@ export interface IPatient {
     bloodGroup: string | undefined;
     emergencyContactName: string | undefined;
     emergencyContactNumber: string | undefined;
+    isAdmitted: boolean;
     abpUserId: number;
     abpUser: User;
     prescriptions: Prescription[] | undefined;
@@ -19501,6 +20563,7 @@ export interface IPatientDetailsAndMedicalHistoryDto {
 export class PatientDropDownDto implements IPatientDropDownDto {
     id: number;
     fullName: string | undefined;
+    isAdmitted: boolean;
 
     constructor(data?: IPatientDropDownDto) {
         if (data) {
@@ -19515,6 +20578,7 @@ export class PatientDropDownDto implements IPatientDropDownDto {
         if (_data) {
             this.id = _data["id"];
             this.fullName = _data["fullName"];
+            this.isAdmitted = _data["isAdmitted"];
         }
     }
 
@@ -19529,6 +20593,7 @@ export class PatientDropDownDto implements IPatientDropDownDto {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["fullName"] = this.fullName;
+        data["isAdmitted"] = this.isAdmitted;
         return data;
     }
 
@@ -19543,6 +20608,7 @@ export class PatientDropDownDto implements IPatientDropDownDto {
 export interface IPatientDropDownDto {
     id: number;
     fullName: string | undefined;
+    isAdmitted: boolean;
 }
 
 export class PatientDto implements IPatientDto {

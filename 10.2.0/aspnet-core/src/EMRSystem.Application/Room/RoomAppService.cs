@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -25,7 +26,7 @@ namespace EMRSystem.Room
             : base(repository) { }
         protected override IQueryable<Room> CreateFilteredQuery(PagedRoomResultRequestDto input)
         {
-            return Repository
+            var query = Repository
                 .GetAllIncluding(r => r.RoomTypeMaster)
                 .WhereIf(!input.Keyword.IsNullOrWhiteSpace(),
                          r => r.RoomNumber.Contains(input.Keyword))
@@ -33,7 +34,25 @@ namespace EMRSystem.Room
                          r => r.RoomTypeMasterId == input.RoomTypeMasterId)
                 .WhereIf(input.Status.HasValue,
                          r => r.Status == input.Status);
+
+            return query; // Sorting is applied later in ApplySorting
         }
+        protected override IQueryable<Room> ApplySorting(IQueryable<Room> query, PagedRoomResultRequestDto input)
+        {
+            if (!string.IsNullOrWhiteSpace(input.Sorting))
+            {
+                var sorting = input.Sorting;
+
+                if (sorting.Contains("roomTypeName", StringComparison.OrdinalIgnoreCase))
+                    sorting = sorting.Replace("roomTypeName", "RoomTypeMaster.TypeName", StringComparison.OrdinalIgnoreCase);
+
+                return DynamicQueryableExtensions.OrderBy(query, sorting);
+                // ✅ ABP's dynamic OrderBy
+            }
+
+            return base.ApplySorting(query, input); // Default to base behavior
+        }
+
         public async Task<List<RoomDto>> CreateBulkRoomsAsync(List<CreateUpdateRoomDto> input)
         {
             var createdRooms = new List<Room>();

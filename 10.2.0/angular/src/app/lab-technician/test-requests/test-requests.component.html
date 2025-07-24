@@ -132,8 +132,11 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <p-chip [label]="getStatusLabel(record.testStatus)"
-                                            [class]="getStatusClass(record.testStatus)" />
+                                        <p-tag 
+                                            [value]="getStatusLabel(record.testStatus)" 
+                                            [severity]="getStatusSeverity(record.testStatus)" 
+                                            [rounded]="true">
+                                        </p-tag>
                                     </td>
                                     <td>
                                         <button type="button" pButton icon="pi pi-ellipsis-v" class="p-button-text"

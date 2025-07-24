@@ -18,11 +18,12 @@ import { EditRoomComponent } from '../room/edit-room/edit-room.component'
 import { AddRoomComponent } from '../room/add-room/add-room.component'
 import { appModuleAnimation } from '@shared/animations/routerTransition';
 import { ChipModule } from 'primeng/chip';
+import { TagModule } from 'primeng/tag';
 
 
 @Component({
     selector: 'app-room',
-    imports: [FormsModule, TableModule, SelectModule, MenuModule,
+    imports: [FormsModule, TableModule,TagModule, SelectModule, MenuModule,
         ButtonModule, OverlayPanelModule, PrimeTemplate, NgIf, PaginatorModule, ChipModule, LocalizePipe],
     animations: [appModuleAnimation()],
     providers: [RoomServiceProxy],
@@ -148,6 +149,16 @@ export class RoomComponent extends PagedListingComponentBase<RoomDto> implements
             case RoomStatus._2: return 'Reserved';
             case RoomStatus._3: return 'Under Maintenance';
             default: return '';
+        }
+    }
+
+    getStatusSeverity(status: RoomStatus): 'info' | 'warn' | 'success' | 'danger' | 'secondary' | 'contrast' {
+        switch (status) {
+            case RoomStatus._0: return 'success';      // Available
+            case RoomStatus._1: return 'danger';       // Occupied
+            case RoomStatus._2: return 'info';         // Reserved
+            case RoomStatus._3: return 'secondary';    // Maintenance
+            default: return 'contrast';
         }
     }
 

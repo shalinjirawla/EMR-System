@@ -87,10 +87,6 @@
                                         Doctor
                                         <p-sortIcon field="doctorName"></p-sortIcon>
                                     </th>
-                                    <th style="min-width: 150px" pSortableColumn="nurseName" *ngIf="showNurseColumn">
-                                        Nurse
-                                        <p-sortIcon field="nurseName"></p-sortIcon>
-                                    </th>
                                     <th style="min-width: 150px">
                                         Date & Time
                                     </th>
@@ -115,11 +111,6 @@
                                             Dr. {{ record.doctor?.fullName }}
                                         </span>
                                     </td>
-                                    <td *ngIf="showNurseColumn">
-                                        <span>
-                                            {{ record.nurse?.fullName }}
-                                        </span>
-                                    </td>
                                     <td>
                                         <p class="m-0">
                                             {{ record.appointmentDate | date: 'dd/MM/yyyy' }}
@@ -129,8 +120,11 @@
                                         </p>
                                     </td>
                                     <td>
-                                        <p-chip [label]="getStatusLabel(record.status)"
-                                            [class]="getStatusClass(record.status)" />
+                                        <p-tag 
+                                            [value]="getStatusLabel(record.status)" 
+                                            [severity]="getStatusSeverity(record.status)" 
+                                            [rounded]="true">
+                                        </p-tag>
                                     </td>
                                     <td *ngIf="record.status !== 3">
                                         <button type="button" pButton icon="pi pi-ellipsis-v" class="p-button-text"

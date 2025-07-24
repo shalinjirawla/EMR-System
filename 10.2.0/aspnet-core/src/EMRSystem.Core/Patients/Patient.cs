@@ -27,7 +27,7 @@ namespace EMRSystem.Patients
         public string BloodGroup { get; set; }
         public string EmergencyContactName { get; set; }
         public string EmergencyContactNumber { get; set; }
-        //public bool IsAdmitted { get; set; }
+        public bool IsAdmitted { get; set; } = false;
         //public DateTime? AdmissionDate { get; set; }
         //public BillingMethod BillingMethod { get; set; }
         //public PaymentMethod? PaymentMethod { get; set; }

@@ -5,6 +5,7 @@ import { RoomFacilitiesComponent } from './room-facilities/room-facilities.compo
 import { RoomTypesComponent } from './room-types/room-types.component';
 import { LabReportTypeComponent } from './lab-report-type/lab-report-type.component';
 import { DoctorMasterComponent } from './doctor-master/doctor-master.component';
+import { AppointmentTypesComponent } from './appointment-types/appointment-types.component';
 
 const routes: Routes = [
     {
@@ -27,6 +28,10 @@ const routes: Routes = [
     {
         path: 'doctor-master',
         component: DoctorMasterComponent,
+    },
+    {
+        path: 'appointment-types',
+        component: AppointmentTypesComponent,
     },
 ];
 

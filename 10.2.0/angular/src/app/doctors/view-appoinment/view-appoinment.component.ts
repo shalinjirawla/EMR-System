@@ -18,13 +18,14 @@ import { OverlayPanel, OverlayPanelModule } from 'primeng/overlaypanel';
 import { MenuModule } from 'primeng/menu';
 import { ButtonModule } from 'primeng/button';
 import { AppSessionService } from '@shared/session/app-session.service';
+import { TagModule } from 'primeng/tag';
 
 @Component({
   selector: 'app-view-appoinment',
   animations: [appModuleAnimation()],
   templateUrl: './view-appoinment.component.html',
   styleUrl: './view-appoinment.component.css',
-  imports: [FormsModule, TableModule, ChipModule, SelectModule, MenuModule, ButtonModule, OverlayPanelModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, DatePipe],
+  imports: [FormsModule, TableModule,TagModule, ChipModule, SelectModule, MenuModule, ButtonModule, OverlayPanelModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, DatePipe],
   providers: [AppointmentServiceProxy, UserServiceProxy]
 })
 export class ViewAppoinmentComponent extends PagedListingComponentBase<AppointmentDto> implements OnInit {
@@ -149,6 +150,16 @@ export class ViewAppoinmentComponent extends PagedListingComponentBase<Appointme
       case AppointmentStatus._3: return 'status-completed';    // Completed
       case AppointmentStatus._4: return 'status-cancelled';    // Cancelled
       default: return '';
+    }
+  }
+  getStatusSeverity(value: number): 'info' | 'warn' | 'success' | 'danger' | 'secondary' | 'contrast' {
+    switch (value) {
+      case AppointmentStatus._0: return 'info';        // Scheduled
+      case AppointmentStatus._1: return 'secondary';   // Rescheduled
+      case AppointmentStatus._2: return 'success';     // Checked In
+      case AppointmentStatus._3: return 'success';     // Completed
+      case AppointmentStatus._4: return 'danger';      // Cancelled
+      default: return 'contrast';
     }
   }
   GetLoggedInUserRole() {

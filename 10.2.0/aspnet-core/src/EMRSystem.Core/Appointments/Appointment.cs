@@ -18,17 +18,21 @@ namespace EMRSystem.Appointments
     {
         public int TenantId { get; set; }
         public DateTime AppointmentDate { get; set; }
-        public TimeSpan StartTime { get; set; } // Use TimeSpan instead of DateTime
-        public TimeSpan EndTime { get; set; }
+        //public TimeSpan StartTime { get; set; } // Use TimeSpan instead of DateTime
+        //public TimeSpan EndTime { get; set; }
         public string ReasonForVisit { get; set; }
         public AppointmentStatus Status { get; set; }
         public bool IsFollowUp { get; set; }
+        public bool IsPaid { get; set; } = true;
         public long PatientId { get; set; }
+        //public PatientType PatientType { get; set; }
         public virtual Patient Patient { get; set; }
         public long DoctorId { get; set; }
         public virtual Doctor Doctor { get; set; }
-        public long? NurseId { get; set; }
-        public virtual Nurse Nurse { get; set; }
+        //public long? NurseId { get; set; }
+        //public virtual Nurse Nurse { get; set; }
+        public long? AppointmentTypeId { get; set; }
+        public virtual EMRSystem.AppointmentType.AppointmentType AppointmentType { get; set; }
         public ICollection<Prescription> Prescriptions { get; set; }
     }
     public enum AppointmentStatus
@@ -38,5 +42,10 @@ namespace EMRSystem.Appointments
         CheckedIn,
         Completed,
         Cancelled
+    }
+    public enum PatientType
+    {
+        InPatient,
+        OutPatient
     }
 }

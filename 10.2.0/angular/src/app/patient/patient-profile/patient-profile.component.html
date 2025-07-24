@@ -224,8 +224,11 @@
                                             </td>
                                             <td>{{itm.doctorName}}</td>
                                             <td>
-                                                <p-chip [label]="getStatusLabel(itm.status)"
-                                                    [class]="getStatusClass(itm.status)" />
+                                                <p-tag 
+                                                  [value]="getStatusLabel(itm.status)" 
+                                                  [severity]="getStatusSeverity(itm.status)" 
+                                                  [rounded]="true">
+                                                </p-tag>
                                             </td>
                                             <td>{{itm.reasonForVisit}}</td>
                                         </tr>

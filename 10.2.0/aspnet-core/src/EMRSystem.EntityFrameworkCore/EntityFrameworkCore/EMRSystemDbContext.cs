@@ -55,6 +55,8 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
     public DbSet<EMRSystem.Admission.Admission> Admissions { get; set; }
     public DbSet<EMRSystem.Deposit.Deposit> Deposits { get; set; }
     public DbSet<EMRSystem.DoctorMaster.DoctorMaster> DoctorMasters { get; set; }
+    public DbSet<EMRSystem.AppointmentType.AppointmentType> AppointmentTypes { get; set; }
+    public DbSet<EMRSystem.AppointmentReceipt.AppointmentReceipt> AppointmentReceipts { get; set; }
 
 
 
@@ -166,11 +168,11 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
             .HasForeignKey(a => a.DoctorId)
             .OnDelete(DeleteBehavior.NoAction); // OR Restrict
 
-        modelBuilder.Entity<Appointment>()
-            .HasOne(a => a.Nurse)
-            .WithMany(n => n.Appointments)
-            .HasForeignKey(a => a.NurseId)
-            .OnDelete(DeleteBehavior.NoAction); // OR Restrict
+        //modelBuilder.Entity<Appointment>()
+        //    .HasOne(a => a.Nurse)
+        //    .WithMany(n => n.Appointments)
+        //    .HasForeignKey(a => a.NurseId)
+        //    .OnDelete(DeleteBehavior.NoAction); // OR Restrict
 
         modelBuilder.Entity<PrescriptionLabTest>().ToTable("PrescriptionLabTests");
 
@@ -300,6 +302,18 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
             b.Property(x => x.DefaultPricePerDay).HasColumnType("decimal(18,2)");
             b.HasIndex(x => new { x.TenantId, x.TypeName }).IsUnique();
         });
+        modelBuilder.Entity<EMRSystem.AppointmentType.AppointmentType>(b =>
+        {
+            b.ToTable("AppointmentTypes");
+            b.Property(x => x.Fee).HasColumnType("decimal(18,2)");
+            b.HasIndex(x => new { x.TenantId, x.Name }).IsUnique();
+        });
+        modelBuilder.Entity<Appointment>()
+    .HasOne(a => a.AppointmentType)
+    .WithMany()
+    .HasForeignKey(a => a.AppointmentTypeId)
+    .OnDelete(DeleteBehavior.Restrict);
+
 
         modelBuilder.Entity<RoomTypeFacility>(b =>
         {
@@ -340,6 +354,43 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
                 .WithMany(r => r.Admissions)
                 .HasForeignKey(a => a.RoomId)
                 .OnDelete(DeleteBehavior.NoAction);
+        });
+        // In OnModelCreating method
+        modelBuilder.Entity<EMRSystem.AppointmentReceipt.AppointmentReceipt>(b =>
+        {
+            b.ToTable("AppointmentReceipts");
+
+            // Configure decimal precision
+            b.Property(x => x.ConsultationFee)
+                .HasColumnType("decimal(18,2)");
+            b.Property(e => e.Status)
+                .HasConversion<string>()
+                .HasMaxLength(20);
+
+            // Configure enum as string
+            b.Property(e => e.PaymentMethod)
+                .HasConversion<string>()
+                .HasMaxLength(20);
+
+            // Relationships
+            b.HasOne(ar => ar.Appointment)
+                .WithMany()
+                .HasForeignKey(ar => ar.AppointmentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(ar => ar.Patient)
+                .WithMany()
+                .HasForeignKey(ar => ar.PatientId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(ar => ar.Doctor)
+                .WithMany()
+                .HasForeignKey(ar => ar.DoctorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Index for receipt number
+            b.HasIndex(ar => ar.ReceiptNumber)
+                .IsUnique();
         });
 
         // STEP 4‑b Deposit configuration
