@@ -1,0 +1,54 @@
+<form class="form-horizontal" autocomplete="off" #appointmentTypeForm="ngForm" (ngSubmit)="save()">
+    <abp-modal-header [title]="id ? 'Edit Appointment Type' : 'Create Appointment Type'" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-md-12 d-flex flex-column">
+                <label for="name"><b>Name</b></label>
+                <input
+                    pInputText
+                    type="text"
+                    id="name"
+                    name="name"
+                    class="form-control"
+                    [(ngModel)]="appointmentType.name"
+                    required
+                    maxlength="100"
+                    placeholder="Enter appointment type name"
+                    autocomplete="off"
+                />
+            </div>
+            <div class="col-md-12 d-flex flex-column">
+                <label for="fee"><b>Fee</b></label>
+                <input
+                    pInputText
+                    type="number"
+                    id="fee"
+                    name="fee"
+                    class="form-control"
+                    [(ngModel)]="appointmentType.fee"
+                    required
+                    placeholder="Enter appointment type fee"
+                    autocomplete="off"
+                />
+            </div>
+            <div class="col-md-12 d-flex flex-column">
+                <label for="description"><b>Description</b></label>
+                <input
+                    pInputText
+                    type="text"
+                    id="description"
+                    name="description"
+                    class="form-control"
+                    [(ngModel)]="appointmentType.description"
+                    placeholder="Enter appointment type description"
+                    autocomplete="off"
+                />
+            </div>
+        </div>
+    </div>
+    <abp-modal-footer
+        [cancelDisabled]="saving"
+        [saveDisabled]="!isFormValid || saving"
+        (onCancelClick)="bsModalRef.hide()"
+    ></abp-modal-footer>
+</form>

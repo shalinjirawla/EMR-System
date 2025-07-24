@@ -50,20 +50,20 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
             new MenuItem(this.l('Tenants'), '/app/tenants', 'fas fa-building', 'Pages.Tenants'),
             //new MenuItem(this.l('Rooms'), '/app/room', 'fas fa-hotel', 'Pages.Users'),
             new MenuItem(this.l('Admit Patient'), '/app/admission', 'fas fa-hospital-user', 'Pages.Users'),
-            new MenuItem(this.l('Deposit'), '/app/deposit', 'fas fa-money-bill', 'Pages.Users'),
             new MenuItem(this.l('Rooms'), '/app/room', 'fas fa-hotel', 'Pages.Users'),
-            new MenuItem(this.l('Master'), '', 'fas fa-building', 'Pages.Users',[
+            new MenuItem(this.l('Master'), '', 'fas fa-building', 'Pages.Users', [
                 new MenuItem(this.l('Room Facilities'), '/app/master/room-facilities', 'fas fa-hospital', 'Pages.Users'),
                 //new MenuItem(this.l('Departments'), '/app/master/departments', 'fas fa-building-user', 'Pages.Users'),
                 new MenuItem(this.l('RoomTypes'), '/app/master/room-types', 'fas fa-hotel', 'Pages.Users'),
                 new MenuItem(this.l('LabTest Types'), '/app/master/lab-report-type', 'fas fa-microscope', 'Pages.Users'),
                 new MenuItem(this.l('Doctor Master'), '/app/master/doctor-master', 'fas fa-user-md', 'Pages.Users'),
+                new MenuItem(this.l('Appointment Types'), '/app/master/appointment-types', 'fas fa-calendar-check', 'Pages.Users'),
             ]),
 
             // Doctor Section
             new MenuItem(this.l('Doctor'), '', 'fa fa-user-md', 'Pages.Doctors', [
                 new MenuItem(this.l('View Appointments'), '/app/doctors/view-appointments', 'fas fa-calendar-check', 'Pages.Doctors.Appointments.View'),
-                new MenuItem(this.l('Patients'), '/app/doctors/patients', 'fas fa-user-injured', 'Pages.Doctors.Patients.View'),
+                new MenuItem(this.l('Assigned Patients'), '/app/doctors/patients', 'fas fa-user-injured', 'Pages.Doctors.Patients.View'),
                 new MenuItem(this.l('Prescriptions'), '/app/doctors/prescriptions', 'fas fa-file-prescription', 'Pages.Doctors.Prescriptions.Create'),
                 new MenuItem(this.l('Visits'), '/app/doctors/visits', 'fas fa-procedures', 'Pages.Doctors.Visits.View'),
                 new MenuItem(this.l('Lab Orders'), '/app/doctors/lab-order', 'fas fa-vials', 'Pages.Doctors.LabOrders.Create'),
@@ -81,9 +81,11 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
             // Billing Staff Section
             new MenuItem(this.l('Billing Staff'), '', 'fas fa-file-invoice-dollar', 'Pages.BillingStaff', [
                 new MenuItem(this.l('Invoices'), '/app/billing-staff/invoices', 'fas fa-file-invoice', 'Pages.BillingStaff.Invoices.View'),
-                new MenuItem(this.l('Payments'), '/app/billing-staff/payments', 'fas fa-credit-card', 'Pages.BillingStaff.Payments.View'),
-                new MenuItem(this.l('Insurance'), '/app/billing-staff/insurance', 'fas fa-file-invoice-dollar', 'Pages.BillingStaff.Insurance.View'),
-                new MenuItem(this.l('Reports'), '/app/billing-staff/reports', 'fas fa-chart-line', 'Pages.BillingStaff.Reports.View'),
+                // new MenuItem(this.l('Payments'), '/app/billing-staff/payments', 'fas fa-credit-card', 'Pages.BillingStaff.Payments.View'),
+                // new MenuItem(this.l('Insurance'), '/app/billing-staff/insurance', 'fas fa-file-invoice-dollar', 'Pages.BillingStaff.Insurance.View'),
+                // new MenuItem(this.l('Reports'), '/app/billing-staff/reports', 'fas fa-chart-line', 'Pages.BillingStaff.Reports.View'),
+                new MenuItem(this.l('Deposit'), '/app/deposit', 'fas fa-money-bill', 'Pages.Users'),
+
             ]),
 
             // Lab Technician Section

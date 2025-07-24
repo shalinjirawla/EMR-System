@@ -165,7 +165,7 @@ export class EditPrescriptionsComponent extends AppComponentBase implements OnIn
     this._appointmentService.get(this.prescription.appointmentId).subscribe({
       next: (app) => {
         const selectedPatient = this.patients.find(p => p.id === this.prescription.patientId);
-        const title = `${app.startTime} - ${app.endTime} - ${selectedPatient?.fullName || ''}`;
+        const title = `${app.appointmentDate} - ${selectedPatient?.fullName || ''}`;
         this.appointmentTitle = [{ id: app.id, title: title }];
         this.cd.detectChanges();
       },

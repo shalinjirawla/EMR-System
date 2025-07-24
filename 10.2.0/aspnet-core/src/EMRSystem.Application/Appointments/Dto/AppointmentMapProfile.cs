@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using EMRSystem.AppointmentReceipt.Dto;
 using EMRSystem.Authorization.Roles;
 using EMRSystem.Billings;
 using EMRSystem.BillingStaff.Dto;
@@ -29,9 +30,15 @@ namespace EMRSystem.Appointments.Dto
             // Other mappings
             CreateMap<CreateUpdateAppointmentDto, Appointment>();
             CreateMap<Appointment, CreateUpdateAppointmentDto>()
-                .ForMember(dest => dest.NurseId, opt => opt.MapFrom(src => src.Nurse != null ? src.Nurse.Id : (long?)null))
+                //.ForMember(dest => dest.NurseId, opt => opt.MapFrom(src => src.Nurse != null ? src.Nurse.Id : (long?)null))
                 .ForMember(dest => dest.DoctorId, opt => opt.MapFrom(src => src.Doctor != null ? src.Doctor.Id : (long?)null))
                 .ForMember(dest => dest.PatientId, opt => opt.MapFrom(src => src.Patient != null ? src.Patient.Id : (long?)null));
+
+            CreateMap<EMRSystem.AppointmentReceipt.AppointmentReceipt, AppointmentReceiptDto>()
+    .ForMember(dest => dest.PatientName, opt => opt.MapFrom(src => src.Patient.FullName))
+    .ForMember(dest => dest.DoctorName, opt => opt.MapFrom(src => src.Doctor.FullName))
+    .ForMember(dest => dest.AppointmentDate,
+        opt => opt.MapFrom(src => src.Appointment.AppointmentDate.ToString("dd-MMM-yyyy")));
         }
     }
 }

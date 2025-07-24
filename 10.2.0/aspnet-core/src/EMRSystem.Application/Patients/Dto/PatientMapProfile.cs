@@ -16,7 +16,8 @@ namespace EMRSystem.Patients.Dto
         {
             CreateMap<Patient, PatientDropDownDto>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName));
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName))
+                .ForMember(dest => dest.IsAdmitted,opt =>opt.MapFrom(src => src.IsAdmitted));
 
             CreateMap<Patient, PatientDto>().ReverseMap();
             CreateMap<Patient, CreateUpdatePatientDto>().ReverseMap();
@@ -124,12 +125,12 @@ namespace EMRSystem.Patients.Dto
 
             CreateMap<Appointment, PatientAppointmentHistoryDto>()
                 .ForMember(dest => dest.AppointmentDate, opt => opt.MapFrom(src => src.AppointmentDate))
-                .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.StartTime))
+                //.ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.StartTime))
                 .ForMember(dest => dest.IsFollowUp, opt => opt.MapFrom(src => src.IsFollowUp))
                 .ForMember(dest => dest.DoctorId, opt => opt.MapFrom(src => src.DoctorId))
                 .ForMember(dest => dest.DoctorName, opt => opt.MapFrom(src => src.Doctor.FullName))
-                .ForMember(dest => dest.NurseId, opt => opt.MapFrom(src => src.NurseId))
-                .ForMember(dest => dest.NurseName, opt => opt.MapFrom(src => src.Nurse.FullName))
+                //.ForMember(dest => dest.NurseId, opt => opt.MapFrom(src => src.NurseId))
+                //.ForMember(dest => dest.NurseName, opt => opt.MapFrom(src => src.Nurse.FullName))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
                 .ForMember(dest => dest.ReasonForVisit, opt => opt.MapFrom(src => src.ReasonForVisit));
 

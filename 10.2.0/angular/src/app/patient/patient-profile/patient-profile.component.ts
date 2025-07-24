@@ -12,9 +12,10 @@ import { CommonModule } from '@node_modules/@angular/common';
 import { FormsModule } from '@node_modules/@angular/forms';
 import { ChipModule } from 'primeng/chip';
 import { groupBy } from 'lodash';
+import { TagModule } from 'primeng/tag';
 @Component({
   selector: 'app-patient-profile',
-  imports: [AbpModalHeaderComponent, TableModule, ProgressBarModule, ChipModule
+  imports: [AbpModalHeaderComponent,TagModule, TableModule, ProgressBarModule, ChipModule
     , ButtonModule, TabsModule, StepperModule, AvatarModule, CommonModule, FormsModule],
   templateUrl: './patient-profile.component.html',
   styleUrl: './patient-profile.component.css',
@@ -104,4 +105,14 @@ export class PatientProfileComponent implements OnInit {
     }
   }
 
+  getStatusSeverity(value: number): 'info' | 'warn' | 'success' | 'danger' | 'secondary' | 'contrast' {
+    switch (value) {
+      case AppointmentStatus._0: return 'info';        // Scheduled
+      case AppointmentStatus._1: return 'secondary';   // Rescheduled
+      case AppointmentStatus._2: return 'success';     // Checked In
+      case AppointmentStatus._3: return 'success';     // Completed
+      case AppointmentStatus._4: return 'danger';      // Cancelled
+      default: return 'contrast';
+    }
+  }
 }

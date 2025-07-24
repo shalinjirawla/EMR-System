@@ -8,7 +8,7 @@ import { AbpValidationSummaryComponent } from '../../../shared/components/valida
 import { AbpModalFooterComponent } from '../../../shared/components/modal/abp-modal-footer.component';
 import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { CommonModule } from '@node_modules/@angular/common';
-import { AppointmentDto, AppointmentServiceProxy, AppointmentStatus, CreateUpdateAppointmentDto, CreateUpdatePrescriptionDto, CreateUpdatePrescriptionItemDto, DoctorDto, DoctorServiceProxy, NurseDto, NurseServiceProxy, PatientDropDownDto, PatientDto, PatientServiceProxy, PrescriptionServiceProxy } from '@shared/service-proxies/service-proxies';
+import { AppointmentDto, AppointmentServiceProxy, AppointmentStatus, CreateUpdateAppointmentDto, CreateUpdatePrescriptionDto, CreateUpdatePrescriptionItemDto, DoctorDto, DoctorServiceProxy, NurseDto, NurseServiceProxy, PatientDropDownDto, PatientDto, PatientServiceProxy, PrescriptionServiceProxy, AppointmentTypeServiceProxy, AppointmentTypeDto } from '@shared/service-proxies/service-proxies';
 import moment from 'moment';
 import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
@@ -29,7 +29,7 @@ import { DatePickerModule } from 'primeng/datepicker';
   ],
   templateUrl: './edit-appoinment.component.html',
   styleUrl: './edit-appoinment.component.css',
-  providers: [NurseServiceProxy, PatientServiceProxy, AppointmentServiceProxy, DoctorServiceProxy],
+  providers: [NurseServiceProxy, PatientServiceProxy, AppointmentTypeServiceProxy, AppointmentServiceProxy, DoctorServiceProxy],
 })
 export class EditAppoinmentComponent extends AppComponentBase implements OnInit {
   @Output() onSave = new EventEmitter<any>();
@@ -37,26 +37,27 @@ export class EditAppoinmentComponent extends AppComponentBase implements OnInit 
   id: number;
   status: AppointmentStatus;
   saving = false;
-  tomorrow!: Date;
+  //tomorrow!: Date;
+  today: Date = new Date();
 
   appointment: any = {
     id: null,
     patientId: null,
     doctorId: null,
-    nurseId: null,
     status: null,
     isFollowUp: false,
     appointmentDate: null,
-    startTime: null,
-    endTime: null,
     reasonForVisit: '',
     tenantId: 0,
+    appointmentTypeId: null,
   };
   patients!: PatientDropDownDto[];
   nurse!: NurseDto[];
   doctors!: DoctorDto[];
   statusOptions!: any[];
-
+  appointmentTypes!: AppointmentTypeDto[];
+  patientTypeOptions!: any[];
+  paymentMethodOptions!: any[];
   constructor(
     injector: Injector,
     public bsModalRef: BsModalRef,
@@ -65,6 +66,7 @@ export class EditAppoinmentComponent extends AppComponentBase implements OnInit 
     private _appointmentService: AppointmentServiceProxy,
     private _doctorService: DoctorServiceProxy,
     private _nurseService: NurseServiceProxy,
+    private _appointmentTypeService: AppointmentTypeServiceProxy
   ) { super(injector); }
 
   get isFormValid(): boolean {
@@ -73,14 +75,15 @@ export class EditAppoinmentComponent extends AppComponentBase implements OnInit 
   }
 
   ngOnInit(): void {
-    this.tomorrow = moment().add(1, 'day').toDate();
+    //this.tomorrow = moment().add(1, 'day').toDate();
+    this.today = moment().toDate();
     if (this.status) {
       this.appointment.status = this.status;
     }
     this.LoadDoctors();
-    this.LoadNurse();
     this.LoadPatients();
     this.LoadStatus();
+    this.LoadAppointmentTypes();
     this.FillForm();
   }
   FillForm() {
@@ -89,13 +92,11 @@ export class EditAppoinmentComponent extends AppComponentBase implements OnInit 
       this.appointment.tenantId = result.tenantId;
       this.appointment.patientId = result.patientId;
       this.appointment.doctorId = result.doctorId;
-      this.appointment.nurseId = result.nurseId;
       this.appointment.status = result.status;
       this.appointment.isFollowUp = result.isFollowUp;
       this.appointment.appointmentDate = result.appointmentDate ? moment(result.appointmentDate).toDate() : null;
-      this.appointment.startTime = result.startTime ? this.convertTimeToDate(result.startTime) : null;
-      this.appointment.endTime = result.endTime ? this.convertTimeToDate(result.endTime) : null;
       this.appointment.reasonForVisit = result.reasonForVisit;
+      this.appointment.appointmentTypeId = result.appointmentTypeId;
       this.cd.detectChanges();
     });
   }
@@ -127,15 +128,31 @@ export class EditAppoinmentComponent extends AppComponentBase implements OnInit 
     ];
     this.cd.detectChanges();
   }
-  LoadNurse() {
-    this._nurseService.getAllNursesByTenantID(abp.session.tenantId).subscribe({
-      next: (res) => {
-        this.nurse = res.items;
-        this.cd.detectChanges();
-      }, error: (err) => {
-      }
-    })
+  loadPatientTypeOptions() {
+    this.patientTypeOptions = [
+      { label: 'In-Patient', value: 0 },
+      { label: 'Out-Patient', value: 1 }
+    ];
   }
+  loadPaymentMethodOptions() {
+    this.paymentMethodOptions = [
+      { label: 'Cash', value: 0 },
+      { label: 'Card', value: 1 },
+      { label: 'Insurance', value: 2 }
+    ];
+  }
+  LoadAppointmentTypes() {
+    this._appointmentTypeService.getAllForTenant().subscribe({
+      next: (res) => {
+        this.appointmentTypes = res.items;
+        this.cd.detectChanges();
+      },
+      error: (err) => {
+        // handle error if needed
+      }
+    });
+  }
+
   convertTimeToDate(timeStr: string): Date {
     const [hours, minutes, seconds] = timeStr.split(':').map(Number);
     const now = new Date();
@@ -157,8 +174,7 @@ export class EditAppoinmentComponent extends AppComponentBase implements OnInit 
     //   this.saving = false;
     //   return;
     // }
-    this.appointment.startTime = this.dateToTimeString(this.appointment.startTime);
-    this.appointment.endTime = this.dateToTimeString(this.appointment.endTime);
+    // appointmentTypeId is already part of this.appointment
     this._appointmentService.updateAppoinment(this.appointment).subscribe({
       next: (res) => {
         this.saving = false;
@@ -175,19 +191,18 @@ export class EditAppoinmentComponent extends AppComponentBase implements OnInit 
     })
   }
   validateStartEndTime(): boolean {
-    if (!this.appointment.startTime || !this.appointment.endTime) {
-      this.message.warn('Please select both Start Time and End Time.');
+    if (!this.appointment.appointmentDate) {
+      this.message.warn("Please select an appointment date.");
       return false;
     }
 
-    const start = moment(this.appointment.startTime);
-    const end = moment(this.appointment.endTime);
+    const selectedDate = moment(this.appointment.appointmentDate).startOf('day');
+    const today = moment().startOf('day');
 
-    if (start.isSameOrAfter(end)) {
-      this.message.warn('Start Time must be earlier than End Time.');
+    if (!selectedDate.isAfter(today)) {
+      this.message.warn("Appointment date must be in the future (not today).");
       return false;
-    }
-
+    }       
     return true;
   }
   validateAppointmentDate(): boolean {

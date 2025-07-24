@@ -12,7 +12,7 @@ import { AppComponentBase } from '@shared/app-component-base';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
-import { AppointmentDto, AppointmentServiceProxy, AppointmentStatus, CreateUpdateAppointmentDto, DoctorDto, DoctorServiceProxy, NurseDto, NurseServiceProxy, PatientDropDownDto, PatientDto, PatientServiceProxy } from '@shared/service-proxies/service-proxies';
+import { AppointmentDto, AppointmentServiceProxy, AppointmentStatus, CreateUpdateAppointmentDto, DoctorDto, DoctorServiceProxy, NurseDto, NurseServiceProxy, PatientDropDownDto, PatientDto, PatientServiceProxy, AppointmentTypeServiceProxy, AppointmentTypeDto } from '@shared/service-proxies/service-proxies';
 import { DatePickerModule } from 'primeng/datepicker';
 import { CheckboxModule } from 'primeng/checkbox';
 import { TextareaModule } from 'primeng/textarea';
@@ -29,7 +29,7 @@ import moment, { Moment } from 'moment';
     CommonModule, DatePickerModule, TextareaModule,
     SelectModule, ButtonModule, CheckboxModule
   ],
-  providers: [DoctorServiceProxy, NurseServiceProxy, PatientServiceProxy, AppointmentServiceProxy, AppSessionService],
+  providers: [DoctorServiceProxy, AppointmentTypeServiceProxy, NurseServiceProxy, PatientServiceProxy, AppointmentServiceProxy, AppSessionService],
   standalone: true,
   templateUrl: './create-appoinment.component.html',
   styleUrl: './create-appoinment.component.css'
@@ -38,29 +38,33 @@ import moment, { Moment } from 'moment';
 export class CreateAppoinmentComponent extends AppComponentBase implements OnInit {
   @ViewChild('createAppoinmentModal', { static: true }) createAppoinmentModal: NgForm;
   @Output() onSave = new EventEmitter<void>();
+
   saving = false;
-  patients!: PatientDropDownDto[];
-  nurse!: NurseDto[];
-  doctors!: DoctorDto[];
-  statusOptions!: any[];
+  patients: PatientDropDownDto[] = [];
+  doctors: DoctorDto[] = [];
+  appointmentTypes: AppointmentTypeDto[] = [];
+  statusOptions: any[] = [];
   showAddPatientButton = false;
-  tomorrow!: Date;
+  //tomorrow: Date = new Date();
+  today: Date = new Date();
+  isPatientAdmitted = false;
+  stripeRedirectUrl: string;
+
   appointment: any = {
     id: 0,
     tenantId: 0,
     patientId: null,
     doctorId: null,
-    nurseId: null,
+    appointmentTypeId: null,
     status: null,
     isFollowUp: false,
+    paymentMethod: null,
     appointmentDate: null,
-    startTime: null,
-    endTime: null,
-    reasonForVisit: '',
+    reasonForVisit: ''
   };
+
   get isFormValid(): boolean {
-    const mainFormValid = this.createAppoinmentModal?.form?.valid;
-    return mainFormValid;
+    return this.createAppoinmentModal?.form?.valid;
   }
   constructor(
     injector: Injector,
@@ -72,17 +76,20 @@ export class CreateAppoinmentComponent extends AppComponentBase implements OnIni
     private _sessionService: AppSessionService,
     private _appoinmentService: AppointmentServiceProxy,
     private _modalService: BsModalService,
-    private permissionChecker: PermissionCheckerService
+    private permissionChecker: PermissionCheckerService,
+    private _appointmentTypeService: AppointmentTypeServiceProxy
   ) {
     super(injector);
   }
 
   ngOnInit(): void {
-    this.tomorrow = moment().add(1, 'day').toDate();
+    //this.tomorrow = moment().add(1, 'day').toDate();
+    this.today = moment().toDate();
+
     this.showAddPatientButton = this.permissionChecker.isGranted('Pages.Users');
-    this.LoadDoctors();
-    this.LoadNurse();
     this.LoadPatients();
+    this.LoadDoctors();
+    this.LoadAppointmentTypes();
     this.LoadStatus();
   }
   LoadPatients() {
@@ -110,14 +117,34 @@ export class CreateAppoinmentComponent extends AppComponentBase implements OnIni
       { label: 'Cancelled', value: AppointmentStatus._4 },
     ];
   }
-  LoadNurse() {
-    this._nurseService.getAllNursesByTenantID(abp.session.tenantId).subscribe({
+  // LoadNurse() {
+  //   this._nurseService.getAllNursesByTenantID(abp.session.tenantId).subscribe({
+  //     next: (res) => {
+  //       this.nurse = res.items;
+  //     }, error: (err) => {
+  //     }
+  //   })
+  // }
+  LoadAppointmentTypes() {
+    this._appointmentTypeService.getAllForTenant().subscribe({
       next: (res) => {
-        this.nurse = res.items;
-      }, error: (err) => {
+        this.appointmentTypes = res.items;
+      },
+      error: (err) => {
+        // handle error if needed
       }
-    })
+    });
   }
+
+  onPatientChange(patientId: number): void {
+    const selectedPatient = this.patients.find(p => p.id === patientId);
+    this.isPatientAdmitted = selectedPatient?.isAdmitted ?? false;
+
+    if (this.isPatientAdmitted) {
+      this.appointment.paymentMethod = null;
+    }
+  }
+ 
   showCreatePatientDialog(id?: number): void {
     let createOrEditPatientDialog: BsModalRef;
     createOrEditPatientDialog = this._modalService.show(CreateUserDialogComponent, {
@@ -133,39 +160,48 @@ export class CreateAppoinmentComponent extends AppComponentBase implements OnIni
   }
   save(): void {
     if (!this.isFormValid) {
-      this.message.warn("Please complete the form properly.");
+      this.message.warn('Please complete the form.');
       return;
     }
-    if (!this.validateStartEndTime()) {
+
+    if (!this.isPatientAdmitted && this.appointment.paymentMethod === null) {
+      this.message.warn('Please select a payment method (Cash or Card).');
       return;
     }
-    if (!this.validateAppointmentDate()) {
-      return;
-    }
+
     const input = new CreateUpdateAppointmentDto();
     input.id = 0;
     input.tenantId = abp.session.tenantId;
     input.appointmentDate = this.appointment.appointmentDate;
-    input.startTime = this.dateToTimeString(this.appointment.startTime);
-    input.endTime = this.dateToTimeString(this.appointment.endTime);
     input.reasonForVisit = this.appointment.reasonForVisit;
     input.status = this.appointment.status;
     input.isFollowUp = this.appointment.isFollowUp;
+    input.paymentMethod = this.appointment.paymentMethod;
     input.patientId = this.appointment.patientId;
     input.doctorId = this.appointment.doctorId;
-    input.nurseId = this.appointment.nurseId;
+    input.appointmentTypeId = this.appointment.appointmentTypeId;
+    debugger;
     this._appoinmentService.createAppoinment(input).subscribe({
-      next: (res) => {
-        this.notify.info(this.l('SavedSuccessfully'));
-        this.bsModalRef.hide();
-        this.onSave.emit();
+      next: (result) => {
+          if (result.isStripeRedirect) {
+              // Store appointment ID temporarily
+              localStorage.setItem('pendingAppointment', JSON.stringify({
+                  id: 0, // Will be updated after creation
+                  date: this.appointment.appointmentDate,
+                  doctor: this.doctors.find(d => d.id === this.appointment.doctorId)?.fullName
+              }));
+              
+              // Redirect to Stripe
+              window.location.href = result.stripeSessionUrl;
+          } else {
+              this.notify.info(this.l('SavedSuccessfully'));
+              this.bsModalRef.hide();
+              this.onSave.emit();
+          }
       },
-      error: (err) => {
-        this.saving = false;
-      }
-    })
-
-  }
+      error: () => this.saving = false
+  });
+}
   validateStartEndTime(): boolean {
     if (!this.appointment.startTime || !this.appointment.endTime) {
       this.message.warn('Please select both Start Time and End Time.');
@@ -204,4 +240,9 @@ export class CreateAppoinmentComponent extends AppComponentBase implements OnIni
     const seconds = date.getSeconds().toString().padStart(2, '0');
     return `${hours}:${minutes}:${seconds}`;
   }
+
+  togglePaymentMethod(method: number): void {
+    this.appointment.paymentMethod = method;
+  }
+  
 }

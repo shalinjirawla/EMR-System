@@ -117,4 +117,12 @@ export class DepositComponent extends PagedListingComponentBase<DepositDto> impl
           this.refresh();
       });
   }
+
+  getPaymentMethodLabel(paymentMethod: number): string {
+    switch (paymentMethod) {
+      case 1: return 'Card';
+      case 0: return 'Cash';
+      default: return 'Unknown';
+    }
+  }
 }

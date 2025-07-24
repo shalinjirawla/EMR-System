@@ -18,9 +18,10 @@ import { MenuModule } from 'primeng/menu';
 import { EditLabReportComponent } from '@app/lab-technician/edit-lab-report/edit-lab-report.component';
 import { GenerateLabReportComponent } from '@app/lab-technician/generate-lab-report/generate-lab-report.component';
 import { ViewLabReportComponent } from '@app/lab-technician/view-lab-report/view-lab-report.component';
+import { TagModule } from 'primeng/tag';
 @Component({
     selector: 'app-test-requests',
-    imports: [FormsModule, TableModule, CommonModule, PrimeTemplate, OverlayPanelModule, MenuModule, ButtonModule, NgIf, PaginatorModule, ChipModule, LocalizePipe],
+    imports: [FormsModule, TableModule,TagModule, CommonModule, PrimeTemplate, OverlayPanelModule, MenuModule, ButtonModule, NgIf, PaginatorModule, ChipModule, LocalizePipe],
     animations: [appModuleAnimation()],
     templateUrl: './test-requests.component.html',
     styleUrl: './test-requests.component.css',
@@ -96,6 +97,14 @@ export class TestRequestsComponent extends PagedListingComponentBase<Prescriptio
             case LabTestStatus._1: return 'status-in-progress';    // Checked In
             case LabTestStatus._2: return 'status-completed';    // Completed
             default: return '';
+        }
+    }
+    getStatusSeverity(value: number): 'info' | 'warn' | 'success' | 'danger' | 'secondary' | 'contrast' {
+        switch (value) {
+            case LabTestStatus._0: return 'info';        // Pending
+            case LabTestStatus._1: return 'secondary';   // In Progress
+            case LabTestStatus._2: return 'success';     // Completed
+            default: return 'contrast';
         }
     }
     CreateReport(record: LabRequestListDto): void {

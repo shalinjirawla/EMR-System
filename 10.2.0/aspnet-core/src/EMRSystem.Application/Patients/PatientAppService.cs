@@ -131,6 +131,11 @@ namespace EMRSystem.Patients
             var query = Repository.GetAll()
                 //.Include(x => x.Doctors)
                 .Include(x => x.AbpUser)
+                .Include(p => p.Admissions)
+                  .ThenInclude(a => a.Doctor)
+                .Include(p => p.Admissions)
+                  .ThenInclude(a => a.Nurse)
+                .Where(p => p.IsAdmitted)
                 //.WhereIf(nurseID > 0, i => i.AssignedNurseId == nurseID)
                 .WhereIf(!input.Keyword.IsNullOrWhiteSpace(),
                     x => x.FullName.Contains(input.Keyword) ||
@@ -160,7 +165,6 @@ namespace EMRSystem.Patients
         [HttpGet]
         public async Task<PagedResultDto<PatientsForDoctorAndNurseDto>> PatientsForDoctor(PagedPatientResultRequestDto input)
         {
-
             long doctorID = 0;
             if (AbpSession.UserId.HasValue)
             {
@@ -169,19 +173,16 @@ namespace EMRSystem.Patients
                     doctorID = doctor.Id;
             }
 
-
             var query = Repository.GetAll()
-                //.Include(x => x.Nurses)
-                //.Include(x => x.Doctors)
                 .Include(x => x.AbpUser)
                 .Include(p => p.Admissions)
-                  .ThenInclude(a => a.Doctor)
+                    .ThenInclude(a => a.Doctor)
                 .Include(p => p.Admissions)
-                  .ThenInclude(a => a.Nurse)
-                //.WhereIf(doctorID > 0, i => i.AssignedDoctorId == doctorID)
+                    .ThenInclude(a => a.Nurse)
+                .Where(p => p.IsAdmitted) 
                 .WhereIf(!input.Keyword.IsNullOrWhiteSpace(),
                     x => x.FullName.Contains(input.Keyword) ||
-                     (x.AbpUser != null && x.AbpUser.EmailAddress.Contains(input.Keyword)));
+                         (x.AbpUser != null && x.AbpUser.EmailAddress.Contains(input.Keyword)));
 
             var totalCount = await query.CountAsync();
 
@@ -191,14 +192,17 @@ namespace EMRSystem.Patients
                 "FullName desc" => query.OrderByDescending(x => x.FullName),
                 "AbpUser.EmailAddress" => query.OrderBy(x => x.AbpUser.EmailAddress),
                 "AbpUser.EmailAddress desc" => query.OrderByDescending(x => x.AbpUser.EmailAddress),
-                _ => query.OrderBy(x => x.FullName) // Default sorting
+                _ => query.OrderBy(x => x.FullName)
             };
+
             var patients = await orderedQuery
                 .PageBy(input)
                 .ToListAsync();
+
             var mapped = ObjectMapper.Map<List<PatientsForDoctorAndNurseDto>>(patients);
             return new PagedResultDto<PatientsForDoctorAndNurseDto>(totalCount, mapped);
         }
+
 
         [HttpGet]
         public async Task<PatientDetailsAndMedicalHistoryDto> PatientDetailsAndMedicalHistory(long patientId)
@@ -214,8 +218,8 @@ namespace EMRSystem.Patients
                 .Include(x => x.Vitals)
                 .Include(x => x.Appointments)
                     .ThenInclude(x => x.Doctor)
-                .Include(x => x.Appointments)
-                    .ThenInclude(x => x.Nurse)
+                //.Include(x => x.Appointments)
+                //    .ThenInclude(x => x.Nurse)
                 .FirstOrDefaultAsync(x => x.Id == patientId);
 
             return ObjectMapper.Map<PatientDetailsAndMedicalHistoryDto>(data);

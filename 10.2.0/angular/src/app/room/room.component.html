@@ -85,21 +85,26 @@
                             [tableStyle]="{ 'min-width': '50rem' }" (onLazyLoad)="list($event)">
                             <ng-template pTemplate="header">
                                 <tr>
-                                    <th style="min-width: 150px" >
+                                    <th pSortableColumn="roomNumber" style="min-width: 150px">
                                         Room Number
+                                        <p-sortIcon field="roomNumber"></p-sortIcon>
                                     </th>
-                                    <th style="min-width: 150px" >
+                                    
+                                    <th pSortableColumn="roomTypeName" style="min-width: 150px">
                                         Room Type
+                                        <p-sortIcon field="roomTypeName"></p-sortIcon>
                                     </th>
-                                    <th style="min-width: 150px">
+                                    
+                                    <th pSortableColumn="floor" style="min-width: 150px">
                                         Floor
+                                        <p-sortIcon field="floor"></p-sortIcon>
                                     </th>
-                                    <th style="min-width: 130px">
+                                    
+                                    <th pSortableColumn="status" style="min-width: 130px">
                                         Status
+                                        <p-sortIcon field="status"></p-sortIcon>
                                     </th>
-                                    <th style="min-width: 130px">
-                                        Actions
-                                    </th>
+                                    
                                 </tr>
                             </ng-template>
 
@@ -124,9 +129,11 @@
                                         </p>
                                     </td>
                                     <td>
-                                        <p-chip [label]="getStatusLabel(record.status)"
-                                            [styleClass]="getStatusClass(record.status)">
-                                        </p-chip>
+                                        <p-tag 
+                                          [value]="getStatusLabel(record.status)" 
+                                          [severity]="getStatusSeverity(record.status)" 
+                                          [rounded]="true">
+                                        </p-tag>
                                     </td>
                                     <td>
                                         <button type="button" pButton icon="pi pi-ellipsis-v" class="p-button-text"
