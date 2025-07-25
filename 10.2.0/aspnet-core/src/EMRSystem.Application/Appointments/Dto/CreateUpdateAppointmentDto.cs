@@ -22,7 +22,7 @@ namespace EMRSystem.Appointments.Dto
         public bool IsFollowUp { get; set; }
         public bool IsPaid { get; set; }
 
-        public PaymentMethod PaymentMethod { get; set; }
+        public PaymentMethod? PaymentMethod { get; set; }
         public long PatientId { get; set; }
         public long DoctorId { get; set; }
         //public long? NurseId { get; set; }

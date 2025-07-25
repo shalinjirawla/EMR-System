@@ -43,9 +43,9 @@ namespace EMRSystem.Appointments
         Completed,
         Cancelled
     }
-    public enum PatientType
-    {
-        InPatient,
-        OutPatient
-    }
+    //public enum PatientType
+    //{
+    //    InPatient,
+    //    OutPatient
+    //}
 }

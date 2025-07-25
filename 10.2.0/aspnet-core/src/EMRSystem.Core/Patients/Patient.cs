@@ -19,15 +19,27 @@ namespace EMRSystem.Patients
 {
     public class Patient : Entity<long>, IMustHaveTenant
     {
+        public long AbpUserId { get; set; }
         public int TenantId { get; set; }
+        public decimal CurrentBalance { get; set; } = 0;
+        public bool IsAdmitted { get; set; } = false;
         public string FullName { get; set; }
-        public DateTime DateOfBirth { get; set; }
         public string Gender { get; set; }
         public string Address { get; set; }
         public string BloodGroup { get; set; }
         public string EmergencyContactName { get; set; }
         public string EmergencyContactNumber { get; set; }
-        public bool IsAdmitted { get; set; } = false;
+        public DateTime DateOfBirth { get; set; }
+        public DateTime? LastBillingDate { get; set; }
+        public virtual User AbpUser { get; set; }
+        public ICollection<Prescription> Prescriptions { get; set; }
+        public virtual ICollection<EMRSystem.Admission.Admission> Admissions { get; set; }
+        public virtual ICollection<EMRSystem.Deposit.Deposit> Deposits { get; set; }
+        public ICollection<Vital> Vitals { get; set; }
+        public virtual ICollection<Appointment> Appointments { get; set; }
+        public ICollection<Visit> Visit { get; set; }
+        public virtual ICollection<MedicineOrder.MedicineOrder> MedicineOrders { get; set; }
+        public virtual ICollection<EMRSystem.IpdChargeEntry.IpdChargeEntry> IpdChargeEntries { get; set; }
         //public DateTime? AdmissionDate { get; set; }
         //public BillingMethod BillingMethod { get; set; }
         //public PaymentMethod? PaymentMethod { get; set; }
@@ -38,22 +50,10 @@ namespace EMRSystem.Patients
         //public DateTime? DischargeDate { get; set; }
         //public string? InsuranceProvider { get; set; }
         //public string? InsurancePolicyNumber { get; set; }
-
-        public long AbpUserId { get; set; }
         //public long? AssignedNurseId { get; set; }
         //public long? AssignedDoctorId { get; set; }
-        public virtual User AbpUser { get; set; }
         //public virtual Nurse Nurses { get; set; }
         //public virtual Doctor Doctors { get; set; }
-        public ICollection<Prescription> Prescriptions { get; set; }
-        public virtual ICollection<EMRSystem.Admission.Admission> Admissions { get; set; }
-        public virtual ICollection<EMRSystem.Deposit.Deposit> Deposits { get; set; }
-
-
-        public ICollection<Vital> Vitals { get; set; }
-        public virtual ICollection<Appointment> Appointments { get; set; }
-        public ICollection<Visit> Visit { get; set; }
-        public virtual ICollection<MedicineOrder.MedicineOrder> MedicineOrders { get; set; }
 
     }
     public enum BillingMethod

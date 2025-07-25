@@ -13067,6 +13067,12 @@ export class Admission implements IAdmission {
     nurseId: number | undefined;
     roomId: number;
     admissionType: AdmissionType;
+    isDischarged: boolean;
+    dischargeDateTime: moment.Moment | undefined;
+    totalCharges: number;
+    totalDeposits: number;
+    ipdChargeEntries: IpdChargeEntry[] | undefined;
+    deposits: Deposit[] | undefined;
     patient: Patient;
     doctor: Doctor;
     nurse: Nurse;
@@ -13091,6 +13097,20 @@ export class Admission implements IAdmission {
             this.nurseId = _data["nurseId"];
             this.roomId = _data["roomId"];
             this.admissionType = _data["admissionType"];
+            this.isDischarged = _data["isDischarged"];
+            this.dischargeDateTime = _data["dischargeDateTime"] ? moment(_data["dischargeDateTime"].toString()) : <any>undefined;
+            this.totalCharges = _data["totalCharges"];
+            this.totalDeposits = _data["totalDeposits"];
+            if (Array.isArray(_data["ipdChargeEntries"])) {
+                this.ipdChargeEntries = [] as any;
+                for (let item of _data["ipdChargeEntries"])
+                    this.ipdChargeEntries.push(IpdChargeEntry.fromJS(item));
+            }
+            if (Array.isArray(_data["deposits"])) {
+                this.deposits = [] as any;
+                for (let item of _data["deposits"])
+                    this.deposits.push(Deposit.fromJS(item));
+            }
             this.patient = _data["patient"] ? Patient.fromJS(_data["patient"]) : <any>undefined;
             this.doctor = _data["doctor"] ? Doctor.fromJS(_data["doctor"]) : <any>undefined;
             this.nurse = _data["nurse"] ? Nurse.fromJS(_data["nurse"]) : <any>undefined;
@@ -13115,6 +13135,20 @@ export class Admission implements IAdmission {
         data["nurseId"] = this.nurseId;
         data["roomId"] = this.roomId;
         data["admissionType"] = this.admissionType;
+        data["isDischarged"] = this.isDischarged;
+        data["dischargeDateTime"] = this.dischargeDateTime ? this.dischargeDateTime.toISOString() : <any>undefined;
+        data["totalCharges"] = this.totalCharges;
+        data["totalDeposits"] = this.totalDeposits;
+        if (Array.isArray(this.ipdChargeEntries)) {
+            data["ipdChargeEntries"] = [];
+            for (let item of this.ipdChargeEntries)
+                data["ipdChargeEntries"].push(item.toJSON());
+        }
+        if (Array.isArray(this.deposits)) {
+            data["deposits"] = [];
+            for (let item of this.deposits)
+                data["deposits"].push(item.toJSON());
+        }
         data["patient"] = this.patient ? this.patient.toJSON() : <any>undefined;
         data["doctor"] = this.doctor ? this.doctor.toJSON() : <any>undefined;
         data["nurse"] = this.nurse ? this.nurse.toJSON() : <any>undefined;
@@ -13139,6 +13173,12 @@ export interface IAdmission {
     nurseId: number | undefined;
     roomId: number;
     admissionType: AdmissionType;
+    isDischarged: boolean;
+    dischargeDateTime: moment.Moment | undefined;
+    totalCharges: number;
+    totalDeposits: number;
+    ipdChargeEntries: IpdChargeEntry[] | undefined;
+    deposits: Deposit[] | undefined;
     patient: Patient;
     doctor: Doctor;
     nurse: Nurse;
@@ -13471,6 +13511,7 @@ export class AppointmentCreationResultDto implements IAppointmentCreationResultD
     isStripeRedirect: boolean;
     stripeSessionUrl: string | undefined;
     receipt: AppointmentReceiptDto;
+    message: string | undefined;
 
     constructor(data?: IAppointmentCreationResultDto) {
         if (data) {
@@ -13486,6 +13527,7 @@ export class AppointmentCreationResultDto implements IAppointmentCreationResultD
             this.isStripeRedirect = _data["isStripeRedirect"];
             this.stripeSessionUrl = _data["stripeSessionUrl"];
             this.receipt = _data["receipt"] ? AppointmentReceiptDto.fromJS(_data["receipt"]) : <any>undefined;
+            this.message = _data["message"];
         }
     }
 
@@ -13501,6 +13543,7 @@ export class AppointmentCreationResultDto implements IAppointmentCreationResultD
         data["isStripeRedirect"] = this.isStripeRedirect;
         data["stripeSessionUrl"] = this.stripeSessionUrl;
         data["receipt"] = this.receipt ? this.receipt.toJSON() : <any>undefined;
+        data["message"] = this.message;
         return data;
     }
 
@@ -13516,6 +13559,7 @@ export interface IAppointmentCreationResultDto {
     isStripeRedirect: boolean;
     stripeSessionUrl: string | undefined;
     receipt: AppointmentReceiptDto;
+    message: string | undefined;
 }
 
 export class AppointmentDto implements IAppointmentDto {
@@ -14735,6 +14779,14 @@ export class ChangeUserLanguageDto implements IChangeUserLanguageDto {
 
 export interface IChangeUserLanguageDto {
     languageName: string;
+}
+
+export enum ChargeType {
+    _0 = 0,
+    _1 = 1,
+    _2 = 2,
+    _3 = 3,
+    _4 = 4,
 }
 
 export class CreateRoleDto implements ICreateRoleDto {
@@ -18365,6 +18417,93 @@ export enum InvoiceStatus {
     _2 = 2,
 }
 
+export class IpdChargeEntry implements IIpdChargeEntry {
+    id: number;
+    tenantId: number;
+    admissionId: number;
+    patientId: number;
+    chargeType: ChargeType;
+    description: string | undefined;
+    amount: number;
+    entryDate: moment.Moment;
+    isProcessed: boolean;
+    referenceId: number | undefined;
+    admission: Admission;
+    patient: Patient;
+
+    constructor(data?: IIpdChargeEntry) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.admissionId = _data["admissionId"];
+            this.patientId = _data["patientId"];
+            this.chargeType = _data["chargeType"];
+            this.description = _data["description"];
+            this.amount = _data["amount"];
+            this.entryDate = _data["entryDate"] ? moment(_data["entryDate"].toString()) : <any>undefined;
+            this.isProcessed = _data["isProcessed"];
+            this.referenceId = _data["referenceId"];
+            this.admission = _data["admission"] ? Admission.fromJS(_data["admission"]) : <any>undefined;
+            this.patient = _data["patient"] ? Patient.fromJS(_data["patient"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): IpdChargeEntry {
+        data = typeof data === 'object' ? data : {};
+        let result = new IpdChargeEntry();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["admissionId"] = this.admissionId;
+        data["patientId"] = this.patientId;
+        data["chargeType"] = this.chargeType;
+        data["description"] = this.description;
+        data["amount"] = this.amount;
+        data["entryDate"] = this.entryDate ? this.entryDate.toISOString() : <any>undefined;
+        data["isProcessed"] = this.isProcessed;
+        data["referenceId"] = this.referenceId;
+        data["admission"] = this.admission ? this.admission.toJSON() : <any>undefined;
+        data["patient"] = this.patient ? this.patient.toJSON() : <any>undefined;
+        return data;
+    }
+
+    clone(): IpdChargeEntry {
+        const json = this.toJSON();
+        let result = new IpdChargeEntry();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IIpdChargeEntry {
+    id: number;
+    tenantId: number;
+    admissionId: number;
+    patientId: number;
+    chargeType: ChargeType;
+    description: string | undefined;
+    amount: number;
+    entryDate: moment.Moment;
+    isProcessed: boolean;
+    referenceId: number | undefined;
+    admission: Admission;
+    patient: Patient;
+}
+
 export class IsTenantAvailableInput implements IIsTenantAvailableInput {
     tenancyName: string;
 
@@ -20173,16 +20312,18 @@ export enum OrderStatus {
 
 export class Patient implements IPatient {
     id: number;
+    abpUserId: number;
     tenantId: number;
+    currentBalance: number;
+    isAdmitted: boolean;
     fullName: string | undefined;
-    dateOfBirth: moment.Moment;
     gender: string | undefined;
     address: string | undefined;
     bloodGroup: string | undefined;
     emergencyContactName: string | undefined;
     emergencyContactNumber: string | undefined;
-    isAdmitted: boolean;
-    abpUserId: number;
+    dateOfBirth: moment.Moment;
+    lastBillingDate: moment.Moment | undefined;
     abpUser: User;
     prescriptions: Prescription[] | undefined;
     admissions: Admission[] | undefined;
@@ -20191,6 +20332,7 @@ export class Patient implements IPatient {
     appointments: Appointment[] | undefined;
     visit: Visit[] | undefined;
     medicineOrders: MedicineOrder[] | undefined;
+    ipdChargeEntries: IpdChargeEntry[] | undefined;
 
     constructor(data?: IPatient) {
         if (data) {
@@ -20204,16 +20346,18 @@ export class Patient implements IPatient {
     init(_data?: any) {
         if (_data) {
             this.id = _data["id"];
+            this.abpUserId = _data["abpUserId"];
             this.tenantId = _data["tenantId"];
+            this.currentBalance = _data["currentBalance"];
+            this.isAdmitted = _data["isAdmitted"];
             this.fullName = _data["fullName"];
-            this.dateOfBirth = _data["dateOfBirth"] ? moment(_data["dateOfBirth"].toString()) : <any>undefined;
             this.gender = _data["gender"];
             this.address = _data["address"];
             this.bloodGroup = _data["bloodGroup"];
             this.emergencyContactName = _data["emergencyContactName"];
             this.emergencyContactNumber = _data["emergencyContactNumber"];
-            this.isAdmitted = _data["isAdmitted"];
-            this.abpUserId = _data["abpUserId"];
+            this.dateOfBirth = _data["dateOfBirth"] ? moment(_data["dateOfBirth"].toString()) : <any>undefined;
+            this.lastBillingDate = _data["lastBillingDate"] ? moment(_data["lastBillingDate"].toString()) : <any>undefined;
             this.abpUser = _data["abpUser"] ? User.fromJS(_data["abpUser"]) : <any>undefined;
             if (Array.isArray(_data["prescriptions"])) {
                 this.prescriptions = [] as any;
@@ -20250,6 +20394,11 @@ export class Patient implements IPatient {
                 for (let item of _data["medicineOrders"])
                     this.medicineOrders.push(MedicineOrder.fromJS(item));
             }
+            if (Array.isArray(_data["ipdChargeEntries"])) {
+                this.ipdChargeEntries = [] as any;
+                for (let item of _data["ipdChargeEntries"])
+                    this.ipdChargeEntries.push(IpdChargeEntry.fromJS(item));
+            }
         }
     }
 
@@ -20263,16 +20412,18 @@ export class Patient implements IPatient {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
+        data["abpUserId"] = this.abpUserId;
         data["tenantId"] = this.tenantId;
+        data["currentBalance"] = this.currentBalance;
+        data["isAdmitted"] = this.isAdmitted;
         data["fullName"] = this.fullName;
-        data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
         data["gender"] = this.gender;
         data["address"] = this.address;
         data["bloodGroup"] = this.bloodGroup;
         data["emergencyContactName"] = this.emergencyContactName;
         data["emergencyContactNumber"] = this.emergencyContactNumber;
-        data["isAdmitted"] = this.isAdmitted;
-        data["abpUserId"] = this.abpUserId;
+        data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
+        data["lastBillingDate"] = this.lastBillingDate ? this.lastBillingDate.toISOString() : <any>undefined;
         data["abpUser"] = this.abpUser ? this.abpUser.toJSON() : <any>undefined;
         if (Array.isArray(this.prescriptions)) {
             data["prescriptions"] = [];
@@ -20309,6 +20460,11 @@ export class Patient implements IPatient {
             for (let item of this.medicineOrders)
                 data["medicineOrders"].push(item.toJSON());
         }
+        if (Array.isArray(this.ipdChargeEntries)) {
+            data["ipdChargeEntries"] = [];
+            for (let item of this.ipdChargeEntries)
+                data["ipdChargeEntries"].push(item.toJSON());
+        }
         return data;
     }
 
@@ -20322,16 +20478,18 @@ export class Patient implements IPatient {
 
 export interface IPatient {
     id: number;
+    abpUserId: number;
     tenantId: number;
+    currentBalance: number;
+    isAdmitted: boolean;
     fullName: string | undefined;
-    dateOfBirth: moment.Moment;
     gender: string | undefined;
     address: string | undefined;
     bloodGroup: string | undefined;
     emergencyContactName: string | undefined;
     emergencyContactNumber: string | undefined;
-    isAdmitted: boolean;
-    abpUserId: number;
+    dateOfBirth: moment.Moment;
+    lastBillingDate: moment.Moment | undefined;
     abpUser: User;
     prescriptions: Prescription[] | undefined;
     admissions: Admission[] | undefined;
@@ -20340,6 +20498,7 @@ export interface IPatient {
     appointments: Appointment[] | undefined;
     visit: Visit[] | undefined;
     medicineOrders: MedicineOrder[] | undefined;
+    ipdChargeEntries: IpdChargeEntry[] | undefined;
 }
 
 export class PatientAppointmentHistoryDto implements IPatientAppointmentHistoryDto {
