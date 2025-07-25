@@ -12,5 +12,6 @@ namespace EMRSystem.Appointments.Dto
         public bool IsStripeRedirect { get; set; }
         public string StripeSessionUrl { get; set; }
         public AppointmentReceiptDto Receipt { get; set; }
+        public string Message { get; set; }
     }
 }

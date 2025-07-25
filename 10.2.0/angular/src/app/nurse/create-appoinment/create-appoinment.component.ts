@@ -180,7 +180,6 @@ export class CreateAppoinmentComponent extends AppComponentBase implements OnIni
     input.patientId = this.appointment.patientId;
     input.doctorId = this.appointment.doctorId;
     input.appointmentTypeId = this.appointment.appointmentTypeId;
-    debugger;
     this._appoinmentService.createAppoinment(input).subscribe({
       next: (result) => {
           if (result.isStripeRedirect) {

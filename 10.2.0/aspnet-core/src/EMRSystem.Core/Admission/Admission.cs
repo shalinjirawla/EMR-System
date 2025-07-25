@@ -5,6 +5,7 @@ using EMRSystem.Patients;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,8 +21,12 @@ namespace EMRSystem.Admission
         public long? NurseId { get; set; }
         public long RoomId { get; set; }
         public AdmissionType AdmissionType { get; set; }
-
-        // Navigation
+        public bool IsDischarged { get; set; } = false;
+        public DateTime? DischargeDateTime { get; set; }
+        public decimal TotalCharges { get; set; } = 0;
+        public decimal TotalDeposits { get; set; } = 0; 
+        public virtual ICollection<EMRSystem.IpdChargeEntry.IpdChargeEntry> IpdChargeEntries { get; set; }
+        public virtual ICollection<EMRSystem.Deposit.Deposit> Deposits { get; set; }
         public virtual EMRSystem.Patients.Patient Patient { get; set; }
         public virtual EMRSystem.Doctors.Doctor Doctor { get; set; }
         public virtual EMRSystem.Nurses.Nurse Nurse { get; set; }

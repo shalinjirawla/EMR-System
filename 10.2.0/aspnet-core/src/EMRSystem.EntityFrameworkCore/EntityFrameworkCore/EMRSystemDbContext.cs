@@ -57,7 +57,7 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
     public DbSet<EMRSystem.DoctorMaster.DoctorMaster> DoctorMasters { get; set; }
     public DbSet<EMRSystem.AppointmentType.AppointmentType> AppointmentTypes { get; set; }
     public DbSet<EMRSystem.AppointmentReceipt.AppointmentReceipt> AppointmentReceipts { get; set; }
-
+    public DbSet<EMRSystem.IpdChargeEntry.IpdChargeEntry> IpdChargeEntries { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -275,6 +275,35 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
             // Optional: Add indexes for performance
             b.HasIndex(ii => ii.InvoiceId);
         });
+        modelBuilder.Entity<EMRSystem.IpdChargeEntry.IpdChargeEntry>(b =>
+        {
+            b.ToTable("IpdChargeEntries");
+
+            // Configure decimal precision
+            b.Property(x => x.Amount).HasColumnType("decimal(18,2)");
+
+            // Configure enum as string
+            b.Property(e => e.ChargeType)
+                .HasConversion<string>()
+                .HasMaxLength(20);
+
+            // Relationships
+            b.HasOne(ice => ice.Admission)
+                .WithMany(a => a.IpdChargeEntries)
+                .HasForeignKey(ice => ice.AdmissionId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(ice => ice.Patient)
+                .WithMany(p => p.IpdChargeEntries)
+                .HasForeignKey(ice => ice.PatientId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Indexes for performance
+            b.HasIndex(ice => ice.AdmissionId);
+            b.HasIndex(ice => ice.PatientId);
+            b.HasIndex(ice => ice.EntryDate);
+            b.HasIndex(ice => ice.ReferenceId);
+        });
 
         modelBuilder.Entity<EMRSystem.Room.Room>(b =>
         {
@@ -354,6 +383,10 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
                 .WithMany(r => r.Admissions)
                 .HasForeignKey(a => a.RoomId)
                 .OnDelete(DeleteBehavior.NoAction);
+            b.HasOne(a => a.Patient)
+                .WithMany(p => p.Admissions)
+                .HasForeignKey(a => a.PatientId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
         // In OnModelCreating method
         modelBuilder.Entity<EMRSystem.AppointmentReceipt.AppointmentReceipt>(b =>
@@ -409,6 +442,10 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
              .WithMany(a => a.Deposits)
              .HasForeignKey(d => d.PatientId)
              .OnDelete(DeleteBehavior.NoAction);
+            b.HasOne(d => d.Patient)
+             .WithMany(p => p.Deposits)
+             .HasForeignKey(d => d.PatientId)
+             .OnDelete(DeleteBehavior.Restrict);
 
             b.Property(e => e.BillingMethod)
             .HasConversion<string>()

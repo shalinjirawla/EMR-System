@@ -6,13 +6,13 @@ using Abp.Domain.Entities;
 using Abp.Domain.Repositories;
 using Abp.Extensions;
 using Abp.UI;
-using Microsoft.Extensions.Configuration;
 using EMRSystem.AppointmentReceipt.Dto;
 using EMRSystem.Appointments.Dto;
 using EMRSystem.Authorization.Users;
 using EMRSystem.Doctor;
 using EMRSystem.Doctors;
 using EMRSystem.Invoices;
+using EMRSystem.IpdChargeEntry;
 using EMRSystem.LabReports;
 using EMRSystem.Nurse;
 using EMRSystem.Patients;
@@ -24,6 +24,7 @@ using EMRSystem.Vitals.Dto;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Stripe;
 using Stripe.Checkout;
 using System;
@@ -43,11 +44,14 @@ namespace EMRSystem.Appointments
   IAppointmentAppService
     {
         private readonly IDoctorAppService _doctorAppService;
+        private readonly IRepository<EMRSystem.Doctors.Doctor, long> _doctorRepository;
         private readonly IConfiguration _configuration;
         private readonly INurseAppService _nurseAppService;
         private readonly UserManager _userManager;
         private readonly IRepository<EMRSystem.AppointmentReceipt.AppointmentReceipt, long> _receiptRepository;
         private readonly IRepository<EMRSystem.DoctorMaster.DoctorMaster, long> _doctorMasterRepository;
+        private readonly IRepository<Patient, long> _patientRepository; 
+        private readonly IRepository<EMRSystem.IpdChargeEntry.IpdChargeEntry, long> _ipdChargeEntryRepository;
         public AppointmentAppService(
                 IRepository<Appointment, long> repository,
                 IConfiguration configuration,
@@ -55,7 +59,10 @@ namespace EMRSystem.Appointments
                 INurseAppService nurseAppService,
                 UserManager userManager,
                 IRepository<EMRSystem.AppointmentReceipt.AppointmentReceipt, long> receiptRepository,
-                IRepository<EMRSystem.DoctorMaster.DoctorMaster, long> doctorMasterRepository)
+                IRepository<EMRSystem.DoctorMaster.DoctorMaster, long> doctorMasterRepository,
+                IRepository<Patient, long> patientRepository, // Add this
+                IRepository<EMRSystem.Doctors.Doctor,long> doctorRepository,
+                IRepository<EMRSystem.IpdChargeEntry.IpdChargeEntry, long> ipdChargeEntryRepository)
     : base(repository)
         {
                 _doctorAppService = doctorAppService;
@@ -64,6 +71,9 @@ namespace EMRSystem.Appointments
                 _userManager = userManager;
                 _receiptRepository = receiptRepository;
                 _doctorMasterRepository = doctorMasterRepository;
+                _patientRepository = patientRepository;
+            _doctorRepository = doctorRepository;
+                _ipdChargeEntryRepository = ipdChargeEntryRepository;
         }
         protected override IQueryable<Appointment> CreateFilteredQuery(PagedAppoinmentResultRequestDto input)
         {
@@ -248,41 +258,94 @@ namespace EMRSystem.Appointments
 
         public async Task<AppointmentCreationResultDto> CreateAppoinment(CreateUpdateAppointmentDto dto)
         {
-            var appointment = ObjectMapper.Map<Appointment>(dto);
-            appointment.IsPaid = (dto.PaymentMethod != Invoices.PaymentMethod.Card);
-            await Repository.InsertAsync(appointment);
-            await CurrentUnitOfWork.SaveChangesAsync();
+            var patient = await _patientRepository
+       .GetAllIncluding(p => p.Admissions)
+       .FirstOrDefaultAsync(p => p.Id == dto.PatientId);
+            var doctor = await _doctorRepository.GetAsync(dto.DoctorId);
 
-            if (dto.PaymentMethod == Invoices.PaymentMethod.Card)
+            if (patient == null)
+                throw new UserFriendlyException("Patient not found");
+
+            if (patient.IsAdmitted)
             {
+                // Verify admissions exist
+                if (!patient.Admissions.Any())
+                    throw new UserFriendlyException("Patient is marked as admitted but has no admission records");
+
+                // Get most recent ACTIVE admission
+                var admission = patient.Admissions
+                    .Where(a => !a.IsDischarged)
+                    .OrderByDescending(a => a.AdmissionDateTime)
+                    .FirstOrDefault();
+
+                if (admission == null)
+                    throw new UserFriendlyException("No active admission found for patient");
+
+                // Rest of your IPD logic...
+                var appointment = ObjectMapper.Map<Appointment>(dto);
+                appointment.IsPaid = true;
+                await Repository.InsertAsync(appointment);
+
                 var doctorFee = await _doctorMasterRepository.FirstOrDefaultAsync(dm =>
                     dm.DoctorId == appointment.DoctorId &&
                     dm.TenantId == appointment.TenantId);
 
-                if (doctorFee == null)
-                    throw new UserFriendlyException("Doctor fee configuration not found");
-
-                var stripeUrl = await CreateStripeCheckoutSessionForAppointment(
-                    appointment,
-                    doctorFee.Fee,
-                    "http://localhost:4200/app/nurse/appointments", // Success URL
-                    "http://localhost:4200/app/nurse/appointments"   // Cancel URL
-                );
-
-                return new AppointmentCreationResultDto
+                var chargeEntry = new EMRSystem.IpdChargeEntry.IpdChargeEntry
                 {
-                    IsStripeRedirect = true,
-                    StripeSessionUrl = stripeUrl
+                    AdmissionId = admission.Id,
+                    PatientId = patient.Id,
+                    ChargeType = ChargeType.Appointment,
+                    Description = $"Consultation - Dr. {doctor.FullName}",
+                    Amount = doctorFee?.Fee ?? 0,
+                    //ReferenceId = appointment.Id
                 };
-            }
-            else // Cash payment
-            {
-                var receipt = await GenerateAppointmentReceipt(appointment.Id, dto.PaymentMethod.ToString());
+
+                await _ipdChargeEntryRepository.InsertAsync(chargeEntry);
+
                 return new AppointmentCreationResultDto
                 {
                     IsStripeRedirect = false,
-                    Receipt = receipt
+                    Message = "IPD appointment created. Charge will be deducted from deposit."
                 };
+            }
+            else
+            {
+                // OPD Patient - Handle payment
+                var appointment = ObjectMapper.Map<Appointment>(dto);
+                appointment.IsPaid = (dto.PaymentMethod != PaymentMethod.Card);
+                await Repository.InsertAsync(appointment);
+                await CurrentUnitOfWork.SaveChangesAsync();
+
+                if (dto.PaymentMethod == PaymentMethod.Card)
+                {
+                    var doctorFee = await _doctorMasterRepository.FirstOrDefaultAsync(dm =>
+                        dm.DoctorId == appointment.DoctorId &&
+                        dm.TenantId == appointment.TenantId);
+
+                    if (doctorFee == null)
+                        throw new UserFriendlyException("Doctor fee configuration not found");
+
+                    var stripeUrl = await CreateStripeCheckoutSessionForAppointment(
+                        appointment,
+                        doctorFee.Fee,
+                        "http://localhost:4200/app/nurse/appointments",
+                        "http://localhost:4200/app/nurse/appointments");
+
+                    return new AppointmentCreationResultDto
+                    {
+                        IsStripeRedirect = true,
+                        StripeSessionUrl = stripeUrl
+                    };
+                }
+                else // Cash payment
+                {
+                    var receipt = await GenerateAppointmentReceipt(appointment.Id, dto.PaymentMethod.ToString());
+                    return new AppointmentCreationResultDto
+                    {
+                        IsStripeRedirect = false,
+                        Receipt = receipt
+                    };
+                }
             }
         }
         public async Task<string> InitiatePaymentForAppointment(long appointmentId)
