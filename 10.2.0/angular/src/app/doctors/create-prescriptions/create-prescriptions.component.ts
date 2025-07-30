@@ -182,8 +182,10 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
 
   this._appointmentService.getPatientAppointment(patientId, doctorId).subscribe({
     next: (res) => {
+      debugger
       // Filter out completed (status == 2)
       this.appointments = res.items.filter(app => app.status == 0 || app.status==1);
+
     },
     error: (err) => {
       // Handle error if needed

@@ -22,6 +22,7 @@ namespace EMRSystem.Appointments.Dto
             // Main appointment mapping
             CreateMap<Appointment, AppointmentDto>()
                 .ForMember(dest => dest.Doctor, opt => opt.MapFrom(src => src.Doctor))
+                .ForMember(dest => dest.Patient,opt => opt.MapFrom(src => src.Patient))
                 .ReverseMap();
 
             // Doctor mapping

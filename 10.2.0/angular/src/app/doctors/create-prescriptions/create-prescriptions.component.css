@@ -1,0 +1,22 @@
+.scrollable-body {
+    max-height: 70vh;
+    overflow-y: auto;
+    padding-bottom: 150px; /* Ensure space */
+    position: relative;    /* Required for appendTo="self" */
+  }
+  
+  
+  
+  /* Optional: improve scrollbar aesthetics */
+  .scrollable-body::-webkit-scrollbar {
+    width: 6px;
+  }
+  .scrollable-body::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 4px;
+  }
+  .p-dropdown-panel {
+    z-index: 1051 !important; /* above modal body, below ABP modal backdrop */
+  }
+    
+    

@@ -7,6 +7,8 @@ import { RoomTypesComponent } from './room-types/room-types.component';
 import { LabReportTypeComponent } from './lab-report-type/lab-report-type.component';
 import { DoctorMasterComponent } from './doctor-master/doctor-master.component';
 import { AppointmentTypesComponent } from './appointment-types/appointment-types.component';
+import { MeasureUnitsComponent } from './measure-unit/measure-unit.component';
+import { LabTestComponent } from './lab-test/lab-test.component';
 
 
 
@@ -19,7 +21,9 @@ import { AppointmentTypesComponent } from './appointment-types/appointment-types
         RoomTypesComponent,
         LabReportTypeComponent,
         DoctorMasterComponent,
-        AppointmentTypesComponent
+        AppointmentTypesComponent,
+        MeasureUnitsComponent,
+        LabTestComponent
     ],
 })
 export class MasterTableModule {}

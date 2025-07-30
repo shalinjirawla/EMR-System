@@ -1,0 +1,28 @@
+.btn.bg-blue {
+    background-color: #0d6efd;
+    color: #fff;
+  }
+  .btn.bg-blue:hover {
+    background-color: #0b5ed7;
+  }
+  .table-wrapper {
+    margin-top: 20px;
+  }
+  .primeng-no-data {
+    text-align: center;
+    color: #888;
+    padding: 20px 0;
+  }
+  .btn-primary {
+    background-color: #007bff;
+    border: none;
+  }
+  .btn-danger {
+    background-color: #dc3545;
+    border: none;
+  }
+  .btn-primary:hover,
+  .btn-danger:hover {
+    opacity: 0.85;
+  }
+  

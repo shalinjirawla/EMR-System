@@ -52,6 +52,11 @@ namespace EMRSystem.Controllers
         {
             var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
             var stripeSignature = Request.Headers["Stripe-Signature"].FirstOrDefault();
+            if (string.IsNullOrEmpty(stripeSignature))
+            {
+                Logger.Warn("Stripe signature missing in webhook.");
+                return BadRequest("Missing Stripe signature.");
+            }
 
             try
             {
