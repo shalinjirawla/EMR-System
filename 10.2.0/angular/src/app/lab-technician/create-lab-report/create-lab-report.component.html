@@ -1,0 +1,87 @@
+<form #labReportForm="ngForm" (ngSubmit)="save()">
+    <abp-modal-header title="Create Lab Report" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
+    <div class="modal-body scrollable-body">
+
+        <!-- Patient Dropdown -->
+        <div class="row">
+            <div class="col-md-12">
+                <label><b>Select Patient</b></label>
+                <p-select [(ngModel)]="selectedPatientId" [options]="patients" [optionValue]="'id'"
+                    optionLabel="fullName" name="patientId" placeholder="Select patient" class="w-100"
+                    (onChange)="onPatientChange($event.value)" required>
+                </p-select>
+            </div>
+        </div>
+
+        <!-- Payment Mode Toggle if not admitted -->
+        <div class="row mt-3" *ngIf="selectedPatient && !isAdmitted">
+            <div class="col-md-12">
+                <label>Payment Mode</label>
+                <p-toggleButton [(ngModel)]="paymentMode" onLabel="Cash" offLabel="Card" [onIcon]="'fa fa-money-bill'"
+                    [offIcon]="'fa fa-credit-card'" onValue="Cash" offValue="Card" name="paymentMode">
+                </p-toggleButton>
+            </div>
+        </div>
+
+        <!-- Lab Test Dropdown -->
+        <div class="row mt-3">
+            <div class="col-md-12">
+                <label><b>Select Lab Test</b></label>
+                <p-select [(ngModel)]="selectedLabTestId" [options]="labTests" [optionValue]="'id'"
+                    optionLabel="reportType" name="labTestId" placeholder="Select lab test" class="w-100"
+                    (onChange)="onLabTestChange($event.value)" required>
+                </p-select>
+            </div>
+        </div>
+
+        <!-- Clone Test Items Button -->
+        <div class="mt-3">
+            <p-button label="Clone Test Items" (onClick)="cloneTestItems()" icon="fa fa-clone" severity="info" />
+            <p-button class="ml-2" label="Add Item" (onClick)="addItem()" icon="fa fa-plus" severity="success" />
+        </div>
+
+        <!-- Items Table -->
+        <div class="row mt-3" *ngIf="items.length">
+            <div class="col-md-12">
+                <div class="d-flex font-weight-bold">
+                    <div class="w-25">Test</div>
+                    <div class="w-15">Result</div>
+                    <div class="w-15">Min</div>
+                    <div class="w-15">Max</div>
+                    <div class="w-10">Unit</div>
+                    <div class="w-10">Flag</div>
+                    <div class="w-10"></div>
+                </div>
+                <div *ngFor="let item of items; let i = index" class="d-flex align-items-center mt-1">
+                    <input type="text" pInputText [(ngModel)]="item.test" [name]="'itemTest' + i" class="w-25 mr-2"
+                        placeholder="Test" required />
+                    <input type="text" pInputText [(ngModel)]="item.result" [name]="'itemResult' + i"
+                        (ngModelChange)="onResultChange(item)" class="w-15 mr-2" placeholder="Result" required />
+                    <input type="text" pInputText [(ngModel)]="item.minValue" [name]="'itemMin' + i" class="w-15 mr-2"
+                        placeholder="Min" required />
+                    <input type="text" pInputText [(ngModel)]="item.maxValue" [name]="'itemMax' + i" class="w-15 mr-2"
+                        placeholder="Max" required />
+                    <input type="text" pInputText [(ngModel)]="item.unit" [name]="'itemUnit' + i" class="w-10 mr-2"
+                        placeholder="Unit" />
+                    <p-tag [severity]="getSeverity(item.flag)" [value]="item.flag || 'Unset'" class="mr-2 w-10"></p-tag>
+                    <p-button type="button" icon="fa fa-trash" variant="text" severity="danger"
+                        (click)="removeItem(i)" />
+                </div>
+            </div>
+        </div>
+
+        <!-- Save as Template Switch -->
+        <div class="row mt-3">
+            <div class="col-md-12 d-flex align-items-center">
+                <p-checkbox [(ngModel)]="saveTemplate" name="saveTemplate" inputId="saveTemplate" [binary]="true" />
+                <label for="saveTemplate" class="ml-2"><b>Save as Template</b></label>
+            </div>
+        </div>
+
+    </div>
+    <abp-modal-footer (onCancelClick)="bsModalRef.hide()" [saveDisabled]="saving">
+        <button pButton type="submit" label="Save" [disabled]="saving"></button>
+        <button pButton type="button" label="Close" (click)="bsModalRef.hide()" class="ml-2"
+            [disabled]="saving"></button>
+    </abp-modal-footer>
+</form>

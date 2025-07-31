@@ -136,7 +136,8 @@ namespace EMRSystem.Appointments
                 Patient = x.Patient == null ? null : new Patient
                 {
                     Id = x.Patient.Id,
-                    FullName = x.Patient.FullName
+                    FullName = x.Patient.FullName,
+                    IsAdmitted = x.Patient.IsAdmitted
                 },
                 Doctor = x.Doctor == null ? null : new EMRSystem.Doctors.Doctor
                 {

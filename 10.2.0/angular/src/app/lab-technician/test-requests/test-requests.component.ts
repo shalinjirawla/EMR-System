@@ -19,6 +19,8 @@ import { EditLabReportComponent } from '@app/lab-technician/edit-lab-report/edit
 import { GenerateLabReportComponent } from '@app/lab-technician/generate-lab-report/generate-lab-report.component';
 import { ViewLabReportComponent } from '@app/lab-technician/view-lab-report/view-lab-report.component';
 import { TagModule } from 'primeng/tag';
+import { CreateLabReportComponent } from '../create-lab-report/create-lab-report.component';
+
 @Component({
     selector: 'app-test-requests',
     imports: [FormsModule, TableModule,TagModule, CommonModule, PrimeTemplate, OverlayPanelModule, MenuModule, ButtonModule, NgIf, PaginatorModule, ChipModule, LocalizePipe],
@@ -107,6 +109,20 @@ export class TestRequestsComponent extends PagedListingComponentBase<Prescriptio
             default: return 'contrast';
         }
     }
+
+    createLabReport(): void {
+        const createDialog: BsModalRef = this._modalService.show(CreateLabReportComponent, {
+          class: 'modal-xl',   // or modal-lg/modal-md as you desire
+          initialState: {
+            // You can pass data if needed here
+          }
+        });
+      
+        // Optional: refresh the grid on save
+        createDialog.content.onSave?.subscribe(() => {
+          this.refresh();
+        });
+      }
     CreateReport(record: LabRequestListDto): void {
         let createReportDialog: BsModalRef;
         if (record.id) {

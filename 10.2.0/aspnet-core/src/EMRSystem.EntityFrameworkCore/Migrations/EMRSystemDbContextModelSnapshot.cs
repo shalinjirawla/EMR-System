@@ -2109,6 +2109,97 @@ namespace EMRSystem.Migrations
                     b.ToTable("IpdChargeEntries", (string)null);
                 });
 
+            modelBuilder.Entity("EMRSystem.LabMasters.LabTest", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<long>("MeasureUnitId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MeasureUnitId");
+
+                    b.ToTable("LabTests");
+                });
+
+            modelBuilder.Entity("EMRSystem.LabMasters.MeasureUnit", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MeasureUnits");
+                });
+
+            modelBuilder.Entity("EMRSystem.LabReportTemplateItem.LabReportTemplateItem", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("LabReportsTypeId")
+                        .HasColumnType("bigint");
+
+                    b.Property<decimal?>("MaxValue")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("MinValue")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("Result")
+                        .HasMaxLength(256)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Test")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("Unit")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LabReportsTypeId");
+
+                    b.HasIndex("TenantId", "LabReportsTypeId");
+
+                    b.ToTable("LabReportTemplateItems", (string)null);
+                });
+
             modelBuilder.Entity("EMRSystem.LabReports.LabReportResultItem", b =>
                 {
                     b.Property<long>("Id")
@@ -3265,6 +3356,28 @@ namespace EMRSystem.Migrations
                     b.Navigation("Patient");
                 });
 
+            modelBuilder.Entity("EMRSystem.LabMasters.LabTest", b =>
+                {
+                    b.HasOne("EMRSystem.LabMasters.MeasureUnit", "MeasureUnit")
+                        .WithMany("LabTests")
+                        .HasForeignKey("MeasureUnitId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("MeasureUnit");
+                });
+
+            modelBuilder.Entity("EMRSystem.LabReportTemplateItem.LabReportTemplateItem", b =>
+                {
+                    b.HasOne("EMRSystem.LabReportsTypes.LabReportsType", "LabReportsType")
+                        .WithMany("TemplateItems")
+                        .HasForeignKey("LabReportsTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("LabReportsType");
+                });
+
             modelBuilder.Entity("EMRSystem.LabReports.LabReportResultItem", b =>
                 {
                     b.HasOne("EMRSystem.LabReports.PrescriptionLabTest", "PrescriptionLabTest")
@@ -3646,6 +3759,11 @@ namespace EMRSystem.Migrations
                     b.Navigation("Items");
                 });
 
+            modelBuilder.Entity("EMRSystem.LabMasters.MeasureUnit", b =>
+                {
+                    b.Navigation("LabTests");
+                });
+
             modelBuilder.Entity("EMRSystem.LabReports.PrescriptionLabTest", b =>
                 {
                     b.Navigation("LabReportResultItems");
@@ -3654,6 +3772,8 @@ namespace EMRSystem.Migrations
             modelBuilder.Entity("EMRSystem.LabReportsTypes.LabReportsType", b =>
                 {
                     b.Navigation("PrescriptionLabTests");
+
+                    b.Navigation("TemplateItems");
                 });
 
             modelBuilder.Entity("EMRSystem.MedicineOrder.MedicineOrder", b =>

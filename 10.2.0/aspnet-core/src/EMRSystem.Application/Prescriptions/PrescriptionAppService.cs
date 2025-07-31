@@ -31,13 +31,15 @@ namespace EMRSystem.Prescriptions
    IPrescriptionAppService
     {
         private readonly IDoctorAppService _doctorAppService;
+        private readonly IRepository<Appointment, long> _appointmentRepository;
         private readonly UserManager _userManager;
         public PrescriptionAppService(IRepository<Prescription, long> repository
-            , IDoctorAppService doctorAppService, UserManager userManager
+            , IDoctorAppService doctorAppService, UserManager userManager, IRepository<Appointment, long> appointmentRepository
             ) : base(repository)
         {
             _doctorAppService = doctorAppService;
             _userManager = userManager;
+            _appointmentRepository = appointmentRepository;
         }
         protected override IQueryable<Prescription> CreateFilteredQuery(PagedPrescriptionResultRequestDto input)
         {
@@ -136,6 +138,9 @@ namespace EMRSystem.Prescriptions
                 new EMRSystem.LabReports.PrescriptionLabTest { LabReportsTypeId = id }).ToList();
 
             await Repository.InsertAsync(prescription);
+            var appointment = await _appointmentRepository.GetAsync(input.AppointmentId);
+            appointment.Status = AppointmentStatus.Completed;
+            await _appointmentRepository.UpdateAsync(appointment);
             await CurrentUnitOfWork.SaveChangesAsync();
         }
         public async Task UpdatePrescriptionWithItemAsync(CreateUpdatePrescriptionDto input)
@@ -259,6 +264,77 @@ namespace EMRSystem.Prescriptions
             prescription.LabTestIds = details.LabTests.Select(lt => (int)lt.LabReportsTypeId).ToList();
 
             return prescription;
+        }
+
+        // PrescriptionAppService.cs
+        public async Task<PrescriptionViewDto> GetPrescriptionForView(long id)
+        {
+            var prescription = await Repository.GetAll()
+                .Include(p => p.Patient)
+                .Include(p => p.Doctor)
+                .Include(p => p.Appointment)
+                .Include(p => p.Items)
+                .Include(p => p.LabTests)
+                    .ThenInclude(lt => lt.LabReportsType)
+                .Where(p => p.Id == id)
+                .Select(p => new
+                {
+                    Prescription = p,
+                    Patient = p.Patient,
+                    Doctor = p.Doctor,
+                    Appointment = p.Appointment,
+                    Items = p.Items,
+                    LabTests = p.LabTests.Select(lt => new
+                    {
+                        lt.LabReportsType.ReportType,
+                        lt.TestStatus,
+                        lt.CreatedDate
+                    })
+                })
+                .FirstOrDefaultAsync();
+
+            if (prescription == null)
+            {
+                throw new EntityNotFoundException(typeof(Prescription), id);
+            }
+
+            return new PrescriptionViewDto
+            {
+                Id = prescription.Prescription.Id,
+                Diagnosis = prescription.Prescription.Diagnosis,
+                Notes = prescription.Prescription.Notes,
+                IssueDate = prescription.Prescription.IssueDate,
+                IsFollowUpRequired = prescription.Prescription.IsFollowUpRequired,
+                AppointmentDate = prescription.Appointment?.AppointmentDate,
+
+                // Patient Info
+                PatientFullName = prescription.Patient?.FullName,
+                PatientDateOfBirth = prescription.Patient?.DateOfBirth ?? DateTime.MinValue,
+                PatientGender = prescription.Patient?.Gender,
+                PatientBloodGroup = prescription.Patient?.BloodGroup,
+
+                // Doctor Info
+                DoctorFullName = prescription.Doctor?.FullName,
+                DoctorSpecialization = prescription.Doctor?.Specialization,
+                DoctorRegistrationNumber = prescription.Doctor?.RegistrationNumber,
+
+                // Medications
+                Items = prescription.Items.Select(i => new PrescriptionItemViewDto
+                {
+                    MedicineName = i.MedicineName,
+                    Dosage = i.Dosage,
+                    Frequency = i.Frequency,
+                    Duration = i.Duration,
+                    Instructions = i.Instructions,
+                    MedicineId = i.MedicineId
+                }).ToList(),
+
+                // Lab Tests
+                LabTests = prescription.LabTests.Select(lt => new PrescriptionLabTestViewDto
+                {
+                    ReportTypeName = lt.ReportType
+                }).ToList()
+            };
         }
 
         [HttpGet]

@@ -18,6 +18,8 @@ import { OverlayPanel, OverlayPanelModule } from 'primeng/overlaypanel';
 import { MenuModule } from 'primeng/menu';
 import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
+import {ViewPrescriptionComponent} from '@app/doctors/view-prescription/view-prescription.component'
+
 
 
 import moment from 'moment';
@@ -104,6 +106,21 @@ export class PrescriptionsComponent extends PagedListingComponentBase<Prescripti
   editPrescription(dto: PrescriptionDto): void {
     this.showCreateOrEditPrescriptionDialog(dto.id);
   }
+  viewPrescription(dto: PrescriptionDto): void {
+    this.showViewPrescriptionDialog(dto.id);
+  }
+  
+  private showViewPrescriptionDialog(id: number): void {
+    const viewPrescriptionDialog: BsModalRef = this._modalService.show(
+      ViewPrescriptionComponent,
+      {
+        class: 'modal-lg',
+        initialState: {
+          id: id
+        }
+      }
+    );
+  }
   showCreateOrEditPrescriptionDialog(id?: number): void {
     let createOrEditUserDialog: BsModalRef;
     if (!id) {
@@ -128,7 +145,6 @@ export class PrescriptionsComponent extends PagedListingComponentBase<Prescripti
     this._prescriptionService.getCurrentUserRoles().subscribe(res => {
       this.showDoctorColumn = false;
       this.showNurseColumn = false;
-      debugger
       if (res && Array.isArray(res)) {
         if (res.includes('Admin')) {
           this.showDoctorColumn = true;

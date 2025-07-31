@@ -1,0 +1,55 @@
+<form class="form-horizontal" autocomplete="off" #unitForm="ngForm" (ngSubmit)="save()">
+    <abp-modal-header
+      [title]="id ? 'Edit Measure Unit' : 'Create Measure Units'"
+      (onCloseClick)="bsModalRef.hide()"
+    ></abp-modal-header>
+  
+    <div class="modal-body">
+      <div class="form-group" *ngIf="!id">
+        <label><b>Unit Names *</b></label>
+        <p-autoComplete
+          [(ngModel)]="selectedUnitNames"
+          name="unitNames"
+          [suggestions]="filteredUnitNames"
+          (completeMethod)="filterUnitNames($event)"
+          [multiple]="true"
+          [typeahead]="false"
+          placeholder="Enter or select multiple unit names"
+          class="w-100"
+          required
+        ></p-autoComplete>
+      </div>
+  
+      <div class="form-group" *ngIf="id">
+        <label for="unitName"><b>Name *</b></label>
+        <input
+          pInputText
+          type="text"
+          id="unitName"
+          name="unitName"
+          class="form-control"
+          [(ngModel)]="unit.name"
+          required
+          maxlength="100"
+          placeholder="Enter unit name"
+        />
+      </div>
+  
+      <div class="form-group">
+        <label for="isActive"><b>Active</b></label>
+        <p-checkbox
+          inputId="isActive"
+          name="isActive"
+          [(ngModel)]="isActive"
+          binary="true"
+        ></p-checkbox>
+      </div>
+    </div>
+  
+    <abp-modal-footer
+      [cancelDisabled]="saving"
+      [saveDisabled]="!isFormValid || saving"
+      (onCancelClick)="bsModalRef.hide()"
+    ></abp-modal-footer>
+  </form>
+  

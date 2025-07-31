@@ -1,0 +1,181 @@
+<!-- view-prescription.component.html -->
+<div class="prescription-container">
+    <!-- Hospital Letterhead -->
+    <div class="letterhead">
+      <div class="letterhead-content">
+        <div class="hospital-branding">
+          <div class="hospital-logo">
+            <div class="logo-symbol">⚕️</div>
+          </div>
+          <div class="hospital-info">
+            <h1>{{hospitalName}}</h1>
+            <p class="tagline">Center of Excellence in Healthcare</p>
+            <div class="contact-info">
+              <span><i class="fas fa-map-marker-alt"></i> 21, Greams Road, Chennai - 600006</span>
+              <span><i class="fas fa-phone"></i> +91 44 2829 3333</span>
+              <span><i class="fas fa-globe"></i> www.apollohospitals.com</span>
+            </div>
+          </div>
+        </div>
+        <div class="prescription-meta">
+          <div class="prescription-id">RX-{{prescription?.id| number:'3.0'}}</div>
+          <div class="prescription-date">{{prescription?.issueDate | date:'fullDate'}}</div>
+        </div>
+      </div>
+      <div class="letterhead-border"></div>
+    </div>
+  
+    <!-- Prescription Body -->
+    <div class="prescription-body">
+      <!-- Patient & Doctor Info -->
+      <div class="info-grid">
+        <div class="patient-info">
+          <h3 class="info-heading"><i class="fas fa-user-injured"></i> PATIENT DETAILS</h3>
+          <table class="info-table">
+            <tr>
+              <td class="info-label">Name:</td>
+              <td>{{prescription?.patientFullName}}</td>
+            </tr>
+            <tr>
+              <td class="info-label">Age/Gender:</td>
+              <td>{{calculateAge(prescription?.patientDateOfBirth)}}Y / {{prescription?.patientGender}}</td>
+            </tr>
+            <tr>
+              <td class="info-label">Blood Group:</td>
+              <td>{{prescription?.patientBloodGroup || 'NA'}}</td>
+            </tr>
+            <!-- <tr>
+              <td class="info-label">UHID:</td>
+              <td>AH{{prescription?.id | number:'6.0'}}</td>
+            </tr> -->
+          </table>
+        </div>
+  
+        <div class="doctor-info">
+          <h3 class="info-heading"><i class="fas fa-user-md"></i> CONSULTING PHYSICIAN</h3>
+          <table class="info-table">
+            <tr>
+              <td class="info-label">Name:</td>
+              <td>Dr. {{prescription?.doctorFullName}}</td>
+            </tr>
+            <tr>
+              <td class="info-label">Specialty:</td>
+              <td>{{prescription?.doctorSpecialization}}</td>
+            </tr>
+            <tr>
+              <td class="info-label">Reg. No:</td>
+              <td>{{prescription?.doctorRegistrationNumber}}</td>
+            </tr>
+            <!-- <tr>
+              <td class="info-label">Consultation:</td>
+              <td>{{prescription?.appointmentDate | date:'shortTime'}} - {{prescription?.issueDate | date:'shortTime'}}</td>
+            </tr> -->
+          </table>
+        </div>
+      </div>
+  
+      <!-- Clinical Information -->
+      <div class="clinical-section">
+        <div class="diagnosis-box">
+          <h3 class="section-title"><i class="fas fa-diagnoses"></i> DIAGNOSIS</h3>
+          <div class="diagnosis-content">
+            <div class="primary-diagnosis">{{prescription?.diagnosis || 'Provisional Diagnosis'}}</div>
+            <div class="clinical-notes" *ngIf="prescription?.notes">
+              <p><strong>Notes:</strong> {{prescription?.notes}}</p>
+            </div>
+          </div>
+        </div>
+  
+        <!-- <div class="followup-box" [class.required]="prescription?.isFollowUpRequired">
+          <h3 class="section-title"><i class="fas fa-calendar-check"></i> FOLLOW UP</h3>
+          <div class="followup-content">
+            <div class="followup-status">{{prescription?.isFollowUpRequired ? 'REQUIRED' : 'Not Required'}}</div>
+            <div class="followup-date" *ngIf="prescription?.isFollowUpRequired">
+              Recommended after 3 days
+            </div>
+          </div>
+        </div> -->
+      </div>
+  
+      <!-- Medications -->
+      <div class="medication-section">
+        <h3 class="section-title"><i class="fas fa-prescription-bottle-alt"></i> PRESCRIBED MEDICATIONS</h3>
+        <table class="medication-table">
+          <thead>
+            <tr>
+              <th width="25%">Medicine</th>
+              <th width="15%">Dosage</th>
+              <th width="20%">Frequency</th>
+              <th width="15%">Duration</th>
+              <th width="25%">Instructions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of prescription?.items">
+              <td>{{item.medicineName}}</td>
+              <td>{{item.dosage}}</td>
+              <td>{{item.frequency}}</td>
+              <td>{{item.duration}}</td>
+              <td>{{item.instructions || 'As directed'}}</td>
+            </tr>
+            <tr *ngIf="!prescription?.items?.length">
+              <td colspan="5" class="no-meds">No medications prescribed</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+  
+      <!-- Tests & Advice -->
+      <div class="additional-sections">
+        <div class="tests-section" *ngIf="prescription?.labTests?.length">
+          <h3 class="section-title"><i class="fas fa-microscope"></i> RECOMMENDED TESTS</h3>
+          <ul class="tests-list">
+            <li *ngFor="let test of prescription?.labTests">
+              <i class="fas fa-vial"></i> {{test.reportTypeName}}
+              <span class="test-status" *ngIf="test.testStatus">({{test.testStatus}})</span>
+            </li>
+          </ul>
+        </div>
+  
+        <!-- <div class="advice-section">
+          <h3 class="section-title"><i class="fas fa-heartbeat"></i> GENERAL ADVICE</h3>
+          <ul class="advice-list">
+            <li>Maintain adequate hydration</li>
+            <li>Avoid strenuous activities</li>
+            <li>Follow dietary restrictions if any</li>
+            <li>Report any adverse reactions immediately</li>
+          </ul>
+        </div> -->
+      </div>
+    </div>
+  
+    <!-- Prescription Footer -->
+<div class="prescription-footer">
+    <div class="footer-content">
+      <div class="signature-block">
+        <div class="signature-line"></div>
+        <div class="signature-details">
+          <div>Dr. {{prescription?.doctorFullName}}</div>
+          <div>{{prescription?.doctorSpecialization}}</div>
+        </div>
+      </div>
+      
+      <div class="footer-notes">
+        <p>• Thank you for choosing {{hospitalName}} •</p>
+      </div>
+    </div>
+  </div>
+  </div>
+  
+  <div class="action-buttons d-print-none">
+    
+    <!-- <button class="btn btn-primary" (click)="printPrescription()">
+      <i class="fas fa-print"></i> Print Prescription
+    </button> -->
+    <button class="btn btn-success" (click)="downloadAsPDF()">
+      <i class="fas fa-file-pdf"></i> Save as PDF
+    </button>
+    <button class="btn btn-secondary" (click)="bsModalRef.hide()">
+        <i class="fas fa-times"></i> Close
+      </button>
+  </div>

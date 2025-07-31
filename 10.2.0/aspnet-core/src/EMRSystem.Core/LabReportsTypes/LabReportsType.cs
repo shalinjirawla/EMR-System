@@ -14,6 +14,7 @@ namespace EMRSystem.LabReportsTypes
         public string ReportType { get; set; }
         public int ReportPrice { get; set; }
         public virtual ICollection<PrescriptionLabTest> PrescriptionLabTests { get; set; }
+        public ICollection<EMRSystem.LabReportTemplateItem.LabReportTemplateItem> TemplateItems { get; set; }
 
     }
 }

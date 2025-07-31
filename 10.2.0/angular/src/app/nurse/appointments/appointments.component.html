@@ -164,7 +164,7 @@
                                                 <li (click)="editAppoinment(selectedRecord)">
                                                     <i class="pi pi-pencil"></i> Edit
                                                 </li>
-                                                <li (click)="viewReceipt(selectedRecord)">
+                                                <li *ngIf="!record.patient.isAdmitted" (click)="viewReceipt(selectedRecord)">
                                                     <i class="pi pi-file"></i> View Receipt
                                                 </li>
                                                 <li *ngIf="!record.isPaid" (click)="makePayment(record)">

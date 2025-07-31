@@ -6,6 +6,8 @@ import { RoomTypesComponent } from './room-types/room-types.component';
 import { LabReportTypeComponent } from './lab-report-type/lab-report-type.component';
 import { DoctorMasterComponent } from './doctor-master/doctor-master.component';
 import { AppointmentTypesComponent } from './appointment-types/appointment-types.component';
+import { MeasureUnitsComponent } from './measure-unit/measure-unit.component';
+import { LabTestComponent } from './lab-test/lab-test.component';
 
 const routes: Routes = [
     {
@@ -32,6 +34,14 @@ const routes: Routes = [
     {
         path: 'appointment-types',
         component: AppointmentTypesComponent,
+    },
+    {
+        path: 'measure-units',
+        component: MeasureUnitsComponent,
+    },
+    {
+        path: 'lab-test',
+        component: LabTestComponent,
     },
 ];
 

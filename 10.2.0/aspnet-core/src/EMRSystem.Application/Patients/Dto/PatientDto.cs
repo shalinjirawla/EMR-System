@@ -39,7 +39,7 @@ namespace EMRSystem.Patients.Dto
         //public PaymentMethod? PaymentMethod { get; set; }
         //public long? DepositAmount { get; set; }
 
-        //public bool IsAdmitted { get; set; }
+        public bool IsAdmitted { get; set; }
         //public DateTime? AdmissionDate { get; set; }
         //public DateTime? DischargeDate { get; set; }
         //public string? InsuranceProvider { get; set; }
