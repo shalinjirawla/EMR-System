@@ -14,8 +14,11 @@ namespace EMRSystem.LabMasters
     {
         public int TenantId { get; set; }
         public string Name { get; set; }
-        public long MeasureUnitId { get; set; }
+        public long? MeasureUnitId { get; set; }
         public virtual EMRSystem.LabMasters.MeasureUnit MeasureUnit { get; set; }
+        public virtual ICollection<LabReportTypeItem> LabReportTypeItems { get; set; }
+        public virtual ICollection<TestResultLimit> TestResultLimits { get; set; }
+
 
         public bool IsActive { get; set; } = true;
     }

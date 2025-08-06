@@ -10,11 +10,11 @@ using System.Threading.Tasks;
 
 namespace EMRSystem.LabTechnician
 {
-    public interface IPrescriptionLabTestsAppService : IAsyncCrudAppService<
+    public interface IPrescriptionLabTestAppService : IAsyncCrudAppService<
    LabRequestListDto, long, PagedAndSortedResultRequestDto, CreateUpdateLabRequestDto, CreateUpdateLabRequestDto>
     {
         EMRSystem.LabReports.PrescriptionLabTest GetPrescriptionLabTestDetailsById(long id);
         EMRSystem.LabReports.PrescriptionLabTest GetPrescriptionLabTestDetailsForViewReportById(long id);
-        Task MakeInprogressReport(long prescriptionLabTestId);
+        Task MakeInprogressReports(long prescriptionLabTestId);
     }
 }

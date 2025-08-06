@@ -1,9 +1,13 @@
 ﻿using Abp.Application.Services;
 using Abp.Domain.Entities;
 using Abp.Domain.Repositories;
+using Abp.EntityFrameworkCore;
 using Abp.Extensions;
 using Abp.Linq.Extensions;
 using AutoMapper.Internal.Mappers;
+using EMRSystem.EntityFrameworkCore;
+using EMRSystem.LabMasters;
+using EMRSystem.LabMasters.Dto.LabTest;
 using EMRSystem.Room.Dto;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -15,6 +19,7 @@ using System.Threading.Tasks;
 
 namespace EMRSystem.Room
 {
+
     public class RoomAppService : AsyncCrudAppService<
         Room, RoomDto, long,
         PagedRoomResultRequestDto,
@@ -22,8 +27,9 @@ namespace EMRSystem.Room
         CreateUpdateRoomDto>,
         IRoomAppService
     {
-        public RoomAppService(IRepository<Room, long> repository)
-            : base(repository) { }
+    private readonly IDbContextProvider<EMRSystemDbContext> _dbContextProvider;
+        public RoomAppService(IDbContextProvider<EMRSystemDbContext> dbContextProvider, IRepository<Room, long> repository)
+            : base(repository) { _dbContextProvider = dbContextProvider; }
         protected override IQueryable<Room> CreateFilteredQuery(PagedRoomResultRequestDto input)
         {
             var query = Repository
@@ -53,20 +59,16 @@ namespace EMRSystem.Room
             return base.ApplySorting(query, input); // Default to base behavior
         }
 
-        public async Task<List<RoomDto>> CreateBulkRoomsAsync(List<CreateUpdateRoomDto> input)
+        
+        public async Task<List<RoomDto>> CreateBulkRoomsAsync(List<CreateUpdateRoomDto> inputs)
         {
-            var createdRooms = new List<Room>();
+            var entities = ObjectMapper.Map<List<Room>>(inputs);
 
-            foreach (var dto in input)
-            {
-                var room = ObjectMapper.Map<Room>(dto);
-                await Repository.InsertAsync(room);
-                createdRooms.Add(room);
-            }
+            var dbContext = await _dbContextProvider.GetDbContextAsync();
+            dbContext.Rooms.AddRange(entities); // 👈 Fast batch tracking
+            await dbContext.SaveChangesAsync();        // 👈 One DB call only
 
-            await CurrentUnitOfWork.SaveChangesAsync();
-
-            return ObjectMapper.Map<List<RoomDto>>(createdRooms);
+            return ObjectMapper.Map<List<RoomDto>>(entities);
         }
 
 

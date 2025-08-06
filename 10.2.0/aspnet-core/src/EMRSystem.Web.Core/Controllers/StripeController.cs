@@ -5,7 +5,9 @@ using EMRSystem.AppointmentReceipt.Dto;
 using EMRSystem.Appointments;
 using EMRSystem.Deposit;
 using EMRSystem.Invoices;
+using EMRSystem.LabTestReceipt;
 using EMRSystem.Patients;
+using EMRSystem.PrescriptionLabTest;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -31,6 +33,8 @@ namespace EMRSystem.Controllers
         private readonly IUnitOfWorkManager _unitOfWorkManager;
         private readonly IAppointmentAppService _appointmentAppService;
         private readonly IRepository<Appointment, long> _appointmentRepository;
+        private readonly IRepository<EMRSystem.LabReports.PrescriptionLabTest, long> _prescriptionLabTestRepository;
+        private readonly ILabTestReceiptAppService _labTestReceiptAppService;
 
 
         public StripeController(
@@ -38,12 +42,16 @@ namespace EMRSystem.Controllers
             IRepository<EMRSystem.Deposit.Deposit, long> depositRepository,
             IUnitOfWorkManager unitOfWorkManager,
             IAppointmentAppService appointmentAppService,
-            IRepository<Appointment, long> appointmentRepository)
+            ILabTestReceiptAppService labTestReceiptAppService,
+            IRepository<Appointment, long> appointmentRepository,
+            IRepository<EMRSystem.LabReports.PrescriptionLabTest, long> prescriptionLabTestRepository)
         {
             _configuration = configuration;
             _depositRepository = depositRepository;
             _unitOfWorkManager = unitOfWorkManager;
+            _labTestReceiptAppService = labTestReceiptAppService;
             _appointmentAppService = appointmentAppService;
+            _prescriptionLabTestRepository = prescriptionLabTestRepository;
             _appointmentRepository = appointmentRepository;
         }
 
@@ -73,6 +81,21 @@ namespace EMRSystem.Controllers
                     if (session.Metadata == null)
                         return Ok();
 
+                    if (session.Metadata.TryGetValue("purpose", out var labtestpurpose) && labtestpurpose == "labtest")
+                    {
+                        if (!session.Metadata.TryGetValue("labTestId", out var labTestIdStr))
+                            return Ok();
+
+                        var labTestId = long.Parse(labTestIdStr);
+                        using (var uow = _unitOfWorkManager.Begin())
+                        {
+                            var labTest = await _prescriptionLabTestRepository.GetAsync(labTestId);
+                            labTest.IsPaid = true;
+                            await _prescriptionLabTestRepository.UpdateAsync(labTest);
+                            await _labTestReceiptAppService.GenerateLabTestReceipt(labTestId, PaymentMethod.Card.ToString());
+                            await uow.CompleteAsync();
+                        }
+                    }
                     // Handle deposit payments
                     if (session.Metadata.TryGetValue("purpose", out var purpose) && purpose == "deposit")
                     {

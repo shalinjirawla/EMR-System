@@ -1,0 +1,41 @@
+<form class="form-horizontal" autocomplete="off" #labForm="ngForm" (ngSubmit)="save()">
+  <abp-modal-header [title]="id ? 'Edit Test Result Limit' : 'Create Test Result Limits'"
+    (onCloseClick)="modalRef.hide()"></abp-modal-header>
+
+  <div class="modal-body">
+
+    <!-- Multiselect only in Create mode -->
+    <div class="form-group" *ngIf="!id">
+      <label>{{ 'Select Lab Tests' | localize }}</label>
+      <div class="card flex justify-center">  
+        <p-multiSelect [options]="labTests" [(ngModel)]="selectedLabTests" name="selectedLabTests" optionLabel="name"
+          (onChange)="onTestChange()" [filter]="true" placeholder="Select lab tests"></p-multiSelect>
+      </div>
+    </div>
+
+    <!-- Show cards (for both Create and Edit) -->
+    <div *ngFor="let item of testLimits; let i = index" class="mb-3 border rounded p-2">
+      <div class="d-flex justify-content-between align-items-center">
+        <strong>{{ item.labTestName }}</strong>
+        <!-- Remove button only in Create mode -->
+        <button *ngIf="!id" type="button" class="btn btn-sm btn-danger" (click)="removeTest(i)">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+      <div class="row mt-2">
+        <div class="col-md-6">
+          <label>Min Range</label>
+          <input type="number" class="form-control" [(ngModel)]="item.minRange" name="minRange{{ i }}" required />
+        </div>
+        <div class="col-md-6">
+          <label>Max Range</label>
+          <input type="number" class="form-control" [(ngModel)]="item.maxRange" name="maxRange{{ i }}" required />
+        </div>
+      </div>
+    </div>
+
+    <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="!labForm.valid || !testLimits.length || saving"
+      (onCancelClick)="modalRef.hide()"></abp-modal-footer>
+
+  </div>
+</form>

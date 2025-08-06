@@ -12,7 +12,7 @@ namespace EMRSystem.LabMasters.AppServices
     public interface IMeasureUnitAppService : IAsyncCrudAppService<
         MeasureUnitDto,
         long,
-        PagedAndSortedResultRequestDto,
+        PagedMeasureUnitResultRequestDto,
         CreateUpdateMeasureUnitDto,
         CreateUpdateMeasureUnitDto>
     {

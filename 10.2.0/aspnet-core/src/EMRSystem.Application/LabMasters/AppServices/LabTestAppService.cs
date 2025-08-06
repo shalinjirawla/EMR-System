@@ -1,9 +1,13 @@
 ﻿using Abp.Application.Services;
 using Abp.Application.Services.Dto;
 using Abp.Domain.Repositories;
+using Abp.EntityFrameworkCore;
 using Abp.Extensions;
+using EMRSystem.EntityFrameworkCore;
+using EMRSystem.LabMasters.Dto.LabReportTypeItem;
 using EMRSystem.LabMasters.Dto.LabTest;
 using EMRSystem.LabMasters.Dto.MeasureUnit;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,14 +24,18 @@ namespace EMRSystem.LabMasters.AppServices
         CreateUpdateLabTestDto,
         CreateUpdateLabTestDto>, ILabTestAppService
     {
-        public LabTestAppService(IRepository<LabTest, long> repository)
+        private readonly IDbContextProvider<EMRSystemDbContext> _dbContextProvider;
+
+        public LabTestAppService(IDbContextProvider<EMRSystemDbContext> dbContextProvider, IRepository<LabTest, long> repository)
             : base(repository)
         {
+            _dbContextProvider = dbContextProvider;
         }
 
         protected override IQueryable<LabTest> CreateFilteredQuery(PagedLabTestResultRequestDto input)
         {
             var query = Repository.GetAll()
+                .Include(x => x.MeasureUnit)
                 .Where(x => x.TenantId == AbpSession.TenantId);
 
             if (!input.Keyword.IsNullOrWhiteSpace())
@@ -42,20 +50,21 @@ namespace EMRSystem.LabMasters.AppServices
 
             return query;
         }
-
         public async Task<List<LabTestDto>> CreateBulkAsync(List<CreateUpdateLabTestDto> inputs)
         {
-            var created = new List<LabTest>();
+            var entities = ObjectMapper.Map<List<LabTest>>(inputs);
 
-            foreach (var dto in inputs)
-            {
-                var entity = ObjectMapper.Map<LabTest>(dto);
-                await Repository.InsertAsync(entity);
-                created.Add(entity);
-            }
+            var dbContext = await _dbContextProvider.GetDbContextAsync();
+            dbContext.LabTests.AddRange(entities); // 👈 Fast batch tracking
+            await dbContext.SaveChangesAsync();        // 👈 One DB call only
 
-            await CurrentUnitOfWork.SaveChangesAsync();
-            return ObjectMapper.Map<List<LabTestDto>>(created);
+            return ObjectMapper.Map<List<LabTestDto>>(entities);
+        }
+        public async Task<ListResultDto<LabTestDto>> GetAllLabTestByTenantIdAsync(int tenantId)
+        {
+            var allLabtests = await Repository.GetAllListAsync(x => x.TenantId == tenantId && x.IsActive);
+            var mappedLabtests = ObjectMapper.Map<List<LabTestDto>>(allLabtests);
+            return new ListResultDto<LabTestDto>(mappedLabtests);
         }
     }
 }
