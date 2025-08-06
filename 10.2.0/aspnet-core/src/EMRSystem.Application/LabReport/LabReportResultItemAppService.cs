@@ -23,10 +23,10 @@ namespace EMRSystem.LabReport
     public class LabReportResultItemAppService : AsyncCrudAppService<EMRSystem.LabReports.LabReportResultItem, LabReportResultItemDto, long, PagedAndSortedResultRequestDto, CreateUpdateLabReportResultItemDto, CreateUpdateLabReportResultItemDto>,
   ILabReportResultItemAppService
     {
-        private readonly IPrescriptionLabTestsAppService _prescriptionLabTestsAppService;
+        private readonly IPrescriptionLabTestAppService _prescriptionLabTestsAppService;
         private readonly TenantManager _tenantManager;
         public LabReportResultItemAppService(IRepository<EMRSystem.LabReports.LabReportResultItem, long> repository
-            , IPrescriptionLabTestsAppService prescriptionLabTestsAppService,
+            , IPrescriptionLabTestAppService prescriptionLabTestsAppService,
             TenantManager tenantManager
             ) : base(repository)
         {
@@ -43,7 +43,7 @@ namespace EMRSystem.LabReport
                     await Repository.InsertRangeAsync(mapped);
                     CurrentUnitOfWork.SaveChanges();
                     var id = reportResultItemDtos[0].PrescriptionLabTestId;
-                    await _prescriptionLabTestsAppService.MakeInprogressReport(id);
+                   // await _prescriptionLabTestsAppService.MakeInprogressReports(id);
                 }
             }
             catch (Exception ex)

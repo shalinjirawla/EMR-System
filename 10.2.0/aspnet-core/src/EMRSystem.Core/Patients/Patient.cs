@@ -4,6 +4,7 @@ using EMRSystem.Appointments;
 using EMRSystem.Authorization.Users;
 using EMRSystem.Doctors;
 using EMRSystem.Invoices;
+using EMRSystem.LabReports;
 using EMRSystem.Nurses;
 using EMRSystem.Prescriptions;
 using EMRSystem.Visits;
@@ -39,7 +40,10 @@ namespace EMRSystem.Patients
         public virtual ICollection<Appointment> Appointments { get; set; }
         public ICollection<Visit> Visit { get; set; }
         public virtual ICollection<MedicineOrder.MedicineOrder> MedicineOrders { get; set; }
+        public virtual ICollection<PrescriptionLabTest> PrescriptionLabTests { get; set; }
         public virtual ICollection<EMRSystem.IpdChargeEntry.IpdChargeEntry> IpdChargeEntries { get; set; }
+        public virtual ICollection<EMRSystem.LabTestReceipt.LabTestReceipt> LabTestReceipts { get; set; }
+
         //public DateTime? AdmissionDate { get; set; }
         //public BillingMethod BillingMethod { get; set; }
         //public PaymentMethod? PaymentMethod { get; set; }

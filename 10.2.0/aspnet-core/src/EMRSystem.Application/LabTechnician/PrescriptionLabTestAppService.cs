@@ -21,13 +21,14 @@ using EMRSystem.Authorization.Users;
 
 namespace EMRSystem.LabTechnician
 {
-    public class PrescriptionLabTestsAppService :
+   
+    public class PrescriptionLabTestAppService :
         AsyncCrudAppService<LabReports.PrescriptionLabTest, LabRequestListDto, long, PagedAndSortedResultRequestDto, CreateUpdateLabRequestDto, CreateUpdateLabRequestDto>,
-            IPrescriptionLabTestsAppService
+            IPrescriptionLabTestAppService
     {
         private readonly IDoctorAppService _doctorAppService;
         private readonly UserManager _userManager;
-        public PrescriptionLabTestsAppService(IRepository<LabReports.PrescriptionLabTest, long> repository
+        public PrescriptionLabTestAppService(IRepository<LabReports.PrescriptionLabTest, long> repository
             , IDoctorAppService doctorAppService, UserManager userManager
             ) : base(repository)
         {
@@ -37,13 +38,14 @@ namespace EMRSystem.LabTechnician
         [HttpGet]
         public async Task<PagedResultDto<LabRequestListDto>> GetAllLabTestRequests(PagedAndSortedResultRequestDto input)
         {
-            var dataa = await Repository.GetAllAsync();
-            var query = dataa
-                            .Include(x => x.Prescription).ThenInclude(x => x.Doctor)
-                            .Include(x => x.Prescription).ThenInclude(x => x.Patient)
-                            .Include(x => x.Prescription).ThenInclude(x => x.LabTests)
-                            .Include(x => x.LabReportsType).WhereIf(AbpSession.TenantId.HasValue, x => x.TenantId == AbpSession.TenantId.Value);
-
+            var query = (await Repository.GetAllAsync())
+                        .Include(x => x.Prescription).ThenInclude(p => p.Patient)
+                        .Include(x => x.Patient)                // ← add this
+                        .Include(x => x.Prescription).ThenInclude(p => p.Doctor)
+                        .Include(x => x.Prescription).ThenInclude(p => p.LabTests)
+                        .Include(x => x.LabReportsType)
+                        .WhereIf(AbpSession.TenantId.HasValue,
+                                 x => x.TenantId == AbpSession.TenantId.Value);
             var totalCount = query.Count();
 
             var data = query.ToList();
@@ -85,18 +87,20 @@ namespace EMRSystem.LabTechnician
         }
         public EMRSystem.LabReports.PrescriptionLabTest GetPrescriptionLabTestDetailsForViewReportById(long id)
         {
-            var details = Repository.GetAll()
-                            .Include(x => x.LabReportResultItems)
-                            .Include(x => x.LabReportsType)
-                            .Include(x => x.Prescription).ThenInclude(x => x.Doctor)
-                            .Include(x => x.Prescription).ThenInclude(x => x.Patient)
-                            .ToList();
-            if (details.Count > 0)
-            {
-                var data = details.FirstOrDefault(x => x.Id == id);
-                return data;
-            }
-            return null;
+            // 1️⃣ Start from the repository, include everything you need
+            var query = Repository.GetAll()
+                .Include(x => x.LabReportResultItems)
+                .Include(x => x.LabReportsType)
+                .Include(x => x.Prescription).ThenInclude(p => p.Doctor)
+                .Include(x => x.Prescription).ThenInclude(p => p.Patient)
+                .Include(x => x.Patient)        // ← add this line
+
+                // 2️⃣ Filter by the requested id *before* calling ToList/ToListAsync
+                .Where(x => x.Id == id);
+
+            // 3️⃣ Now fetch just that one entity
+            var data = query.FirstOrDefault();
+            return data; // will be null if not found
         }
         public async Task MakeCompleteReport(long prescriptionLabTestId)
         {
@@ -105,7 +109,7 @@ namespace EMRSystem.LabTechnician
             await Repository.UpdateAsync(data);
             CurrentUnitOfWork.SaveChanges();
         }
-        public async Task MakeInprogressReport(long prescriptionLabTestId)
+        public async Task MakeInprogressReports(long prescriptionLabTestId)
         {
             var data = GetPrescriptionLabTestDetailsById(prescriptionLabTestId);
             data.TestStatus = LabTestStatus.InProgress;

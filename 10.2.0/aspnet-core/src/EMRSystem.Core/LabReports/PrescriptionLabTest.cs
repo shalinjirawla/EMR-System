@@ -1,5 +1,6 @@
 ﻿using Abp.Domain.Entities;
 using EMRSystem.LabReportsTypes;
+using EMRSystem.Patients;
 using EMRSystem.Prescriptions;
 using System;
 using System.Collections.Generic;
@@ -13,11 +14,14 @@ namespace EMRSystem.LabReports
     public class PrescriptionLabTest : Entity<long>, IMustHaveTenant
     {
         public int TenantId { get; set; }
-        public long PrescriptionId { get; set; }
+        public long? PrescriptionId { get; set; }
         public virtual Prescription Prescription { get; set; }
+        public long? PatientId { get; set; }
+        public virtual Patient Patient { get; set; }
         public long LabReportsTypeId { get; set; }
         public virtual LabReportsType LabReportsType { get; set; }
         public LabTestStatus TestStatus { get; set; }
+        public bool IsPaid { get; set; }=true;
         public DateTime? CreatedDate { get; set; } = DateTime.Now;
         public ICollection<LabReportResultItem> LabReportResultItems { get; set; }
     }

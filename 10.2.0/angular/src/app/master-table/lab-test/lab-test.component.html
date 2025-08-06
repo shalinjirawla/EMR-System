@@ -90,7 +90,8 @@
               [tableStyle]="{ 'min-width': '30rem' }">
               <ng-template pTemplate="header">
                 <tr>
-                  <th>Name</th>
+                  <th>{{ 'Name' | localize }}</th>
+                  <th>{{'MeasurementUnit' | localize}}</th>
                   <th>{{ 'IsActive' | localize }}</th>
                   <th>{{ 'Actions' | localize }}</th>
                 </tr>
@@ -98,6 +99,7 @@
               <ng-template pTemplate="body" let-test>
                 <tr>
                   <td>{{ test.name }}</td>
+                  <td>{{ test.measureUnit?.name }}</td>
                   <td>{{ test.isActive ? 'Yes' : 'No' }}</td>
                   <td>
                     <button class="btn btn-sm btn-primary mr-2" (click)="editLabTest(test)">

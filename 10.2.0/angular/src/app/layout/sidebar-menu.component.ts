@@ -97,8 +97,10 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
             new MenuItem(this.l('Master'), '', 'fas fa-cogs', 'Pages.Users', [
                 new MenuItem(this.l('Laboratory Master'), '', 'fas fa-flask', 'Pages.Users', [
                     new MenuItem(this.l('Measure Units'), '/app/master/measure-units', 'fas fa-ruler', 'Pages.Users'),
-                    new MenuItem(this.l('LabTest Types'), '/app/master/lab-report-type', 'fas fa-vial', 'Pages.Users'),
-                    new MenuItem(this.l('Lab Test'), '/app/master/lab-test', 'fas fa-microscope', 'Pages.Users'),
+                    new MenuItem(this.l('LabReport Types'), '/app/master/lab-report-type', 'fas fa-vial', 'Pages.Users'),
+                    new MenuItem(this.l('Test'), '/app/master/lab-test', 'fas fa-microscope', 'Pages.Users'),
+                    new MenuItem(this.l('LabTest Items'), '/app/master/lab-test-items', 'fas fa-flask-vial', 'Pages.Users'),
+                    new MenuItem(this.l('Test Result Limits'), '/app/master/test-result-limit', 'fas fa-flask-vial', 'Pages.Users'),
                 ]),
                 new MenuItem(this.l('Room Facilities'), '/app/master/room-facilities', 'fas fa-hospital-alt', 'Pages.Users'),
                 new MenuItem(this.l('RoomTypes'), '/app/master/room-types', 'fas fa-bed', 'Pages.Users'),

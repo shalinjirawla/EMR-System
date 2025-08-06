@@ -1,4 +1,5 @@
 ﻿using Abp.Domain.Entities;
+using EMRSystem.LabMasters;
 using EMRSystem.LabReports;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,9 @@ namespace EMRSystem.LabReportsTypes
         public int ReportPrice { get; set; }
         public virtual ICollection<PrescriptionLabTest> PrescriptionLabTests { get; set; }
         public ICollection<EMRSystem.LabReportTemplateItem.LabReportTemplateItem> TemplateItems { get; set; }
+        public virtual ICollection<LabReportTypeItem> ReportTypeItems { get; set; }
+        public virtual ICollection<EMRSystem.LabTestReceipt.LabTestReceipt> LabTestReceipts { get; set; }
+
 
     }
 }

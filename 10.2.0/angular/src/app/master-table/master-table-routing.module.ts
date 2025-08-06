@@ -8,6 +8,8 @@ import { DoctorMasterComponent } from './doctor-master/doctor-master.component';
 import { AppointmentTypesComponent } from './appointment-types/appointment-types.component';
 import { MeasureUnitsComponent } from './measure-unit/measure-unit.component';
 import { LabTestComponent } from './lab-test/lab-test.component';
+import { LabTestItemsComponent } from './lab-test-items/lab-test-items.component';
+import { TestResultLimitComponent } from './test-result-limit/test-result-limit.component';
 
 const routes: Routes = [
     {
@@ -42,6 +44,14 @@ const routes: Routes = [
     {
         path: 'lab-test',
         component: LabTestComponent,
+    },
+    {
+        path: 'lab-test-items',
+        component: LabTestItemsComponent,
+    },
+    {
+        path: 'test-result-limit',
+        component: TestResultLimitComponent,
     },
 ];
 

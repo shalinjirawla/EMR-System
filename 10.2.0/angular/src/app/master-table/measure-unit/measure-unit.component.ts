@@ -34,6 +34,9 @@ import { LocalizePipe } from '@shared/pipes/localize.pipe';
 {
   @ViewChild('dataTable', { static: true }) dataTable: Table;
   @ViewChild('paginator', { static: true }) paginator: Paginator;
+  keyword = '';
+  isActive: boolean | undefined = undefined;
+  advancedFiltersVisible = false;
 
   constructor(
     injector: Injector,
@@ -49,14 +52,15 @@ import { LocalizePipe } from '@shared/pipes/localize.pipe';
   list(event?: LazyLoadEvent): void {
     if (this.primengTableHelper.shouldResetPaging(event)) {
       this.paginator.changePage(0);
-      if (this.primengTableHelper.records.length) {
-        return;
-      }
+      if (this.primengTableHelper.records.length) return;
     }
 
     this.primengTableHelper.showLoadingIndicator();
+
     this._measureUnitService
       .getAll(
+        this.keyword,
+        this.isActive,
         this.primengTableHelper.getSorting(this.dataTable),
         this.primengTableHelper.getSkipCount(this.paginator, event),
         this.primengTableHelper.getMaxResultCount(this.paginator, event)
@@ -65,7 +69,6 @@ import { LocalizePipe } from '@shared/pipes/localize.pipe';
       .subscribe((result: MeasureUnitDtoPagedResultDto) => {
         this.primengTableHelper.records = result.items;
         this.primengTableHelper.totalRecordsCount = result.totalCount;
-        this.primengTableHelper.hideLoadingIndicator();
         this.cd.detectChanges();
       });
   }
@@ -105,6 +108,8 @@ import { LocalizePipe } from '@shared/pipes/localize.pipe';
   }
 
   clearFilters(): void {
+    this.keyword = '';
+    this.isActive = undefined;
     this.list();
   }
 }

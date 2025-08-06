@@ -17,5 +17,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EMRSystem.Core\EMRSystem.Core.csproj" />
+    <ProjectReference Include="..\EMRSystem.EntityFrameworkCore\EMRSystem.EntityFrameworkCore.csproj" />
   </ItemGroup>
 </Project>

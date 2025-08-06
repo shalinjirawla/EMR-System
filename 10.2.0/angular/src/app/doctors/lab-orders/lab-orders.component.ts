@@ -9,7 +9,7 @@ import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { FormsModule } from '@node_modules/@angular/forms';
 import { CommonModule, NgIf } from '@node_modules/@angular/common';
 import { ChangeDetectorRef, Component, Injector, OnInit, ViewChild } from '@angular/core';
-import { LabRequestListDto, LabTestStatus, PrescriptionLabTestDto, PrescriptionLabTestsServiceProxy } from '@shared/service-proxies/service-proxies';
+import { LabRequestListDto, LabTestStatus, PrescriptionLabTestDto, PrescriptionLabTestServiceProxy, PrescriptionLabTestsServiceProxy } from '@shared/service-proxies/service-proxies';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
 import { ChipModule } from 'primeng/chip';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
@@ -26,7 +26,7 @@ import { TagModule } from 'primeng/tag';
   styleUrl: './lab-orders.component.css',
   animations: [appModuleAnimation()],
   imports: [FormsModule, TableModule,TagModule, CommonModule, PrimeTemplate, OverlayPanelModule, MenuModule, ButtonModule, NgIf, PaginatorModule, ChipModule, LocalizePipe],
-  providers: [PrescriptionLabTestsServiceProxy]
+  providers: [PrescriptionLabTestServiceProxy]
 })
 export class LabOrdersComponent extends PagedListingComponentBase<PrescriptionLabTestDto> implements OnInit {
   @ViewChild('dataTable', { static: true }) dataTable: Table;
@@ -46,7 +46,7 @@ export class LabOrdersComponent extends PagedListingComponentBase<PrescriptionLa
     injector: Injector,
     private _modalService: BsModalService,
     private _activatedRoute: ActivatedRoute,
-    private _prescriptionLabTests: PrescriptionLabTestsServiceProxy,
+    private _prescriptionLabTests: PrescriptionLabTestServiceProxy,
     cd: ChangeDetectorRef
   ) {
     super(injector, cd);

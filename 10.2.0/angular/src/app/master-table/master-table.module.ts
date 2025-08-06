@@ -9,6 +9,8 @@ import { DoctorMasterComponent } from './doctor-master/doctor-master.component';
 import { AppointmentTypesComponent } from './appointment-types/appointment-types.component';
 import { MeasureUnitsComponent } from './measure-unit/measure-unit.component';
 import { LabTestComponent } from './lab-test/lab-test.component';
+import { LabTestItemsComponent } from './lab-test-items/lab-test-items.component';
+import { TestResultLimitComponent } from './test-result-limit/test-result-limit.component';
 
 
 
@@ -23,7 +25,9 @@ import { LabTestComponent } from './lab-test/lab-test.component';
         DoctorMasterComponent,
         AppointmentTypesComponent,
         MeasureUnitsComponent,
-        LabTestComponent
+        LabTestComponent,
+        LabTestItemsComponent,
+        TestResultLimitComponent
     ],
 })
 export class MasterTableModule {}

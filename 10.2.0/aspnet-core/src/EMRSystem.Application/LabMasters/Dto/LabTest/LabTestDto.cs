@@ -12,7 +12,8 @@ namespace EMRSystem.LabMasters.Dto.LabTest
     {
         public int TenantId { get; set; }
         public string Name { get; set; }
-        public long MeasureUnitId { get; set; }
+        public long? MeasureUnitId { get; set; }
+        public string MeasureUnitName { get; set; }
         public MeasureUnitDto MeasureUnit { get; set; }
         public bool IsActive { get; set; }
     }

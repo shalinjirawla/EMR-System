@@ -255,6 +255,49 @@ namespace EMRSystem.Patients
             var mapped = ObjectMapper.Map<List<PatientDropDownDto>>(patients);
             return mapped;
         }
+        [HttpGet]
+        public List<PatientDropDownDto> GetOpdPatients()
+        {
+            var tenantId = AbpSession.TenantId;
+            if (!tenantId.HasValue)
+                return new List<PatientDropDownDto>();
+
+            return Repository.GetAll()
+                // tenant filter + OPD-only (not admitted)
+                .Where(p => p.TenantId == tenantId.Value && !p.IsAdmitted)
+                // optional: scope by doctor/nurse
+                // .Where(p => doctor != null    ? p.AssignedDoctorId == doctor.Id 
+                //          : nurse  != null    ? p.AssignedNurseId  == nurse.Id 
+                //          : true)
+                .Select(p => new PatientDropDownDto
+                {
+                    Id = p.Id,
+                    FullName = p.FullName,
+                    IsAdmitted = p.IsAdmitted
+                })
+                .ToList();
+        }
+
+        [HttpGet]
+        public List<PatientDropDownDto> GetIpdPatients()
+        {
+            var tenantId = AbpSession.TenantId;
+            if (!tenantId.HasValue)
+                return new List<PatientDropDownDto>();
+
+            return Repository.GetAll()
+                // tenant filter + IPD-only
+                .Where(p => p.TenantId == tenantId.Value && p.IsAdmitted)
+                // direct projection in SQL
+                .Select(p => new PatientDropDownDto
+                {
+                    Id = p.Id,
+                    FullName = p.FullName,
+                    IsAdmitted = p.IsAdmitted
+                })
+                .ToList();
+        }
+
 
         [HttpGet]
         public async Task<List<string>> GetCurrentUserRolesAsync()

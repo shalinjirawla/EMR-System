@@ -12,7 +12,6 @@ namespace EMRSystem.LabMasters.Dto.MeasureUnit
         public MeasureUnitMapProfile()
         {
             CreateMap<EMRSystem.LabMasters.MeasureUnit, MeasureUnitDto>().ReverseMap();
-            //CreateMap<EMRSystem.LabMasters.MeasureUnit, CreateUpdateMeasureUnitDto>().ReverseMap();
             CreateMap<CreateUpdateMeasureUnitDto, EMRSystem.LabMasters.MeasureUnit>()
                .ForMember(d => d.TenantId, o => o.MapFrom(s => s.TenantId))
                .ReverseMap();
