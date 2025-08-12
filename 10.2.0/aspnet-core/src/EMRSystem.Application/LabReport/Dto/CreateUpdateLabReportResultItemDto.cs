@@ -10,11 +10,11 @@ namespace EMRSystem.LabReport.Dto
     public class CreateUpdateLabReportResultItemDto : EntityDto<long>
     {
         public string Test { get; set; }
-        public decimal Result { get; set; }
-        public decimal MinValue { get; set; }
-        public decimal MaxValue { get; set; }
-        public string Unit { get; set; }
-        public string Flag { get; set; }
+        public string Result { get; set; }
+        public decimal? MinValue { get; set; }
+        public decimal? MaxValue { get; set; }
+        public string? Unit { get; set; }
+        public string? Flag { get; set; }
         public long PrescriptionLabTestId { get; set; }
     }
 }

@@ -61,3 +61,19 @@
     margin-right: 10px;
     color: #607d8b;
 }
+/* make the label stand out but still in-line with menu text */
+.custom-overlay-menu .payment-mode .payment-label {
+  font-weight: 600;
+  flex: 1;               /* push buttons to the right if you want */
+}
+
+/* ensure the buttons don’t stretch full-width */
+.custom-overlay-menu .payment-mode .payment-buttons {
+  display: inline-flex;
+  gap: 6px;              /* space between Cash & Card */
+}
+
+/* override the default li styles only a little */
+.custom-overlay-menu .payment-mode {
+  align-items: center;   /* vertical-align the label + buttons */
+}

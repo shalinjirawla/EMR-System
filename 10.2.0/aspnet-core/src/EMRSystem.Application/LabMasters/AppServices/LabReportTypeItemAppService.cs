@@ -25,12 +25,14 @@ namespace EMRSystem.LabMasters.AppServices
         CreateUpdateLabReportTypeItemDto>, ILabReportTypeItemAppService
     {
         private readonly IDbContextProvider<EMRSystemDbContext> _dbContextProvider;
-
-        public LabReportTypeItemAppService(IDbContextProvider<EMRSystemDbContext> dbContextProvider, IRepository<LabReportTypeItem, long> repository)
+        private readonly IRepository<LabTest, long> _labTestRepo;
+        public LabReportTypeItemAppService(IDbContextProvider<EMRSystemDbContext> dbContextProvider, 
+            IRepository<LabReportTypeItem, long> repository,
+            IRepository<LabTest, long> labTestRepo)
             : base(repository)
         {
             _dbContextProvider = dbContextProvider;
-
+            _labTestRepo = labTestRepo;
         }
 
         protected override IQueryable<LabReportTypeItem> CreateFilteredQuery(PagedAndSortedResultRequestDto input)
@@ -51,23 +53,28 @@ namespace EMRSystem.LabMasters.AppServices
         //    var mappedReportType = ObjectMapper.Map<List<LabReportTypeItemDto>>(allReporttypeitem);
         //    return new ListResultDto<LabReportTypeItemDto>(mappedReportType);
         //}
-        public async Task<ListResultDto<LabReportTestWithUnitDto>> GetAllLabReportItems(int reportTypeId)
+        public async Task<ListResultDto<LabReportTestWithUnitDto>> GetAllLabReportItemsAsync(int reportTypeId)
         {
-            var items = await Repository
-                .GetAllIncluding(x => x.LabTest, x => x.LabTest.MeasureUnit)
-                .Where(x => x.LabReportTypeId == reportTypeId && x.IsActive)
-                .ToListAsync();
+            var query = Repository.GetAll()
+                .Where(x => x.LabReportTypeId == reportTypeId)
+                .Include(x => x.LabTest)
+                    .ThenInclude(t => t.MeasureUnit);
 
-            var result = items.Select(x => new LabReportTestWithUnitDto
+            var list = await query.ToListAsync();
+
+            var dtos = list.Select(x => new LabReportTestWithUnitDto
             {
                 Id = x.Id,
                 LabReportTypeId = x.LabReportTypeId,
                 LabTestId = x.LabTestId,
-                LabTestName = x.LabTest?.Name,
-                MeasureUnitName = x.LabTest?.MeasureUnit?.Name
+                LabTestName = x.LabTest.Name,
+                MeasureUnitId = x.LabTest.MeasureUnitId,
+                MeasureUnitName = x.LabTest.MeasureUnit?.Name,
+                IsActive = x.LabTest.IsActive
             }).ToList();
 
-            return new ListResultDto<LabReportTestWithUnitDto>(result);
+            // Wrap your List<T> in a ListResultDto<T>:
+            return new ListResultDto<LabReportTestWithUnitDto>(dtos);
         }
 
         public async Task<List<LabReportTypeItemDto>> CreateBulkAsync(List<CreateUpdateLabReportTypeItemDto> inputs)

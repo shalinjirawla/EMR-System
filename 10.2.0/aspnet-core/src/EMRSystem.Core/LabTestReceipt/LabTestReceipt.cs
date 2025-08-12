@@ -1,5 +1,6 @@
 ﻿using Abp.Domain.Entities;
 using EMRSystem.Invoices;
+using EMRSystem.LabReports;
 using EMRSystem.LabReportsTypes;
 using EMRSystem.Patients;
 using System;
@@ -15,11 +16,10 @@ namespace EMRSystem.LabTestReceipt
     {
         public int TenantId { get; set; }
 
-        public long LabReportTypeId { get; set; }
-
         public long PatientId { get; set; }
+        public virtual Patient Patient { get; set; }
 
-        public decimal LabTestFee { get; set; }
+        public decimal TotalFee { get; set; }
 
         public string ReceiptNumber { get; set; }
 
@@ -28,7 +28,15 @@ namespace EMRSystem.LabTestReceipt
         public PaymentMethod PaymentMethod { get; set; }
 
         public InvoiceStatus Status { get; set; }
-        public virtual EMRSystem.LabReportsTypes.LabReportsType LabReportType { get; set; }
-        public virtual Patient Patient { get; set; }
+
+        public LabTestSource Source { get; set; } // OPD / Direct
+
+        public virtual ICollection<PrescriptionLabTest> PrescriptionLabTests { get; set; }
+    }
+
+    public enum LabTestSource
+    {
+        OPD,
+        Direct
     }
 }

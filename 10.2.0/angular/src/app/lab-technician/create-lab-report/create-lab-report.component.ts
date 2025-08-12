@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { AbpModalFooterComponent } from "../../../shared/components/modal/abp-modal-footer.component";
 import { AbpModalHeaderComponent } from "../../../shared/components/modal/abp-modal-header.component";
@@ -10,142 +10,202 @@ import { CommonModule } from '@node_modules/@angular/common';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { DropdownModule } from 'primeng/dropdown';
 import { TagModule } from 'primeng/tag';
-import { LabReportDetailDto, LabReportResultItemDto, LabReportsTypeServiceProxy, 
-  LabReportTemplateItemServiceProxy, PatientServiceProxy, PaymentMethod, 
-  PrescriptionLabTestsServiceProxy, CreateUpdatePrescriptionLabTestDto, 
+import {
+  LabReportDetailDto,
+  LabReportResultItemDto,
+  LabReportsTypeServiceProxy,
+  LabReportTemplateItemServiceProxy,
+  PatientServiceProxy,
+  PaymentMethod,
+  CreateUpdatePrescriptionLabTestDto,
   LabTestStatus,
-  LabTestCreationResultDto} from '@shared/service-proxies/service-proxies';
+  LabTestCreationResultDto,
+  CreatePrescriptionLabTestsServiceProxy,
+  PackageSuggestionDto,
+  LabTestSource,
+  PrescriptionServiceProxy
+} from '@shared/service-proxies/service-proxies';
+import { MultiSelectModule } from 'primeng/multiselect';
+
+interface CombinedTestOrPackage {
+  id: number;
+  name: string;
+  price: number;
+  type: 'Test' | 'Package';
+  packageTestIds?: number[]; // present only for packages
+}
 
 @Component({
   selector: 'app-create-lab-report',
-  imports: [AbpModalFooterComponent, AbpModalHeaderComponent,DropdownModule,SelectModule,ToggleButtonModule , ButtonModule,CheckboxModule,FormsModule,CommonModule,TagModule ],
-  providers: [PatientServiceProxy,LabReportsTypeServiceProxy,LabReportTemplateItemServiceProxy,PrescriptionLabTestsServiceProxy],
+  imports: [DropdownModule, SelectModule, ToggleButtonModule, ButtonModule, CheckboxModule, FormsModule, CommonModule, TagModule, MultiSelectModule],
+  providers: [PatientServiceProxy, LabReportsTypeServiceProxy, PrescriptionServiceProxy, LabReportTemplateItemServiceProxy, CreatePrescriptionLabTestsServiceProxy],
   templateUrl: './create-lab-report.component.html',
   styleUrl: './create-lab-report.component.css'
 })
 export class CreateLabReportComponent implements OnInit {
-  patients = [];
-  labTests = [];
-  selectedPatient: any = null;
-  selectedPatientId: number | null = null;
-  selectedLabTestId: number | null = null;
-  isAdmitted = false;
-  paymentMode: PaymentMethod = PaymentMethod._0;
-  selectedLabTest: LabReportDetailDto;
-  items: any[] = [];
-  saving = false;
+  patients: any[] = [];
+  labTests: any[] = [];
+  suggestions: any[] = [];
+  prescriptions: any[] = [];
+  labTestSource: LabTestSource = LabTestSource._1; // default or null
+  selectedPrescription: any = null;
+
+  LabTestSource = LabTestSource;
+  selectedPatient: any;
+  selectedLabTests: number[] = [];
 
   constructor(
-    private _patientService: PatientServiceProxy,
-    private _labService: LabReportsTypeServiceProxy,
-    private _prescriptionLabTestsService: PrescriptionLabTestsServiceProxy,
-    public bsModalRef: BsModalRef,
-    public cdr: ChangeDetectorRef
-  ) {}
+    private patientService: PatientServiceProxy,
+    private labTestService: LabReportsTypeServiceProxy,
+    private prescriptionService: PrescriptionServiceProxy
+  ) { }
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.loadPatients();
     this.loadLabTests();
   }
 
   loadPatients() {
-    this._patientService.patientDropDown().subscribe((res) => {
+    this.patientService.getOpdPatients().subscribe(res => {
       this.patients = res;
     });
   }
 
   loadLabTests() {
-    this._labService.getAllTestByTenantID(abp.session.tenantId).subscribe((res) => {
-      this.labTests = res.items;
+    this.labTestService.getAllTestsAndPackagesByTenantId(abp.session.tenantId).subscribe(res => {
+      this.labTests = res.items // Only tests
     });
   }
-
-  onPatientChange(patientId: number) {
-    this.selectedPatientId = patientId;
-    this.selectedPatient = this.patients.find(p => p.id === patientId);
-    this.isAdmitted = !!this.selectedPatient?.isAdmitted;
+  onLabTestSourceChange() {
+    if (this.labTestSource === LabTestSource._0 && this.selectedPatient) {
+      this.loadPrescriptions(this.selectedPatient);
+    } else {
+      this.prescriptions = [];
+      this.selectedPrescription = null;
+    }
   }
-
-  onLabTestChange(labTestId: number) {
-    this.selectedLabTestId = labTestId;
-
-    this._labService.getReportDetailsWithTests(labTestId).subscribe((res: LabReportDetailDto) => {
-      this.selectedLabTest = res;
-      this.items = res.labTests.map(test => ({
-        ...test,
-        result: '',
-        flag: null
+  onPatientChange() {
+    if (this.labTestSource === LabTestSource._0 && this.selectedPatient) {
+      this.loadPrescriptions(this.selectedPatient);
+    } else {
+      this.prescriptions = [];
+      this.selectedPrescription = null;
+    }
+  }
+  loadPrescriptions(patientId: number) {
+    this.prescriptionService.getPrescriptionsByPatient(patientId).subscribe(res => {
+      this.prescriptions = res.items.map(p => ({
+        ...p,
+        prescriptionName: `${p.patient?.fullName || ''} - ${p.issueDate.toDate().toLocaleDateString()} - ${p.id}`
       }));
-      this.cdr.detectChanges();
     });
   }
-
-  onResultChange(item: any) {
-    const parsedResult = parseFloat(item.result);
-    if (isNaN(parsedResult) || item.minRange == null || item.maxRange == null) {
-      item.flag = undefined;
+  onPrescriptionChange(prescriptionId: number) {
+    if (!prescriptionId) {
+      this.selectedLabTests = [];
       return;
     }
-    if (parsedResult < item.minRange) item.flag = 'Low';
-    else if (parsedResult > item.maxRange) item.flag = 'High';
-    else item.flag = 'Normal';
+
+    const selected = this.prescriptions.find(p => p.id === prescriptionId);
+    if (selected && selected.labTestIds) {
+      this.selectedLabTests = [...selected.labTestIds];
+    } else {
+      this.selectedLabTests = [];
+    }
+
+    this.onLabTestsChange();
   }
 
- 
-  
 
-  save() {
-    if (!this.selectedPatientId || !this.selectedLabTestId || this.items.length === 0) return;
+  onLabTestsChange() {
+    // 🔹 Sabhi tests ko by default enable
+    this.labTests.forEach(t => t.disabled = false);
 
-    const input = new CreateUpdatePrescriptionLabTestDto();
-    input.tenantId = abp.session.tenantId;
-    input.patientId = this.selectedPatientId;
-    input.labReportsTypeId = this.selectedLabTestId;
-    input.testStatus = LabTestStatus._1; // Completed
-    input.isPaid = !this.isAdmitted;
-    input.paymentMethod = this.isAdmitted ? null : this.paymentMode;
+    // 🔹 Agar koi package select hai to uske andar ke tests disable kar do
+    const selectedPackages = this.labTests.filter(
+      t => this.selectedLabTests.includes(t.id) && t.type === 'Package'
+    );
 
-    input.resultItems = this.items.map(i => {
-      const item = new LabReportResultItemDto();
-      item.test = i.labTestName;
-      item.result = i.result;
-      item.minValue = i.minRange;
-      item.maxValue = i.maxRange;
-      item.unit = i.measureUnitName;
-      item.flag = i.flag;
-      return item;
+    selectedPackages.forEach(pkg => {
+      pkg.packageTestIds?.forEach(testId => {
+        const testItem = this.labTests.find(t => t.id === testId);
+        if (testItem) {
+          testItem.disabled = true;
+        }
+      });
+    });
+    this.selectedLabTests = this.selectedLabTests.filter(id => {
+      const item = this.labTests.find(t => t.id === id);
+      return !(item?.disabled && item.type === 'Test');
     });
 
-    this.saving = true;
-debugger
-    this._prescriptionLabTestsService.createLabTest(input).subscribe({
-      next: (result: LabTestCreationResultDto) => {
-       if (result.isStripeRedirect && result.stripeSessionUrl) {
-        // Redirect to Stripe Checkout
-        window.location.href = result.stripeSessionUrl;
-      } else {
-        // OPD cash or IPD path
-        abp.notify.success('Lab report created successfully!');
-        this.bsModalRef.hide();
-      }
-      },
-      error: () => this.saving = false,
-      complete: () => this.saving = false
+    // 🔹 Suggestions ke liye API call (agar koi package select nahi hai)
+    const onlyTestsSelected = this.selectedLabTests.filter(id => {
+      const item = this.labTests.find(t => t.id === id);
+      return item && item.type === 'Test';
     });
-  }
-  getSeverity(flag: string): string {
-    switch (flag) {
-      case 'High': return 'danger';
-      case 'Low': return 'warn';
-      case 'Normal': return 'success';
-      default: return 'info';
+
+    if (onlyTestsSelected.length >= 2) {
+      this.labTestService.getPackageSuggestions(onlyTestsSelected)
+        .subscribe(res => {
+          this.suggestions = res;
+        });
+    } else {
+      this.suggestions = [];
     }
   }
-  
-  isAbnormal(item): boolean {
-    const value = parseFloat(item.result);
-    return !isNaN(value) && (value < item.minRange || value > item.maxRange);
+
+  replaceTests(suggestion: any) {
+    // 1️⃣ Remove only the tests that are in the includedTests list
+    this.selectedLabTests = this.selectedLabTests.filter(
+      id => !suggestion.includedTests.includes(id)
+    );
+
+    // 2️⃣ Add the package itself to the selection
+    const packageItem = this.labTests.find(
+      x => x.id === suggestion.packageId && x.type === 'Package'
+    );
+    if (packageItem) {
+      this.selectedLabTests.push(packageItem.id);
+
+      // 3️⃣ Disable its tests in the dropdown
+      packageItem.packageTestIds?.forEach(testId => {
+        const testItem = this.labTests.find(t => t.id === testId);
+        if (testItem) {
+          testItem.disabled = true; // disable flag
+        }
+      });
+    }
+
+    // 4️⃣ Remove disabled items from selection (in case they were selected before)
+    this.selectedLabTests = this.selectedLabTests.filter(id => {
+      const item = this.labTests.find(t => t.id === id);
+      return !(item?.disabled && item.type === 'Test');
+    });
+
+    // 5️⃣ Clear suggestions
+    this.suggestions = [];
   }
-  
-    
+
+  get selectedTestsTotalPrice(): number {
+    if (!this.selectedLabTests || this.selectedLabTests.length === 0) {
+      return 0;
+    }
+
+    return this.selectedLabTests.reduce((total, testId) => {
+      const test = this.labTests.find(t => t.id === testId);
+      return test ? total + (test.price || 0) : total;
+    }, 0);
+  }
+  // Add this getter inside your component class
+get selectedTestDetails() {
+  if (!this.selectedLabTests || this.selectedLabTests.length === 0) {
+    return [];
+  }
+  return this.selectedLabTests
+    .map(id => this.labTests.find(t => t.id === id))
+    .filter(t => t != null); // filter out nulls just in case
+}
+
+
 }

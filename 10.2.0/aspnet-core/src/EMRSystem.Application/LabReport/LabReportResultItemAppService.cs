@@ -1,21 +1,24 @@
 ﻿using Abp.Application.Services;
+using Abp.Application.Services.Dto;
 using Abp.Domain.Repositories;
-using EMRSystem.Appointments.Dto;
+using Abp.EntityFrameworkCore.Repositories;
 using EMRSystem.Appointments;
+using EMRSystem.Appointments.Dto;
+using EMRSystem.IpdChargeEntry;
+using EMRSystem.LabReport.Dto;
+using EMRSystem.LabReports;
+using EMRSystem.LabTechnician;
+using EMRSystem.LabTechnician.Dto;
+using EMRSystem.MultiTenancy;
+using EMRSystem.Patients;
+using EMRSystem.Prescriptions;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using EMRSystem.LabReport.Dto;
-using Abp.EntityFrameworkCore.Repositories;
-using EMRSystem.LabReports;
-using Abp.Application.Services.Dto;
-using EMRSystem.LabTechnician;
-using EMRSystem.LabTechnician.Dto;
-using Microsoft.AspNetCore.Mvc;
-using EMRSystem.MultiTenancy;
-using Microsoft.EntityFrameworkCore;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace EMRSystem.LabReport
@@ -24,14 +27,32 @@ namespace EMRSystem.LabReport
   ILabReportResultItemAppService
     {
         private readonly IPrescriptionLabTestAppService _prescriptionLabTestsAppService;
+        private readonly IRepository<EMRSystem.LabReports.PrescriptionLabTest, long> _prescriptionLabTestRepository;
+        private readonly IRepository<Prescription, long> _prescriptionRepository;
+        private readonly IRepository<Patient, long> _patientRepository;
+        private readonly IRepository<EMRSystem.Admission.Admission, long> _admissionRepository;
+        private readonly IRepository<EMRSystem.LabReportsTypes.LabReportsType, long> _labReportsTypeRepository;
+        private readonly IRepository<EMRSystem.IpdChargeEntry.IpdChargeEntry, long> _ipdChargeEntryRepository;
         private readonly TenantManager _tenantManager;
         public LabReportResultItemAppService(IRepository<EMRSystem.LabReports.LabReportResultItem, long> repository
             , IPrescriptionLabTestAppService prescriptionLabTestsAppService,
+             IRepository<EMRSystem.LabReports.PrescriptionLabTest, long> prescriptionLabTestRepository,
+             IRepository<Prescription, long> prescriptionRepository,
+             IRepository<Patient, long> patientRepository,
+             IRepository<EMRSystem.Admission.Admission, long> admissionRepository,
+             IRepository<EMRSystem.LabReportsTypes.LabReportsType, long> labReportsTypeRepository,
+             IRepository<EMRSystem.IpdChargeEntry.IpdChargeEntry, long> ipdChargeEntryRepository,
             TenantManager tenantManager
             ) : base(repository)
         {
             _prescriptionLabTestsAppService = prescriptionLabTestsAppService;
             _tenantManager = tenantManager;
+            _admissionRepository = admissionRepository;
+            _prescriptionLabTestRepository = prescriptionLabTestRepository;
+            _prescriptionRepository = prescriptionRepository;
+            _patientRepository = patientRepository;
+            _labReportsTypeRepository = labReportsTypeRepository;
+            _ipdChargeEntryRepository = ipdChargeEntryRepository;
         }
         public async Task AddLabReportResultItem(List<CreateUpdateLabReportResultItemDto> reportResultItemDtos)
         {
@@ -41,16 +62,53 @@ namespace EMRSystem.LabReport
                 {
                     var mapped = ObjectMapper.Map<List<LabReportResultItem>>(reportResultItemDtos);
                     await Repository.InsertRangeAsync(mapped);
-                    CurrentUnitOfWork.SaveChanges();
-                    var id = reportResultItemDtos[0].PrescriptionLabTestId;
-                   // await _prescriptionLabTestsAppService.MakeInprogressReports(id);
+                    await CurrentUnitOfWork.SaveChangesAsync();
+
+                    var prescriptionLabTestId = reportResultItemDtos[0].PrescriptionLabTestId;
+                    await _prescriptionLabTestsAppService.MakeInprogressReports(prescriptionLabTestId);
+                    var prescriptionLabTest = await _prescriptionLabTestRepository.GetAsync(prescriptionLabTestId);
+
+                    if (prescriptionLabTest != null)
+                    {
+                        var prescription = await _prescriptionRepository.GetAsync((long)prescriptionLabTest.PrescriptionId);
+
+                        if (prescription != null)
+                        {
+                            var patient = await _patientRepository.GetAsync(prescription.PatientId);
+
+                            if (patient != null && patient.IsAdmitted)
+                            {
+                                var admission = await _admissionRepository.FirstOrDefaultAsync(a =>
+                                    a.PatientId == patient.Id && a.IsDischarged == false);
+
+                                if (admission != null)
+                                {
+                                    var reportType = await _labReportsTypeRepository.GetAsync(prescriptionLabTest.LabReportsTypeId);
+                                    var chargeEntry = new EMRSystem.IpdChargeEntry.IpdChargeEntry
+                                    {
+                                        TenantId = prescriptionLabTest.TenantId,
+                                        AdmissionId = admission.Id,
+                                        PatientId = patient.Id,
+                                        ChargeType = ChargeType.LabTest,
+                                        Description = $"Lab Test - {reportType.ReportType}",
+                                        Amount = reportType.ReportPrice,
+                                        EntryDate = DateTime.Now,
+                                        IsProcessed = false,
+                                        ReferenceId = prescriptionLabTest.Id
+                                    };
+
+                                    await _ipdChargeEntryRepository.InsertAsync(chargeEntry);
+                                    await CurrentUnitOfWork.SaveChangesAsync();
+                                }
+                            }
+                        }
+                    }
                 }
             }
             catch (Exception ex)
             {
-                throw ex;
+                throw;
             }
-
         }
         [HttpGet]
         public async Task<List<CreateUpdateLabReportResultItemDto>> GetLabReportResultItemsById(long prescriptionLabTestId)

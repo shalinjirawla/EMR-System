@@ -1,5 +1,6 @@
 ﻿using Abp.Domain.Entities;
 using EMRSystem.LabReportsTypes;
+using EMRSystem.LabTestReceipt;
 using EMRSystem.Patients;
 using EMRSystem.Prescriptions;
 using System;
@@ -21,8 +22,10 @@ namespace EMRSystem.LabReports
         public long LabReportsTypeId { get; set; }
         public virtual LabReportsType LabReportsType { get; set; }
         public LabTestStatus TestStatus { get; set; }
-        public bool IsPaid { get; set; }=true;
+        public bool IsPaid { get; set; }=false;
         public DateTime? CreatedDate { get; set; } = DateTime.Now;
+        public long? LabTestReceiptId { get; set; }
+        public virtual EMRSystem.LabTestReceipt.LabTestReceipt LabTestReceipt { get; set; }
         public ICollection<LabReportResultItem> LabReportResultItems { get; set; }
     }
 

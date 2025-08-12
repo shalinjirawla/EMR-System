@@ -12,10 +12,10 @@ namespace EMRSystem.LabReport.Dto
     {
         public string Test { get; set; }
         public string Result { get; set; }
-        public decimal MinValue { get; set; }
-        public decimal MaxValue { get; set; }
-        public string Unit { get; set; }
-        public string Flag { get; set; }
+        public decimal? MinValue { get; set; }
+        public decimal? MaxValue { get; set; }
+        public string? Unit { get; set; }
+        public string? Flag { get; set; }
         public PrescriptionLabTestDto PrescriptionLabTest { get; set; }
     }
 }

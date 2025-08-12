@@ -1,144 +1,159 @@
-.lab-test-form {
-    font-family: "Segoe UI", sans-serif;
-    font-size: 15px;
-    color: #1e293b;
-  }
-  
-  .form-section {
-    background: #fff;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
-  
-    h4 {
-      font-size: 1.2rem;
-      font-weight: 600;
-      color: #3b82f6;
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-  
-    .form-label {
-      font-weight: 500;
-      color: #4b5563;
-      margin-bottom: 0.4rem;
-      display: block;
-    }
-  }
-  
- 
-  ::ng-deep .p-dropdown,
-  ::ng-deep .p-togglebutton {
-    border-radius: 8px;
-    border-color: #d1d5db;
-  }
-  
-  ::ng-deep .p-dropdown:hover,
-  ::ng-deep .p-togglebutton:hover {
-    border-color: #60a5fa;
-  }
-  
-  ::ng-deep .p-dropdown .p-inputtext {
-    padding: 0.5rem 0.75rem;
-  }
-  
-  .table-header,
-  .table-row {
-    display: grid;
-    grid-template-columns: 2fr 1.2fr 1fr 1fr 1fr 1fr;
-    align-items: center;
-    padding: 0.6rem 0;
-  }
-  
-  .table-header {
-    font-weight: 600;
-    color: #334155;
-    border-bottom: 2px solid #e5e7eb;
-    background: #f1f5f9;
-    border-radius: 6px 6px 0 0;
-  }
-  
-  .table-row {
-    border-bottom: 1px solid #e5e7eb;
-    transition: background-color 0.3s;
-  
-    &.abnormal {
-      background: #fff7ed;
-    }
-  
-    div {
-      padding: 0 0.5rem;
-    }
-  
-    input {
-      width: 100%;
-      padding: 0.35rem 0.5rem;
-      border: 1px solid #d1d5db;
-      border-radius: 6px;
-  
-      &:focus {
-        border-color: #60a5fa;
-        outline: none;
-        box-shadow: 0 0 0 1px #93c5fd;
-      }
-    }
-  }
-  
-  ::ng-deep .p-tag {
-    border-radius: 8px;
-    padding: 0.25rem 0.6rem;
-    font-size: 0.85rem;
-  }
-  
-  .mobile-card {
-    background: #f9fafb;
-    border: 1px solid #e0e7ff;
-    border-radius: 10px;
-    padding: 1.2rem;
-    margin-bottom: 1rem;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
-  }
-  
-  .mobile-header {
-    font-weight: 600;
-    color: #2563eb;
-    margin-bottom: 1rem;
-    font-size: 1rem;
-  }
-  
-  .mobile-row {
-    margin-bottom: 0.75rem;
-  
-    label {
-      font-weight: 500;
-      color: #374151;
-      margin-bottom: 0.25rem;
-      display: block;
-    }
-  
-    input {
-      width: 100%;
-      padding: 0.4rem 0.5rem;
-      border-radius: 6px;
-      border: 1px solid #d1d5db;
-  
-      &:focus {
-        border-color: #60a5fa;
-        box-shadow: 0 0 0 1px #93c5fd;
-      }
-    }
-  }
-  
-  .pair {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-  
-    .pair-cell {
-      flex: 1 1 45%;
-    }
-  }
-  
+/* Container */
+.lab-report-form {
+  max-width: auto;
+  /* margin: 2.5rem auto; */
+  padding: 2rem 2.5rem;
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  border-radius: 12px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #2c3e50;
+}
+
+/* Form groups */
+.form-group {
+  margin-bottom: 1.8rem;
+}
+
+/* Labels */
+label {
+  display: block;
+  margin-bottom: 0.6rem;
+  font-weight: 600;
+  font-size: 1rem;
+  color: #34495e;
+}
+
+/* Dropdown & Multiselect */
+.pro-dropdown,
+.pro-multiselect {
+  width: 100% !important;
+  font-size: 1rem !important;
+  border: 1.5px solid #ccd6f6 !important;
+  border-radius: 6px !important;
+  background-color: #f8fbff !important;
+  color: #2c3e50 !important;
+  transition: border-color 0.25s ease;
+}
+
+.pro-dropdown:focus,
+.pro-multiselect:focus {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 6px rgba(59,130,246,0.4);
+  outline: none !important;
+}
+
+/* Disabled item style */
+.disabled-item {
+  color: #a0aec0 !important;
+  font-style: italic;
+}
+
+.included-text {
+  font-size: 0.85em;
+  color: #718096;
+  margin-left: 6px;
+}
+
+/* Panel for multiselect */
+.pro-panel {
+  border-radius: 6px !important;
+  border: 1.5px solid #cbd5e1 !important;
+  box-shadow: 0 8px 20px rgba(59,130,246,0.15) !important;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #2c3e50;
+}
+
+/* Cards for selected tests and suggestions */
+.pro-card {
+  background: #f7f9ff;
+  border-radius: 10px;
+  padding: 1.8rem 2rem;
+  margin-top: 2.5rem;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+
+/* Titles */
+.pro-card h4 {
+  margin-bottom: 1.4rem;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1e40af;
+  border-bottom: 3px solid #3b82f6;
+  padding-bottom: 0.3rem;
+}
+
+/* Selected tests list */
+.selected-tests-container ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.6rem 0;
+  max-height: 220px;
+  overflow-y: auto;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #ffffff;
+}
+
+.test-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.55rem 1rem;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 1rem;
+  color: #2e3a59;
+  transition: background-color 0.2s ease;
+}
+
+.test-item:last-child {
+  border-bottom: none;
+}
+
+.test-item:hover {
+  background-color: #eff6ff;
+}
+
+.total-price {
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: right;
+  color: #2563eb;
+}
+
+/* Suggestions container */
+.suggestions-container .suggestion-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.45rem 0;
+  font-size: 1.1rem;
+  color: #334155;
+}
+
+.suggestion-info {
+  font-weight: 600;
+}
+
+.suggestion-price {
+  color: #16a34a;
+  font-weight: 700;
+  min-width: 90px;
+  text-align: right;
+  margin-left: 1rem;
+}
+
+/* Replace button */
+.pro-btn {
+  background-color: #2563eb !important;
+  border: none !important;
+  color: white !important;
+  font-weight: 600;
+  padding: 0.35rem 1rem;
+  border-radius: 6px !important;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+}
+
+.pro-btn:hover {
+  background-color: #1e40af !important;
+}

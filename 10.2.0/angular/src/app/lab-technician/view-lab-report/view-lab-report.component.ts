@@ -56,4 +56,7 @@ export class ViewLabReportComponent implements OnInit {
       this.cd.detectChanges();
     })
   }
+  hasAnyRange(items: any[]): boolean {
+  return items?.some(item => item.minValue !== null && item.maxValue !== null);
+}
 }

@@ -43,7 +43,7 @@
                 </a>
             }
             @if (item.children) {
-                <ul class="nav nav-treeview" [collapse]="item.isCollapsed" [isAnimated]="true">
+                <ul class="nav nav-treeview" [attr.aria-hidden]="null"[collapse]="item.isCollapsed" [isAnimated]="true">
                     @for (item of item.children; track item) {
                         <ng-container *ngTemplateOutlet="sidebarInner; context: { item: item }"></ng-container>
                     }

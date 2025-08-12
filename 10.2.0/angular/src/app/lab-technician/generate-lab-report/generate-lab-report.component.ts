@@ -4,7 +4,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { BsModalRef } from 'ngx-bootstrap/modal';
-import { CreateUpdateLabReportResultItemDto, LabReportResultItemServiceProxy } from '@shared/service-proxies/service-proxies';
+import { CreateUpdateLabReportResultItemDto, LabReportResultItemServiceProxy, LabReportsTypeServiceProxy } from '@shared/service-proxies/service-proxies';
 import { AbpModalHeaderComponent } from '../../../shared/components/modal/abp-modal-header.component';
 import { AbpModalFooterComponent } from '../../../shared/components/modal/abp-modal-footer.component';
 import { AppComponentBase } from '../../../shared/app-component-base';
@@ -24,10 +24,11 @@ import { TagModule } from 'primeng/tag';
   ],
   templateUrl: './generate-lab-report.component.html',
   styleUrl: './generate-lab-report.component.css',
-  providers: [LabReportResultItemServiceProxy]
+  providers: [LabReportResultItemServiceProxy, LabReportsTypeServiceProxy]
 })
 export class GenerateLabReportComponent extends AppComponentBase implements OnInit {
   id!: number;
+  labReportsTypeId!: number;
   testName!: string;
   patientName!: string;
   saving = false;
@@ -49,27 +50,71 @@ export class GenerateLabReportComponent extends AppComponentBase implements OnIn
   constructor(
     injector: Injector,
     public bsModalRef: BsModalRef,
-    private cd: ChangeDetectorRef,
+    public cd: ChangeDetectorRef,
     private _labreportService: LabReportResultItemServiceProxy,
+    private _reportTypeService: LabReportsTypeServiceProxy,
   ) {
     super(injector);
   }
   ngOnInit(): void {
+    this.getlabtestitems();
   }
-  isSaveDisabled(): boolean {
-    if (!this.labReportItems || this.labReportItems.length === 0) {
-      return true;
-    }
 
-    return this.labReportItems.some((item, index) =>
-      !item.test?.trim() ||
-      item.minValue == null ||
-      item.maxValue == null ||
-      !item.result == null ||
-      !item.unit?.trim() ||
-      this.isInvalidRange(item, index)
-    );
+  getlabtestitems() {
+    this._reportTypeService
+      .getReportDetailsWithTests(this.labReportsTypeId)
+      .subscribe(res => {
+        this.testName = res.reportName;
+        this.labReportItems = res.labTests.map(t => ({
+          test: t.labTestName,
+          minValue: t.minRange,
+          maxValue: t.maxRange,
+          unit: t.measureUnitName,
+          result: '',
+          flag: ''
+        }));
+        this.cd.detectChanges();
+      });
+
   }
+
+  onResultChange(item: any) {
+    const parsed = parseFloat(item.result);
+    if (isNaN(parsed)) {
+      item.flag = undefined;
+      return;
+    }
+    // use minValue/maxValue instead of minRange/maxRange
+    if (item.minValue == null || item.maxValue == null) {
+      item.flag = 'NA';
+    } else if (parsed < item.minValue) {
+      item.flag = 'Low';
+    } else if (parsed > item.maxValue) {
+      item.flag = 'High';
+    } else {
+      item.flag = 'Normal';
+    }
+  }
+
+
+  isSaveDisabled(): boolean {
+  if (!this.labReportItems || this.labReportItems.length === 0) {
+    return true;
+  }
+
+  return this.labReportItems.some((item, index) => {
+    const isNumericTest = item.minValue != null && item.maxValue != null;
+
+    return (
+      !item.test?.trim() ||
+      item.result == null || item.result.toString().trim() === '' ||
+      (isNumericTest && !item.unit?.trim()) || // Require unit only for numeric
+      (isNumericTest && this.isInvalidRange(item, index))
+    );
+  });
+}
+
+
   isInvalidRange(item: any, index: number): boolean {
     return this.hasEditedMaxMap[index]
       && item.minValue != null
@@ -95,21 +140,30 @@ export class GenerateLabReportComponent extends AppComponentBase implements OnIn
     this.labReportItems.splice(index, 1);
   }
   calculateFlag(item: CreateUpdateLabReportResultItemDto) {
-    const resultVal = item.result;
-    if (!isNaN(resultVal)) {
-      if (resultVal < item.minValue) item.flag = 'Low';
-      else if (resultVal > item.maxValue) item.flag = 'High';
-      else item.flag = 'Normal';
+  // Try to convert result to a number
+  const numericResult = parseFloat(item.result);
+
+  // If result is numeric and min/max are set, compare
+  if (!isNaN(numericResult) && item.minValue != null && item.maxValue != null) {
+    if (numericResult < item.minValue) {
+      item.flag = 'Low';
+    } else if (numericResult > item.maxValue) {
+      item.flag = 'High';
     } else {
-      item.flag = '';
+      item.flag = 'Normal';
     }
+  } else {
+    // For qualitative results like "Positive", "Negative"
+    item.flag = 'Unset';
   }
-  getSeverity(flag: string | undefined): string {
+}
+
+  getSeverity(flag: string): string {
     switch (flag) {
-      case 'Normal': return 'success';
       case 'High': return 'danger';
       case 'Low': return 'warn';
-      default: return 'secondary'; // For 'Unset' or empty
+      case 'Normal': return 'success';
+      default: return 'info';
     }
   }
   getFlag(result: string, reference: string): string {
@@ -125,6 +179,7 @@ export class GenerateLabReportComponent extends AppComponentBase implements OnIn
     this.labReportItems.forEach(item => {
       item.prescriptionLabTestId = this.id;
     });
+    debugger
     this._labreportService.addLabReportResultItem(this.labReportItems).subscribe({
       next: (res) => {
         this.bsModalRef.hide();

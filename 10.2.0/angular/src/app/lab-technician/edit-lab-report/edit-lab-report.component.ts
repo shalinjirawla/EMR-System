@@ -57,21 +57,6 @@ export class EditLabReportComponent extends AppComponentBase implements OnInit {
   ngOnInit(): void {
     this.GetLabReportResultItems();
   }
-  addItem() {
-    this.labReportItems.push({
-      test: '',
-      result: null,
-      minValue: null,
-      maxValue: null,
-      unit: '',
-      flag: '',
-      id: 0,
-      prescriptionLabTestId: 0,
-    });
-  }
-  removeItem(index: number) {
-    this.labReportItems.splice(index, 1);
-  }
   GetLabReportResultItems() {
     this._labreportService.getLabReportResultItemsById(this.id).subscribe({
       next: (res) => {
@@ -86,14 +71,7 @@ export class EditLabReportComponent extends AppComponentBase implements OnInit {
       return true;
     }
 
-    return this.labReportItems.some((item, index) =>
-      !item.test?.trim() ||
-      item.minValue == null ||
-      item.maxValue == null ||
-      !item.result == null ||
-      !item.unit?.trim() ||
-      this.isInvalidRange(item, index)
-    );
+    return this.labReportItems.some(item => item.result == null);
   }
   isInvalidRange(item: any, index: number): boolean {
     return this.hasEditedMaxMap[index]
@@ -110,15 +88,24 @@ export class EditLabReportComponent extends AppComponentBase implements OnInit {
     }
   }
   calculateFlag(item: CreateUpdateLabReportResultItemDto) {
-    const resultVal = item.result;
-    if (!isNaN(resultVal)) {
-      if (resultVal < item.minValue) item.flag = 'Low';
-      else if (resultVal > item.maxValue) item.flag = 'High';
-      else item.flag = 'Normal';
+  // Try to convert result to a number
+  const numericResult = parseFloat(item.result);
+
+  // If result is numeric and min/max are set, compare
+  if (!isNaN(numericResult) && item.minValue != null && item.maxValue != null) {
+    if (numericResult < item.minValue) {
+      item.flag = 'Low';
+    } else if (numericResult > item.maxValue) {
+      item.flag = 'High';
     } else {
-      item.flag = '';
+      item.flag = 'Normal';
     }
+  } else {
+    // For qualitative results like "Positive", "Negative"
+    item.flag = 'Unset';
   }
+}
+
   getFlag(result: string, reference: string): string {
     const parsedResult = parseFloat(result);
     const [min, max] = reference.split('-').map(v => parseFloat(v));

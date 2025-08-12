@@ -80,7 +80,7 @@ public class EMRSystemAuthorizationProvider : AuthorizationProvider
         labTech.CreateChildPermission("Pages.LabTechnician.Inventory.Update", L("UpdateInventory"));
 
         labTech.CreateChildPermission("Pages.LabTechnician.Reports.View", L("ViewLabReports"));
-        labTech.CreateChildPermission("Pages.LabTechnician.TestRequests.Manage", L("ManageTestRequests"));
+        labTech.CreateChildPermission("Pages.LabTechnician.TestRequests.Manage", L("TestRequests"));
         #endregion
 
         #region Pharmacist Permissions

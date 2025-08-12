@@ -1,0 +1,9 @@
+/* small modal tweaks */
+.modal-body {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+.ui-multiselect .ui-multiselect-label {
+  white-space: normal;
+}
+.form-label { font-weight: 600; }

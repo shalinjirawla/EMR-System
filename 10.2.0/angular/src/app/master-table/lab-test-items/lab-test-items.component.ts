@@ -13,10 +13,9 @@ import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { CreateupdateLabTestItemsComponent } from '../createupdate-lab-test-items/createupdate-lab-test-items.component';
 
-interface LabReportsTypeWithTests extends LabReportsTypeDto {
+type LabReportsTypeWithTests = Omit<LabReportsTypeDto, 'tests'> & {
   tests?: LabReportTestWithUnitDto[];
-}
-
+};
 @Component({
   selector: 'app-lab-test-items',
   imports: [CommonModule,TableModule,ButtonModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe,],
@@ -68,7 +67,7 @@ export class LabTestItemsComponent extends PagedListingComponentBase<LabReportsT
       .subscribe((result: LabReportsTypeDtoPagedResultDto) => {
         this.primengTableHelper.records = result.items;
         this.primengTableHelper.totalRecordsCount = result.totalCount;
-        this.reportTypes = result.items;
+       this.reportTypes = result.items as unknown as LabReportsTypeWithTests[];
         this.cd.detectChanges();
       });
   }
@@ -76,11 +75,13 @@ export class LabTestItemsComponent extends PagedListingComponentBase<LabReportsT
     this.deleteReportType(entity);
   }
   deleteTestItem(reportTypeId: number, testId: number): void {
+
     abp.message.confirm(
       'Are you sure you want to delete this test from this report type?',
       undefined,
       (res: boolean) => {
         if (res) {
+          
           this._labReportTypeItemService.delete(testId).subscribe(() => {
             abp.notify.success('Test removed successfully');
   
@@ -107,7 +108,7 @@ export class LabTestItemsComponent extends PagedListingComponentBase<LabReportsT
   
     const type = event.data as LabReportsTypeWithTests;
   
-    if (!type.tests) {
+    if (type.id) {
       this._labReportTypeItemService.getAllLabReportItems(type.id).subscribe((tests) => {
         type.tests = tests.items;
         this.cd.detectChanges();

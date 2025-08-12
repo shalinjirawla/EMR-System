@@ -11,5 +11,6 @@ namespace EMRSystem.LabTestReceipt
     public interface ILabTestReceiptAppService : IApplicationService
     {
         Task<LabTestReceiptDto> GenerateLabTestReceipt(long labTestId, string paymentMethod);
+        //Task<ViewLabTestReceiptDto> GetViewByPrescriptionLabTestIdAsync(long prescriptionLabTestId);
     }
 }

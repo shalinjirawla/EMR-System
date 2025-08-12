@@ -1,0 +1,87 @@
+<div class="medical-receipt">
+  <!-- Receipt Header -->
+  <div class="receipt-header">
+    <div class="clinic-brand">
+      <div class="clinic-logo">
+            <img src="/assets/img/hospital_logo.png" alt="Logo"/>
+      </div>
+      <div class="clinic-details">
+        <h1>{{ hospitalName }}</h1>
+        <p>123 Medical Complex, Health Nagar, Mumbai-400001</p>
+        <p>Contact: +91 9876543210 | GSTIN: 27ABCDE1234F1Z5</p>
+      </div>
+    </div>
+
+    <div class="receipt-title">
+      <h2>LAB TEST PAYMENT RECEIPT</h2>
+      <div class="receipt-number">Receipt No: {{ receipt.receiptNumber }}</div>
+    </div>
+  </div>
+
+  <!-- Receipt Body -->
+  <div class="receipt-body" *ngIf="!loading && receipt">
+    <div class="patient-details">
+      <div class="detail-row">
+        <span class="label">Patient Name:</span>
+        <span class="value">{{ receipt.patientName }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Lab Test:</span>
+        <span class="value">{{ receipt.labReportName }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Test Date:</span>
+        <span class="value">{{ receipt.labReportDate | date: 'dd-MMM-yyyy hh:mm a' }}</span>
+      </div>
+    </div>
+
+    <!-- Payment Table -->
+    <div class="payment-table">
+      <div class="table-header">
+        <div class="header-item">Description</div>
+        <div class="header-item">Amount (₹)</div>
+      </div>
+      <div class="table-row">
+        <div class="row-item">Lab Test Fee</div>
+        <div class="row-item amount">{{ receipt.labTestFee | number: '1.2-2' }}</div>
+      </div>
+      <div class="table-footer">
+        <div class="footer-item">Total Paid</div>
+        <div class="footer-item amount">{{ receipt.labTestFee | number: '1.2-2' }}</div>
+      </div>
+    </div>
+
+    <!-- Payment Details -->
+    <div class="payment-details">
+      <div class="detail-row">
+        <span class="label">Payment Mode:</span>
+        <span class="value">{{ receipt.paymentMethod }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Paid On:</span>
+        <span class="value">{{ receipt.paymentDate | date: 'dd-MMM-yyyy hh:mm a' }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Payment Status:</span>
+        <span class="value status-paid">{{ receipt.status }}</span>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="receipt-footer">
+      <div class="signature-line">
+        <p>Authorized Signature</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Receipt Actions -->
+  <div class="receipt-actions">
+    <button class="btn print-btn" (click)="print()">
+      <i class="fas fa-print"></i> Print Receipt
+    </button>
+    <button class="btn close-btn" (click)="close()">
+      <i class="fas fa-times"></i> Close
+    </button>
+  </div>
+</div>

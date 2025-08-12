@@ -1,6 +1,8 @@
 ﻿using Abp.Domain.Entities;
 using Abp.Domain.Repositories;
 using Abp.Domain.Uow;
+using Abp.UI;
+using AutoMapper;
 using EMRSystem.Invoices;
 using EMRSystem.LabTestReceipt.Dto;
 using EMRSystem.Patients;
@@ -16,6 +18,7 @@ namespace EMRSystem.LabTestReceipt
     public class LabTestReceiptAppService : ILabTestReceiptAppService
     {
         private readonly IRepository<LabTestReceipt, long> _receiptRepository;
+        private readonly IMapper _mapper;
         private readonly IRepository<EMRSystem.LabReports.PrescriptionLabTest, long> _labTestRepository;
         private readonly IRepository<Patient, long> _patientRepository;
         private readonly IRepository<EMRSystem.LabReportsTypes.LabReportsType, long> _labTypeRepository;
@@ -23,12 +26,14 @@ namespace EMRSystem.LabTestReceipt
 
         public LabTestReceiptAppService(
             IRepository<LabTestReceipt, long> receiptRepository,
+            IMapper mapper,
             IRepository<EMRSystem.LabReports.PrescriptionLabTest, long> labTestRepository,
             IRepository<Patient, long> patientRepository,
             IUnitOfWorkManager unitOfWorkManager,
             IRepository<EMRSystem.LabReportsTypes.LabReportsType, long> labTypeRepository)
         {
             _receiptRepository = receiptRepository;
+            _mapper = mapper;
             _labTestRepository = labTestRepository;
             _patientRepository = patientRepository;
             _labTypeRepository = labTypeRepository;
@@ -40,8 +45,11 @@ namespace EMRSystem.LabTestReceipt
         {
             var labTest = await _labTestRepository.GetAll()
                 .Include(lt => lt.Patient)
+                .Include(lt => lt.Prescription)
                 .Include(lt => lt.LabReportsType)
                 .FirstOrDefaultAsync(lt => lt.Id == labTestId);
+            labTest.IsPaid = true;
+            await _labTestRepository.UpdateAsync(labTest);
 
             if (labTest == null)
                 throw new EntityNotFoundException(typeof(EMRSystem.LabReports.PrescriptionLabTest), labTestId);
@@ -49,9 +57,10 @@ namespace EMRSystem.LabTestReceipt
             var receipt = new LabTestReceipt
             {
                 TenantId = labTest.TenantId,
-                PatientId = labTest.PatientId.Value,
-                LabReportTypeId = labTest.LabReportsTypeId,
-                LabTestFee = labTest.LabReportsType.ReportPrice,
+                //PrescriptionLabTestId =labTest.Id,
+                PatientId = labTest.Prescription.PatientId,
+                //LabReportTypeId = labTest.LabReportsTypeId,
+                //LabTestFee = labTest.LabReportsType.ReportPrice,
                 PaymentMethod = (PaymentMethod)Enum.Parse(typeof(PaymentMethod), paymentMethod),
                 ReceiptNumber = await GenerateReceiptNumberAsync(),
                 Status = InvoiceStatus.Paid,
@@ -66,9 +75,10 @@ namespace EMRSystem.LabTestReceipt
             {
                 Id = receipt.Id,
                 TenantId = receipt.TenantId,
+                PrescriptionLabTestId = receipt.Id,
                 PatientId = receipt.PatientId,
-                LabReportTypeId = receipt.LabReportTypeId,
-                LabTestFee = receipt.LabTestFee,
+                //LabReportTypeId = receipt.LabReportTypeId,
+                //LabTestFee = receipt.LabTestFee,
                 ReceiptNumber = receipt.ReceiptNumber,
                 PaymentDate = receipt.PaymentDate,
                 PaymentMethod = receipt.PaymentMethod,
@@ -98,5 +108,20 @@ namespace EMRSystem.LabTestReceipt
 
             return $"LABREC-{today}-{sequence.ToString().PadLeft(3, '0')}";
         }
+
+        //public async Task<ViewLabTestReceiptDto> GetViewByPrescriptionLabTestIdAsync(long prescriptionLabTestId)
+        //{
+        //    var entity = await _receiptRepository.GetAll()
+        //        .Include(r => r.PrescriptionLabTest).ThenInclude(pl => pl.LabReportsType)
+        //        .Include(r => r.PrescriptionLabTest).ThenInclude(pl => pl.Patient)
+        //        .Include(r => r.Patient)
+        //        .FirstOrDefaultAsync(r => r.PrescriptionLabTestId == prescriptionLabTestId);
+
+        //    if (entity == null)
+        //        throw new UserFriendlyException(
+        //            $"No receipt found for PrescriptionLabTestId = {prescriptionLabTestId}");
+
+        //    return _mapper.Map<ViewLabTestReceiptDto>(entity);
+        //}
     }
 }
