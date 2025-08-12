@@ -12,6 +12,10 @@ namespace EMRSystem.LabMasters.Dto.LabReportTypeItem
         public long LabReportTypeId { get; set; }
         public long LabTestId { get; set; }
         public string LabTestName { get; set; }
-        public string MeasureUnitName { get; set; }
+
+        public long? MeasureUnitId { get; set; }
+        public string? MeasureUnitName { get; set; }
+
+        public bool IsActive { get; set; }
     }
 }

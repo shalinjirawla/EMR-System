@@ -65,7 +65,8 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
     public DbSet<EMRSystem.LabMasters.LabReportTypeItem> LabReportTypeItems { get; set; }
     public DbSet<TestResultLimit> TestResultLimits { get; set; }
     public DbSet<EMRSystem.LabTestReceipt.LabTestReceipt> LabTestReceipts { get; set; }
-
+    public DbSet<HealthPackage> HealthPackages { get; set; }
+    public DbSet<HealthPackageLabReportsType> HealthPackageLabReportsTypes { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -203,6 +204,11 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
              .WithMany(lrt => lrt.PrescriptionLabTests)
              .HasForeignKey(plt => plt.LabReportsTypeId)
              .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(plt => plt.LabTestReceipt)
+             .WithMany(ltr => ltr.PrescriptionLabTests)
+             .HasForeignKey(plt => plt.LabTestReceiptId)
+             .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<LabReportResultItem>()
@@ -325,7 +331,7 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
             b.ToTable("LabTestReceipts");
 
             // Decimal precision
-            b.Property(x => x.LabTestFee)
+            b.Property(x => x.TotalFee)
              .HasColumnType("decimal(18,2)");
 
             // Configure enum as string
@@ -338,15 +344,19 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
              .HasMaxLength(20);
 
             // Relationships
-            b.HasOne(r => r.LabReportType)
-             .WithMany(lrt => lrt.LabTestReceipts)
-             .HasForeignKey(r => r.LabReportTypeId)
-             .OnDelete(DeleteBehavior.Restrict);
+            //b.HasOne(r => r.LabReportType)
+            // .WithMany(lrt => lrt.LabTestReceipts)
+            // .HasForeignKey(r => r.LabReportTypeId)
+            // .OnDelete(DeleteBehavior.Restrict);
 
             b.HasOne(r => r.Patient)
              .WithMany(p => p.LabTestReceipts)
              .HasForeignKey(r => r.PatientId)
              .OnDelete(DeleteBehavior.Restrict);
+            //b.HasOne(r => r.PrescriptionLabTest)
+            // .WithMany()
+            // .HasForeignKey(r => r.PrescriptionLabTestId)
+            // .OnDelete(DeleteBehavior.Restrict);
 
             // Unique index for receipt number (optional)
             b.HasIndex(r => r.ReceiptNumber)
@@ -572,5 +582,23 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
           .WithMany(e => e.Visits)
           .HasForeignKey(s => s.DepartmentId)
           .OnDelete(DeleteBehavior.NoAction); // or NoAction
+
+        modelBuilder.Entity<HealthPackage>()
+           .ToTable("HealthPackages");
+
+        modelBuilder.Entity<HealthPackageLabReportsType>()
+            .ToTable("HealthPackageLabReportsTypes");
+
+        modelBuilder.Entity<HealthPackageLabReportsType>()
+            .HasOne(hprt => hprt.HealthPackage)
+            .WithMany(hp => hp.PackageReportTypes)
+            .HasForeignKey(hprt => hprt.HealthPackageId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<HealthPackageLabReportsType>()
+            .HasOne(hprt => hprt.LabReportsType)
+            .WithMany(lrt => lrt.PackageHealthPackages)
+            .HasForeignKey(hprt => hprt.LabReportsTypeId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

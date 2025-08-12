@@ -1,3 +1,115 @@
-input.ng-invalid-range {
-    border-color: red;
+:root {
+  /* Theme colors */
+  --header-bg: #2f4f4f;
+  --header-color: #ffffff;
+  --row-bg: #ffffff;
+  --row-alt-bg: #f8f8f8;
+  --hover-bg: #e0f7fa;
+  --abnormal-border: #e74c3c;
+  --focus-border: #3498db;
 }
+
+/* Form resets */
+.lab-report-form {
+  font-family: "Segoe UI", sans-serif;
+}
+
+.modal-body {
+  padding: 1.25rem;
+  background: #fafafa;
+}
+
+/* Patient Info Row */
+.patient-info {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 1rem;
+  gap: 0.5rem;
+}
+.patient-info .label {
+  font-weight: 600;
+  color: #333;
+}
+.patient-info .value {
+  font-weight: 500;
+}
+
+/* Table container with shadow */
+.table-container {
+  overflow-x: auto;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* Base table styling */
+.lab-report-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* Header */
+.lab-report-table thead {
+  background: var(--header-bg);
+}
+.lab-report-table th {
+  padding: 0.75rem 1rem;
+  color: var(--header-color);
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+}
+
+/* Zebra striping */
+.lab-report-table tbody tr:nth-child(odd) {
+  background: var(--row-bg);
+}
+.lab-report-table tbody tr:nth-child(even) {
+  background: var(--row-alt-bg);
+}
+
+/* Hover effect */
+.lab-report-table tbody tr:hover {
+  background: var(--hover-bg);
+}
+
+/* Abnormal row indicator */
+.lab-report-table tbody tr.abnormal {
+  border-left: 4px solid var(--abnormal-border);
+}
+
+/* Cells */
+.lab-report-table td {
+  padding: 0.75rem 1rem;
+  vertical-align: middle;
+  color: #333;
+}
+
+/* Result input standout */
+.result-input {
+  width: 100%;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  text-align: right;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.result-input:focus {
+  outline: none;
+  border-color: var(--focus-border);
+  box-shadow: 0 0 4px rgba(52,152,219,0.3);
+}
+
+/* Tag adjustment */
+.p-tag {
+  font-size: 0.85rem;
+  padding: 0.25rem 0.5rem;
+}
+
+/* Responsive: allow horizontal scroll */
+@media (max-width: 600px) {
+  .lab-report-table th,
+  .lab-report-table td {
+    padding: 0.5rem;
+  }
+}
+

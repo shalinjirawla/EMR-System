@@ -155,13 +155,13 @@
                                       </td>
                                       
                                       
-                                    <td  *ngIf="record.status !== 3">
+                                    <td  *ngIf="record.status !== 3 || !record.patient.isAdmitted">
                                         <button type="button" pButton icon="pi pi-ellipsis-v" class="p-button-text"
                                             (click)="rowMenu.toggle($event); selectedRecord = record">
                                         </button>
                                         <p-overlayPanel #rowMenu class="custom-overlay" [dismissable]="true">
                                             <ul class="custom-overlay-menu">
-                                                <li (click)="editAppoinment(selectedRecord)">
+                                                <li *ngIf="record.status !== 3" (click)="editAppoinment(selectedRecord)">
                                                     <i class="pi pi-pencil"></i> Edit
                                                 </li>
                                                 <li *ngIf="!record.patient.isAdmitted" (click)="viewReceipt(selectedRecord)">

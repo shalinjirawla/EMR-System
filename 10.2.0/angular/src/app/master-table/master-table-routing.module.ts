@@ -10,6 +10,8 @@ import { MeasureUnitsComponent } from './measure-unit/measure-unit.component';
 import { LabTestComponent } from './lab-test/lab-test.component';
 import { LabTestItemsComponent } from './lab-test-items/lab-test-items.component';
 import { TestResultLimitComponent } from './test-result-limit/test-result-limit.component';
+import { HealthPackageComponent } from './health-package/health-package.component';
+
 
 const routes: Routes = [
     {
@@ -53,6 +55,10 @@ const routes: Routes = [
         path: 'test-result-limit',
         component: TestResultLimitComponent,
     },
+    {
+        path:'helth-package',
+        component:HealthPackageComponent
+    }
 ];
 
 @NgModule({

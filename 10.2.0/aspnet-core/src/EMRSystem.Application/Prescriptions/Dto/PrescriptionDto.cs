@@ -23,7 +23,7 @@ namespace EMRSystem.Prescriptions.Dto
         public DoctorDto Doctor { get; set; }
         public PatientDto Patient { get; set; }
         public List<PrescriptionItemDto> Items { get; set; }
-        public List<int> LabTestIds { get; set; }
+        public List<long> LabTestIds { get; set; }
         public List<PrescriptionLabTestDto> LabTests { get; set; }
     }
 }

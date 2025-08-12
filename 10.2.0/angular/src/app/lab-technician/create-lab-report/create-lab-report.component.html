@@ -1,123 +1,101 @@
-<form #labReportForm="ngForm" (ngSubmit)="save()" class="lab-test-form">
-  <abp-modal-header title="🧪 Create Lab Report" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
-  <div class="modal-body scrollable-body">
+<div class="lab-report-form">
 
-    <!-- Patient Info Section -->
-    <section class="form-section">
-      <h4>👤 Patient Info</h4>
-
-      <div class="mb-3">
-        <label class="form-label">Select Patient</label>
-        <p-dropdown [(ngModel)]="selectedPatientId" [options]="patients" optionLabel="fullName" optionValue="id"
-          placeholder="Choose patient" name="patientId" class="w-100" (onChange)="onPatientChange($event.value)"
-          required>
-        </p-dropdown>
-      </div>
-
-      <div *ngIf="selectedPatient && !isAdmitted" class="mb-2">
-  <label class="form-label d-block">Payment Mode</label>
-  <div class="btn-group" role="group">
-    <button type="button"
-            pButton
-            label="Cash"
-            icon="pi pi-wallet"
-            [class]="paymentMode === 0 ? 'p-button-success' : 'p-button-outlined'"
-            (click)="paymentMode = 0">
-    </button>
-    <button type="button"
-            pButton
-            label="Card"
-            icon="pi pi-credit-card"
-            [class]="paymentMode === 1 ? 'p-button-success' : 'p-button-outlined'"
-            (click)="paymentMode = 1">
-    </button>
+  <!-- Patient Select -->
+  <div class="form-group">
+    <label for="patient">Select Patient</label>
+    <p-dropdown
+      [options]="patients"
+      optionLabel="fullName"
+      optionValue="id"
+      placeholder="Select Patient"
+      [(ngModel)]="selectedPatient"
+      (onChange)="onPatientChange()"
+      inputId="patient"
+      class="pro-dropdown"
+    ></p-dropdown>
   </div>
+
+  <!-- Lab Test Source Select -->
+  <div class="form-group">
+    <label for="labTestSource">Select Source</label>
+    <p-dropdown
+      [options]="[
+        { label: 'OPD', value: LabTestSource._0 },
+        { label: 'Direct', value: LabTestSource._1 }
+      ]"
+      [(ngModel)]="labTestSource"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="Select Source"
+      (onChange)="onLabTestSourceChange()"
+      inputId="labTestSource"
+      class="pro-dropdown"
+    ></p-dropdown>
+  </div>
+
+  <!-- Prescription Select -->
+  <div class="form-group" *ngIf="labTestSource === LabTestSource._0">
+    <label for="prescription">Select Prescription</label>
+    <p-dropdown
+      [options]="prescriptions"
+      optionLabel="prescriptionName"
+      optionValue="id"
+      placeholder="Select Prescription"
+      [(ngModel)]="selectedPrescription"
+      (onChange)="onPrescriptionChange($event.value)"
+      inputId="prescription"
+      class="pro-dropdown"
+    ></p-dropdown>
+  </div>
+
+  <!-- Lab Tests MultiSelect -->
+  <div class="form-group">
+    <label for="labtests">Select Lab Tests</label>
+    <p-multiSelect
+      id="labtests"
+      [options]="labTests"
+      optionValue="id"
+      optionLabel="name"
+      [(ngModel)]="selectedLabTests"
+      (onChange)="onLabTestsChange()"
+      placeholder="Select Tests"
+      selectedItemsLabel="{0} items selected"
+      class="pro-multiselect"
+      panelStyleClass="pro-panel"
+    >
+      <ng-template let-test pTemplate="item">
+        <div [class.disabled-item]="test.disabled">
+          {{ test.name }} - ₹{{ test.price }}
+          <span *ngIf="test.disabled" class="included-text">(Included in package)</span>
+        </div>
+      </ng-template>
+    </p-multiSelect>
+  </div>
+
+  <!-- Selected Tests & Total -->
+  <section *ngIf="selectedTestDetails.length" class="selected-tests-container pro-card">
+    <h4>Selected Tests</h4>
+    <ul>
+      <li *ngFor="let test of selectedTestDetails" class="test-item">
+        <span>{{ test.name }}</span>
+        <span>₹{{ test.price }}</span>
+      </li>
+    </ul>
+    <div class="total-price">
+      <strong>Total: ₹{{ selectedTestsTotalPrice }}</strong>
+    </div>
+  </section>
+
+  <!-- Suggested Packages -->
+  <section *ngIf="suggestions.length" class="suggestions-container pro-card">
+    <h4>Suggested Packages</h4>
+    <div *ngFor="let s of suggestions" class="suggestion-item">
+      <div class="suggestion-info">
+        <strong>{{ s.packageName }}</strong>
+        <span class="suggestion-price">₹{{ s.packagePrice }}</span>
+      </div>
+      <button pButton type="button" label="Replace" (click)="replaceTests(s)" class="pro-btn"></button>
+    </div>
+  </section>
+
 </div>
-
-    </section>
-
-    <!-- Lab Test Section -->
-    <section class="form-section">
-      <h4>🧪 Lab Test</h4>
-      <div class="mb-3">
-        <label class="form-label">Select Lab Test</label>
-        <p-dropdown [(ngModel)]="selectedLabTestId" [options]="labTests" optionLabel="reportType" optionValue="id"
-          placeholder="Choose Lab Test" name="labTestId" class="w-100" (onChange)="onLabTestChange($event.value)"
-          required>
-        </p-dropdown>
-      </div>
-    </section>
-
-    <!-- Test Items -->
-    <section *ngIf="items.length" class="form-section test-items">
-
-      <!-- Desktop View -->
-      <div class="d-none d-md-block">
-        <div class="table-header">
-          <div>Test</div>
-          <div>Unit</div>
-          <div>Min</div>
-          <div>Max</div>
-          <div>Result</div>
-          <div>Flag</div>
-        </div>
-
-        <div *ngFor="let item of items; let i = index" class="table-row" [ngClass]="{ 'abnormal': isAbnormal(item) }">
-          <div><b>{{ item.labTestName }}</b></div>
-          <div>
-            <div>{{ item.measureUnitName }}</div>
-          </div>
-          <div>{{ item.minRange }}</div>
-          <div>{{ item.maxRange }}</div>
-          <input type="text" pInputText [(ngModel)]="item.result" [name]="'itemResult' + i"
-            (ngModelChange)="onResultChange(item)" placeholder="Result" />
-          <div>
-            <p-tag [severity]="getSeverity(item.flag)" [value]="item.flag || 'Unset'"></p-tag>
-          </div>
-        </div>
-      </div>
-
-      <!-- Mobile View -->
-      <div class="d-md-none">
-        <div *ngFor="let item of items; let i = index" class="mobile-card">
-          <div class="mobile-header">{{ item.labTestName }}</div>
-
-          <div class="mobile-row">
-            <label>Result</label>
-            <input type="text" pInputText [(ngModel)]="item.result" [name]="'itemResult' + i"
-              (ngModelChange)="onResultChange(item)" placeholder="Enter result"  />
-          </div>
-
-          <div class="mobile-row pair">
-            <div class="pair-cell">
-              <label>Min</label>
-              <span>{{ item.minRange }}</span>
-            </div>
-            <div class="pair-cell">
-              <label>Max</label>
-              <span>{{ item.maxRange }}</span>
-            </div>
-          </div>
-
-          <div class="mobile-row pair">
-            <div class="pair-cell">
-              <label>Unit</label>
-              <span>{{ item.measureUnitName }}</span>
-            </div>
-            <div class="pair-cell">
-              <label>Flag</label>
-              <p-tag [severity]="getSeverity(item.flag)" [rounded]="true" [value]="item.flag || 'Unset'"></p-tag>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </section>
-  </div>
-
-  <abp-modal-footer (onCancelClick)="bsModalRef.hide()" [saveDisabled]="saving">
-    <button pButton type="submit" label="Save" icon="pi pi-check" [disabled]="saving"></button>
-    <button pButton type="button" label="Cancel" icon="pi pi-times" class="ml-2" (click)="bsModalRef.hide()"
-      [disabled]="saving"></button>
-  </abp-modal-footer>
-</form>

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace EMRSystem.PrescriptionLabTest
 {
-    public interface IPrescriptionLabTestsAppService : IAsyncCrudAppService<PrescriptionLabTestDto, long, PagedAndSortedResultRequestDto, CreateUpdatePrescriptionLabTestDto, CreateUpdatePrescriptionLabTestDto>
+    public interface ICreatePrescriptionLabTestsAppService : IAsyncCrudAppService<PrescriptionLabTestDto, long, PagedAndSortedResultRequestDto, CreateUpdatePrescriptionLabTestDto, CreateUpdatePrescriptionLabTestDto>
     {
         Task<LabTestCreationResultDto> CreateLabTestAsync(CreateUpdatePrescriptionLabTestDto input);
         Task MakeInprogressReport(long id);

@@ -97,21 +97,18 @@
                             [tableStyle]="{ 'min-width': '50rem' }" (onLazyLoad)="list($event)">
                             <ng-template pTemplate="header">
                                 <tr>
-                                    <th style="min-width: 100px" pSortableColumn="patientName">
+                                    <th style="min-width: 100px">
                                         Patient Name
-                                        <p-sortIcon field="patientName"></p-sortIcon>
                                     </th>
                                     <!-- <th style="min-width: 100px" pSortableColumn="patientName">
                                         Doctor Name
                                         <p-sortIcon field="patientName"></p-sortIcon>
                                     </th> -->
-                                    <th style="min-width: 150px" pSortableColumn="testname">
+                                    <th style="min-width: 150px">
                                         Test Name
-                                        <p-sortIcon field="testname"></p-sortIcon>
                                     </th>
-                                    <th style="min-width: 100px" pSortableColumn="status">
+                                    <th style="min-width: 100px">
                                         {{ 'Status' | localize }}
-                                        <p-sortIcon field="status"></p-sortIcon>
                                     </th>
                                     <th style="min-width: 130px">
                                         {{ 'Actions' | localize }}
@@ -137,10 +134,8 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <p-tag 
-                                            [value]="getStatusLabel(record.testStatus)" 
-                                            [severity]="getStatusSeverity(record.testStatus)" 
-                                            [rounded]="true">
+                                        <p-tag [value]="getStatusLabel(record.testStatus)"
+                                            [severity]="getStatusSeverity(record.testStatus)" [rounded]="true">
                                         </p-tag>
                                     </td>
                                     <td>
@@ -149,7 +144,8 @@
                                         </button>
                                         <p-overlayPanel #rowMenu class="custom-overlay" [dismissable]="true">
                                             <ul class="custom-overlay-menu">
-                                                <li *ngIf="record.testStatus==0" (click)="CreateReport(record)">
+                                                <li *ngIf="record.testStatus==0 && record.isPaid"
+                                                    (click)="CreateReport(record)">
                                                     <i class="pi pi-plus"></i> Create
                                                 </li>
                                                 <li *ngIf="record.testStatus==1" (click)="EditReport(record)">
@@ -159,7 +155,27 @@
                                                     <i class="pi pi-check"></i> Mark As Completed
                                                 </li>
                                                 <li *ngIf="record.testStatus!=0" (click)="ViewLabReport(record.id)">
-                                                    <i class="pi pi-eye"></i> View
+                                                    <i class="pi pi-eye"></i> View Report
+                                                </li>
+                                                <li *ngIf="!record.isAdmitted && record.isPaid  && !record.isAdmitted"
+                                                    (click)="viewReceipt(record.id)">
+                                                    <i class="pi pi-file"></i> View Receipt
+                                                </li>
+                                                <!-- <li *ngIf="!record.isPaid" (click)="makePayment(record)">
+                                                    <i class="pi pi-credit-card"></i> Pay Now
+                                                </li> -->
+                                                <li *ngIf="!record.isPaid && record.testStatus === 0" class="payment-mode">
+                                                    <span class="payment-label">Mode of Payment</span>
+                                                    <div class="payment-buttons">
+                                                        <button type="button" class="btn btn-outline-success btn-sm"
+                                                            (click)="pay(record, PaymentMethod._0)">
+                                                            Cash
+                                                        </button>
+                                                        <button type="button" class="btn btn-outline-primary btn-sm"
+                                                            (click)="pay(record, PaymentMethod._1)">
+                                                            Card
+                                                        </button>
+                                                    </div>
                                                 </li>
                                             </ul>
                                         </p-overlayPanel>

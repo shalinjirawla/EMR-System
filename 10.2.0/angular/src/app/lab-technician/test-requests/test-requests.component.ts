@@ -9,7 +9,7 @@ import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { FormsModule } from '@node_modules/@angular/forms';
 import { CommonModule, NgIf } from '@node_modules/@angular/common';
 import { ChangeDetectorRef, Component, Injector, ViewChild } from '@angular/core';
-import { LabRequestListDto, LabTestStatus, PrescriptionLabTestDto, PrescriptionLabTestServiceProxy, PrescriptionLabTestsServiceProxy } from '@shared/service-proxies/service-proxies';
+import { CreatePrescriptionLabTestsServiceProxy, LabRequestListDto, LabTestReceiptDto, LabTestReceiptServiceProxy, LabTestStatus, PaymentMethod, PrescriptionLabTestDto, PrescriptionLabTestServiceProxy } from '@shared/service-proxies/service-proxies';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
 import { ChipModule } from 'primeng/chip';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
@@ -20,19 +20,20 @@ import { GenerateLabReportComponent } from '@app/lab-technician/generate-lab-rep
 import { ViewLabReportComponent } from '@app/lab-technician/view-lab-report/view-lab-report.component';
 import { TagModule } from 'primeng/tag';
 import { CreateLabReportComponent } from '../create-lab-report/create-lab-report.component';
+import { LabTestReceiptComponent } from '../lab-test-receipt/lab-test-receipt.component'
 
 @Component({
     selector: 'app-test-requests',
-    imports: [FormsModule, TableModule,TagModule, CommonModule, PrimeTemplate, OverlayPanelModule, MenuModule, ButtonModule, NgIf, PaginatorModule, ChipModule, LocalizePipe],
+    imports: [FormsModule, TableModule, TagModule, CommonModule, PrimeTemplate, OverlayPanelModule, MenuModule, ButtonModule, NgIf, PaginatorModule, ChipModule, LocalizePipe],
     animations: [appModuleAnimation()],
     templateUrl: './test-requests.component.html',
     styleUrl: './test-requests.component.css',
-    providers: [PrescriptionLabTestServiceProxy]
+    providers: [PrescriptionLabTestServiceProxy, CreatePrescriptionLabTestsServiceProxy, LabTestReceiptServiceProxy]
 })
 export class TestRequestsComponent extends PagedListingComponentBase<PrescriptionLabTestDto> {
     @ViewChild('dataTable', { static: true }) dataTable: Table;
     @ViewChild('paginator', { static: true }) paginator: Paginator;
-
+    PaymentMethod = PaymentMethod;
     keyword = '';
     isActive: boolean | null;
     advancedFiltersVisible = false;
@@ -41,11 +42,18 @@ export class TestRequestsComponent extends PagedListingComponentBase<Prescriptio
         { label: 'In Progress', value: LabTestStatus._1 },
         { label: 'Completed', value: LabTestStatus._2 },
     ];
+    PAYMENT_METHOD_NAMES: { [key in PaymentMethod]: string } = {
+        [PaymentMethod._0]: 'Cash',
+        [PaymentMethod._1]: 'Card'
+    };
+    PaymentMethodNames = this.PAYMENT_METHOD_NAMES;
     constructor(
         injector: Injector,
         private _modalService: BsModalService,
         private _activatedRoute: ActivatedRoute,
         private _prescriptionLabTests: PrescriptionLabTestServiceProxy,
+        private _createprescriptionLabTest: CreatePrescriptionLabTestsServiceProxy,
+        private _labtestrecipt: LabTestReceiptServiceProxy,
         cd: ChangeDetectorRef
     ) {
         super(injector, cd);
@@ -89,6 +97,63 @@ export class TestRequestsComponent extends PagedListingComponentBase<Prescriptio
             }
         });
     }
+
+    // makePayment(record: LabRequestListDto): void {
+    //     if (!record.id) {
+    //         abp.message.warn('Invalid lab test record.');
+    //         return;
+    //     }
+
+    //     abp.ui.setBusy();
+    //     this._createprescriptionLabTest
+    //         .initiatePaymentForLabTest(record.id)
+    //         .pipe(finalize(() => abp.ui.clearBusy()))
+    //         .subscribe({
+    //             next: (sessionUrl: string) => {
+    //                 // Redirect user to Stripe
+    //                 window.location.href = sessionUrl;
+    //             },
+    //             error: (err) => {
+    //                 abp.message.error(err.message || 'Payment initiation failed.');
+    //             }
+    //         });
+    // }
+    pay(record: PrescriptionLabTestDto, method: PaymentMethod): void {
+        debugger
+        abp.ui.setBusy();
+
+        if (method === PaymentMethod._1) {
+            // Card → existing Stripe flow
+            this._createprescriptionLabTest
+                .initiatePaymentForLabTest(record.id)
+                .pipe(finalize(() => abp.ui.clearBusy()))
+                .subscribe(
+                    (sessionUrl: string) => window.location.href = sessionUrl,
+                    (err: any) => abp.message.error(err.message || 'Payment initiation failed.')
+                );
+        } else {
+            // Cash → generate receipt immediately
+            const methodName = this.PAYMENT_METHOD_NAMES[method]; // "Cash"
+            this._labtestrecipt
+                .generateLabTestReceipt(record.id, methodName)
+                .pipe(finalize(() => abp.ui.clearBusy()))
+                .subscribe();
+        }
+    }
+
+    viewReceipt(prescriptionLabTestId: number): void {
+        if (prescriptionLabTestId) {
+            const modalRef: BsModalRef = this._modalService.show(
+                LabTestReceiptComponent,
+                {
+                    class: 'modal-lg',
+                    initialState: {
+                        prescriptionLabTestId: prescriptionLabTestId
+                    }
+                }
+            );
+        }
+    }
     getStatusLabel(value: number): string {
         const status = this.testStatus.find(s => s.value === value);
         return status ? status.label : '';
@@ -112,24 +177,26 @@ export class TestRequestsComponent extends PagedListingComponentBase<Prescriptio
 
     createLabReport(): void {
         const createDialog: BsModalRef = this._modalService.show(CreateLabReportComponent, {
-          class: 'modal-xl',   // or modal-lg/modal-md as you desire
-          initialState: {
-            // You can pass data if needed here
-          }
+            class: 'modal-lg',   // or modal-lg/modal-md as you desire
+            initialState: {
+                // You can pass data if needed here
+            }
         });
-      
+
         // Optional: refresh the grid on save
         createDialog.content.onSave?.subscribe(() => {
-          this.refresh();
+            this.refresh();
         });
-      }
+    }
     CreateReport(record: LabRequestListDto): void {
+        debugger
         let createReportDialog: BsModalRef;
-        if (record.id) {
+        if (record.labReportsTypeId) {
             createReportDialog = this._modalService.show(GenerateLabReportComponent, {
                 class: 'modal-xl',
                 initialState: {
                     id: record.id,
+                    labReportsTypeId:record.labReportsTypeId,
                     testName: record.labReportTypeName,
                     patientName: record.patientName
                 },

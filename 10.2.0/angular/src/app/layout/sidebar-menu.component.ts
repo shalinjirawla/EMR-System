@@ -78,7 +78,7 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
                 // new MenuItem(this.l('Payments'), '/app/billing-staff/payments', 'fas fa-credit-card', 'Pages.BillingStaff.Payments.View'),
                 // new MenuItem(this.l('Insurance'), '/app/billing-staff/insurance', 'fas fa-file-invoice-dollar', 'Pages.BillingStaff.Insurance.View'),
                 // new MenuItem(this.l('Reports'), '/app/billing-staff/reports', 'fas fa-chart-line', 'Pages.BillingStaff.Reports.View'),
-                new MenuItem(this.l('Deposit'), '/app/deposit', 'fas fa-hand-holding-usd', 'Pages.Users'),
+                new MenuItem(this.l('Deposit'), '/app/deposit', 'fas fa-hand-holding-usd', 'Pages.BillingStaff'),
 
             ]),
 
@@ -96,6 +96,7 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
             ]),
             new MenuItem(this.l('Master'), '', 'fas fa-cogs', 'Pages.Users', [
                 new MenuItem(this.l('Laboratory Master'), '', 'fas fa-flask', 'Pages.Users', [
+                    new MenuItem(this.l('HealthPakage'), '/app/master/helth-package','fas fa-vial','Pages.Users'),
                     new MenuItem(this.l('Measure Units'), '/app/master/measure-units', 'fas fa-ruler', 'Pages.Users'),
                     new MenuItem(this.l('LabReport Types'), '/app/master/lab-report-type', 'fas fa-vial', 'Pages.Users'),
                     new MenuItem(this.l('Test'), '/app/master/lab-test', 'fas fa-microscope', 'Pages.Users'),

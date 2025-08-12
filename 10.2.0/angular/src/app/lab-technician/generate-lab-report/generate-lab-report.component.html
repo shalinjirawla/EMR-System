@@ -2,68 +2,41 @@
     <abp-modal-header title="Generate Lab Report - {{testName}}" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
 
     <div class="modal-body">
-        <div class="row mb-4">
-            <div class="col-md-12">
-                <span class="float-right">{{patientName}}</span>
-            </div>
+        <div class="patient-info">
+            <span class="label">Patient:</span>
+            <span class="value">{{ patientName }}</span>
         </div>
-        <div class="row">
-            <div class="col-md-12">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div><b>Report Items</b>
-                    </div>
-                    <div>
-                        <p-button label="Add Item" variant="text" severity="info" icon="fa-solid fa-plus"
-                            (onClick)="addItem()" />
-                    </div>
-                </div>
-            </div>
-        </div>
-        <table class="table no-border" *ngIf="labReportItems.length>0">
-            <thead class="mb-3">
+        <div class="table-container" *ngIf="labReportItems.length > 0">
+        <table class="lab-report-table">
+            <thead>
                 <tr>
-                    <th class="p-0">Test</th>
-                    <th class="p-0">Min Value</th>
-                    <th class="p-0">Max Value</th>
-                    <th class="p-0">Result</th>
-                    <th class="p-0">Unit</th>
-                    <th class="p-0">Flag</th>
-                    <th class="p-0">Action</th>
+                    <th>Test</th>
+                    <th>Min Value</th>
+                    <th>Max Value</th>
+                    <th>Result</th>
+                    <th>Unit</th>
+                    <th>Flag</th>
                 </tr>
             </thead>
             <tbody>
                 <tr *ngFor="let item of labReportItems; let i = index">
-                    <td class="p-0">
-                        <input class="mt-2" type="text" pInputText [(ngModel)]="item.test" name="test{{i}}"
-                            placeholder="Test" />
+                    <td>{{ item.test }}</td>
+                    <td>{{ item.minValue }}</td>
+                    <td>{{ item.maxValue }}</td>
+                    <td>
+                        <input type="text" pInputText [(ngModel)]="item.result" [name]="'itemResult' + i"
+                            (ngModelChange)="onResultChange(item)" class="result-input" placeholder="Result" />
                     </td>
-                    <td class="p-0">
-                        <input class="mt-2" type="number" pInputText [(ngModel)]="item.minValue" 
-                        [ngClass]="{'ng-invalid-range': isInvalidRange(item,i)}" name="minValue{{i}}"
-                            placeholder="Min" />
-                    </td>
-                    <td class="p-0">
-                        <input class="mt-2" type="number" pInputText [(ngModel)]="item.maxValue" name="maxValue{{i}}"
-                            placeholder="Max" (input)="markMaxEdited(i)"/>
-                    </td>
-                    <td class="p-0">
-                        <input class="mt-2" type="number" pInputText [(ngModel)]="item.result" name="result{{i}}"
-                            placeholder="Result" (blur)="calculateFlag(item)" />
-                    </td>
-                    <td class="p-0">
-                        <p-dropdown class="mt-2" [options]="unitOptions" [(ngModel)]="item.unit" name="unit{{i}}"
-                            placeholder="Select Unit" optionLabel="label" optionValue="value"></p-dropdown>
-                    </td>
-                    <td class="p-0">
-                        <p-tag [severity]="getSeverity(item.flag)" [value]="item.flag || 'Unset'"></p-tag>
-                    </td>
-                    <td class="p-0">
-                        <p-button class="mt-2" icon="fa-solid fa-xmark" (click)="removeItem(i)" variant="text"
-                            severity="danger" />
+                    <td >{{ item.unit }}</td>
+                    <td>
+                        <p-tag [severity]="getSeverity(item.flag)"
+                            [value]="item.flag && item.flag !== 'NA' ? item.flag : 'Unset'"></p-tag>
                     </td>
                 </tr>
             </tbody>
+
         </table>
+        </div>
     </div>
     <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="isSaveDisabled()" (onCancelClick)="bsModalRef.hide()">
     </abp-modal-footer>

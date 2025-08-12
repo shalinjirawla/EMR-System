@@ -9,7 +9,7 @@ import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { FormsModule } from '@node_modules/@angular/forms';
 import { CommonModule, NgIf } from '@node_modules/@angular/common';
 import { ChangeDetectorRef, Component, Injector, OnInit, ViewChild } from '@angular/core';
-import { LabRequestListDto, LabTestStatus, PrescriptionLabTestDto, PrescriptionLabTestServiceProxy, PrescriptionLabTestsServiceProxy } from '@shared/service-proxies/service-proxies';
+import { LabRequestListDto, LabTestStatus, PrescriptionLabTestDto, PrescriptionLabTestServiceProxy } from '@shared/service-proxies/service-proxies';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
 import { ChipModule } from 'primeng/chip';
 import { OverlayPanelModule } from 'primeng/overlaypanel';

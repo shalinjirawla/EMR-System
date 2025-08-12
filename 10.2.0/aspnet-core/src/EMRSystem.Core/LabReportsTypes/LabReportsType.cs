@@ -17,6 +17,7 @@ namespace EMRSystem.LabReportsTypes
         public virtual ICollection<PrescriptionLabTest> PrescriptionLabTests { get; set; }
         public ICollection<EMRSystem.LabReportTemplateItem.LabReportTemplateItem> TemplateItems { get; set; }
         public virtual ICollection<LabReportTypeItem> ReportTypeItems { get; set; }
+        public virtual ICollection<HealthPackageLabReportsType> PackageHealthPackages { get; set; }
         public virtual ICollection<EMRSystem.LabTestReceipt.LabTestReceipt> LabTestReceipts { get; set; }
 
 

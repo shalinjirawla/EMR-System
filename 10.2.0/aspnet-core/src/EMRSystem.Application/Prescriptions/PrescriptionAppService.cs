@@ -9,7 +9,11 @@ using EMRSystem.Appointments;
 using EMRSystem.Appointments.Dto;
 using EMRSystem.Authorization.Users;
 using EMRSystem.Doctor;
+using EMRSystem.Doctor.Dto;
+using EMRSystem.LabReports;
 using EMRSystem.Patients;
+using EMRSystem.Patients.Dto;
+using EMRSystem.PrescriptionLabTest.Dto;
 using EMRSystem.Prescriptions.Dto;
 using EMRSystem.Users.Dto;
 using EMRSystem.Vitals.Dto;
@@ -32,14 +36,21 @@ namespace EMRSystem.Prescriptions
     {
         private readonly IDoctorAppService _doctorAppService;
         private readonly IRepository<Appointment, long> _appointmentRepository;
+        private readonly IRepository<Patient, long> _patientRepository;
+        private readonly IRepository<EMRSystem.LabReports.PrescriptionLabTest, long> _prescriptionLabTestRepository;
+
         private readonly UserManager _userManager;
         public PrescriptionAppService(IRepository<Prescription, long> repository
-            , IDoctorAppService doctorAppService, UserManager userManager, IRepository<Appointment, long> appointmentRepository
+            , IDoctorAppService doctorAppService, UserManager userManager, IRepository<Appointment, long> appointmentRepository,
+            IRepository<Patient, long> patientRepository, IRepository<EMRSystem.LabReports.PrescriptionLabTest, long> prescriptionLabTestRepository
+
             ) : base(repository)
         {
             _doctorAppService = doctorAppService;
             _userManager = userManager;
             _appointmentRepository = appointmentRepository;
+            _patientRepository = patientRepository;
+            _prescriptionLabTestRepository = prescriptionLabTestRepository;
         }
         protected override IQueryable<Prescription> CreateFilteredQuery(PagedPrescriptionResultRequestDto input)
         {
@@ -74,7 +85,9 @@ namespace EMRSystem.Prescriptions
                     Patient = x.Patient == null ? null : new Patient
                     {
                         Id = x.Patient.Id,
-                        FullName = x.Patient.FullName
+                        FullName = x.Patient.FullName,
+                        IsAdmitted = x.Patient.IsAdmitted
+                        
                     },
                     Doctor = x.Doctor == null ? null : new EMRSystem.Doctors.Doctor
                     {
@@ -129,20 +142,68 @@ namespace EMRSystem.Prescriptions
         }
         public async Task CreatePrescriptionWithItemAsync(CreateUpdatePrescriptionDto input)
         {
+            // Map Prescription
             var prescription = ObjectMapper.Map<Prescription>(input);
 
-            prescription.Items = input.Items.Select(item =>
-                ObjectMapper.Map<PrescriptionItem>(item)).ToList();
+            // Map Items
+            prescription.Items = input.Items
+                .Select(item => ObjectMapper.Map<PrescriptionItem>(item))
+                .ToList();
 
-            prescription.LabTests = input.LabTestIds.Select(id =>
-                new EMRSystem.LabReports.PrescriptionLabTest { LabReportsTypeId = id }).ToList();
-
+            // Save prescription (to get Id)
             await Repository.InsertAsync(prescription);
+            await CurrentUnitOfWork.SaveChangesAsync(); // Needed to get prescription.Id
+
+            // Fetch patient to check admission
+            var patient = await _patientRepository.GetAsync(input.PatientId);
+            bool isAdmitted = patient.IsAdmitted;
+
+            if (isAdmitted)
+            {
+
+                // Create and save each PrescriptionLabTest
+                foreach (var labTestId in input.LabTestIds)
+                {
+                    var labTest = new EMRSystem.LabReports.PrescriptionLabTest
+                    {
+                        TenantId = input.TenantId,
+                        PrescriptionId = prescription.Id,
+                        LabReportsTypeId = labTestId,
+                        IsPaid = isAdmitted,
+                        TestStatus = LabTestStatus.Pending,
+                        CreatedDate = DateTime.Now
+                    };
+
+                    await _prescriptionLabTestRepository.InsertAsync(labTest);
+                }
+            }
+            else
+            {
+                // Create and save each PrescriptionLabTest
+                foreach (var labTestId in input.LabTestIds)
+                {
+                    var labTest = new EMRSystem.LabReports.PrescriptionLabTest
+                    {
+                        TenantId = input.TenantId,
+                        PrescriptionId = prescription.Id,
+                        LabReportsTypeId = labTestId,
+                        IsPaid = false,
+                        TestStatus = LabTestStatus.Pending,
+                        CreatedDate = DateTime.Now
+                    };
+
+                    await _prescriptionLabTestRepository.InsertAsync(labTest);
+                }
+            }
+
+            // Mark appointment as completed
             var appointment = await _appointmentRepository.GetAsync(input.AppointmentId);
             appointment.Status = AppointmentStatus.Completed;
             await _appointmentRepository.UpdateAsync(appointment);
+
             await CurrentUnitOfWork.SaveChangesAsync();
         }
+
         public async Task UpdatePrescriptionWithItemAsync(CreateUpdatePrescriptionDto input)
         {
             // First get the existing prescription with its items
@@ -346,5 +407,45 @@ namespace EMRSystem.Prescriptions
             var roles = await _userManager.GetRolesAsync(user);
             return roles.ToList();
         }
+
+        public async Task<ListResultDto<PrescriptionDto>> GetPrescriptionsByPatient(long patientId)
+        {
+            var query = Repository.GetAll()
+                .Include(p => p.Patient)
+                .Include(p => p.Doctor)
+                .Include(p => p.LabTests)
+                .Where(p => p.Patient.Id == patientId)
+                .OrderByDescending(p => p.IssueDate);
+
+            var prescriptions = await query
+                .Select(p => new PrescriptionDto
+                {
+                    Id = p.Id,
+                    TenantId = p.TenantId,
+                    Diagnosis = p.Diagnosis,
+                    Notes = p.Notes,
+                    IssueDate = p.IssueDate,
+                    IsFollowUpRequired = p.IsFollowUpRequired,
+                    Patient = new PatientDto
+                    {
+                        Id = p.Patient.Id,
+                        FullName = p.Patient.FullName
+                        // Add other needed PatientDto properties here
+                    },
+                    Doctor = new DoctorDto
+                    {
+                        Id = p.Doctor.Id,
+                        FullName = p.Doctor.FullName
+                        // Add other needed DoctorDto properties here
+                    },
+                    LabTestIds = p.LabTests.Select(lt => lt.LabReportsTypeId).ToList(),
+
+                    // Add other properties if needed
+                }).ToListAsync();
+
+            return new ListResultDto<PrescriptionDto>(prescriptions);
+        }
+
+
     }
 }

@@ -40,12 +40,14 @@ namespace EMRSystem.LabTechnician
         {
             var query = (await Repository.GetAllAsync())
                         .Include(x => x.Prescription).ThenInclude(p => p.Patient)
-                        .Include(x => x.Patient)                // ← add this
+                        .Include(x => x.Patient)
                         .Include(x => x.Prescription).ThenInclude(p => p.Doctor)
                         .Include(x => x.Prescription).ThenInclude(p => p.LabTests)
                         .Include(x => x.LabReportsType)
                         .WhereIf(AbpSession.TenantId.HasValue,
-                                 x => x.TenantId == AbpSession.TenantId.Value);
+                                 x => x.TenantId == AbpSession.TenantId.Value)
+                        .Where(x => x.IsPaid == true);
+
             var totalCount = query.Count();
 
             var data = query.ToList();
@@ -59,19 +61,24 @@ namespace EMRSystem.LabTechnician
             var userId = AbpSession.UserId;
             var doctor = _doctorAppService.GetDoctorDetailsByAbpUserID(userId.Value);
 
-            var dataa = await Repository.GetAllAsync();
-            var query = dataa
-                            .Include(x => x.Prescription).ThenInclude(x => x.Appointment)
-                            .Include(x => x.Prescription).ThenInclude(x => x.Doctor)
-                            .Include(x => x.Prescription).ThenInclude(x => x.Patient)
-                            .Include(x => x.LabReportsType)
-                            .WhereIf(AbpSession.TenantId.HasValue, x => x.TenantId == AbpSession.TenantId.Value)
-                            .WhereIf(doctor != null, x => x.Prescription.Doctor.Id == doctor.Id)
-                            .Where(x => x.TestStatus == LabTestStatus.Completed)
+            // Build IQueryable<PrescriptionLabTest>
+            var query = Repository.GetAll()
+                .Include(x => x.Prescription).ThenInclude(x => x.Appointment)
+                .Include(x => x.Prescription).ThenInclude(x => x.Doctor)
+                .Include(x => x.Prescription).ThenInclude(x => x.Patient)
+                .Include(x => x.LabReportsType)
+                .Where(x => x.Prescription != null)
+                .WhereIf(AbpSession.TenantId.HasValue,
+                         x => x.TenantId == AbpSession.TenantId.Value)
+                .WhereIf(doctor != null,
+                         x => x.Prescription.DoctorId == doctor.Id)
+                .Where(x => x.TestStatus == LabTestStatus.Completed);
 
-                            ;
-            var totalCount = query.Count();
-            var data = query.ToList();
+            // Execute counts and list asynchronously
+            var totalCount =  query.Count();
+            var data =  query.ToList();
+
+            // Map and return
             var mapped = ObjectMapper.Map<List<LabOrderListDto>>(data);
             return new PagedResultDto<LabOrderListDto>(totalCount, mapped);
         }
@@ -87,20 +94,15 @@ namespace EMRSystem.LabTechnician
         }
         public EMRSystem.LabReports.PrescriptionLabTest GetPrescriptionLabTestDetailsForViewReportById(long id)
         {
-            // 1️⃣ Start from the repository, include everything you need
             var query = Repository.GetAll()
                 .Include(x => x.LabReportResultItems)
                 .Include(x => x.LabReportsType)
                 .Include(x => x.Prescription).ThenInclude(p => p.Doctor)
                 .Include(x => x.Prescription).ThenInclude(p => p.Patient)
-                .Include(x => x.Patient)        // ← add this line
-
-                // 2️⃣ Filter by the requested id *before* calling ToList/ToListAsync
+                .Include(x => x.Patient)
                 .Where(x => x.Id == id);
-
-            // 3️⃣ Now fetch just that one entity
             var data = query.FirstOrDefault();
-            return data; // will be null if not found
+            return data;
         }
         public async Task MakeCompleteReport(long prescriptionLabTestId)
         {

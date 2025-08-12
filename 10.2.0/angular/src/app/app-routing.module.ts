@@ -41,7 +41,7 @@ import { AppComponent } from './app.component';
                     {
                         path: 'deposit',
                         loadChildren: () => import('./deposit/deposit.module').then((m) => m.DepositModule),
-                        data: { permission: 'Pages.Users' },
+                        data: { permission: 'Pages.BillingStaff' },
                         canActivate: [AppRouteGuard],
                     },
                     {
@@ -59,13 +59,13 @@ import { AppComponent } from './app.component';
                     {
                         path: 'billing-staff',
                         loadChildren: () => import('./billing-staff/billing-staff.module').then((m) => m.BillingStaffModule),
-                        data: { permission: 'Pages.Doctors' },
+                        data: { permission: 'Pages.BillingStaff' },
                         canActivate: [AppRouteGuard],
                     },
                     {
                         path: 'lab-technician',
                         loadChildren: () => import('./lab-technician/lab-technician.module').then((m) => m.LabTechnicianModule),
-                        data: { permission: 'Pages.Doctors' },
+                        data: { permission: 'Pages.LabTechnician' },
                         canActivate: [AppRouteGuard],
                     },
                     {
@@ -83,7 +83,7 @@ import { AppComponent } from './app.component';
                     {
                         path: 'pharmacist',
                         loadChildren: () => import('./pharmacist/pharmacist.module').then((m) => m.PharmacistModule),
-                        data: { permission: 'Pages.Nurse' },
+                        data: { permission: 'Pages.Pharmacist' },
                         canActivate: [AppRouteGuard],
                     },
                     {

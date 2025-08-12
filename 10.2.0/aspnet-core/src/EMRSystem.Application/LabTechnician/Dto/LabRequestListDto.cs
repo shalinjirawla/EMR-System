@@ -13,6 +13,8 @@ namespace EMRSystem.LabTechnician.Dto
     {
         public long PatientId { get; set; }
         public string PatientName { get; set; }
+        public bool IsAdmitted { get; set; }
+        public bool IsPaid { get; set; }
         public long DoctorId { get; set; }
         public string DoctorName { get; set; }
         public long PrescriptionId { get; set; }

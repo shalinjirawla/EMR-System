@@ -28,9 +28,9 @@ using PaymentMethod = EMRSystem.Invoices.PaymentMethod;
 namespace EMRSystem.PrescriptionLabTest
 {
    
-    public class PrescriptionLabTestsAppService : AsyncCrudAppService<EMRSystem.LabReports.PrescriptionLabTest, 
+    public class CreatePrescriptionLabTestsAppService : AsyncCrudAppService<EMRSystem.LabReports.PrescriptionLabTest, 
         PrescriptionLabTestDto, long, PagedAndSortedResultRequestDto, CreateUpdatePrescriptionLabTestDto, 
-        CreateUpdatePrescriptionLabTestDto>, IPrescriptionLabTestsAppService
+        CreateUpdatePrescriptionLabTestDto>, ICreatePrescriptionLabTestsAppService
     {
         private readonly IRepository<Patient, long> _patientRepository;
         private readonly IRepository<EMRSystem.LabReportsTypes.LabReportsType, long> _labReportsTypeRepository;
@@ -39,7 +39,7 @@ namespace EMRSystem.PrescriptionLabTest
         private readonly IRepository<LabReportResultItem, long> _resultItemRepo;
         private readonly ILabTestReceiptAppService _labTestReceiptAppService;
 
-        public PrescriptionLabTestsAppService(
+        public CreatePrescriptionLabTestsAppService(
             IRepository<EMRSystem.LabReports.PrescriptionLabTest, long> repository,
             IRepository<Patient, long> patientRepository,
             IRepository<LabReportResultItem, long> resultItemRepository,
@@ -171,7 +171,21 @@ namespace EMRSystem.PrescriptionLabTest
             if (labTest == null)
                 throw new ArgumentNullException(nameof(labTest));
 
-            var patient = await _patientRepository.GetAsync(labTest.PatientId.Value);
+            // Pick the correct PatientId: prefer the one on labTest, else from its Prescription
+            Patient patientEntity;
+            if (labTest.PatientId.HasValue)
+            {
+                patientEntity = await _patientRepository.GetAsync(labTest.PatientId.Value);
+            }
+            else if (labTest.Prescription?.PatientId > 0)
+            {
+                patientEntity = await _patientRepository.GetAsync(labTest.Prescription.PatientId);
+            }
+            else
+            {
+                throw new UserFriendlyException("No patient associated with this lab test.");
+            }
+
             var labTestType = await _labReportsTypeRepository.GetAsync(labTest.LabReportsTypeId);
 
             StripeConfiguration.ApiKey = _configuration["Stripe:SecretKey"]
@@ -181,31 +195,31 @@ namespace EMRSystem.PrescriptionLabTest
             {
                 PaymentMethodTypes = new List<string> { "card" },
                 LineItems = new List<SessionLineItemOptions>
+        {
+            new()
+            {
+                PriceData = new SessionLineItemPriceDataOptions
                 {
-                    new()
+                    UnitAmount = (long)(amount * 100),
+                    Currency = "usd",
+                    ProductData = new SessionLineItemPriceDataProductDataOptions
                     {
-                        PriceData = new SessionLineItemPriceDataOptions
-                        {
-                            UnitAmount = (long)(amount * 100),
-                            Currency = "usd",
-                            ProductData = new SessionLineItemPriceDataProductDataOptions
-                            {
-                                Name = $"Lab Test - {labTestType.ReportType}",
-                                Description = $"For patient: {patient.FullName}"
-                            },
-                        },
-                        Quantity = 1,
+                        Name = $"Lab Test - {labTestType.ReportType}",
+                        Description = $"For patient: {patientEntity.FullName}"
                     },
                 },
+                Quantity = 1,
+            },
+        },
                 Mode = "payment",
                 SuccessUrl = successUrl,
                 CancelUrl = cancelUrl,
                 Metadata = new Dictionary<string, string>
-                {
-                    { "labTestId", labTest.Id.ToString() },
-                    { "tenantId", labTest.TenantId.ToString() },
-                    { "purpose", "labtest" }
-                }
+        {
+            { "labTestId", labTest.Id.ToString() },
+            { "tenantId", labTest.TenantId.ToString() },
+            { "purpose", "labtest" }
+        }
             };
 
             try
@@ -223,7 +237,11 @@ namespace EMRSystem.PrescriptionLabTest
 
         public async Task<string> InitiatePaymentForLabTest(long labTestId)
         {
-            var labTest = await Repository.GetAsync(labTestId);
+            // Eager-load Prescription so CreateStripeSession has it available
+            var labTest = await Repository
+                .GetAllIncluding(lt => lt.Prescription)
+                .FirstOrDefaultAsync(lt => lt.Id == labTestId);
+
             if (labTest == null)
                 throw new EntityNotFoundException(typeof(EMRSystem.LabReports.PrescriptionLabTest), labTestId);
 
@@ -234,6 +252,7 @@ namespace EMRSystem.PrescriptionLabTest
             if (labTestType == null)
                 throw new UserFriendlyException("Lab test type not found");
 
+            // Pass the fully hydrated labTest into your Stripe helper
             return await CreateStripeSessionForLabTest(
                 labTest,
                 labTestType.ReportPrice,

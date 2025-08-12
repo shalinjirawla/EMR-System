@@ -13,6 +13,7 @@ namespace EMRSystem.LabTestReceipt.Dto
         public int TenantId { get; set; }
 
         public long LabReportTypeId { get; set; }
+        public long PrescriptionLabTestId { get; set; }
 
         public long PatientId { get; set; }
 
