@@ -2,6 +2,7 @@
 using Abp.Application.Services.Dto;
 using Abp.Domain.Repositories;
 using Abp.EntityFrameworkCore.Repositories;
+using Abp.Timing;
 using EMRSystem.Appointments;
 using EMRSystem.Appointments.Dto;
 using EMRSystem.IpdChargeEntry;
@@ -58,59 +59,61 @@ namespace EMRSystem.LabReport
         {
             try
             {
-                if (reportResultItemDtos.Count > 0)
+                if (reportResultItemDtos == null || reportResultItemDtos.Count == 0)
+                    return;
+
+                var mapped = ObjectMapper.Map<List<LabReportResultItem>>(reportResultItemDtos);
+                await Repository.InsertRangeAsync(mapped);
+                await CurrentUnitOfWork.SaveChangesAsync();
+
+                var prescriptionLabTestId = reportResultItemDtos[0].PrescriptionLabTestId;
+                await _prescriptionLabTestsAppService.MakeInprogressReports(prescriptionLabTestId);
+                var prescriptionLabTest = await _prescriptionLabTestRepository.GetAsync(prescriptionLabTestId);
+
+                if (prescriptionLabTest == null || !prescriptionLabTest.PrescriptionId.HasValue)
+                    return;
+
+                var prescription = await _prescriptionRepository.GetAsync(prescriptionLabTest.PrescriptionId.Value);
+
+                if (prescription == null)
+                    return;
+
+                var patient = await _patientRepository.GetAsync(prescription.PatientId);
+
+                if (patient?.IsAdmitted != true)
+                    return;
+
+                var admission = await _admissionRepository.FirstOrDefaultAsync(a =>
+                    a.PatientId == patient.Id && a.IsDischarged == false);
+
+                if (admission == null)
+                    return;
+
+                var reportType = await _labReportsTypeRepository.GetAsync(prescriptionLabTest.LabReportsTypeId);
+
+                var chargeEntry = new EMRSystem.IpdChargeEntry.IpdChargeEntry
                 {
-                    var mapped = ObjectMapper.Map<List<LabReportResultItem>>(reportResultItemDtos);
-                    await Repository.InsertRangeAsync(mapped);
-                    await CurrentUnitOfWork.SaveChangesAsync();
+                    TenantId = prescriptionLabTest.TenantId,
+                    AdmissionId = admission.Id,
+                    PatientId = patient.Id,
+                    ChargeType = ChargeType.LabTest,
+                    Description = $"Lab Test - {reportType?.ReportType ?? "Unknown"}",
+                    Amount = reportType?.ReportPrice ?? 0,
+                    EntryDate = Clock.Now,
+                    IsProcessed = false,
+                    ReferenceId = prescriptionLabTest.Id
+                };
 
-                    var prescriptionLabTestId = reportResultItemDtos[0].PrescriptionLabTestId;
-                    await _prescriptionLabTestsAppService.MakeInprogressReports(prescriptionLabTestId);
-                    var prescriptionLabTest = await _prescriptionLabTestRepository.GetAsync(prescriptionLabTestId);
-
-                    if (prescriptionLabTest != null)
-                    {
-                        var prescription = await _prescriptionRepository.GetAsync((long)prescriptionLabTest.PrescriptionId);
-
-                        if (prescription != null)
-                        {
-                            var patient = await _patientRepository.GetAsync(prescription.PatientId);
-
-                            if (patient != null && patient.IsAdmitted)
-                            {
-                                var admission = await _admissionRepository.FirstOrDefaultAsync(a =>
-                                    a.PatientId == patient.Id && a.IsDischarged == false);
-
-                                if (admission != null)
-                                {
-                                    var reportType = await _labReportsTypeRepository.GetAsync(prescriptionLabTest.LabReportsTypeId);
-                                    var chargeEntry = new EMRSystem.IpdChargeEntry.IpdChargeEntry
-                                    {
-                                        TenantId = prescriptionLabTest.TenantId,
-                                        AdmissionId = admission.Id,
-                                        PatientId = patient.Id,
-                                        ChargeType = ChargeType.LabTest,
-                                        Description = $"Lab Test - {reportType.ReportType}",
-                                        Amount = reportType.ReportPrice,
-                                        EntryDate = DateTime.Now,
-                                        IsProcessed = false,
-                                        ReferenceId = prescriptionLabTest.Id
-                                    };
-
-                                    await _ipdChargeEntryRepository.InsertAsync(chargeEntry);
-                                    await CurrentUnitOfWork.SaveChangesAsync();
-                                }
-                            }
-                        }
-                    }
-                }
+                await _ipdChargeEntryRepository.InsertAsync(chargeEntry);
+                await CurrentUnitOfWork.SaveChangesAsync();
             }
             catch (Exception ex)
             {
-                throw;
+                Logger.Error("Error in AddLabReportResultItem", ex);
+                throw; // Consider throwing a user-friendly exception instead
             }
         }
-        [HttpGet]
+            [HttpGet]
         public async Task<List<CreateUpdateLabReportResultItemDto>> GetLabReportResultItemsById(long prescriptionLabTestId)
         {
             var data = Repository.GetAll().Where(x => x.PrescriptionLabTestId == prescriptionLabTestId).ToList();

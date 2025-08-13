@@ -2149,62 +2149,6 @@ export class CreatePrescriptionLabTestsServiceProxy {
     }
 
     /**
-     * @param body (optional) 
-     * @return OK
-     */
-    createLabTest(body: CreateUpdatePrescriptionLabTestDto | undefined): Observable<LabTestCreationResultDto> {
-        let url_ = this.baseUrl + "/api/services/app/CreatePrescriptionLabTests/CreateLabTest";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(body);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-                "Accept": "text/plain"
-            })
-        };
-
-        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processCreateLabTest(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processCreateLabTest(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<LabTestCreationResultDto>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<LabTestCreationResultDto>;
-        }));
-    }
-
-    protected processCreateLabTest(response: HttpResponseBase): Observable<LabTestCreationResultDto> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = LabTestCreationResultDto.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    /**
      * @param labTestId (optional) 
      * @return OK
      */
@@ -7311,45 +7255,40 @@ export class LabTestReceiptServiceProxy {
     }
 
     /**
-     * @param labTestId (optional) 
-     * @param paymentMethod (optional) 
+     * @param body (optional) 
      * @return OK
      */
-    generateLabTestReceipt(labTestId: number | undefined, paymentMethod: string | undefined): Observable<LabTestReceiptDto> {
-        let url_ = this.baseUrl + "/api/services/app/LabTestReceipt/GenerateLabTestReceipt?";
-        if (labTestId === null)
-            throw new Error("The parameter 'labTestId' cannot be null.");
-        else if (labTestId !== undefined)
-            url_ += "labTestId=" + encodeURIComponent("" + labTestId) + "&";
-        if (paymentMethod === null)
-            throw new Error("The parameter 'paymentMethod' cannot be null.");
-        else if (paymentMethod !== undefined)
-            url_ += "paymentMethod=" + encodeURIComponent("" + paymentMethod) + "&";
+    createLabTestReceipt(body: CreateLabTestReceiptDto | undefined): Observable<number> {
+        let url_ = this.baseUrl + "/api/services/app/LabTestReceipt/CreateLabTestReceipt";
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(body);
+
         let options_ : any = {
+            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
+                "Content-Type": "application/json",
                 "Accept": "text/plain"
             })
         };
 
         return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGenerateLabTestReceipt(response_);
+            return this.processCreateLabTestReceipt(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processGenerateLabTestReceipt(response_ as any);
+                    return this.processCreateLabTestReceipt(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<LabTestReceiptDto>;
+                    return _observableThrow(e) as any as Observable<number>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<LabTestReceiptDto>;
+                return _observableThrow(response_) as any as Observable<number>;
         }));
     }
 
-    protected processGenerateLabTestReceipt(response: HttpResponseBase): Observable<LabTestReceiptDto> {
+    protected processCreateLabTestReceipt(response: HttpResponseBase): Observable<number> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -7360,7 +7299,8 @@ export class LabTestReceiptServiceProxy {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = LabTestReceiptDto.fromJS(resultData200);
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -18085,6 +18025,92 @@ export enum ChargeType {
     _4 = 4,
 }
 
+export class CreateLabTestReceiptDto implements ICreateLabTestReceiptDto {
+    patientId: number;
+    labTestSource: LabTestSource;
+    prescriptionId: number | undefined;
+    selectedTestIds: number[];
+    selectedPackageIds: number[] | undefined;
+    paymentMethod: PaymentMethod;
+    totalAmount: number;
+
+    constructor(data?: ICreateLabTestReceiptDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.selectedTestIds = [];
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.patientId = _data["patientId"];
+            this.labTestSource = _data["labTestSource"];
+            this.prescriptionId = _data["prescriptionId"];
+            if (Array.isArray(_data["selectedTestIds"])) {
+                this.selectedTestIds = [] as any;
+                for (let item of _data["selectedTestIds"])
+                    this.selectedTestIds.push(item);
+            }
+            if (Array.isArray(_data["selectedPackageIds"])) {
+                this.selectedPackageIds = [] as any;
+                for (let item of _data["selectedPackageIds"])
+                    this.selectedPackageIds.push(item);
+            }
+            this.paymentMethod = _data["paymentMethod"];
+            this.totalAmount = _data["totalAmount"];
+        }
+    }
+
+    static fromJS(data: any): CreateLabTestReceiptDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateLabTestReceiptDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["patientId"] = this.patientId;
+        data["labTestSource"] = this.labTestSource;
+        data["prescriptionId"] = this.prescriptionId;
+        if (Array.isArray(this.selectedTestIds)) {
+            data["selectedTestIds"] = [];
+            for (let item of this.selectedTestIds)
+                data["selectedTestIds"].push(item);
+        }
+        if (Array.isArray(this.selectedPackageIds)) {
+            data["selectedPackageIds"] = [];
+            for (let item of this.selectedPackageIds)
+                data["selectedPackageIds"].push(item);
+        }
+        data["paymentMethod"] = this.paymentMethod;
+        data["totalAmount"] = this.totalAmount;
+        return data;
+    }
+
+    clone(): CreateLabTestReceiptDto {
+        const json = this.toJSON();
+        let result = new CreateLabTestReceiptDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ICreateLabTestReceiptDto {
+    patientId: number;
+    labTestSource: LabTestSource;
+    prescriptionId: number | undefined;
+    selectedTestIds: number[];
+    selectedPackageIds: number[] | undefined;
+    paymentMethod: PaymentMethod;
+    totalAmount: number;
+}
+
 export class CreateRoleDto implements ICreateRoleDto {
     name: string;
     displayName: string;
@@ -24373,61 +24399,6 @@ export interface ILabTest {
     isActive: boolean;
 }
 
-export class LabTestCreationResultDto implements ILabTestCreationResultDto {
-    isStripeRedirect: boolean;
-    stripeSessionUrl: string | undefined;
-    receipt: LabTestReceiptDto;
-    message: string | undefined;
-
-    constructor(data?: ILabTestCreationResultDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.isStripeRedirect = _data["isStripeRedirect"];
-            this.stripeSessionUrl = _data["stripeSessionUrl"];
-            this.receipt = _data["receipt"] ? LabTestReceiptDto.fromJS(_data["receipt"]) : <any>undefined;
-            this.message = _data["message"];
-        }
-    }
-
-    static fromJS(data: any): LabTestCreationResultDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new LabTestCreationResultDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["isStripeRedirect"] = this.isStripeRedirect;
-        data["stripeSessionUrl"] = this.stripeSessionUrl;
-        data["receipt"] = this.receipt ? this.receipt.toJSON() : <any>undefined;
-        data["message"] = this.message;
-        return data;
-    }
-
-    clone(): LabTestCreationResultDto {
-        const json = this.toJSON();
-        let result = new LabTestCreationResultDto();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface ILabTestCreationResultDto {
-    isStripeRedirect: boolean;
-    stripeSessionUrl: string | undefined;
-    receipt: LabTestReceiptDto;
-    message: string | undefined;
-}
-
 export class LabTestDetailDto implements ILabTestDetailDto {
     prescriptionLabTestId: number;
     testName: string | undefined;
@@ -24918,93 +24889,6 @@ export interface ILabTestReceipt {
     status: InvoiceStatus;
     source: LabTestSource;
     prescriptionLabTests: PrescriptionLabTest[] | undefined;
-}
-
-export class LabTestReceiptDto implements ILabTestReceiptDto {
-    id: number;
-    tenantId: number;
-    labReportTypeId: number;
-    prescriptionLabTestId: number;
-    patientId: number;
-    labTestFee: number;
-    receiptNumber: string | undefined;
-    paymentDate: moment.Moment;
-    paymentMethod: PaymentMethod;
-    status: InvoiceStatus;
-    labReportTypeName: string | undefined;
-    patientName: string | undefined;
-
-    constructor(data?: ILabTestReceiptDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.tenantId = _data["tenantId"];
-            this.labReportTypeId = _data["labReportTypeId"];
-            this.prescriptionLabTestId = _data["prescriptionLabTestId"];
-            this.patientId = _data["patientId"];
-            this.labTestFee = _data["labTestFee"];
-            this.receiptNumber = _data["receiptNumber"];
-            this.paymentDate = _data["paymentDate"] ? moment(_data["paymentDate"].toString()) : <any>undefined;
-            this.paymentMethod = _data["paymentMethod"];
-            this.status = _data["status"];
-            this.labReportTypeName = _data["labReportTypeName"];
-            this.patientName = _data["patientName"];
-        }
-    }
-
-    static fromJS(data: any): LabTestReceiptDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new LabTestReceiptDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["tenantId"] = this.tenantId;
-        data["labReportTypeId"] = this.labReportTypeId;
-        data["prescriptionLabTestId"] = this.prescriptionLabTestId;
-        data["patientId"] = this.patientId;
-        data["labTestFee"] = this.labTestFee;
-        data["receiptNumber"] = this.receiptNumber;
-        data["paymentDate"] = this.paymentDate ? this.paymentDate.toISOString() : <any>undefined;
-        data["paymentMethod"] = this.paymentMethod;
-        data["status"] = this.status;
-        data["labReportTypeName"] = this.labReportTypeName;
-        data["patientName"] = this.patientName;
-        return data;
-    }
-
-    clone(): LabTestReceiptDto {
-        const json = this.toJSON();
-        let result = new LabTestReceiptDto();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface ILabTestReceiptDto {
-    id: number;
-    tenantId: number;
-    labReportTypeId: number;
-    prescriptionLabTestId: number;
-    patientId: number;
-    labTestFee: number;
-    receiptNumber: string | undefined;
-    paymentDate: moment.Moment;
-    paymentMethod: PaymentMethod;
-    status: InvoiceStatus;
-    labReportTypeName: string | undefined;
-    patientName: string | undefined;
 }
 
 export enum LabTestSource {
@@ -28278,6 +28162,10 @@ export class PrescriptionLabTest implements IPrescriptionLabTest {
     createdDate: moment.Moment | undefined;
     labTestReceiptId: number | undefined;
     labTestReceipt: LabTestReceipt;
+    isPrescribed: boolean;
+    isFromPackage: boolean;
+    healthPackageId: number | undefined;
+    healthPackage: HealthPackage;
     labReportResultItems: LabReportResultItem[] | undefined;
 
     constructor(data?: IPrescriptionLabTest) {
@@ -28304,6 +28192,10 @@ export class PrescriptionLabTest implements IPrescriptionLabTest {
             this.createdDate = _data["createdDate"] ? moment(_data["createdDate"].toString()) : <any>undefined;
             this.labTestReceiptId = _data["labTestReceiptId"];
             this.labTestReceipt = _data["labTestReceipt"] ? LabTestReceipt.fromJS(_data["labTestReceipt"]) : <any>undefined;
+            this.isPrescribed = _data["isPrescribed"];
+            this.isFromPackage = _data["isFromPackage"];
+            this.healthPackageId = _data["healthPackageId"];
+            this.healthPackage = _data["healthPackage"] ? HealthPackage.fromJS(_data["healthPackage"]) : <any>undefined;
             if (Array.isArray(_data["labReportResultItems"])) {
                 this.labReportResultItems = [] as any;
                 for (let item of _data["labReportResultItems"])
@@ -28334,6 +28226,10 @@ export class PrescriptionLabTest implements IPrescriptionLabTest {
         data["createdDate"] = this.createdDate ? this.createdDate.toISOString() : <any>undefined;
         data["labTestReceiptId"] = this.labTestReceiptId;
         data["labTestReceipt"] = this.labTestReceipt ? this.labTestReceipt.toJSON() : <any>undefined;
+        data["isPrescribed"] = this.isPrescribed;
+        data["isFromPackage"] = this.isFromPackage;
+        data["healthPackageId"] = this.healthPackageId;
+        data["healthPackage"] = this.healthPackage ? this.healthPackage.toJSON() : <any>undefined;
         if (Array.isArray(this.labReportResultItems)) {
             data["labReportResultItems"] = [];
             for (let item of this.labReportResultItems)
@@ -28364,6 +28260,10 @@ export interface IPrescriptionLabTest {
     createdDate: moment.Moment | undefined;
     labTestReceiptId: number | undefined;
     labTestReceipt: LabTestReceipt;
+    isPrescribed: boolean;
+    isFromPackage: boolean;
+    healthPackageId: number | undefined;
+    healthPackage: HealthPackage;
     labReportResultItems: LabReportResultItem[] | undefined;
 }
 

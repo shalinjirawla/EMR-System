@@ -9,7 +9,7 @@ import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { FormsModule } from '@node_modules/@angular/forms';
 import { CommonModule, NgIf } from '@node_modules/@angular/common';
 import { ChangeDetectorRef, Component, Injector, ViewChild } from '@angular/core';
-import { CreatePrescriptionLabTestsServiceProxy, LabRequestListDto, LabTestReceiptDto, LabTestReceiptServiceProxy, LabTestStatus, PaymentMethod, PrescriptionLabTestDto, PrescriptionLabTestServiceProxy } from '@shared/service-proxies/service-proxies';
+import { CreatePrescriptionLabTestsServiceProxy, LabRequestListDto, LabTestReceiptServiceProxy, LabTestStatus, PaymentMethod, PrescriptionLabTestDto, PrescriptionLabTestServiceProxy } from '@shared/service-proxies/service-proxies';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
 import { ChipModule } from 'primeng/chip';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
@@ -118,28 +118,28 @@ export class TestRequestsComponent extends PagedListingComponentBase<Prescriptio
     //             }
     //         });
     // }
-    pay(record: PrescriptionLabTestDto, method: PaymentMethod): void {
-        debugger
-        abp.ui.setBusy();
+    // pay(record: PrescriptionLabTestDto, method: PaymentMethod): void {
+    //     debugger
+    //     abp.ui.setBusy();
 
-        if (method === PaymentMethod._1) {
-            // Card → existing Stripe flow
-            this._createprescriptionLabTest
-                .initiatePaymentForLabTest(record.id)
-                .pipe(finalize(() => abp.ui.clearBusy()))
-                .subscribe(
-                    (sessionUrl: string) => window.location.href = sessionUrl,
-                    (err: any) => abp.message.error(err.message || 'Payment initiation failed.')
-                );
-        } else {
-            // Cash → generate receipt immediately
-            const methodName = this.PAYMENT_METHOD_NAMES[method]; // "Cash"
-            this._labtestrecipt
-                .generateLabTestReceipt(record.id, methodName)
-                .pipe(finalize(() => abp.ui.clearBusy()))
-                .subscribe();
-        }
-    }
+    //     if (method === PaymentMethod._1) {
+    //         // Card → existing Stripe flow
+    //         this._createprescriptionLabTest
+    //             .initiatePaymentForLabTest(record.id)
+    //             .pipe(finalize(() => abp.ui.clearBusy()))
+    //             .subscribe(
+    //                 (sessionUrl: string) => window.location.href = sessionUrl,
+    //                 (err: any) => abp.message.error(err.message || 'Payment initiation failed.')
+    //             );
+    //     } else {
+    //         // Cash → generate receipt immediately
+    //         const methodName = this.PAYMENT_METHOD_NAMES[method]; // "Cash"
+    //         this._labtestrecipt
+    //             .generateLabTestReceipt(record.id, methodName)
+    //             .pipe(finalize(() => abp.ui.clearBusy()))
+    //             .subscribe();
+    //     }
+    // }
 
     viewReceipt(prescriptionLabTestId: number): void {
         if (prescriptionLabTestId) {

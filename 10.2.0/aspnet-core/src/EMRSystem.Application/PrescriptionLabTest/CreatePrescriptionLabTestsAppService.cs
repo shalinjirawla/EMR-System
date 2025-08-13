@@ -57,94 +57,94 @@ namespace EMRSystem.PrescriptionLabTest
             _labTestReceiptAppService = labTestReceiptAppService;
         }
 
-        public async Task<LabTestCreationResultDto> CreateLabTestAsync(CreateUpdatePrescriptionLabTestDto input)
-        {
-            var patient = await _patientRepository.GetAllIncluding(p => p.Admissions)
-                .FirstOrDefaultAsync(p => p.Id == input.PatientId);
+        //public async Task<LabTestCreationResultDto> CreateLabTestAsync(CreateUpdatePrescriptionLabTestDto input)
+        //{
+        //    var patient = await _patientRepository.GetAllIncluding(p => p.Admissions)
+        //        .FirstOrDefaultAsync(p => p.Id == input.PatientId);
 
-            if (patient == null)
-                throw new UserFriendlyException("Patient not found");
+        //    if (patient == null)
+        //        throw new UserFriendlyException("Patient not found");
 
-            var labTestType = await _labReportsTypeRepository.GetAsync(input.LabReportsTypeId);
-            if (labTestType == null)
-                throw new UserFriendlyException("Lab test type not found");
+        //    var labTestType = await _labReportsTypeRepository.GetAsync(input.LabReportsTypeId);
+        //    if (labTestType == null)
+        //        throw new UserFriendlyException("Lab test type not found");
 
-            var entity = ObjectMapper.Map<EMRSystem.LabReports.PrescriptionLabTest>(input);
-            entity.TestStatus = LabTestStatus.InProgress;
+        //    var entity = ObjectMapper.Map<EMRSystem.LabReports.PrescriptionLabTest>(input);
+        //    entity.TestStatus = LabTestStatus.InProgress;
 
-            if (patient.IsAdmitted)
-            {
-                // IPD Patient
-                if (!patient.Admissions.Any())
-                    throw new UserFriendlyException("Patient is marked as admitted but has no admission records");
+        //    if (patient.IsAdmitted)
+        //    {
+        //        // IPD Patient
+        //        if (!patient.Admissions.Any())
+        //            throw new UserFriendlyException("Patient is marked as admitted but has no admission records");
 
-                var admission = patient.Admissions
-                    .Where(a => !a.IsDischarged)
-                    .OrderByDescending(a => a.AdmissionDateTime)
-                    .FirstOrDefault()
-                    ?? throw new UserFriendlyException("No active admission found for this patient");
+        //        var admission = patient.Admissions
+        //            .Where(a => !a.IsDischarged)
+        //            .OrderByDescending(a => a.AdmissionDateTime)
+        //            .FirstOrDefault()
+        //            ?? throw new UserFriendlyException("No active admission found for this patient");
 
-                if (admission == null)
-                    throw new UserFriendlyException("No active admission found for patient");
+        //        if (admission == null)
+        //            throw new UserFriendlyException("No active admission found for patient");
 
-                entity.IsPaid = true;
-                await Repository.InsertAsync(entity);
-                await CurrentUnitOfWork.SaveChangesAsync();
-                await SaveResultItemsAsync(entity.Id, input.ResultItems);
+        //        entity.IsPaid = true;
+        //        await Repository.InsertAsync(entity);
+        //        await CurrentUnitOfWork.SaveChangesAsync();
+        //        await SaveResultItemsAsync(entity.Id, input.ResultItems);
 
-                var chargeEntry = new EMRSystem.IpdChargeEntry.IpdChargeEntry
-                {
-                    AdmissionId = admission.Id,
-                    PatientId = patient.Id,
-                    ChargeType = ChargeType.LabTest,
-                    Description = $"Lab Test - {labTestType.ReportType}",
-                    Amount = labTestType.ReportPrice,
-                    //ReferenceId = entity.Id
-                };
+        //        var chargeEntry = new EMRSystem.IpdChargeEntry.IpdChargeEntry
+        //        {
+        //            AdmissionId = admission.Id,
+        //            PatientId = patient.Id,
+        //            ChargeType = ChargeType.LabTest,
+        //            Description = $"Lab Test - {labTestType.ReportType}",
+        //            Amount = labTestType.ReportPrice,
+        //            //ReferenceId = entity.Id
+        //        };
 
-                await _ipdChargeEntryRepository.InsertAsync(chargeEntry);
+        //        await _ipdChargeEntryRepository.InsertAsync(chargeEntry);
 
-                return new LabTestCreationResultDto
-                {
-                    IsStripeRedirect = false,
-                    Message = "Lab test created. Charge will be deducted from deposit."
-                };
-            }
-            else
-            {
-                // OPD Patient
-                entity.IsPaid = (input.PaymentMethod != PaymentMethod.Card);
-                await Repository.InsertAsync(entity);
-                await CurrentUnitOfWork.SaveChangesAsync();
-                await SaveResultItemsAsync(entity.Id, input.ResultItems);
+        //        return new LabTestCreationResultDto
+        //        {
+        //            IsStripeRedirect = false,
+        //            Message = "Lab test created. Charge will be deducted from deposit."
+        //        };
+        //    }
+        //    else
+        //    {
+        //        // OPD Patient
+        //        entity.IsPaid = (input.PaymentMethod != PaymentMethod.Card);
+        //        await Repository.InsertAsync(entity);
+        //        await CurrentUnitOfWork.SaveChangesAsync();
+        //        await SaveResultItemsAsync(entity.Id, input.ResultItems);
 
-                if (input.PaymentMethod == PaymentMethod.Card)
-                {
-                    var stripeUrl = await CreateStripeSessionForLabTest(
-                        entity,
-                        labTestType.ReportPrice,
-                        "http://localhost:4200/app/lab-technician/test-requests", // Success URL
-                        "http://localhost:4200/app/lab-technician/test-requests"  // Cancel URL
-                    );
+        //        if (input.PaymentMethod == PaymentMethod.Card)
+        //        {
+        //            var stripeUrl = await CreateStripeSessionForLabTest(
+        //                entity,
+        //                labTestType.ReportPrice,
+        //                "http://localhost:4200/app/lab-technician/test-requests", // Success URL
+        //                "http://localhost:4200/app/lab-technician/test-requests"  // Cancel URL
+        //            );
 
-                    return new LabTestCreationResultDto
-                    {
-                        IsStripeRedirect = true,
-                        StripeSessionUrl = stripeUrl
-                    };
-                }
-                else // Cash payment
-                {
-                    var receipt = await _labTestReceiptAppService
-                        .GenerateLabTestReceipt(entity.Id, input.PaymentMethod.Value.ToString());
-                    return new LabTestCreationResultDto
-                    {
-                        IsStripeRedirect = false,
-                        Receipt = receipt
-                    };
-                }
-            }
-        }
+        //            return new LabTestCreationResultDto
+        //            {
+        //                IsStripeRedirect = true,
+        //                StripeSessionUrl = stripeUrl
+        //            };
+        //        }
+        //        else // Cash payment
+        //        {
+        //            var receipt = await _labTestReceiptAppService
+        //                .GenerateLabTestReceipt(entity.Id, input.PaymentMethod.Value.ToString());
+        //            return new LabTestCreationResultDto
+        //            {
+        //                IsStripeRedirect = false,
+        //                Receipt = receipt
+        //            };
+        //        }
+        //    }
+        //}
         private async Task SaveResultItemsAsync(long parentTestId, List<LabReportResultItemDto> dtos)
         {
             if (dtos == null || dtos.Count == 0)

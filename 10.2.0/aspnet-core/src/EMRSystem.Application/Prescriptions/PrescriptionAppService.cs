@@ -171,6 +171,8 @@ namespace EMRSystem.Prescriptions
                         LabReportsTypeId = labTestId,
                         IsPaid = isAdmitted,
                         TestStatus = LabTestStatus.Pending,
+                        IsPrescribed=true,
+                        IsFromPackage = false,
                         CreatedDate = DateTime.Now
                     };
 
@@ -188,6 +190,8 @@ namespace EMRSystem.Prescriptions
                         PrescriptionId = prescription.Id,
                         LabReportsTypeId = labTestId,
                         IsPaid = false,
+                        IsPrescribed=true,
+                        IsFromPackage=false,
                         TestStatus = LabTestStatus.Pending,
                         CreatedDate = DateTime.Now
                     };
