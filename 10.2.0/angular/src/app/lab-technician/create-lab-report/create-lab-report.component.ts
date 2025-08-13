@@ -19,13 +19,15 @@ import {
   PaymentMethod,
   CreateUpdatePrescriptionLabTestDto,
   LabTestStatus,
-  LabTestCreationResultDto,
   CreatePrescriptionLabTestsServiceProxy,
   PackageSuggestionDto,
   LabTestSource,
-  PrescriptionServiceProxy
+  PrescriptionServiceProxy,
+  CreateLabTestReceiptDto,
+  LabTestReceiptServiceProxy
 } from '@shared/service-proxies/service-proxies';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { MessageService } from 'primeng/api';
 
 interface CombinedTestOrPackage {
   id: number;
@@ -38,7 +40,7 @@ interface CombinedTestOrPackage {
 @Component({
   selector: 'app-create-lab-report',
   imports: [DropdownModule, SelectModule, ToggleButtonModule, ButtonModule, CheckboxModule, FormsModule, CommonModule, TagModule, MultiSelectModule],
-  providers: [PatientServiceProxy, LabReportsTypeServiceProxy, PrescriptionServiceProxy, LabReportTemplateItemServiceProxy, CreatePrescriptionLabTestsServiceProxy],
+  providers: [PatientServiceProxy,LabTestReceiptServiceProxy,MessageService, LabReportsTypeServiceProxy, PrescriptionServiceProxy, LabReportTemplateItemServiceProxy, CreatePrescriptionLabTestsServiceProxy],
   templateUrl: './create-lab-report.component.html',
   styleUrl: './create-lab-report.component.css'
 })
@@ -49,15 +51,23 @@ export class CreateLabReportComponent implements OnInit {
   prescriptions: any[] = [];
   labTestSource: LabTestSource = LabTestSource._1; // default or null
   selectedPrescription: any = null;
-
+  paymentMethod: PaymentMethod = PaymentMethod._0; // Default to Cash
+  isSaving = false;
   LabTestSource = LabTestSource;
   selectedPatient: any;
   selectedLabTests: number[] = [];
 
+  paymentMethods = [
+  { label: 'Cash', value: PaymentMethod._0 },
+  { label: 'Card', value: PaymentMethod._1 }
+];
+
   constructor(
     private patientService: PatientServiceProxy,
     private labTestService: LabReportsTypeServiceProxy,
-    private prescriptionService: PrescriptionServiceProxy
+    private prescriptionService: PrescriptionServiceProxy,
+    private _labReceiptService:LabTestReceiptServiceProxy,
+    private _messageService: MessageService
   ) { }
 
   ngOnInit() {
@@ -206,6 +216,93 @@ get selectedTestDetails() {
     .map(id => this.labTests.find(t => t.id === id))
     .filter(t => t != null); // filter out nulls just in case
 }
+save() {
+    if (!this.validateBeforeSave()) return;
 
+    this.isSaving = true;
 
+    const input = new CreateLabTestReceiptDto({
+      patientId: this.selectedPatient,
+      labTestSource: this.labTestSource,
+      prescriptionId: this.labTestSource === LabTestSource._0 ? this.selectedPrescription : undefined,
+      selectedTestIds: this.getNonPackageTestIds(),
+      selectedPackageIds: this.getPackageIds(),
+      paymentMethod: this.paymentMethod,
+      totalAmount: this.selectedTestsTotalPrice
+    });
+debugger
+    this._labReceiptService.createLabTestReceipt(input).subscribe({
+      next: (receiptId) => {
+        this._messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Lab receipt created successfully!'
+        });
+        // Reset form or close modal
+        this.resetForm();
+      },
+      error: (err) => {
+        this.isSaving = false;
+        this._messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to create lab receipt'
+        });
+      }
+    });
+  }
+
+  // Helper methods
+  private getNonPackageTestIds(): number[] {
+    return this.selectedLabTests.filter(id => {
+      const item = this.labTests.find(t => t.id === id);
+      return item && item.type === 'Test';
+    });
+  }
+
+  private getPackageIds(): number[] {
+    return this.selectedLabTests.filter(id => {
+      const item = this.labTests.find(t => t.id === id);
+      return item && item.type === 'Package';
+    });
+  }
+
+  private validateBeforeSave(): boolean {
+    if (!this.selectedPatient) {
+      this._messageService.add({
+        severity: 'warn',
+        summary: 'Warning',
+        detail: 'Please select a patient'
+      });
+      return false;
+    }
+
+    if (this.selectedLabTests.length === 0) {
+      this._messageService.add({
+        severity: 'warn',
+        summary: 'Warning',
+        detail: 'Please select at least one test'
+      });
+      return false;
+    }
+
+    if (this.labTestSource === LabTestSource._0 && !this.selectedPrescription) {
+      this._messageService.add({
+        severity: 'warn',
+        summary: 'Warning',
+        detail: 'Please select a prescription for OPD cases'
+      });
+      return false;
+    }
+
+    return true;
+  }
+
+  private resetForm() {
+    this.selectedPatient = null;
+    this.selectedPrescription = null;
+    this.selectedLabTests = [];
+    this.paymentMethod = PaymentMethod._0;
+    this.isSaving = false;
+  }
 }

@@ -92,7 +92,7 @@ namespace EMRSystem.Controllers
                             var labTest = await _prescriptionLabTestRepository.GetAsync(labTestId);
                             labTest.IsPaid = true;
                             await _prescriptionLabTestRepository.UpdateAsync(labTest);
-                            await _labTestReceiptAppService.GenerateLabTestReceipt(labTestId, PaymentMethod.Card.ToString());
+                            //await _labTestReceiptAppService.GenerateLabTestReceipt(labTestId, PaymentMethod.Card.ToString());
                             await uow.CompleteAsync();
                         }
                     }

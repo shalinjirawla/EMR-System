@@ -1,4 +1,5 @@
 ﻿using Abp.Domain.Entities;
+using EMRSystem.LabMasters;
 using EMRSystem.LabReportsTypes;
 using EMRSystem.LabTestReceipt;
 using EMRSystem.Patients;
@@ -17,15 +18,29 @@ namespace EMRSystem.LabReports
         public int TenantId { get; set; }
         public long? PrescriptionId { get; set; }
         public virtual Prescription Prescription { get; set; }
+
         public long? PatientId { get; set; }
         public virtual Patient Patient { get; set; }
+
         public long LabReportsTypeId { get; set; }
         public virtual LabReportsType LabReportsType { get; set; }
+
         public LabTestStatus TestStatus { get; set; }
+
         public bool IsPaid { get; set; }=false;
+
         public DateTime? CreatedDate { get; set; } = DateTime.Now;
+
         public long? LabTestReceiptId { get; set; }
         public virtual EMRSystem.LabTestReceipt.LabTestReceipt LabTestReceipt { get; set; }
+
+        public bool IsPrescribed { get; set; } // Doctor ne prescribe kiya
+        public bool IsFromPackage { get; set; } // Package ka part hai
+
+        // ✅ Link to HealthPackage
+        public long? HealthPackageId { get; set; }
+        public virtual HealthPackage HealthPackage { get; set; }
+
         public ICollection<LabReportResultItem> LabReportResultItems { get; set; }
     }
 

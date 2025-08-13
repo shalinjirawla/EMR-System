@@ -86,6 +86,22 @@
     </div>
   </section>
 
+  <!-- Add this after the total price section -->
+<div class="form-group">
+  <label>Payment Method</label>
+  <p-dropdown [options]="paymentMethods" [(ngModel)]="paymentMethod" 
+              optionLabel="label" optionValue="value" placeholder="Select Payment Method">
+  </p-dropdown>
+</div>
+
+<div class="form-actions">
+  <button pButton type="button" (click)="save()" 
+          [disabled]="isSaving || !selectedLabTests.length" class="p-button-success">
+          <i *ngIf="isSaving" class="pi pi-spinner pi-spin"></i>
+          {{ isSaving ? 'Saving...' : 'Save' }}
+  </button>
+</div>
+
   <!-- Suggested Packages -->
   <section *ngIf="suggestions.length" class="suggestions-container pro-card">
     <h4>Suggested Packages</h4>
