@@ -5,6 +5,7 @@ import { AppRouteGuard } from '../../shared/auth/auth-route-guard';
 import { InventoryComponent } from './inventory/inventory.component';
 import { ReportsComponent } from './reports/reports.component';
 import { TestRequestsComponent } from './test-requests/test-requests.component';
+import { LabTestReceiptComponent } from './lab-test-receipt/lab-test-receipt.component';
 
 
 const routes: Routes = [
@@ -24,6 +25,10 @@ const routes: Routes = [
             {
                 path: 'test-requests',
                 component: TestRequestsComponent,
+            },
+            {
+                path: 'lab-receipts',
+                component: LabTestReceiptComponent,
             },
             {
                 path: '',

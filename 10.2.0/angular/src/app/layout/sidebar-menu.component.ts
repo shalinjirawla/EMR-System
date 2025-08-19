@@ -85,6 +85,7 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
             // Lab Technician Section
             new MenuItem(this.l('Lab Technician'), '', 'fas fa-flask', 'Pages.LabTechnician', [
                 new MenuItem(this.l('Test Requests'), '/app/lab-technician/test-requests', 'fas fa-microscope', 'Pages.LabTechnician.TestRequests.Manage'),
+                new MenuItem(this.l('Lab Receipt'), '/app/lab-technician/lab-receipts', 'fas fa-receipt', 'Pages.LabTechnician'),
                 // new MenuItem(this.l('Inventory'), '/app/lab-technician/inventory', 'fas fa-boxes', 'Pages.LabTechnician.Inventory.View'),
                 // new MenuItem(this.l('Reports'), '/app/lab-technician/reports', 'fas fa-file-medical-alt', 'Pages.LabTechnician.Reports.View'),
             ]),

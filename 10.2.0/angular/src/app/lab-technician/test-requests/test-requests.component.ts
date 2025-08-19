@@ -148,7 +148,7 @@ export class TestRequestsComponent extends PagedListingComponentBase<Prescriptio
                 {
                     class: 'modal-lg',
                     initialState: {
-                        prescriptionLabTestId: prescriptionLabTestId
+                        //prescriptionLabTestId: prescriptionLabTestId
                     }
                 }
             );

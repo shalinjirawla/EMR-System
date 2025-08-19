@@ -214,10 +214,10 @@ export class EditAppoinmentComponent extends AppComponentBase implements OnInit 
     const selectedDate = moment(this.appointment.appointmentDate).startOf('day');
     const today = moment().startOf('day');
 
-    if (!selectedDate.isAfter(today)) {
-      this.message.warn("Appointment date must be in the future (not today).");
-      return false;
-    }
+    // if (!selectedDate.isAfter(today)) {
+    //   this.message.warn("Appointment date must be in the future (not today).");
+    //   return false;
+    // }
 
     return true;
   }

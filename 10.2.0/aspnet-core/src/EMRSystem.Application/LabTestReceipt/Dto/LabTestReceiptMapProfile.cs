@@ -1,4 +1,7 @@
 ﻿using AutoMapper;
+using EMRSystem.Patients;
+using EMRSystem.Patients.Dto;
+using EMRSystem.PrescriptionLabTest.Dto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,42 +14,29 @@ namespace EMRSystem.LabTestReceipt.Dto
     {
         public LabTestReceiptMapProfile()
         {
+            // Main mapping
+            CreateMap<LabTestReceipt, LabTestReceiptDto>()
+                .ForMember(dest => dest.PrescriptionLabTests,
+                    opt => opt.MapFrom(src => src.PrescriptionLabTests));
+
+            // Patient mapping
+            CreateMap<Patient, PatientDto>();
+
+            // PrescriptionLabTest mapping
+            CreateMap<EMRSystem.LabReports.PrescriptionLabTest, PrescriptionLabTestDto>()
+                .ForMember(dest => dest.ReportTypeName,
+                    opt => opt.MapFrom(src => src.LabReportsType.ReportType))
+                .ForMember(dest => dest.PackageName,
+                    opt => opt.MapFrom(src => src.HealthPackage.PackageName));
+
+            // View mapping
             CreateMap<LabTestReceipt, ViewLabTestReceiptDto>()
-                // simple props
-                .ForMember(dest => dest.TenantId,
-                           opt => opt.MapFrom(src => src.TenantId))
-                //.ForMember(dest => dest.LabReportTypeId,
-                //           opt => opt.MapFrom(src => src.LabReportTypeId))
-                .ForMember(dest => dest.PatientId,
-                           opt => opt.MapFrom(src => src.PatientId))
-                //.ForMember(dest => dest.LabTestFee,
-                //           opt => opt.MapFrom(src => src.LabTestFee))
-                .ForMember(dest => dest.ReceiptNumber,
-                           opt => opt.MapFrom(src => src.ReceiptNumber))
-                .ForMember(dest => dest.PaymentDate,
-                           opt => opt.MapFrom(src => src.PaymentDate))
-
-                // enum → string
-                .ForMember(dest => dest.PaymentMethod,
-                           opt => opt.MapFrom(src => src.PaymentMethod.ToString()))
-                .ForMember(dest => dest.Status,
-                           opt => opt.MapFrom(src => src.Status.ToString()))
-
-                // nested prescription lab test
-                //.ForMember(dest => dest.PrescriptionLabTestId,
-                //           opt => opt.MapFrom(src => src.PrescriptionLabTestId.Value))
-
-                // deeper navigation: LabReportsType.ReportType → LabReportName
-                //.ForMember(dest => dest.LabReportName,
-                //           opt => opt.MapFrom(src => src.LabReportType.ReportType))
-
-                // Patient.FullName → PatientName
                 .ForMember(dest => dest.PatientName,
-                           opt => opt.MapFrom(src => src.Patient.FullName));
-
-                // PrescriptionLabTest.CreatedDate → LabReportDate
-                //.ForMember(dest => dest.LabReportDate,
-                //           opt => opt.MapFrom(src => src.PrescriptionLabTest.CreatedDate.Value));
+                    opt => opt.MapFrom(src => src.Patient.FullName))
+                .ForMember(dest => dest.PaymentMethodDisplay,
+                    opt => opt.MapFrom(src => src.PaymentMethod.ToString()))
+                .ForMember(dest => dest.StatusDisplay,
+                    opt => opt.MapFrom(src => src.Status.ToString()));
         }
     }
 }

@@ -1,117 +1,146 @@
-<div class="lab-report-form">
-
-  <!-- Patient Select -->
-  <div class="form-group">
-    <label for="patient">Select Patient</label>
-    <p-dropdown
-      [options]="patients"
-      optionLabel="fullName"
-      optionValue="id"
-      placeholder="Select Patient"
-      [(ngModel)]="selectedPatient"
-      (onChange)="onPatientChange()"
-      inputId="patient"
-      class="pro-dropdown"
-    ></p-dropdown>
+<div class="form-container" style="position: relative;">
+  <div class="overlay" *ngIf="isSaving">
+    <p-progressSpinner></p-progressSpinner>
   </div>
+<form class="form-horizontal" autocomplete="off" #createLabReportForm="ngForm" (ngSubmit)="save()">
+  <abp-modal-header title="Create Lab Report" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
 
-  <!-- Lab Test Source Select -->
-  <div class="form-group">
-    <label for="labTestSource">Select Source</label>
-    <p-dropdown
-      [options]="[
-        { label: 'OPD', value: LabTestSource._0 },
-        { label: 'Direct', value: LabTestSource._1 }
-      ]"
-      [(ngModel)]="labTestSource"
-      optionLabel="label"
-      optionValue="value"
-      placeholder="Select Source"
-      (onChange)="onLabTestSourceChange()"
-      inputId="labTestSource"
-      class="pro-dropdown"
-    ></p-dropdown>
-  </div>
+  <div class="modal-body">
 
-  <!-- Prescription Select -->
-  <div class="form-group" *ngIf="labTestSource === LabTestSource._0">
-    <label for="prescription">Select Prescription</label>
-    <p-dropdown
-      [options]="prescriptions"
-      optionLabel="prescriptionName"
-      optionValue="id"
-      placeholder="Select Prescription"
-      [(ngModel)]="selectedPrescription"
-      (onChange)="onPrescriptionChange($event.value)"
-      inputId="prescription"
-      class="pro-dropdown"
-    ></p-dropdown>
-  </div>
-
-  <!-- Lab Tests MultiSelect -->
-  <div class="form-group">
-    <label for="labtests">Select Lab Tests</label>
-    <p-multiSelect
-      id="labtests"
-      [options]="labTests"
-      optionValue="id"
-      optionLabel="name"
-      [(ngModel)]="selectedLabTests"
-      (onChange)="onLabTestsChange()"
-      placeholder="Select Tests"
-      selectedItemsLabel="{0} items selected"
-      class="pro-multiselect"
-      panelStyleClass="pro-panel"
-    >
-      <ng-template let-test pTemplate="item">
-        <div [class.disabled-item]="test.disabled">
-          {{ test.name }} - ₹{{ test.price }}
-          <span *ngIf="test.disabled" class="included-text">(Included in package)</span>
-        </div>
-      </ng-template>
-    </p-multiSelect>
-  </div>
-
-  <!-- Selected Tests & Total -->
-  <section *ngIf="selectedTestDetails.length" class="selected-tests-container pro-card">
-    <h4>Selected Tests</h4>
-    <ul>
-      <li *ngFor="let test of selectedTestDetails" class="test-item">
-        <span>{{ test.name }}</span>
-        <span>₹{{ test.price }}</span>
-      </li>
-    </ul>
-    <div class="total-price">
-      <strong>Total: ₹{{ selectedTestsTotalPrice }}</strong>
-    </div>
-  </section>
-
-  <!-- Add this after the total price section -->
-<div class="form-group">
-  <label>Payment Method</label>
-  <p-dropdown [options]="paymentMethods" [(ngModel)]="paymentMethod" 
-              optionLabel="label" optionValue="value" placeholder="Select Payment Method">
-  </p-dropdown>
-</div>
-
-<div class="form-actions">
-  <button pButton type="button" (click)="save()" 
-          [disabled]="isSaving || !selectedLabTests.length" class="p-button-success">
-          <i *ngIf="isSaving" class="pi pi-spinner pi-spin"></i>
-          {{ isSaving ? 'Saving...' : 'Save' }}
-  </button>
-</div>
-
-  <!-- Suggested Packages -->
-  <section *ngIf="suggestions.length" class="suggestions-container pro-card">
-    <h4>Suggested Packages</h4>
-    <div *ngFor="let s of suggestions" class="suggestion-item">
-      <div class="suggestion-info">
-        <strong>{{ s.packageName }}</strong>
-        <span class="suggestion-price">₹{{ s.packagePrice }}</span>
+    <!-- Patient Selection -->
+    <div class="row">
+      <div class="col-md-12">
+        <label><b>Select Patient</b></label>
+        <p-select 
+          [options]="patients" 
+          optionLabel="fullName" 
+          [optionValue]="'id'" 
+          placeholder="Select Patient"
+          [(ngModel)]="selectedPatient" 
+          name="patientId"
+          (onChange)="onPatientChange()" 
+          class="w-100" 
+          required>
+        </p-select>
       </div>
-      <button pButton type="button" label="Replace" (click)="replaceTests(s)" class="pro-btn"></button>
     </div>
-  </section>
 
+    <!-- Lab Test Source -->
+    <div class="row mt-3">
+      <div class="col-md-12">
+        <label>Select Source</label>
+        <p-select
+          [options]="[
+            { label: 'OPD', value: LabTestSource._0 },
+            { label: 'Direct', value: LabTestSource._1 }
+          ]"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Select Source"
+          [(ngModel)]="labTestSource" 
+          name="labTestSource"
+          (onChange)="onLabTestSourceChange()"
+          class="w-100"
+          required>
+        </p-select>
+      </div>
+    </div>
+
+    <!-- Prescription (Only if OPD) -->
+    <div class="row mt-3" *ngIf="labTestSource === LabTestSource._0">
+      <div class="col-md-12">
+        <label>Select Prescription</label>
+        <p-select
+          [options]="prescriptions"
+          optionLabel="prescriptionName"
+          optionValue="id"
+          placeholder="Select Prescription"
+          [(ngModel)]="selectedPrescription"
+          name="prescriptionId"
+          (onChange)="onPrescriptionChange($event.value)"
+          class="w-100"
+          required>
+        </p-select>
+      </div>
+    </div>
+
+    <!-- Lab Tests -->
+    <div class="row mt-3">
+      <div class="col-md-12">
+        <label>Select Lab Tests</label>
+        <p-multiSelect
+          [options]="labTests"
+          optionValue="uniqueId"
+          optionLabel="name"
+          [(ngModel)]="selectedLabTests"
+          name="labTests"
+          (onChange)="onLabTestsChange()"
+          placeholder="Select Tests"
+          selectedItemsLabel="{0} items selected"
+          class="w-100">
+          <ng-template let-test pTemplate="item">
+            <div [class.disabled-item]="test.disabled">
+              {{ test.name }} - ₹{{ test.price }}
+              <span *ngIf="test.disabled" class="included-text">(Included in package)</span>
+            </div>
+          </ng-template>
+        </p-multiSelect>
+      </div>
+    </div>
+
+    <!-- Suggested Packages -->
+    <div class="row mt-3" *ngIf="suggestions.length">
+      <div class="col-md-12">
+        <h5>Suggested Packages</h5>
+        <div *ngFor="let s of suggestions" class="d-flex justify-content-between align-items-center border p-2 mb-2 rounded">
+          <div>
+            <strong>{{ s.packageName }}</strong> - ₹{{ s.packagePrice }}
+          </div>
+          <button pButton type="button" label="Replace" (click)="replaceTests(s)" class="p-button-sm p-button-info"></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Selected Tests -->
+    <div class="row mt-3" *ngIf="selectedTestDetails.length">
+      <div class="col-md-12">
+        <h5>Selected Tests</h5>
+        <ul class="list-group">
+          <li *ngFor="let test of selectedTestDetails" class="list-group-item d-flex justify-content-between">
+            <span>{{ test.name }}</span>
+            <span>₹{{ test.price }}</span>
+          </li>
+        </ul>
+        <div class="mt-2 text-right">
+          <strong>Total: ₹{{ selectedTestsTotalPrice }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment Method -->
+    <div class="row mt-3">
+      <div class="col-md-12">
+        <label>Payment Method</label>
+        <div class="d-flex">
+          <div class="payment-option" [class.active]="paymentMethod === PaymentMethod._1" (click)="setPaymentMethod(PaymentMethod._1)">
+            💳 Card
+          </div>
+          <div class="payment-option ml-2" [class.active]="paymentMethod === PaymentMethod._0" (click)="setPaymentMethod(PaymentMethod._0)">
+            💵 Cash
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <abp-modal-footer 
+    [cancelDisabled]="isSaving" 
+    [saveDisabled]="!createLabReportForm.form.valid || !selectedLabTests.length || isSaving"
+    (onCancelClick)="bsModalRef.hide()">
+    <ng-container *ngIf="isSaving">
+    <i class="pi pi-spin pi-spinner" style="margin-right: 8px;"></i> Saving...
+  </ng-container>
+  </abp-modal-footer>
+</form>
 </div>

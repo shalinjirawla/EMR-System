@@ -5,6 +5,8 @@ using EMRSystem.LabTechnician.Dto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Abp.Linq.Extensions;
+using System.Linq.Dynamic.Core;
 using System.Text;
 using System.Threading.Tasks;
 using EMRSystem.Patients.Dto;
@@ -38,48 +40,80 @@ namespace EMRSystem.LabTechnician
         [HttpGet]
         public async Task<PagedResultDto<LabRequestListDto>> GetAllLabTestRequests(PagedAndSortedResultRequestDto input)
         {
-            var query = (await Repository.GetAllAsync())
+            // Repository.GetAll() returns IQueryable<TEntity> — important
+            var query = Repository.GetAll()
                         .Include(x => x.Prescription).ThenInclude(p => p.Patient)
                         .Include(x => x.Patient)
                         .Include(x => x.Prescription).ThenInclude(p => p.Doctor)
                         .Include(x => x.Prescription).ThenInclude(p => p.LabTests)
                         .Include(x => x.LabReportsType)
-                        .WhereIf(AbpSession.TenantId.HasValue,
-                                 x => x.TenantId == AbpSession.TenantId.Value)
+                        .WhereIf(AbpSession.TenantId.HasValue, x => x.TenantId == AbpSession.TenantId.Value)
                         .Where(x => x.IsPaid == true);
 
-            var totalCount = query.Count();
+            // total count before pagination
+            var totalCount = await query.CountAsync();
 
-            var data = query.ToList();
+            // Apply sorting (use input.Sorting if provided, else fallback)
+            if (!string.IsNullOrWhiteSpace(input.Sorting))
+            {
+                // requires System.Linq.Dynamic.Core
+                query = query.OrderBy(input.Sorting);
+            }
+            else
+            {
+                query = query.OrderByDescending(x => x.Id);
+            }
 
-            var mapped = ObjectMapper.Map<List<LabRequestListDto>>(data);
+            // Apply paging
+            var items = await query
+                .Skip(input.SkipCount)
+                .Take(input.MaxResultCount)
+                .ToListAsync();
+
+            var mapped = ObjectMapper.Map<List<LabRequestListDto>>(items);
+
             return new PagedResultDto<LabRequestListDto>(totalCount, mapped);
         }
         [HttpGet]
         public async Task<PagedResultDto<LabOrderListDto>> GetAllLabOrders(PagedAndSortedResultRequestDto input)
         {
             var userId = AbpSession.UserId;
+
+            // अगर _doctorAppService method async है तो await करो, वरना synchronous ही रहेगा
             var doctor = _doctorAppService.GetDoctorDetailsByAbpUserID(userId.Value);
 
-            // Build IQueryable<PrescriptionLabTest>
-            var query = Repository.GetAll()
-                .Include(x => x.Prescription).ThenInclude(x => x.Appointment)
-                .Include(x => x.Prescription).ThenInclude(x => x.Doctor)
-                .Include(x => x.Prescription).ThenInclude(x => x.Patient)
-                .Include(x => x.LabReportsType)
+            // base query without Includes for count
+            var baseQuery = Repository.GetAll()
                 .Where(x => x.Prescription != null)
-                .WhereIf(AbpSession.TenantId.HasValue,
-                         x => x.TenantId == AbpSession.TenantId.Value)
-                .WhereIf(doctor != null,
-                         x => x.Prescription.DoctorId == doctor.Id)
+                .WhereIf(AbpSession.TenantId.HasValue, x => x.TenantId == AbpSession.TenantId.Value)
+                .WhereIf(doctor != null, x => x.Prescription.DoctorId == doctor.Id)
                 .Where(x => x.TestStatus == LabTestStatus.Completed);
 
-            // Execute counts and list asynchronously
-            var totalCount =  query.Count();
-            var data =  query.ToList();
+            // totalCount -> runs SELECT COUNT(*) ...
+            var totalCount = await baseQuery.CountAsync();
 
-            // Map and return
-            var mapped = ObjectMapper.Map<List<LabOrderListDto>>(data);
+            // now build the query for fetching page with includes
+            var query = baseQuery
+                .Include(x => x.Prescription).ThenInclude(p => p.Appointment)
+                .Include(x => x.Prescription).ThenInclude(p => p.Doctor)
+                .Include(x => x.Prescription).ThenInclude(p => p.Patient)
+                .Include(x => x.LabReportsType)
+                .AsNoTracking()
+                .AsSplitQuery(); // optional: avoids cartesian explosion if collections exist
+
+            // apply sorting (deterministic ordering important before Skip/Take)
+            if (!string.IsNullOrWhiteSpace(input.Sorting))
+                query = query.OrderBy(input.Sorting); // needs System.Linq.Dynamic.Core
+            else
+                query = query.OrderByDescending(x => x.Patient.FullName); // prefer CreationTime over bool
+
+            // apply paging -> DB will receive OFFSET/FETCH
+            var items = await query
+                .Skip(input.SkipCount)
+                .Take(input.MaxResultCount)
+                .ToListAsync();
+
+            var mapped = ObjectMapper.Map<List<LabOrderListDto>>(items);
             return new PagedResultDto<LabOrderListDto>(totalCount, mapped);
         }
         public EMRSystem.LabReports.PrescriptionLabTest GetPrescriptionLabTestDetailsById(long id)

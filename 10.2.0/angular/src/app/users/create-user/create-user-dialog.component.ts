@@ -151,7 +151,7 @@ export class CreateUserDialogComponent extends AppComponentBase implements OnIni
         this.saving = true;
         this.user.roleNames = [this.selectedRole];
 
-        if (this.selectedRole === 'DOCTORS' && this.doctorData) {
+        if (this.selectedRole === 'DOCTOR' && this.doctorData) {
             this.user['doctorProfile'] = this.doctorData;
         }
 
@@ -168,7 +168,7 @@ export class CreateUserDialogComponent extends AppComponentBase implements OnIni
         this._userService.create(this.user).subscribe({
             next: (res) => {
                 this.newlyCreatedUserId = res.id;
-                if (this.selectedRole === 'DOCTORS') {
+                if (this.selectedRole === 'DOCTOR') {
                     this.CreateDoctor();
                 }
                 if (this.selectedRole === 'NURSE') {

@@ -19,6 +19,9 @@ namespace EMRSystem.PrescriptionLabTest.Dto
         public string ReportTypeName { get; set; }
         public LabTestStatus TestStatus { get; set; }
         public bool IsPaid { get; set; } = true;
+        public bool IsFromPackage { get; set; }
+        public long? HealthPackageId { get; set; }
+        public string PackageName { get; set; }
         public DateTime? CreatedDate { get; set; } = DateTime.Now;
         public List<LabReportResultItemDto> ResultItems { get; set; }
     }

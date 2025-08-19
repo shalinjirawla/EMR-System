@@ -1,6 +1,5 @@
 ﻿using Abp.Application.Services;
 using EMRSystem.LabTestReceipt.Dto;
-using EMRSystem.PrescriptionLabTest.Dto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +8,17 @@ using System.Threading.Tasks;
 
 namespace EMRSystem.LabTestReceipt
 {
-    public interface ILabTestReceiptAppService : IApplicationService
+    public interface ILabTestReceiptAppService :
+        IAsyncCrudAppService<
+            LabTestReceiptDto,
+            long,
+            PagedLabTestReceiptResultRequestDto,
+            CreateLabTestReceiptDto,
+            UpdateLabTestReceiptDto>
     {
-        //Task<LabTestReceiptDto> GenerateLabTestReceipt(long labTestId, string paymentMethod);
         Task<long> CreateLabTestReceipt(CreateLabTestReceiptDto input);
-        //Task<ViewLabTestReceiptDto> GetViewByPrescriptionLabTestIdAsync(long prescriptionLabTestId);
+        Task<object> ProcessLabTestReceiptAsync(CreateLabTestReceiptDto input);
+        Task<LabTestReceiptDisplayDto> GetReceiptDisplayAsync(long receiptId);
+        Task<ViewLabTestReceiptDto> GetViewByPrescriptionLabTestIdAsync(long prescriptionLabTestId);
     }
 }
