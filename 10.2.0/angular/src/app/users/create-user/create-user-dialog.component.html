@@ -91,7 +91,7 @@
             </div>
         </div>
 
-        <app-select-doctor-role *ngIf="selectedRole === 'DOCTORS'" [doctorData]="doctorData"
+        <app-select-doctor-role *ngIf="selectedRole === 'DOCTOR'" [doctorData]="doctorData"
             (doctorDataChange)="onDoctorDataChange($event)"></app-select-doctor-role>
 
         <app-select-nurse-role *ngIf="selectedRole === 'NURSE'" [nurseData]="nurseData"

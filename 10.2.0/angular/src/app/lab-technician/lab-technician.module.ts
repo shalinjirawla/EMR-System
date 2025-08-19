@@ -6,6 +6,7 @@ import { LabTechnicianComponent } from './lab-technician.component';
 import { InventoryComponent } from './inventory/inventory.component';
 import { ReportsComponent } from './reports/reports.component';
 import { TestRequestsComponent } from './test-requests/test-requests.component';
+import { LabTestReceiptComponent } from './lab-test-receipt/lab-test-receipt.component';
 
 
 @NgModule({
@@ -16,7 +17,8 @@ import { TestRequestsComponent } from './test-requests/test-requests.component';
         LabTechnicianComponent,
         InventoryComponent,
         ReportsComponent,
-        TestRequestsComponent
+        TestRequestsComponent,
+        LabTestReceiptComponent
        
       
     ],

@@ -5,11 +5,11 @@
                 <div class="col-6">
                     <h1>Test Requests</h1>
                 </div>
-                <div class="col-6 text-right">
+                <!-- <div class="col-6 text-right">
                     <button type="button" class="btn bg-blue" (click)="createLabReport()">
                         <i class="fas fa-plus"></i> Create Lab Report
                     </button>
-                </div>
+                </div> -->
             </div>
         </div>
     </section>
@@ -157,14 +157,14 @@
                                                 <li *ngIf="record.testStatus!=0" (click)="ViewLabReport(record.id)">
                                                     <i class="pi pi-eye"></i> View Report
                                                 </li>
-                                                <li *ngIf="!record.isAdmitted && record.isPaid  && !record.isAdmitted"
+                                                <!-- <li *ngIf="!record.isAdmitted && record.isPaid  && !record.isAdmitted"
                                                     (click)="viewReceipt(record.id)">
                                                     <i class="pi pi-file"></i> View Receipt
-                                                </li>
+                                                </li> -->
                                                 <!-- <li *ngIf="!record.isPaid" (click)="makePayment(record)">
                                                     <i class="pi pi-credit-card"></i> Pay Now
                                                 </li> -->
-                                                <li *ngIf="!record.isPaid && record.testStatus === 0" class="payment-mode">
+                                                <!-- <li *ngIf="!record.isPaid && record.testStatus === 0" class="payment-mode">
                                                     <span class="payment-label">Mode of Payment</span>
                                                     <div class="payment-buttons">
                                                         <button type="button" class="btn btn-outline-success btn-sm"
@@ -176,7 +176,7 @@
                                                             Card
                                                         </button>
                                                     </div>
-                                                </li>
+                                                </li> -->
                                             </ul>
                                         </p-overlayPanel>
                                     </td>

@@ -101,7 +101,7 @@ export class EditUserDialogComponent extends AppComponentBase implements OnInit 
         }
 
         switch (this.selectedRole) {
-            case 'DOCTORS':
+            case 'DOCTOR':
                 this.setDoctorData(data);
                 break;
             case 'NURSE':
@@ -222,7 +222,7 @@ export class EditUserDialogComponent extends AppComponentBase implements OnInit 
 
     get isFormValid(): boolean {
         const isMainValid = this.editUserForm?.form?.valid ?? false;
-        const isDoctorValid = this.selectedRole === 'DOCTORS' ? this.editDoctorComponent?.doctorForm?.valid : true;
+        const isDoctorValid = this.selectedRole === 'DOCTOR' ? this.editDoctorComponent?.doctorForm?.valid : true;
         const isNurseValid = this.selectedRole === 'NURSE' ? this.editNurseComponent?.nurseForm?.valid : true;
         const isTechValid = this.selectedRole === 'LAB TECHNICIAN' ? this.editLabTechnicianComponent?.labTechnicianForm?.valid : true;
         const isPatientValid = this.selectedRole === 'PATIENT' ? this.editPatientsComponent?.patientForm?.valid : true;
@@ -242,7 +242,7 @@ export class EditUserDialogComponent extends AppComponentBase implements OnInit 
         this._userService.update(this.user).subscribe({
             next: () => {
                 switch (this.selectedRole) {
-                    case 'DOCTORS':
+                    case 'DOCTOR':
                         this.updateDoctor();
                         break;
                     case 'NURSE':

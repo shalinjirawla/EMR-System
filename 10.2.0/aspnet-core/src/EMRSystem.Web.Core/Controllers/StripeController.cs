@@ -6,12 +6,14 @@ using EMRSystem.Appointments;
 using EMRSystem.Deposit;
 using EMRSystem.Invoices;
 using EMRSystem.LabTestReceipt;
+using EMRSystem.LabTestReceipt.Dto;
 using EMRSystem.Patients;
 using EMRSystem.PrescriptionLabTest;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using Stripe;
 using Stripe.Checkout;
 using System;
@@ -81,21 +83,6 @@ namespace EMRSystem.Controllers
                     if (session.Metadata == null)
                         return Ok();
 
-                    if (session.Metadata.TryGetValue("purpose", out var labtestpurpose) && labtestpurpose == "labtest")
-                    {
-                        if (!session.Metadata.TryGetValue("labTestId", out var labTestIdStr))
-                            return Ok();
-
-                        var labTestId = long.Parse(labTestIdStr);
-                        using (var uow = _unitOfWorkManager.Begin())
-                        {
-                            var labTest = await _prescriptionLabTestRepository.GetAsync(labTestId);
-                            labTest.IsPaid = true;
-                            await _prescriptionLabTestRepository.UpdateAsync(labTest);
-                            //await _labTestReceiptAppService.GenerateLabTestReceipt(labTestId, PaymentMethod.Card.ToString());
-                            await uow.CompleteAsync();
-                        }
-                    }
                     // Handle deposit payments
                     if (session.Metadata.TryGetValue("purpose", out var purpose) && purpose == "deposit")
                     {
@@ -141,6 +128,26 @@ namespace EMRSystem.Controllers
                             await uow.CompleteAsync();
                         }
                     }
+                    else if (session.Metadata.TryGetValue("purpose", out var labTestpurpose) && labTestpurpose == "labTest")
+                    {
+                        if (!session.Metadata.TryGetValue("labTestReceiptDtoJson", out var dtoJson))
+                            return Ok();
+
+                        var dto = JsonConvert.DeserializeObject<CreateLabTestReceiptDto>(dtoJson);
+
+                        // Tenant ID ensure kar le, kyunki webhook anonymous request hai
+                        if (session.Metadata.TryGetValue("tenantId", out var tenantIdStr) && int.TryParse(tenantIdStr, out var tenantId))
+                        {
+                            dto.TenantId = tenantId;
+                        }
+
+                        using (var uow = _unitOfWorkManager.Begin())
+                        {
+                            await _labTestReceiptAppService.CreateLabTestReceipt(dto);
+                            await uow.CompleteAsync(); // 🔹 DB commit confirm karega
+                        }
+                    }
+
                 }
 
                 return Ok();

@@ -1,74 +1,63 @@
-import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, OnInit, ViewChild, EventEmitter, Output, Injector } from '@angular/core';
+import { FormsModule, NgForm } from '@angular/forms';
 import { BsModalRef } from 'ngx-bootstrap/modal';
-import { AbpModalFooterComponent } from "../../../shared/components/modal/abp-modal-footer.component";
 import { AbpModalHeaderComponent } from "../../../shared/components/modal/abp-modal-header.component";
-import { SelectModule } from "primeng/select";
-import { ButtonModule } from "primeng/button";
-import { CheckboxModule } from 'primeng/checkbox';
-import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@node_modules/@angular/common';
-import { ToggleButtonModule } from 'primeng/togglebutton';
-import { DropdownModule } from 'primeng/dropdown';
-import { TagModule } from 'primeng/tag';
+import { AbpModalFooterComponent } from "../../../shared/components/modal/abp-modal-footer.component";
 import {
-  LabReportDetailDto,
-  LabReportResultItemDto,
   LabReportsTypeServiceProxy,
-  LabReportTemplateItemServiceProxy,
   PatientServiceProxy,
   PaymentMethod,
-  CreateUpdatePrescriptionLabTestDto,
-  LabTestStatus,
-  CreatePrescriptionLabTestsServiceProxy,
-  PackageSuggestionDto,
   LabTestSource,
   PrescriptionServiceProxy,
   CreateLabTestReceiptDto,
   LabTestReceiptServiceProxy
 } from '@shared/service-proxies/service-proxies';
-import { MultiSelectModule } from 'primeng/multiselect';
 import { MessageService } from 'primeng/api';
-
-interface CombinedTestOrPackage {
-  id: number;
-  name: string;
-  price: number;
-  type: 'Test' | 'Package';
-  packageTestIds?: number[]; // present only for packages
-}
+import { AppComponentBase } from '@shared/app-component-base';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { SelectModule } from 'primeng/select';
+import { CommonModule } from '@angular/common';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'app-create-lab-report',
-  imports: [DropdownModule, SelectModule, ToggleButtonModule, ButtonModule, CheckboxModule, FormsModule, CommonModule, TagModule, MultiSelectModule],
-  providers: [PatientServiceProxy,LabTestReceiptServiceProxy,MessageService, LabReportsTypeServiceProxy, PrescriptionServiceProxy, LabReportTemplateItemServiceProxy, CreatePrescriptionLabTestsServiceProxy],
+  standalone: true,
+  imports: [
+    AbpModalHeaderComponent, AbpModalFooterComponent,MultiSelectModule,FormsModule,SelectModule,CommonModule,ButtonModule
+  ],
   templateUrl: './create-lab-report.component.html',
-  styleUrl: './create-lab-report.component.css'
+  styleUrls: ['./create-lab-report.component.css'],
+  providers: [PatientServiceProxy, LabTestReceiptServiceProxy, MessageService, LabReportsTypeServiceProxy, PrescriptionServiceProxy]
 })
-export class CreateLabReportComponent implements OnInit {
+export class CreateLabReportComponent extends AppComponentBase implements OnInit {
+  @ViewChild('createLabReportForm', { static: true }) createLabReportForm: NgForm;
+  @Output() onSave = new EventEmitter<void>();
+
   patients: any[] = [];
   labTests: any[] = [];
   suggestions: any[] = [];
   prescriptions: any[] = [];
-  labTestSource: LabTestSource = LabTestSource._1; // default or null
+  labTestSource: LabTestSource = LabTestSource._1;
   selectedPrescription: any = null;
-  paymentMethod: PaymentMethod = PaymentMethod._0; // Default to Cash
+  paymentMethod: PaymentMethod = PaymentMethod._0;
   isSaving = false;
-  LabTestSource = LabTestSource;
   selectedPatient: any;
-  selectedLabTests: number[] = [];
+  selectedLabTests: string[] = [];
 
-  paymentMethods = [
-  { label: 'Cash', value: PaymentMethod._0 },
-  { label: 'Card', value: PaymentMethod._1 }
-];
+  LabTestSource = LabTestSource;
+  PaymentMethod = PaymentMethod;
 
   constructor(
+    injector: Injector,
+    public bsModalRef: BsModalRef,
     private patientService: PatientServiceProxy,
     private labTestService: LabReportsTypeServiceProxy,
     private prescriptionService: PrescriptionServiceProxy,
-    private _labReceiptService:LabTestReceiptServiceProxy,
-    private _messageService: MessageService
-  ) { }
+    private labReceiptService: LabTestReceiptServiceProxy,
+    private messageService: MessageService
+  ) {
+    super(injector);
+  }
 
   ngOnInit() {
     this.loadPatients();
@@ -76,24 +65,18 @@ export class CreateLabReportComponent implements OnInit {
   }
 
   loadPatients() {
-    this.patientService.getOpdPatients().subscribe(res => {
-      this.patients = res;
-    });
+    this.patientService.getOpdPatients().subscribe(res => this.patients = res);
   }
 
   loadLabTests() {
     this.labTestService.getAllTestsAndPackagesByTenantId(abp.session.tenantId).subscribe(res => {
-      this.labTests = res.items // Only tests
+      this.labTests = res.items.map(t => ({
+        ...t,
+        uniqueId: `${t.type}-${t.id}`
+      }));
     });
   }
-  onLabTestSourceChange() {
-    if (this.labTestSource === LabTestSource._0 && this.selectedPatient) {
-      this.loadPrescriptions(this.selectedPatient);
-    } else {
-      this.prescriptions = [];
-      this.selectedPrescription = null;
-    }
-  }
+
   onPatientChange() {
     if (this.labTestSource === LabTestSource._0 && this.selectedPatient) {
       this.loadPrescriptions(this.selectedPatient);
@@ -102,6 +85,13 @@ export class CreateLabReportComponent implements OnInit {
       this.selectedPrescription = null;
     }
   }
+
+  onLabTestSourceChange() {
+    if (this.labTestSource === LabTestSource._0 && this.selectedPatient) {
+      this.loadPrescriptions(this.selectedPatient);
+    }
+  }
+
   loadPrescriptions(patientId: number) {
     this.prescriptionService.getPrescriptionsByPatient(patientId).subscribe(res => {
       this.prescriptions = res.items.map(p => ({
@@ -110,6 +100,7 @@ export class CreateLabReportComponent implements OnInit {
       }));
     });
   }
+
   onPrescriptionChange(prescriptionId: number) {
     if (!prescriptionId) {
       this.selectedLabTests = [];
@@ -118,7 +109,12 @@ export class CreateLabReportComponent implements OnInit {
 
     const selected = this.prescriptions.find(p => p.id === prescriptionId);
     if (selected && selected.labTestIds) {
-      this.selectedLabTests = [...selected.labTestIds];
+      this.selectedLabTests = selected.labTestIds
+        .map(testId => {
+          const testItem = this.labTests.find(t => t.id === testId && t.type === 'Test');
+          return testItem ? testItem.uniqueId : null;
+        })
+        .filter(x => x != null);
     } else {
       this.selectedLabTests = [];
     }
@@ -126,183 +122,118 @@ export class CreateLabReportComponent implements OnInit {
     this.onLabTestsChange();
   }
 
-
   onLabTestsChange() {
-    // 🔹 Sabhi tests ko by default enable
+    // disable tests included in packages
     this.labTests.forEach(t => t.disabled = false);
-
-    // 🔹 Agar koi package select hai to uske andar ke tests disable kar do
     const selectedPackages = this.labTests.filter(
-      t => this.selectedLabTests.includes(t.id) && t.type === 'Package'
+      t => this.selectedLabTests.includes(t.uniqueId) && t.type === 'Package'
     );
-
     selectedPackages.forEach(pkg => {
       pkg.packageTestIds?.forEach(testId => {
-        const testItem = this.labTests.find(t => t.id === testId);
-        if (testItem) {
-          testItem.disabled = true;
-        }
+        const testItem = this.labTests.find(t => t.id === testId && t.type === 'Test');
+        if (testItem) testItem.disabled = true;
       });
     });
-    this.selectedLabTests = this.selectedLabTests.filter(id => {
-      const item = this.labTests.find(t => t.id === id);
+    this.selectedLabTests = this.selectedLabTests.filter(uid => {
+      const item = this.labTests.find(t => t.uniqueId === uid);
       return !(item?.disabled && item.type === 'Test');
     });
-
-    // 🔹 Suggestions ke liye API call (agar koi package select nahi hai)
-    const onlyTestsSelected = this.selectedLabTests.filter(id => {
-      const item = this.labTests.find(t => t.id === id);
-      return item && item.type === 'Test';
-    });
-
+    const onlyTestsSelected = this.selectedLabTests
+      .map(uid => this.labTests.find(t => t.uniqueId === uid))
+      .filter(t => t?.type === 'Test')
+      .map(t => t.id);
     if (onlyTestsSelected.length >= 2) {
-      this.labTestService.getPackageSuggestions(onlyTestsSelected)
-        .subscribe(res => {
-          this.suggestions = res;
-        });
+      this.labTestService.getPackageSuggestions(onlyTestsSelected).subscribe(res => this.suggestions = res);
     } else {
       this.suggestions = [];
     }
   }
 
   replaceTests(suggestion: any) {
-    // 1️⃣ Remove only the tests that are in the includedTests list
-    this.selectedLabTests = this.selectedLabTests.filter(
-      id => !suggestion.includedTests.includes(id)
-    );
-
-    // 2️⃣ Add the package itself to the selection
-    const packageItem = this.labTests.find(
-      x => x.id === suggestion.packageId && x.type === 'Package'
-    );
+    this.selectedLabTests = this.selectedLabTests.filter(uid => {
+      const item = this.labTests.find(t => t.uniqueId === uid);
+      return !suggestion.includedTests.includes(item?.id);
+    });
+    const packageItem = this.labTests.find(x => x.id === suggestion.packageId && x.type === 'Package');
     if (packageItem) {
-      this.selectedLabTests.push(packageItem.id);
-
-      // 3️⃣ Disable its tests in the dropdown
+      this.selectedLabTests.push(packageItem.uniqueId);
       packageItem.packageTestIds?.forEach(testId => {
-        const testItem = this.labTests.find(t => t.id === testId);
-        if (testItem) {
-          testItem.disabled = true; // disable flag
-        }
+        const testItem = this.labTests.find(t => t.id === testId && t.type === 'Test');
+        if (testItem) testItem.disabled = true;
       });
     }
-
-    // 4️⃣ Remove disabled items from selection (in case they were selected before)
-    this.selectedLabTests = this.selectedLabTests.filter(id => {
-      const item = this.labTests.find(t => t.id === id);
-      return !(item?.disabled && item.type === 'Test');
-    });
-
-    // 5️⃣ Clear suggestions
     this.suggestions = [];
   }
 
   get selectedTestsTotalPrice(): number {
-    if (!this.selectedLabTests || this.selectedLabTests.length === 0) {
-      return 0;
-    }
-
-    return this.selectedLabTests.reduce((total, testId) => {
-      const test = this.labTests.find(t => t.id === testId);
-      return test ? total + (test.price || 0) : total;
+    return this.selectedLabTests.reduce((total, uid) => {
+      const test = this.labTests.find(t => t.uniqueId === uid);
+      return total + (test?.price || 0);
     }, 0);
   }
-  // Add this getter inside your component class
-get selectedTestDetails() {
-  if (!this.selectedLabTests || this.selectedLabTests.length === 0) {
-    return [];
+
+  get selectedTestDetails() {
+    return this.selectedLabTests.map(uid => this.labTests.find(t => t.uniqueId === uid)).filter(t => t);
   }
-  return this.selectedLabTests
-    .map(id => this.labTests.find(t => t.id === id))
-    .filter(t => t != null); // filter out nulls just in case
-}
+
+  setPaymentMethod(method: PaymentMethod) {
+    this.paymentMethod = method;
+  }
+
 save() {
-    if (!this.validateBeforeSave()) return;
-
-    this.isSaving = true;
-
-    const input = new CreateLabTestReceiptDto({
-      patientId: this.selectedPatient,
-      labTestSource: this.labTestSource,
-      prescriptionId: this.labTestSource === LabTestSource._0 ? this.selectedPrescription : undefined,
-      selectedTestIds: this.getNonPackageTestIds(),
-      selectedPackageIds: this.getPackageIds(),
-      paymentMethod: this.paymentMethod,
-      totalAmount: this.selectedTestsTotalPrice
-    });
-debugger
-    this._labReceiptService.createLabTestReceipt(input).subscribe({
-      next: (receiptId) => {
-        this._messageService.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: 'Lab receipt created successfully!'
-        });
-        // Reset form or close modal
-        this.resetForm();
-      },
-      error: (err) => {
-        this.isSaving = false;
-        this._messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to create lab receipt'
-        });
-      }
-    });
+  if (!this.createLabReportForm.valid || !this.selectedLabTests.length) {
+    this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Please complete all required fields.' });
+    return;
   }
 
-  // Helper methods
-  private getNonPackageTestIds(): number[] {
-    return this.selectedLabTests.filter(id => {
-      const item = this.labTests.find(t => t.id === id);
-      return item && item.type === 'Test';
+  this.isSaving = true;
+
+  const input = new CreateLabTestReceiptDto({
+    tenantId:abp.session.tenantId,
+    patientId: this.selectedPatient,
+    labTestSource: this.labTestSource,
+    prescriptionId: this.labTestSource === LabTestSource._0 ? this.selectedPrescription : undefined,
+    selectedTestIds: this.getNonPackageTestIds(),
+    selectedPackageIds: this.getPackageIds(),
+    paymentMethod: this.paymentMethod,
+    totalAmount: this.selectedTestsTotalPrice
+  });
+
+  if (this.paymentMethod === PaymentMethod._0) {
+    // Cash -> direct create
+    this.labReceiptService.createLabTestReceipt(input).subscribe({
+      next: () => {
+        this.notify.success('Lab receipt created successfully!');
+        this.onSave.emit();
+        this.bsModalRef.hide();
+      },
+      error: () => this.isSaving = false
     });
+  } else {
+    // Card -> create Stripe Checkout Session
+    this.labReceiptService.createStripeCheckoutSession(input).subscribe({
+      
+      next: (sessionUrl) => {
+        debugger
+        window.location.href = sessionUrl; // redirect to Stripe
+      },
+      error: () => this.isSaving = false
+    });
+  }
+}
+
+
+  private getNonPackageTestIds(): number[] {
+    return this.selectedLabTests
+      .map(uid => this.labTests.find(t => t.uniqueId === uid))
+      .filter(t => t?.type === 'Test')
+      .map(t => t.id);
   }
 
   private getPackageIds(): number[] {
-    return this.selectedLabTests.filter(id => {
-      const item = this.labTests.find(t => t.id === id);
-      return item && item.type === 'Package';
-    });
-  }
-
-  private validateBeforeSave(): boolean {
-    if (!this.selectedPatient) {
-      this._messageService.add({
-        severity: 'warn',
-        summary: 'Warning',
-        detail: 'Please select a patient'
-      });
-      return false;
-    }
-
-    if (this.selectedLabTests.length === 0) {
-      this._messageService.add({
-        severity: 'warn',
-        summary: 'Warning',
-        detail: 'Please select at least one test'
-      });
-      return false;
-    }
-
-    if (this.labTestSource === LabTestSource._0 && !this.selectedPrescription) {
-      this._messageService.add({
-        severity: 'warn',
-        summary: 'Warning',
-        detail: 'Please select a prescription for OPD cases'
-      });
-      return false;
-    }
-
-    return true;
-  }
-
-  private resetForm() {
-    this.selectedPatient = null;
-    this.selectedPrescription = null;
-    this.selectedLabTests = [];
-    this.paymentMethod = PaymentMethod._0;
-    this.isSaving = false;
+    return this.selectedLabTests
+      .map(uid => this.labTests.find(t => t.uniqueId === uid))
+      .filter(t => t?.type === 'Package')
+      .map(t => t.id);
   }
 }

@@ -1,0 +1,109 @@
+<div class="medical-receipt">
+  <!-- Receipt Header -->
+  <div class="receipt-header">
+    <div class="clinic-brand">
+      <div class="clinic-logo">
+        <img src="/assets/img/hospital_logo.png" alt="Logo" />
+      </div>
+      <div class="clinic-details">
+        <h1>{{ hospitalName }}</h1>
+        <p>123 Medical Complex, Health Nagar, Mumbai-400001</p>
+        <p>Contact: +91 9876543210 | GSTIN: 27ABCDE1234F1Z5</p>
+      </div>
+    </div>
+
+    <div class="receipt-title">
+      <h2>LAB TEST PAYMENT RECEIPT</h2>
+      <div class="receipt-number">Receipt No: {{ receiptDetail?.receiptNumber || labReceiptId }}</div>
+    </div>
+    <div class="generated-on">
+      {{ receiptDetail?.paymentDate ? (receiptDetail.paymentDate | date:'dd-MMM-yyyy hh:mm a') : '' }}
+    </div>
+  </div>
+
+  <!-- Receipt Body -->
+  <div class="receipt-body" *ngIf="!loading && receiptDetail">
+    <div class="patient-details">
+      <div class="detail-row">
+        <span class="label">Patient Name:</span>
+        <span class="value">{{ receiptDetail.patient?.fullName || 'N/A' }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Payment Mode:</span>
+        <span class="value">{{ receiptDetail.paymentMethod || 'N/A' }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Payment Status:</span>
+        <span class="value" [ngClass]="receiptDetail.status === 'Paid' ? 'status-paid' : ''">
+          {{ receiptDetail.status || 'N/A' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Payment Table / Items -->
+    <div class="payment-table">
+      <div class="table-header">
+        <div class="header-item">Description</div>
+        <div class="header-item">Amount (₹)</div>
+      </div>
+
+      <!-- items produced by backend: packages (isPackage=true) or single tests -->
+      <ng-container *ngFor="let it of receiptDetail.items">
+        <!-- package -->
+        <div *ngIf="it.isPackage" class="table-row">
+          <div class="row-item">
+            <strong>{{ it.packageName }}</strong>
+            <ul class="package-items mt-1">
+              <li *ngFor="let p of it.packageTests">- {{ p }}</li>
+            </ul>
+          </div>
+          <div class="row-item amount">{{ it.packagePrice | currency:'INR' }}</div>
+        </div>
+
+        <!-- individual test -->
+        <div *ngIf="!it.isPackage" class="table-row">
+          <div class="row-item">{{ it.labReportTypeName }}</div>
+          <div class="row-item amount">{{ it.labReportPrice | currency:'INR' }}</div>
+        </div>
+      </ng-container>
+
+      <div class="table-footer">
+        <div class="footer-item">Total Paid</div>
+        <div class="footer-item amount">{{ receiptDetail.totalFee | currency:'INR' }}</div>
+      </div>
+    </div>
+
+    <!-- Payment Details -->
+    <div class="payment-details">
+      <div class="detail-row">
+        <span class="label">Paid On:</span>
+        <span class="value">{{ receiptDetail.paymentDate | date: 'dd-MMM-yyyy hh:mm a' }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Receipt Source:</span>
+        <span class="value">{{ receiptDetail.source || 'N/A' }} Patient</span>
+      </div>
+    </div>
+
+    <!-- Footer Signature -->
+    <div class="receipt-footer">
+      <div class="signature-line">
+        <p>Authorized Signature</p>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="p-3">Loading receipt...</div>
+
+  <div *ngIf="!loading && !receiptDetail" class="p-3">No receipt data found.</div>
+
+  <!-- Receipt Actions -->
+  <div class="receipt-actions">
+    <button class="btn print-btn" (click)="print()">
+      <i class="fas fa-print"></i> Print Receipt
+    </button>
+    <button class="btn close-btn" (click)="close()">
+      <i class="fas fa-times"></i> Close
+    </button>
+  </div>
+</div>

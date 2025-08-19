@@ -1,5 +1,4 @@
 ﻿using EMRSystem.Invoices;
-using EMRSystem.LabTestReceipt;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -7,10 +6,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EMRSystem.PrescriptionLabTest.Dto
+namespace EMRSystem.LabTestReceipt.Dto
 {
     public class CreateLabTestReceiptDto
     {
+        public int TenantId { get; set; }
         [Required]
         public long PatientId { get; set; }
 

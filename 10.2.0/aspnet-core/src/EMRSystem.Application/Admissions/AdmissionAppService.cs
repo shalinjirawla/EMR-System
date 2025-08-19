@@ -56,7 +56,14 @@ namespace EMRSystem.Admissions
             // Validate patient
             var patient = await _patientRepo.FirstOrDefaultAsync(input.PatientId);
             if (patient == null)
+            {
                 throw new UserFriendlyException("Invalid patient");
+            }
+            else
+            {
+                patient.IsAdmitted = true;
+                await _patientRepo.UpdateAsync(patient);
+            }
 
             // Validate and update Room status
             if (input.RoomId.HasValue)
@@ -68,6 +75,7 @@ namespace EMRSystem.Admissions
                 room.Status = RoomStatus.Occupied;
                 await _roomRepo.UpdateAsync(room);
             }
+            
 
             // Map and insert admission
             var admission = ObjectMapper.Map<EMRSystem.Admission.Admission>(input);
