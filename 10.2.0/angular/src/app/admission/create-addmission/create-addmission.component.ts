@@ -2,7 +2,7 @@ import { Component, Injector, OnInit, ViewChild, ChangeDetectorRef, EventEmitter
 import { FormsModule, NgForm } from '@angular/forms';
 import { AppComponentBase } from '@shared/app-component-base';
 import { BsModalRef } from 'ngx-bootstrap/modal';
-import { PatientDropDownDto, PatientServiceProxy, DoctorDto, DoctorServiceProxy, NurseDto, NurseServiceProxy, RoomDto, RoomServiceProxy, AdmissionType, BillingMethod, CreateUpdateAdmissionDto, AdmissionServiceProxy } from '@shared/service-proxies/service-proxies';
+import { PatientDropDownDto, PatientServiceProxy, DoctorDto, DoctorServiceProxy, NurseDto, NurseServiceProxy, RoomDto, RoomServiceProxy, AdmissionType, BillingMethod, CreateUpdateAdmissionDto, AdmissionServiceProxy, BedServiceProxy } from '@shared/service-proxies/service-proxies';
 import { CommonModule } from '@angular/common';
 import { AbpModalHeaderComponent } from '../../../shared/components/modal/abp-modal-header.component';
 import { AbpModalFooterComponent } from '../../../shared/components/modal/abp-modal-footer.component';
@@ -13,7 +13,7 @@ import { DatePickerModule } from 'primeng/datepicker';
   selector: 'app-create-addmission',
   templateUrl: './create-addmission.component.html',
   styleUrl: './create-addmission.component.css',
-  providers: [PatientServiceProxy, DoctorServiceProxy, NurseServiceProxy, RoomServiceProxy, AdmissionServiceProxy],
+  providers: [PatientServiceProxy, DoctorServiceProxy, BedServiceProxy,NurseServiceProxy, RoomServiceProxy, AdmissionServiceProxy],
   imports: [
     FormsModule,
     CommonModule,
@@ -30,6 +30,7 @@ export class CreateAddmissionComponent extends AppComponentBase implements OnIni
   doctors: DoctorDto[] = [];
   nurses: NurseDto[] = [];
   rooms: RoomDto[] = [];
+  beds: any[] = [];
   get roomOptions() {
     return this.rooms.map(room => ({
       label: `${room.roomNumber} – ${room.roomTypeName}`,
@@ -61,6 +62,7 @@ export class CreateAddmissionComponent extends AppComponentBase implements OnIni
     public bsModalRef: BsModalRef,
     private cd: ChangeDetectorRef,
     private _patientService: PatientServiceProxy,
+    private _bedService: BedServiceProxy,
     private _doctorService: DoctorServiceProxy,
     private _nurseService: NurseServiceProxy,
     private _roomService: RoomServiceProxy,
@@ -75,7 +77,7 @@ export class CreateAddmissionComponent extends AppComponentBase implements OnIni
     this.loadRooms();
   }
   loadPatients() {
-    this._patientService.patientDropDown().subscribe(res => {
+    this._patientService.getOpdPatients().subscribe(res => {
       this.patients = res;
       this.cd.detectChanges();
     });
@@ -98,6 +100,20 @@ export class CreateAddmissionComponent extends AppComponentBase implements OnIni
       this.cd.detectChanges();
     });
   }
+
+  onRoomChange(roomId: number) {
+  if (!roomId) {
+    this.beds = [];
+    this.admission.bedId = null;
+    return;
+  }
+
+  this._bedService.getAvailableBedsByRoom(this.admission.tenantId, roomId).subscribe(res => {
+    this.beds = res;
+    this.cd.detectChanges();
+  });
+}
+
   save() {
     if (!this.createAdmissionForm?.form?.valid) {
       this.message.warn('Please complete the form properly.');
@@ -111,8 +127,10 @@ export class CreateAddmissionComponent extends AppComponentBase implements OnIni
     input.doctorId = this.admission.doctorId;
     input.nurseId = this.admission.nurseId;
     input.roomId = this.admission.roomId;
+    input.bedId = this.admission.bedId
     input.admissionType = this.admission.admissionType;
     debugger
+    
     this._admissionService.create(input).subscribe({
       next: (res) => {
         this.notify.info(this.l('SavedSuccessfully'));

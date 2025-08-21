@@ -11,6 +11,7 @@ import { LabTestComponent } from './lab-test/lab-test.component';
 import { LabTestItemsComponent } from './lab-test-items/lab-test-items.component';
 import { TestResultLimitComponent } from './test-result-limit/test-result-limit.component';
 import { HealthPackageComponent } from './health-package/health-package.component';
+import { BedsComponent } from './beds/beds.component';
 
 
 const routes: Routes = [
@@ -58,6 +59,10 @@ const routes: Routes = [
     {
         path:'helth-package',
         component:HealthPackageComponent
+    },
+    {
+        path:'beds',
+        component:BedsComponent
     }
 ];
 

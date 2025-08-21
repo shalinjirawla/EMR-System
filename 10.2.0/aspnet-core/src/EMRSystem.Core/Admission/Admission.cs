@@ -20,6 +20,7 @@ namespace EMRSystem.Admission
         public long DoctorId { get; set; }
         public long? NurseId { get; set; }
         public long RoomId { get; set; }
+        public long? BedId { get; set; }
         public AdmissionType AdmissionType { get; set; }
         public bool IsDischarged { get; set; } = false;
         public DateTime? DischargeDateTime { get; set; }
@@ -31,6 +32,7 @@ namespace EMRSystem.Admission
         public virtual EMRSystem.Doctors.Doctor Doctor { get; set; }
         public virtual EMRSystem.Nurses.Nurse Nurse { get; set; }
         public virtual EMRSystem.Room.Room Room { get; set; }
+        public virtual EMRSystem.RoomMaster.Bed Bed { get; set; }
         //public virtual ICollection<EMRSystem.Deposit.Deposit> Deposits { get; set; } = new List<EMRSystem.Deposit.Deposit>();
     }
     public enum AdmissionType

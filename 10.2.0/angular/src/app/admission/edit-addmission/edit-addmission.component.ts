@@ -2,7 +2,7 @@ import { Component, Injector, OnInit, ViewChild, ChangeDetectorRef, Input, Event
 import { FormsModule, NgForm } from '@angular/forms';
 import { AppComponentBase } from '@shared/app-component-base';
 import { BsModalRef } from 'ngx-bootstrap/modal';
-import { PatientDropDownDto, PatientServiceProxy, DoctorDto, DoctorServiceProxy, NurseDto, NurseServiceProxy, RoomDto, RoomServiceProxy, AdmissionType, BillingMethod, CreateUpdateAdmissionDto, AdmissionServiceProxy } from '@shared/service-proxies/service-proxies';
+import { PatientDropDownDto, PatientServiceProxy, DoctorDto, DoctorServiceProxy, NurseDto, NurseServiceProxy, RoomDto, RoomServiceProxy, AdmissionType, BillingMethod, CreateUpdateAdmissionDto, AdmissionServiceProxy, BedDto, BedServiceProxy } from '@shared/service-proxies/service-proxies';
 import { CommonModule } from '@angular/common';
 import { AbpModalHeaderComponent } from '../../../shared/components/modal/abp-modal-header.component';
 import { AbpModalFooterComponent } from '../../../shared/components/modal/abp-modal-footer.component';
@@ -13,7 +13,7 @@ import { DatePickerModule } from 'primeng/datepicker';
   selector: 'app-edit-addmission',
   templateUrl: './edit-addmission.component.html',
   styleUrl: './edit-addmission.component.css',
-  providers: [PatientServiceProxy, DoctorServiceProxy, NurseServiceProxy, RoomServiceProxy, AdmissionServiceProxy],
+  providers: [PatientServiceProxy, DoctorServiceProxy,BedServiceProxy, NurseServiceProxy, RoomServiceProxy, AdmissionServiceProxy],
   imports: [
     FormsModule,
     CommonModule,
@@ -32,6 +32,7 @@ export class EditAddmissionComponent extends AppComponentBase implements OnInit 
   doctors: DoctorDto[] = [];
   nurses: NurseDto[] = [];
   rooms: RoomDto[] = [];
+   beds: BedDto[] = [];
   get roomOptions() {
     return this.rooms.map(room => ({
       label: `${room.roomNumber} – ${room.roomTypeName}`,
@@ -56,6 +57,7 @@ export class EditAddmissionComponent extends AppComponentBase implements OnInit 
     doctorId: null,
     nurseId: null,
     roomId: null,
+     bedId: null,
     admissionType: null,
     billingMethod: null
   };
@@ -67,7 +69,8 @@ export class EditAddmissionComponent extends AppComponentBase implements OnInit 
     private _doctorService: DoctorServiceProxy,
     private _nurseService: NurseServiceProxy,
     private _roomService: RoomServiceProxy,
-    private _admissionService: AdmissionServiceProxy
+    private _admissionService: AdmissionServiceProxy,
+     private _bedService: BedServiceProxy
   ) {
     super(injector);
   }
@@ -93,6 +96,22 @@ export class EditAddmissionComponent extends AppComponentBase implements OnInit 
         admissionType: res.admissionType
         
       };
+      if (res.roomId) {
+        this.loadBeds(res.roomId); // ✅ Load beds when admission data loaded
+      }
+      this.cd.detectChanges();
+    });
+  }
+   onRoomChange(roomId: number) {
+    this.admission.bedId = null;
+    if (roomId) {
+      this.loadBeds(roomId);
+    }
+  }
+
+  loadBeds(roomId: number) {
+    this._bedService.getAvailableBedsByRoom(abp.session.tenantId,roomId).subscribe(res => {
+      this.beds = res;
       this.cd.detectChanges();
     });
   }
@@ -134,6 +153,7 @@ export class EditAddmissionComponent extends AppComponentBase implements OnInit 
     input.doctorId = this.admission.doctorId;
     input.nurseId = this.admission.nurseId;
     input.roomId = this.admission.roomId;
+     input.bedId = this.admission.bedId;
     input.admissionType = this.admission.admissionType;
     
     this._admissionService.update(input).subscribe({

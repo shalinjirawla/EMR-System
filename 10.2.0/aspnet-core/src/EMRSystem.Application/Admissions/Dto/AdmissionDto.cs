@@ -20,6 +20,8 @@ namespace EMRSystem.Admissions.Dto
         public long? NurseId { get; set; }
         public string NurseName { get; set; }
         public long RoomId { get; set; }
+        public long? BedId { get; set; }
+        public string BedNumber { get; set; }
         public string RoomNumber { get; set; }
         public string RoomTypeName { get; set; }
         public decimal? RoomTypePricePerDay { get; set; }

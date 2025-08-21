@@ -57,7 +57,7 @@ export class CreateDepositComponent extends AppComponentBase implements OnInit {
   }
 
   loadPatients(): void {
-    this._patientService.patientDropDown().subscribe({
+    this._patientService.getIpdPatients().subscribe({
       next: (res) => (this.patients = res),
       error: () => {}
     });

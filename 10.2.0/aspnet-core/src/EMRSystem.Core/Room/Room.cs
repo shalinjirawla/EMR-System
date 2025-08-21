@@ -20,6 +20,7 @@ namespace EMRSystem.Room
         public long RoomTypeMasterId { get; set; }
         public virtual RoomTypeMaster RoomTypeMaster { get; set; }
         public virtual ICollection<EMRSystem.Admission.Admission> Admissions { get; set; }
+        public virtual ICollection<EMRSystem.RoomMaster.Bed> Beds { get; set; }
 
 
         public RoomStatus Status { get; set; }

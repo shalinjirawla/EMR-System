@@ -58,6 +58,9 @@
                                         Room
                                     </th>
                                     <th style="min-width: 130px">
+                                        Bed Number
+                                    </th>
+                                    <th style="min-width: 130px">
                                         Actions
                                     </th>
                                 </tr>
@@ -89,6 +92,11 @@
                                     <td>
                                         <span>
                                         {{ record.roomNumber }}-{{ record.roomTypeName }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span>
+                                        {{ record.bedNumber }}
                                         </span>
                                     </td>
                                     <td  *ngIf="record.status !== 3">
