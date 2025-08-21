@@ -3,6 +3,7 @@ using Abp.Domain.Entities.Auditing;
 using EMRSystem.Appointments;
 using EMRSystem.Authorization.Users;
 using EMRSystem.Doctors;
+using EMRSystem.Emergency.EmergencyCase;
 using EMRSystem.Invoices;
 using EMRSystem.LabReports;
 using EMRSystem.Nurses;
@@ -43,6 +44,8 @@ namespace EMRSystem.Patients
         public virtual ICollection<PrescriptionLabTest> PrescriptionLabTests { get; set; }
         public virtual ICollection<EMRSystem.IpdChargeEntry.IpdChargeEntry> IpdChargeEntries { get; set; }
         public virtual ICollection<EMRSystem.LabTestReceipt.LabTestReceipt> LabTestReceipts { get; set; }
+        public virtual ICollection<EmergencyCase> EmergencyCases { get; set; }
+
 
         //public DateTime? AdmissionDate { get; set; }
         //public BillingMethod BillingMethod { get; set; }

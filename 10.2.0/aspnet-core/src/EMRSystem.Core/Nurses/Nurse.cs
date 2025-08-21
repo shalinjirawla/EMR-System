@@ -2,6 +2,7 @@
 using Abp.Domain.Entities.Auditing;
 using EMRSystem.Appointments;
 using EMRSystem.Authorization.Users;
+using EMRSystem.Emergency.EmergencyCase;
 using EMRSystem.Patients;
 using EMRSystem.Visits;
 using EMRSystem.Vitals;
@@ -32,6 +33,7 @@ namespace EMRSystem.Nurses
         public ICollection<Visit> Visits { get; set; }
         public virtual ICollection<MedicineOrder.MedicineOrder> MedicineOrders { get; set; }
         public virtual ICollection<EMRSystem.Admission.Admission> Admissions { get; set; }
+        public virtual ICollection<EmergencyCase> EmergencyCases { get; set; }
 
 
 

@@ -1,0 +1,57 @@
+<form class="form-horizontal" autocomplete="off" #editEmergencyForm="ngForm" (ngSubmit)="save()">
+    <abp-modal-header title="Edit Emergency Case" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
+
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-md-12">
+                <label><b>Select Patient</b></label>
+                <p-select [options]="patients" optionLabel="fullName" placeholder="Select patient" [optionValue]="'id'"
+                    [(ngModel)]="emergency.patientId" name="patientId" class="w-100" />
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-6 d-flex flex-column">
+                <label>Select Doctor</label>
+                <p-select [(ngModel)]="emergency.doctorId" [optionValue]="'id'" name="doctorId" [options]="doctors"
+                    optionLabel="fullName" placeholder="Select doctor" class="w-100" required />
+            </div>
+            <div class="col-md-6 d-flex flex-column">
+                <label>Select Nurse</label>
+                <p-select [(ngModel)]="emergency.nurseId" [optionValue]="'id'" name="nurseId" [options]="nurses"
+                    optionLabel="fullName" placeholder="Select nurse" class="w-100" />
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-6 d-flex flex-column">
+                <label>Mode of Arrival</label>
+                <p-select [(ngModel)]="emergency.modeOfArrival" name="modeOfArrival" [options]="modeOfArrivalOptions"
+                    optionLabel="label" optionValue="value" placeholder="Select mode" class="w-100" required />
+            </div>
+            <div class="col-md-6 d-flex flex-column">
+                <label>Severity</label>
+                <p-select [(ngModel)]="emergency.severity" name="severity" [options]="severityOptions"
+                    optionLabel="label" optionValue="value" placeholder="Select severity" class="w-100" required />
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-6 d-flex flex-column">
+                <label>Status</label>
+                <p-select [(ngModel)]="emergency.status" name="status" [options]="statusOptions" optionLabel="label"
+                    optionValue="value" placeholder="Select status" class="w-100" required />
+            </div>
+            <div class="col-md-6 d-flex flex-column">
+                <label>Arrival Time</label>
+                <p-datepicker [(ngModel)]="uiArrivalTime" name="arrivalTime" [showIcon]="true"
+                    placeholder="Select arrival time" showTime="true" required>
+                </p-datepicker>
+            </div>
+        </div>
+    </div>
+
+    <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="!editEmergencyForm.form.valid || saving"
+        (onCancelClick)="bsModalRef.hide()">
+    </abp-modal-footer>
+</form>

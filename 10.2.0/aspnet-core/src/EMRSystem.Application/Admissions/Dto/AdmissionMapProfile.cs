@@ -20,6 +20,8 @@ namespace EMRSystem.Admissions.Dto
                         opt => opt.MapFrom(src => src.Nurse != null ? src.Nurse.FullName : null))
                     .ForMember(dest => dest.RoomNumber,
                         opt => opt.MapFrom(src => src.Room != null ? src.Room.RoomNumber : null))
+                    .ForMember(dest => dest.BedNumber,
+                        opt => opt.MapFrom(src => src.Bed != null ? src.Bed.BedNumber : null))
                     .ForMember(dest => dest.RoomTypeName,
                         opt => opt.MapFrom(src => src.Room != null && src.Room.RoomTypeMaster != null ? src.Room.RoomTypeMaster.TypeName : null))
                     .ForMember(dest => dest.RoomTypePricePerDay,

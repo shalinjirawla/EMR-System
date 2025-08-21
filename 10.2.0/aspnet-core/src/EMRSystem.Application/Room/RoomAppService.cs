@@ -116,6 +116,17 @@ namespace EMRSystem.Room
 
             return ObjectMapper.Map<List<RoomDto>>(rooms);         // RoomTypeName भरके आएगा
         }
+        public async Task<List<RoomDto>> GetAllRoomsAsync(int tenantId)
+        {
+            var rooms = await Repository
+                .GetAllIncluding(r => r.RoomTypeMaster)            //  ➕  navigation शामिल
+                .Where(r => r.TenantId == tenantId)
+                .OrderBy(r => r.Floor)
+                .ThenBy(r => r.RoomNumber)
+                .ToListAsync();
+
+            return ObjectMapper.Map<List<RoomDto>>(rooms);         // RoomTypeName भरके आएगा
+        }
 
 
     }

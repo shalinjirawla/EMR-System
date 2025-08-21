@@ -1,0 +1,58 @@
+<form class="form-horizontal" autocomplete="off" #bedForm="ngForm" (ngSubmit)="save()">
+    <abp-modal-header [title]="id ? 'Edit Bed' : 'Create Beds'" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
+
+    <div class="modal-body">
+        <!-- Bulk Create Mode -->
+        <div *ngIf="!id">
+            <div class="form-group">
+                <label><b>Prefix *</b></label>
+                <input pInputText type="text" class="form-control" [(ngModel)]="prefix" name="prefix"
+                    placeholder="e.g. A-" required maxlength="10" />
+            </div>
+
+            <div class="form-group">
+                <label><b>Start Number *</b></label>
+                <input pInputText type="number" class="form-control" [(ngModel)]="startNumber" name="startNumber"
+                    placeholder="101" required />
+            </div>
+
+            <div class="form-group">
+                <label><b>Count *</b></label>
+                <input pInputText type="number" class="form-control" [(ngModel)]="count" name="count" placeholder="50"
+                    required />
+            </div>
+
+            <div class="form-group">
+                <label><b>Room *</b></label>
+                <p-dropdown id="roomId" name="roomId" [options]="rooms" [(ngModel)]="selectedRoomId"
+                    optionLabel="roomNumber" optionValue="id" placeholder="Select Room" class="w-100">
+                    <ng-template let-room pTemplate="item">
+                        {{room.roomNumber}} - {{room.roomTypeName}}
+                    </ng-template>
+                </p-dropdown>
+            </div>
+        </div>
+
+        <!-- Update Mode -->
+        <div *ngIf="id">
+            <div class="form-group">
+                <label for="bedNumber"><b>Bed Number *</b></label>
+                <input pInputText type="text" id="bedNumber" name="bedNumber" class="form-control"
+                    [(ngModel)]="bed.bedNumber" required maxlength="20" placeholder="Enter bed number" />
+            </div>
+
+            <div class="form-group">
+                <label for="roomId"><b>Room *</b></label>
+                <p-dropdown id="roomId" name="roomId" [options]="rooms" [(ngModel)]="selectedRoomId"
+                    optionLabel="roomNumber" optionValue="id" placeholder="Select Room" class="w-100">
+                <ng-template let-room pTemplate="item">
+                        {{room.roomNumber}} - {{room.roomTypeName}}
+                    </ng-template>
+                </p-dropdown>
+            </div>
+        </div>
+    </div>
+
+    <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="!isFormValid || saving"
+        (onCancelClick)="bsModalRef.hide()"></abp-modal-footer>
+</form>

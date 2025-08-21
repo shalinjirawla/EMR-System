@@ -5,6 +5,8 @@ using EMRSystem.Authorization.Users;
 using EMRSystem.Billings;
 using EMRSystem.Departments;
 using EMRSystem.Doctors;
+using EMRSystem.Emergency.EmergencyCase;
+using EMRSystem.Emergency.Triage;
 using EMRSystem.Invoices;
 using EMRSystem.LabMasters;
 using EMRSystem.LabReports;
@@ -67,6 +69,9 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
     public DbSet<EMRSystem.LabTestReceipt.LabTestReceipt> LabTestReceipts { get; set; }
     public DbSet<HealthPackage> HealthPackages { get; set; }
     public DbSet<HealthPackageLabReportsType> HealthPackageLabReportsTypes { get; set; }
+    public DbSet<Bed> Beds { get; set; }
+    public DbSet<EmergencyCase> EmergencyCases { get; set; }
+    public DbSet<Triage> Triages { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -600,5 +605,42 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
             .WithMany(lrt => lrt.PackageHealthPackages)
             .HasForeignKey(hprt => hprt.LabReportsTypeId)
             .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<Bed>()
+            .HasIndex(b => new { b.RoomId, b.BedNumber })
+            .IsUnique();
+
+        modelBuilder.Entity<EmergencyCase>(b =>
+        {
+            b.ToTable("EmergencyCases");
+
+            b.HasOne(e => e.Patient)
+             .WithMany(p => p.EmergencyCases)
+             .HasForeignKey(e => e.PatientId)
+             .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(e => e.Doctor)
+             .WithMany(d => d.EmergencyCases)
+             .HasForeignKey(e => e.DoctorId)
+             .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(e => e.Nurse)
+             .WithMany(n => n.EmergencyCases)
+             .HasForeignKey(e => e.NurseId)
+             .OnDelete(DeleteBehavior.Restrict);
+
+            // Unique emergency number
+            b.HasIndex(e => e.EmergencyNumber).IsUnique();
+        });
+
+        modelBuilder.Entity<Triage>(b =>
+        {
+            b.ToTable("Triages");
+
+            b.HasOne(t => t.EmergencyCase)
+             .WithMany(e => e.Triages)
+             .HasForeignKey(t => t.EmergencyCaseId)
+             .OnDelete(DeleteBehavior.Cascade);
+        });
+
     }
 }
