@@ -1,6 +1,5 @@
 ﻿using Abp.Application.Services.Dto;
 using EMRSystem.Invoices;
-using EMRSystem.Patients;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,16 +8,15 @@ using System.Threading.Tasks;
 
 namespace EMRSystem.Deposit.Dto
 {
-    public class DepositDto : EntityDto<long>
+    public class CreateUpdateDepositTransactionDto:EntityDto<long>
     {
         public int TenantId { get; set; }
-        public long PatientId { get; set; }
-        public string PatientName { get; set; }
+        public long PatientDepositId { get; set; }
         public decimal Amount { get; set; }
-
+        public TransactionType TransactionType { get; set; }
         public PaymentMethod PaymentMethod { get; set; }
-        public BillingMethod BillingMethod { get; set; }
-
-        public DateTime DepositDateTime { get; set; }
+        public DateTime TransactionDate { get; set; }
+        public string Description { get; set; }
+        public bool IsPaid { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Abp.Domain.Entities;
+using EMRSystem.Deposit;
 using EMRSystem.Doctors;
 using EMRSystem.Nurses;
 using EMRSystem.Patients;
@@ -27,7 +28,9 @@ namespace EMRSystem.Admission
         public decimal TotalCharges { get; set; } = 0;
         public decimal TotalDeposits { get; set; } = 0; 
         public virtual ICollection<EMRSystem.IpdChargeEntry.IpdChargeEntry> IpdChargeEntries { get; set; }
-        public virtual ICollection<EMRSystem.Deposit.Deposit> Deposits { get; set; }
+        //public virtual ICollection<PatientDeposits> Deposits { get; set; }
+        public virtual ICollection<PatientDeposit> PatientDeposits { get; set; }
+
         public virtual EMRSystem.Patients.Patient Patient { get; set; }
         public virtual EMRSystem.Doctors.Doctor Doctor { get; set; }
         public virtual EMRSystem.Nurses.Nurse Nurse { get; set; }

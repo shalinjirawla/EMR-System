@@ -1,0 +1,69 @@
+<div class="medical-receipt">
+  <!-- Receipt Header -->
+  <div class="receipt-header">
+    <div class="clinic-brand">
+      <div class="clinic-logo">
+        <img src="/assets/img/hospital_logo.png" alt="Logo" />
+      </div>
+      <div class="clinic-details">
+        <h1>{{ hospitalName }}</h1>
+        <p>123 Medical Complex, Health Nagar, Mumbai-400001</p>
+        <p>Contact: +91 9876543210 | GSTIN: 27ABCDE1234F1Z5</p>
+      </div>
+    </div>
+
+    <div class="receipt-title">
+      <h2>DEPOSIT PAYMENT RECEIPT</h2>
+      <div class="receipt-number">Receipt No: {{ receipt?.receiptNo || 'N/A' }}</div>
+    </div>
+
+    <div class="generated-on">
+      {{ receipt?.transactionDate ? (receipt.transactionDate | date:'dd-MMM-yyyy hh:mm a') : '' }}
+    </div>
+  </div>
+
+  <!-- Receipt Body -->
+  <div class="receipt-body" *ngIf="receipt">
+    <div class="patient-details">
+      <div class="detail-row">
+        <span class="label">Patient Name:</span>
+        <span class="value">{{ patientName || 'N/A' }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Payment Method:</span>
+        <span class="value">{{ receipt.paymentMethod==0 ? 'Cash' : 'Card' }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Payment Status:</span>
+        <span class="value" [ngClass]="receipt.isPaid ? 'status-paid' : 'status-pending'">
+          {{ receipt.isPaid ? 'Paid' : 'Pending' }}
+        </span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Description:</span>
+        <span class="value">{{ receipt.description || 'N/A' }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Amount:</span>
+        <span class="value amount">{{ receipt.amount | currency:'INR' }}</span>
+      </div>
+    </div>
+
+    <!-- Footer Signature -->
+    <div class="receipt-footer">
+      <div class="signature-line">
+        <p>Authorized Signature</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Receipt Actions -->
+  <div class="receipt-actions">
+    <button class="btn print-btn" (click)="print()">
+      <i class="fas fa-print"></i> Print Receipt
+    </button>
+    <button class="btn close-btn" (click)="close()">
+      <i class="fas fa-times"></i> Close
+    </button>
+  </div>
+</div>

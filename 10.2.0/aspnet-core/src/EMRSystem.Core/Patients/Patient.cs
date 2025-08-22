@@ -2,6 +2,7 @@
 using Abp.Domain.Entities.Auditing;
 using EMRSystem.Appointments;
 using EMRSystem.Authorization.Users;
+using EMRSystem.Deposit;
 using EMRSystem.Doctors;
 using EMRSystem.Emergency.EmergencyCase;
 using EMRSystem.Invoices;
@@ -36,7 +37,7 @@ namespace EMRSystem.Patients
         public virtual User AbpUser { get; set; }
         public ICollection<Prescription> Prescriptions { get; set; }
         public virtual ICollection<EMRSystem.Admission.Admission> Admissions { get; set; }
-        public virtual ICollection<EMRSystem.Deposit.Deposit> Deposits { get; set; }
+        public virtual ICollection<PatientDeposit> PatientDeposits { get; set; }
         public ICollection<Vital> Vitals { get; set; }
         public virtual ICollection<Appointment> Appointments { get; set; }
         public ICollection<Visit> Visit { get; set; }

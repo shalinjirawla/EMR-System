@@ -31,30 +31,40 @@ namespace EMRSystem.Controllers
     public class StripeController : AbpController
     {
         private readonly IConfiguration _configuration;
-        private readonly IRepository<EMRSystem.Deposit.Deposit, long> _depositRepository;
+        //private readonly IRepository<EMRSystem.Deposit.Deposit, long> _depositRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
         private readonly IAppointmentAppService _appointmentAppService;
         private readonly IRepository<Appointment, long> _appointmentRepository;
         private readonly IRepository<EMRSystem.LabReports.PrescriptionLabTest, long> _prescriptionLabTestRepository;
         private readonly ILabTestReceiptAppService _labTestReceiptAppService;
+        private readonly IDepositTransactionAppService _depositetansactionAppService;
+        private readonly IRepository<DepositTransaction, long> _depositTransactionRepository;
+        private readonly IRepository<PatientDeposit, long> _patientDepositRepository;
+
 
 
         public StripeController(
             IConfiguration configuration,
-            IRepository<EMRSystem.Deposit.Deposit, long> depositRepository,
+            //IRepository<EMRSystem.Deposit.Deposit, long> depositRepository,
             IUnitOfWorkManager unitOfWorkManager,
             IAppointmentAppService appointmentAppService,
             ILabTestReceiptAppService labTestReceiptAppService,
+            IRepository<DepositTransaction,long> depositTransactionRepository,
+            IRepository<PatientDeposit, long> patientDepositRepository,
+            IDepositTransactionAppService depositetansactionAppService,
             IRepository<Appointment, long> appointmentRepository,
             IRepository<EMRSystem.LabReports.PrescriptionLabTest, long> prescriptionLabTestRepository)
         {
             _configuration = configuration;
-            _depositRepository = depositRepository;
+            //_depositRepository = depositRepository;
             _unitOfWorkManager = unitOfWorkManager;
             _labTestReceiptAppService = labTestReceiptAppService;
             _appointmentAppService = appointmentAppService;
             _prescriptionLabTestRepository = prescriptionLabTestRepository;
+            _depositTransactionRepository = depositTransactionRepository;
+            _patientDepositRepository = patientDepositRepository;
             _appointmentRepository = appointmentRepository;
+            _depositetansactionAppService = depositetansactionAppService;
         }
 
         [HttpPost]
@@ -83,35 +93,7 @@ namespace EMRSystem.Controllers
                     if (session.Metadata == null)
                         return Ok();
 
-                    // Handle deposit payments
-                    if (session.Metadata.TryGetValue("purpose", out var purpose) && purpose == "deposit")
-                    {
-                        if (!session.Metadata.TryGetValue("patientId", out var patientIdStr) ||
-                            !session.Metadata.TryGetValue("amount", out var amountStr))
-                            return Ok();
-
-                        var patientId = long.Parse(patientIdStr);
-                        var tenantId = int.Parse(session.Metadata["tenantId"]);
-                        var amount = decimal.Parse(amountStr);
-                        var billingMethod = Enum.Parse<BillingMethod>(session.Metadata["billingMethod"]);
-                        var depositDateTime = DateTime.Parse(session.Metadata["depositDateTime"]);
-
-                        using (var uow = _unitOfWorkManager.Begin())
-                        {
-                            var deposit = new EMRSystem.Deposit.Deposit
-                            {
-                                TenantId = tenantId,
-                                PatientId = patientId,
-                                Amount = amount,
-                                PaymentMethod = PaymentMethod.Card,
-                                BillingMethod = billingMethod,
-                                DepositDateTime = depositDateTime
-                            };
-
-                            await _depositRepository.InsertAsync(deposit);
-                            await uow.CompleteAsync();
-                        }
-                    }
+                   
                     // Handle appointment payments
                     else if (session.Metadata.TryGetValue("purpose", out var appointmentPurpose) && appointmentPurpose == "appointment")
                     {
@@ -147,6 +129,52 @@ namespace EMRSystem.Controllers
                             await uow.CompleteAsync(); // 🔹 DB commit confirm karega
                         }
                     }
+                    else if (session.Metadata.TryGetValue("purpose", out var depositPurpose) && depositPurpose == "deposit")
+                    {
+                        if (!session.Metadata.TryGetValue("patientDepositId", out var depositIdStr) ||
+                            !session.Metadata.TryGetValue("amount", out var amountStr))
+                            return Ok();
+
+                        var patientDepositId = long.Parse(depositIdStr);
+                        var amount = decimal.Parse(amountStr);
+
+                        // Tenant ensure kar le (multi-tenant ke liye)
+                        int? tenantId = null;
+                        if (session.Metadata.TryGetValue("tenantId", out var tenantIdStr) && int.TryParse(tenantIdStr, out var tId))
+                        {
+                            tenantId = tId;
+                        }
+
+                        using (var uow = _unitOfWorkManager.Begin())
+                        {
+                            // 🔹 DepositTransaction create karo
+                            var transaction = new DepositTransaction
+                            {
+                                PatientDepositId = patientDepositId,
+                                TenantId = tenantId ?? 0, // fallback agar tenant null ho
+                                Amount = amount,
+                                PaymentMethod = PaymentMethod.Card,   // Card payment
+                                IsPaid = true,
+                                Description = "Credit Deposit.",
+                                TransactionDate = DateTime.Now,
+                                TransactionType = TransactionType.Credit
+
+                            };
+                            transaction.ReceiptNo = await _depositetansactionAppService.GenerateReceiptNoAsync(tenantId ?? 0);
+
+                            await _depositTransactionRepository.InsertAsync(transaction);
+
+                            // 🔹 PatientDeposit summary update karo
+                            var patientDeposit = await _patientDepositRepository.GetAsync(patientDepositId);
+                            patientDeposit.TotalCreditAmount += amount;
+                            patientDeposit.TotalBalance = patientDeposit.TotalCreditAmount - patientDeposit.TotalDebitAmount;
+
+                            await _patientDepositRepository.UpdateAsync(patientDeposit);
+
+                            await uow.CompleteAsync(); // commit transaction
+                        }
+                    }
+
 
                 }
 

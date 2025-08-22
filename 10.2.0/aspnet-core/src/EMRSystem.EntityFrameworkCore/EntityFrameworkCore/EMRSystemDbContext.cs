@@ -4,6 +4,7 @@ using EMRSystem.Authorization.Roles;
 using EMRSystem.Authorization.Users;
 using EMRSystem.Billings;
 using EMRSystem.Departments;
+using EMRSystem.Deposit;
 using EMRSystem.Doctors;
 using EMRSystem.Emergency.EmergencyCase;
 using EMRSystem.Emergency.Triage;
@@ -56,7 +57,6 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
     public DbSet<RoomFacilityMaster> RoomFacilitiesMaster { get; set; }
     public DbSet<RoomTypeFacility> RoomTypeFacilities { get; set; }
     public DbSet<EMRSystem.Admission.Admission> Admissions { get; set; }
-    public DbSet<EMRSystem.Deposit.Deposit> Deposits { get; set; }
     public DbSet<EMRSystem.DoctorMaster.DoctorMaster> DoctorMasters { get; set; }
     public DbSet<EMRSystem.AppointmentType.AppointmentType> AppointmentTypes { get; set; }
     public DbSet<EMRSystem.AppointmentReceipt.AppointmentReceipt> AppointmentReceipts { get; set; }
@@ -72,6 +72,9 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
     public DbSet<Bed> Beds { get; set; }
     public DbSet<EmergencyCase> EmergencyCases { get; set; }
     public DbSet<Triage> Triages { get; set; }
+    public DbSet<PatientDeposit> PatientDeposits { get; set; }
+    public DbSet<DepositTransaction> DepositTransactions { get; set; }
+
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -534,32 +537,6 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
         });
 
 
-        // STEP 4‑b Deposit configuration
-        modelBuilder.Entity<EMRSystem.Deposit.Deposit>(b =>
-        {
-            b.ToTable("Deposits");
-
-            b.Property(d => d.Amount)
-             .HasColumnType("decimal(18,2)");
-
-            b.Property(d => d.PaymentMethod)
-             .HasConversion<string>()
-             .HasMaxLength(20);
-
-            b.HasOne(d => d.Patient)
-             .WithMany(a => a.Deposits)
-             .HasForeignKey(d => d.PatientId)
-             .OnDelete(DeleteBehavior.NoAction);
-            b.HasOne(d => d.Patient)
-             .WithMany(p => p.Deposits)
-             .HasForeignKey(d => d.PatientId)
-             .OnDelete(DeleteBehavior.Restrict);
-
-            b.Property(e => e.BillingMethod)
-            .HasConversion<string>()
-            .HasMaxLength(30);
-        });
-
         modelBuilder.Entity<Visit>()
            .HasOne(s => s.Patient)
            .WithMany(e => e.Visit)
@@ -639,6 +616,41 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
             b.HasOne(t => t.EmergencyCase)
              .WithMany(e => e.Triages)
              .HasForeignKey(t => t.EmergencyCaseId)
+             .OnDelete(DeleteBehavior.Cascade);
+        });
+        modelBuilder.Entity<PatientDeposit>(b =>
+        {
+            b.ToTable("PatientDeposits");
+
+            b.Property(x => x.TotalCreditAmount).HasColumnType("decimal(18,2)");
+            b.Property(x => x.TotalDebitAmount).HasColumnType("decimal(18,2)");
+            b.Property(x => x.TotalBalance).HasColumnType("decimal(18,2)");
+
+            b.HasOne(pd => pd.Patient)
+             .WithMany(p => p.PatientDeposits) // Patient entity me ICollection<PatientDeposit> hona chahiye
+             .HasForeignKey(pd => pd.PatientId)
+             .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<DepositTransaction>(b =>
+        {
+            b.ToTable("DepositTransactions");
+
+            b.Property(x => x.Amount).HasColumnType("decimal(18,2)");
+
+            b.Property(x => x.TransactionType)
+             .HasConversion<string>()
+             .HasMaxLength(20);
+
+            b.Property(x => x.PaymentMethod)
+             .HasConversion<string>()
+             .HasMaxLength(20);
+
+            b.Property(x => x.ReceiptNo).HasMaxLength(50);
+
+            b.HasOne(dt => dt.PatientDeposit)
+             .WithMany(pd => pd.Transactions)
+             .HasForeignKey(dt => dt.PatientDepositId)
              .OnDelete(DeleteBehavior.Cascade);
         });
 

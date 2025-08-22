@@ -87,6 +87,15 @@ public class TenantAppService : AsyncCrudAppService<Tenant, TenantDto, int, Page
             // Assign admin user to role!
             CheckErrors(await _userManager.AddToRoleAsync(adminUser, adminRole.Name));
             await CurrentUnitOfWork.SaveChangesAsync();
+
+            // Extra roles create karna tenant ke liye
+            string[] roles = { "Billing Staff", "Doctor", "Lab Technician", "Nurse", "Patient", "Pharmacist" };
+
+            foreach (var roleName in roles)
+            {
+                await CreateRoleIfNotExistsAsync(tenant.Id, roleName);
+            }
+
         }
 
         return MapToEntityDto(tenant);
@@ -123,6 +132,19 @@ public class TenantAppService : AsyncCrudAppService<Tenant, TenantDto, int, Page
     private void CheckErrors(IdentityResult identityResult)
     {
         identityResult.CheckErrors(LocalizationManager);
+    }
+    private async Task CreateRoleIfNotExistsAsync(int tenantId, string roleName)
+    {
+        var exists = _roleManager.Roles.Any(r => r.TenantId == tenantId && r.Name == roleName);
+        if (!exists)
+        {
+            var role = new Role(tenantId, roleName, roleName)
+            {
+                IsStatic = false,
+                IsDefault = false
+            };
+            CheckErrors(await _roleManager.CreateAsync(role));
+        }
     }
 }
 

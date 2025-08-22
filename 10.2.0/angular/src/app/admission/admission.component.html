@@ -99,7 +99,7 @@
                                         {{ record.bedNumber }}
                                         </span>
                                     </td>
-                                    <td  *ngIf="record.status !== 3">
+                                    <td>
                                         <button type="button" pButton icon="pi pi-ellipsis-v" class="p-button-text"
                                             (click)="rowMenu.toggle($event); selectedRecord = record">
                                         </button>
@@ -111,9 +111,9 @@
                                                 <!-- <li (click)="delete(selectedRecord)">
                                                     <i class="pi pi-trash"></i> Delete
                                                 </li> -->
-                                                    <li *ngIf="record.status !== 3" (click)="changeStatusofAdmission(record.id,4)">
+                                                    <!-- <li *ngIf="record.status !== 3" (click)="changeStatusofAdmission(record.id,4)">
                                                     <i class="pi pi-times"></i> Cancel
-                                                </li>
+                                                </li> -->
                                             </ul>
                                         </p-overlayPanel>
                                     </td>

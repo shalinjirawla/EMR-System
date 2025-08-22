@@ -1,0 +1,84 @@
+/* Header */
+.custom-header {
+  background: #4e73df;
+  color: white;
+  padding: 12px 20px;
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  font-size: 22px;
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.close-btn:hover {
+  color: #ffcccc;
+}
+
+/* Table */
+.receipt-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.receipt-table thead {
+  background: #f8f9fc;
+}
+
+.receipt-table th, 
+.receipt-table td {
+  padding: 12px 15px;
+  text-align: left;
+}
+
+.receipt-table tbody tr:nth-child(even) {
+  background: #f9fafc;
+}
+
+.receipt-table tbody tr:hover {
+  background: #eef2ff;
+  transition: 0.2s;
+}
+
+/* Buttons */
+.view-btn {
+  background: #1cc88a;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.view-btn:hover {
+  background: #17a673;
+}
+
+/* Footer button */
+.close-btn-footer {
+  background: #858796;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.close-btn-footer:hover {
+  background: #6c757d;
+}
