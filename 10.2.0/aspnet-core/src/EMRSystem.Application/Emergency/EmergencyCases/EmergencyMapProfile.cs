@@ -14,7 +14,7 @@ namespace EMRSystem.Emergency.EmergencyCase
             CreateMap<EmergencyCase, EmergencyCaseDto>()
             .ForMember(d => d.PatientName, opt => opt.MapFrom(s => s.Patient != null ? s.Patient.FullName : ""))
             .ForMember(d => d.DoctorName, opt => opt.MapFrom(s => s.Doctor != null ? s.Doctor.FullName : ""))
-            .ForMember(d => d.NurseName, opt => opt.MapFrom(s => s.Nurse != null ? s.Nurse.FullName : ""));
+            .ForMember(d => d.NurseName, opt => opt.MapFrom(s => s.Nurse != null ? s.Nurse.FullName : "")).ReverseMap();
             CreateMap<CreateUpdateEmergencyCaseDto, EmergencyCase>();
         }
     }

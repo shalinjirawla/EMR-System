@@ -63,7 +63,9 @@
                 <tr>
                   <td>{{ record.emergencyNumber }}</td>
                   <td>{{ record.patientName||'Unknown' }}</td>
-                  <td>Dr. {{ record.doctorName }}</td>
+                  <td>
+                    <span *ngIf="record.doctorName">Dr.</span>{{ record.doctorName }}
+                  </td>
                   <td>{{ record.nurseName }}</td>
                   <td>{{ record.arrivalTime | date: 'dd/MM/yyyy HH:mm' }}</td>
                    <td>{{ getModeOfArrivalLabel(record.modeOfArrival) }}</td>

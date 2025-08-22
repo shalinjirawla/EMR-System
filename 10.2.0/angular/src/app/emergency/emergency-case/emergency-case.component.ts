@@ -22,7 +22,7 @@ import { TagModule } from 'primeng/tag';
 
 @Component({
   selector: 'app-emergency-case',
-  imports: [LocalizePipe, FormsModule, DatePipe,TagModule, NgIf, ButtonModule,PaginatorModule,TableModule,OverlayPanelModule],
+  imports: [LocalizePipe, FormsModule, DatePipe, TagModule, NgIf, ButtonModule, PaginatorModule, TableModule, OverlayPanelModule],
   animations: [appModuleAnimation()],
   providers: [EmergencyServiceProxy],
   templateUrl: './emergency-case.component.html',
@@ -34,11 +34,11 @@ export class EmergencyCaseComponent extends PagedListingComponentBase<EmergencyC
   emergencyCases: EmergencyCaseDto[] = [];
   keyword = '';
   advancedFiltersVisible = false;
-   modeOfArrival?: number;
+  modeOfArrival?: number;
   severity?: number;
   status?: number;
 
-   modeOfArrivalOptions = [
+  modeOfArrivalOptions = [
     { label: 'Walk-In', value: 0 },
     { label: 'Ambulance', value: 1 },
     { label: 'Police', value: 2 },
@@ -52,98 +52,100 @@ export class EmergencyCaseComponent extends PagedListingComponentBase<EmergencyC
   ];
 
   statusOptions = [
-    { label: 'Ongoing', value: 0 },
-    { label: 'Discharged', value: 1 },
-    { label: 'Admitted', value: 2 },
-    { label: 'Expired', value: 3 }
+    { label: 'PendingTriage', value: 0 },
+    { label: 'Waiting', value: 1 },
+    { label: 'InTreatment', value: 2 },
+    { label: 'AdmissionPending', value: 3 },
+    { label: 'Admitted', value: 4 },
+    { label: 'Discharged', value: 5 }
   ];
 
   constructor(
-      injector: Injector,
-      private _modalService: BsModalService,
-      private _activatedRoute: ActivatedRoute,
-      private _emergencyService: EmergencyServiceProxy,
-      cd: ChangeDetectorRef,
+    injector: Injector,
+    private _modalService: BsModalService,
+    private _activatedRoute: ActivatedRoute,
+    private _emergencyService: EmergencyServiceProxy,
+    cd: ChangeDetectorRef,
   ) {
-      super(injector, cd);
-      this.keyword = this._activatedRoute.snapshot.queryParams['filterText'] || '';
+    super(injector, cd);
+    this.keyword = this._activatedRoute.snapshot.queryParams['filterText'] || '';
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void { }
 
   clearFilters(): void {
-      this.keyword = '';
-      this.list();
+    this.keyword = '';
+    this.list();
   }
 
   list(event?: LazyLoadEvent): void {
-      if (this.primengTableHelper.shouldResetPaging(event)) {
-          this.paginator.changePage(0);
+    if (this.primengTableHelper.shouldResetPaging(event)) {
+      this.paginator.changePage(0);
 
-          if (this.primengTableHelper.records && this.primengTableHelper.records.length > 0) {
-              return;
-          }
+      if (this.primengTableHelper.records && this.primengTableHelper.records.length > 0) {
+        return;
       }
-      this.primengTableHelper.showLoadingIndicator();
-      this._emergencyService
-          .getAll(
-              this.primengTableHelper.getSorting(this.dataTable),
-              this.primengTableHelper.getSkipCount(this.paginator, event),
-              this.primengTableHelper.getMaxResultCount(this.paginator, event)
-          )
-          .pipe(
-              finalize(() => {
-                  this.primengTableHelper.hideLoadingIndicator();
-              })
-          )
-          .subscribe((result: EmergencyCaseDtoPagedResultDto) => {
-              this.primengTableHelper.records = result.items;
-              this.primengTableHelper.totalRecordsCount = result.totalCount;
-              this.primengTableHelper.hideLoadingIndicator();
-              this.cd.detectChanges();
-          });
+    }
+    this.primengTableHelper.showLoadingIndicator();
+    this._emergencyService
+      .getAll(
+        this.primengTableHelper.getSorting(this.dataTable),
+        this.primengTableHelper.getSkipCount(this.paginator, event),
+        this.primengTableHelper.getMaxResultCount(this.paginator, event)
+      )
+      .pipe(
+        finalize(() => {
+          this.primengTableHelper.hideLoadingIndicator();
+        })
+      )
+      .subscribe((result: EmergencyCaseDtoPagedResultDto) => {
+        this.primengTableHelper.records = result.items;
+        this.primengTableHelper.totalRecordsCount = result.totalCount;
+        this.primengTableHelper.hideLoadingIndicator();
+        this.cd.detectChanges();
+      });
   }
 
   delete(emergencyCase: EmergencyCaseDto): void {
-      abp.message.confirm(this.l('UserDeleteWarningMessage'), undefined, (result: boolean) => {
-          if (result) {
-              this._emergencyService.delete(emergencyCase.id).subscribe(() => {
-                  abp.notify.success(this.l('SuccessfullyDeleted'));
-                  this.refresh();
-              });
-          }
-      });
+    abp.message.confirm(this.l('UserDeleteWarningMessage'), undefined, (result: boolean) => {
+      if (result) {
+        this._emergencyService.delete(emergencyCase.id).subscribe(() => {
+          abp.notify.success(this.l('SuccessfullyDeleted'));
+          this.refresh();
+        });
+      }
+    });
   }
 
   createEmergencyCase(): void {
-      this.showCreateOrEditEmergencyDialog();
+    this.showCreateOrEditEmergencyDialog();
   }
 
   editEmergencyCase(dto: EmergencyCaseDto): void {
-      this.showCreateOrEditEmergencyDialog(dto.id);
+    this.showCreateOrEditEmergencyDialog(dto.id);
   }
 
   showCreateOrEditEmergencyDialog(id?: number): void {
-      let createOrEditDialog: BsModalRef;
-      if (!id) {
-          createOrEditDialog = this._modalService.show(CreateEmergencyCaseComponent, {
-              class: 'modal-lg',
-          });
-      }
-      else {
-          createOrEditDialog = this._modalService.show(EditEmergencyCaseComponent, {
-              class: 'modal-lg',
-              initialState: {
-                  id: id,
-              },
-          });
-      }
-
-      createOrEditDialog.content.onSave.subscribe(() => {
-          this.refresh();
+    let createOrEditDialog: BsModalRef;
+    if (!id) {
+      createOrEditDialog = this._modalService.show(CreateEmergencyCaseComponent, {
+        class: 'modal-lg',
       });
+    }
+    else {
+      createOrEditDialog = this._modalService.show(EditEmergencyCaseComponent, {
+        class: 'modal-lg',
+        initialState: {
+          id: id,
+        },
+      });
+    }
+
+    createOrEditDialog.content.onSave.subscribe(() => {
+      this.refresh();
+    });
   }
-    getModeOfArrivalLabel(value: number): string {
+  getModeOfArrivalLabel(value: number): string {
     return this.modeOfArrivalOptions.find(x => x.value === value)?.label || '';
   }
 
@@ -164,12 +166,14 @@ export class EmergencyCaseComponent extends PagedListingComponentBase<EmergencyC
     }
   }
 
-  getStatusTag(value: number): 'info' | 'success' | 'secondary' | 'danger' {
+  getStatusTag(value: number): 'info' | 'warn' | 'primary' | 'secondary' | 'success' | 'danger' {
     switch (value) {
-      case 0: return 'info';       // Ongoing
-      case 1: return 'success';    // Discharged
-      case 2: return 'secondary';  // Admitted
-      case 3: return 'danger';     // Expired
+      case 0: return 'warn';     // PendingTriage - needs attention (yellow/orange)
+      case 1: return 'info';        // Waiting - informational state (blue)
+      case 2: return 'primary';     // InTreatment - active treatment (dark blue)
+      case 3: return 'secondary';   // AdmissionPending - intermediate state (gray)
+      case 4: return 'danger';     // Admitted - successful outcome (green)
+      case 5: return 'success';     // Discharged - successful outcome (green)
       default: return 'info';
     }
   }

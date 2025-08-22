@@ -1,7 +1,7 @@
-import { Component, Injector, OnInit, ViewChild, ChangeDetectorRef, EventEmitter, Output } from '@angular/core';
-import { FormsModule, NgForm } from '@angular/forms';
+import { Component, Injector, OnInit, ViewChild, ChangeDetectorRef, EventEmitter, Output, AfterViewInit } from '@angular/core';
+import { AbstractControl, FormsModule, NgForm, ValidationErrors } from '@angular/forms';
 import { AppComponentBase } from '@shared/app-component-base';
-import { BsModalRef } from 'ngx-bootstrap/modal';
+import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { CommonModule } from '@angular/common';
 import { AbpModalHeaderComponent } from '../../../shared/components/modal/abp-modal-header.component';
 import { AbpModalFooterComponent } from '../../../shared/components/modal/abp-modal-footer.component';
@@ -22,6 +22,8 @@ import {
   PatientServiceProxy,
 } from '@shared/service-proxies/service-proxies';
 import moment from 'moment';
+import { CreateAddmissionComponent } from '@app/admission/create-addmission/create-addmission.component';
+import { CreateUserDialogComponent } from '@app/users/create-user/create-user-dialog.component';
 
 @Component({
   selector: 'app-edit-emergency-case',
@@ -37,7 +39,7 @@ import moment from 'moment';
   templateUrl: './edit-emergency-case.component.html',
   styleUrl: './edit-emergency-case.component.css'
 })
-export class EditEmergencyCaseComponent extends AppComponentBase implements OnInit {
+export class EditEmergencyCaseComponent extends AppComponentBase implements OnInit, AfterViewInit {
   @ViewChild('editEmergencyForm', { static: true }) editEmergencyForm: NgForm;
   @Output() onSave = new EventEmitter<void>();
 
@@ -64,12 +66,15 @@ export class EditEmergencyCaseComponent extends AppComponentBase implements OnIn
   ];
 
   statusOptions = [
-    { label: 'Ongoing', value: EmergencyStatus._0 },
-    { label: 'Discharged', value: EmergencyStatus._1 },
-    { label: 'Admitted', value: EmergencyStatus._2 },
-    { label: 'Expired', value: EmergencyStatus._3 }
+    { label: 'PendingTriage', value: 0 },
+    { label: 'Waiting', value: 1 },
+    { label: 'InTreatment', value: 2 },
+    { label: 'AdmissionPending', value: 3 },
+    { label: 'Admitted', value: 4 },
+    { label: 'Discharged', value: 5 }
   ];
-
+  showAddPatientButton = false;
+  isPatientRequired = false;
   constructor(
     injector: Injector,
     public bsModalRef: BsModalRef,
@@ -77,7 +82,8 @@ export class EditEmergencyCaseComponent extends AppComponentBase implements OnIn
     private _patientService: PatientServiceProxy,
     private _doctorService: DoctorServiceProxy,
     private _nurseService: NurseServiceProxy,
-    private _emergencyService: EmergencyServiceProxy
+    private _emergencyService: EmergencyServiceProxy,
+    private _modalService: BsModalService,
   ) {
     super(injector);
   }
@@ -96,6 +102,14 @@ export class EditEmergencyCaseComponent extends AppComponentBase implements OnIn
 
         this.cd.detectChanges();
       });
+    }
+  }
+
+  ngAfterViewInit() {
+    // Add custom validator to patientId control
+    const patientControl = this.editEmergencyForm.form.get('patientId');
+    if (patientControl) {
+      patientControl.setValidators(this.patientValidator.bind(this));
     }
   }
 
@@ -126,7 +140,7 @@ export class EditEmergencyCaseComponent extends AppComponentBase implements OnIn
     });
   }
 
-  save() {
+  FormSubmit(admissionId: any) {
     if (!this.editEmergencyForm?.form?.valid) {
       this.message.warn('Please complete the form properly.');
       return;
@@ -135,6 +149,7 @@ export class EditEmergencyCaseComponent extends AppComponentBase implements OnIn
 
     const input = new CreateUpdateEmergencyCaseDto();
     input.id = this.emergency.id;
+    input.emergencyNumber = this.emergency.emergencyNumber;
     input.tenantId = abp.session.tenantId;
     input.patientId = this.emergency.patientId;
     input.doctorId = this.emergency.doctorId;
@@ -143,9 +158,11 @@ export class EditEmergencyCaseComponent extends AppComponentBase implements OnIn
     input.severity = this.emergency.severity;
     input.status = this.emergency.status;
     input.arrivalTime = this.uiArrivalTime ? moment(this.uiArrivalTime) : undefined;
-    debugger
+    if (admissionId) {
+      input.admissionsId = admissionId;
+    }
 
-    this._emergencyService.update(input).subscribe({
+    this._emergencyService.updateEmergencyCase(input).subscribe({
       next: () => {
         this.notify.info(this.l('UpdatedSuccessfully'));
         this.saving = false;
@@ -156,5 +173,72 @@ export class EditEmergencyCaseComponent extends AppComponentBase implements OnIn
         this.saving = false;
       }
     });
+  }
+  save() {
+    if (this.emergency.status === EmergencyStatus._4) {
+      this.FillAdmissionForm(this.emergency);
+    }
+    else {
+      this.FormSubmit(null);
+    }
+  }
+  showCreatePatientDialog(id?: number): void {
+    let createOrEditPatientDialog: BsModalRef;
+    createOrEditPatientDialog = this._modalService.show(CreateUserDialogComponent, {
+      class: 'modal-lg',
+      initialState: {
+        defaultRole: 'Patient',
+        disableRoleSelection: true
+      }
+    });
+    createOrEditPatientDialog.content.onSave.subscribe(() => {
+      this.loadPatients();
+    });
+  }
+  statusChange(event: any) {
+    const isWalkIn = this.emergency.modeOfArrival === ModeOfArrival._0;
+    const isAdmitted = event?.value === EmergencyStatus._4;
+
+    this.isPatientRequired = isWalkIn || isAdmitted;
+    this.updatePatientValidation();
+  }
+  patientValidator(control: AbstractControl): ValidationErrors | null {
+    if (this.isPatientRequired && !control.value) {
+      return { required: true };
+    }
+    return null;
+  }
+
+  FillAdmissionForm(emengencyData: any) {
+    debugger
+    let fillAdmissionForm: BsModalRef;
+    fillAdmissionForm = this._modalService.show(CreateAddmissionComponent, {
+      class: 'modal-lg',
+      initialState: {
+        selectedPatientId: emengencyData.patientId,
+        selectedNurseId: emengencyData.nurseId,
+        selectDoctorId: emengencyData.doctorId,
+        admissionType: emengencyData.status === EmergencyStatus._4 ? emengencyData.status : 0,
+        disableRoleSelection: true
+      }
+    });
+
+    fillAdmissionForm.content.onSave.subscribe((res) => {
+      this.FormSubmit(res);
+    });
+  }
+
+  onChangeModeOfArrival(event: any) {
+    const isWalkIn = event?.value === ModeOfArrival._0;
+    const isAdmitted = this.emergency.status === EmergencyStatus._4;
+    this.isPatientRequired = isWalkIn || isAdmitted;
+    this.updatePatientValidation();
+  }
+
+  updatePatientValidation() {
+    const patientControl = this.editEmergencyForm.form.controls['patientId'];
+    if (patientControl) {
+      patientControl.updateValueAndValidity();
+    }
   }
 }
