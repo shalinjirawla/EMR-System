@@ -8,29 +8,30 @@ import { LazyLoadEvent, PrimeTemplate } from 'primeng/api';
 import { ActivatedRoute } from '@angular/router';
 import { Paginator, PaginatorModule } from 'primeng/paginator';
 import { FormsModule } from '@angular/forms';
-import { DatePipe, NgIf } from '@angular/common';
+import { NgIf } from '@angular/common';
 import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { SelectModule } from 'primeng/select';
 import { ChipModule } from 'primeng/chip';
 import { OverlayPanel, OverlayPanelModule } from 'primeng/overlaypanel';
 import { MenuModule } from 'primeng/menu';
 import { ButtonModule } from 'primeng/button';
-import { DepositDto, DepositDtoPagedResultDto, DepositServiceProxy } from '@shared/service-proxies/service-proxies';
 import { CreateDepositComponent } from './create-deposit/create-deposit.component';
-import { EditDepositComponent } from './edit-deposit/edit-deposit.component';
+import {PatientReceiptListComponent} from './patient-receipt-list/patient-receipt-list.component'
+import { PatientDepositDto, PatientDepositDtoPagedResultDto, PatientDepositServiceProxy } from '@shared/service-proxies/service-proxies';
 
 @Component({
   selector: 'app-deposit',
-  imports: [LocalizePipe, TableModule, PaginatorModule, FormsModule, DatePipe, NgIf, PrimeTemplate, ChipModule, OverlayPanelModule, MenuModule, ButtonModule],
+  imports: [LocalizePipe, TableModule, PaginatorModule, FormsModule, NgIf, PrimeTemplate, ChipModule, OverlayPanelModule, MenuModule, ButtonModule],
   animations: [appModuleAnimation()],
-  providers: [DepositServiceProxy],
+  providers: [PatientDepositServiceProxy],
   templateUrl: './deposit.component.html',
   styleUrl: './deposit.component.css'
 })
-export class DepositComponent extends PagedListingComponentBase<DepositDto> implements OnInit {
+export class DepositComponent extends PagedListingComponentBase<PatientDepositDto> implements OnInit {
+    //
   @ViewChild('dataTable', { static: true }) dataTable: Table;
   @ViewChild('paginator', { static: true }) paginator: Paginator;
-  deposits: DepositDto[] = [];
+  deposits: PatientDepositDto[] = [];
   keyword = '';
   advancedFiltersVisible = false;
 
@@ -38,7 +39,7 @@ export class DepositComponent extends PagedListingComponentBase<DepositDto> impl
       injector: Injector,
       private _modalService: BsModalService,
       private _activatedRoute: ActivatedRoute,
-      private _depositService: DepositServiceProxy,
+      private _depositService: PatientDepositServiceProxy,
       cd: ChangeDetectorRef,
   ) {
       super(injector, cd);
@@ -49,7 +50,7 @@ export class DepositComponent extends PagedListingComponentBase<DepositDto> impl
 
   clearFilters(): void {
       this.keyword = '';
-      this.list();
+      //this.list();
   }
 
   list(event?: LazyLoadEvent): void {
@@ -72,7 +73,7 @@ export class DepositComponent extends PagedListingComponentBase<DepositDto> impl
                   this.primengTableHelper.hideLoadingIndicator();
               })
           )
-          .subscribe((result: DepositDtoPagedResultDto) => {
+          .subscribe((result: PatientDepositDtoPagedResultDto) => {
             
               this.primengTableHelper.records = result.items;
               this.primengTableHelper.totalRecordsCount = result.totalCount;
@@ -81,7 +82,7 @@ export class DepositComponent extends PagedListingComponentBase<DepositDto> impl
           });
   }
 
-  delete(deposit: DepositDto): void {
+  delete(deposit: PatientDepositDto): void {
       abp.message.confirm(this.l('UserDeleteWarningMessage'), undefined, (result: boolean) => {
           if (result) {
               this._depositService.delete(deposit.id).subscribe(() => {
@@ -95,9 +96,35 @@ export class DepositComponent extends PagedListingComponentBase<DepositDto> impl
   createDeposit(): void {
       this.showCreateOrEditDepositDialog();
   }
-  editDeposit(dto: DepositDto): void {
+  editDeposit(dto: any): void {
       this.showCreateOrEditDepositDialog(dto.id);
   }
+
+  collectDeposit(dto: PatientDepositDto): void {
+  const createOrEditDepositDialog: BsModalRef = this._modalService.show(CreateDepositComponent, {
+    class: 'modal-lg',
+    initialState: {
+      depositId: dto.id,   // 👉 dto की id यहां भेज दी
+      patientId: dto.patientId
+    }
+  });
+
+  createOrEditDepositDialog.content.onSave.subscribe(() => {
+    this.refresh();
+  });
+}
+
+
+  viewReceipts(dto: PatientDepositDto): void {
+  const modalRef: BsModalRef = this._modalService.show(PatientReceiptListComponent, {
+    class: 'modal-lg',
+    initialState: {
+      patientDepositId: dto.id,
+      patientName: dto.patientName
+    }
+  });
+}
+
   showCreateOrEditDepositDialog(id?: number): void {
       let createOrEditDepositDialog: BsModalRef;
       if (!id) {
@@ -106,12 +133,12 @@ export class DepositComponent extends PagedListingComponentBase<DepositDto> impl
           });
       }
       else {
-          createOrEditDepositDialog = this._modalService.show(EditDepositComponent, {
-              class: 'modal-lg',
-              initialState: {
-                  id: id,
-              },
-          });
+        //   createOrEditDepositDialog = this._modalService.show(EditDepositComponent, {
+        //       class: 'modal-lg',
+        //       initialState: {
+        //           id: id,
+        //       },
+        //   });
       }
       createOrEditDepositDialog.content.onSave.subscribe(() => {
           this.refresh();

@@ -1,0 +1,35 @@
+<div class="modal-header custom-header">
+  <h5 class="modal-title">Receipts - {{ patientName }}</h5>
+  <button type="button" class="close-btn" (click)="close()">&times;</button>
+</div>
+
+<div class="modal-body">
+  <table class="receipt-table">
+    <thead>
+      <tr>
+        <th>Receipt No</th>
+        <th>Amount</th>
+        <th>Method</th>
+        <th>Date</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let r of receipts">
+        <td>{{ r.receiptNo }}</td>
+        <td>{{ r.amount | currency:'INR' }}</td>
+        <td>{{ r.paymentMethod }}</td>
+        <td>{{ r.transactionDate | date:'short' }}</td>
+        <td>
+          <button class="view-btn" (click)="viewReceipt(r)">
+            <i class="fa fa-eye"></i> View
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="modal-footer">
+  <button class="close-btn-footer" (click)="close()">Close</button>
+</div>

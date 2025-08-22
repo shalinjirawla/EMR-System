@@ -3462,7 +3462,7 @@ export class DepartmentServiceProxy {
 }
 
 @Injectable()
-export class DepositServiceProxy {
+export class DepositTransactionServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
@@ -3476,8 +3476,8 @@ export class DepositServiceProxy {
      * @param body (optional) 
      * @return OK
      */
-    createDepositWithStripeSupport(body: CreateUpdateDepositDto | undefined): Observable<DepositResponseDto> {
-        let url_ = this.baseUrl + "/api/services/app/Deposit/CreateDepositWithStripeSupport";
+    createDepositTransaction(body: CreateUpdateDepositTransactionDto | undefined): Observable<string> {
+        let url_ = this.baseUrl + "/api/services/app/DepositTransaction/CreateDepositTransaction";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -3493,77 +3493,11 @@ export class DepositServiceProxy {
         };
 
         return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processCreateDepositWithStripeSupport(response_);
+            return this.processCreateDepositTransaction(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processCreateDepositWithStripeSupport(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<DepositResponseDto>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<DepositResponseDto>;
-        }));
-    }
-
-    protected processCreateDepositWithStripeSupport(response: HttpResponseBase): Observable<DepositResponseDto> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = DepositResponseDto.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    /**
-     * @param successUrl (optional) 
-     * @param cancelUrl (optional) 
-     * @param body (optional) 
-     * @return OK
-     */
-    createStripeCheckoutSessionForDeposit(successUrl: string | undefined, cancelUrl: string | undefined, body: CreateUpdateDepositDto | undefined): Observable<string> {
-        let url_ = this.baseUrl + "/api/services/app/Deposit/CreateStripeCheckoutSessionForDeposit?";
-        if (successUrl === null)
-            throw new Error("The parameter 'successUrl' cannot be null.");
-        else if (successUrl !== undefined)
-            url_ += "successUrl=" + encodeURIComponent("" + successUrl) + "&";
-        if (cancelUrl === null)
-            throw new Error("The parameter 'cancelUrl' cannot be null.");
-        else if (cancelUrl !== undefined)
-            url_ += "cancelUrl=" + encodeURIComponent("" + cancelUrl) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(body);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-                "Accept": "text/plain"
-            })
-        };
-
-        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processCreateStripeCheckoutSessionForDeposit(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processCreateStripeCheckoutSessionForDeposit(response_ as any);
+                    return this.processCreateDepositTransaction(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<string>;
                 }
@@ -3572,7 +3506,7 @@ export class DepositServiceProxy {
         }));
     }
 
-    protected processCreateStripeCheckoutSessionForDeposit(response: HttpResponseBase): Observable<string> {
+    protected processCreateDepositTransaction(response: HttpResponseBase): Observable<string> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -3596,11 +3530,124 @@ export class DepositServiceProxy {
     }
 
     /**
+     * @param tenantId (optional) 
+     * @return OK
+     */
+    generateReceiptNo(tenantId: number | undefined): Observable<string> {
+        let url_ = this.baseUrl + "/api/services/app/DepositTransaction/GenerateReceiptNo?";
+        if (tenantId === null)
+            throw new Error("The parameter 'tenantId' cannot be null.");
+        else if (tenantId !== undefined)
+            url_ += "tenantId=" + encodeURIComponent("" + tenantId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGenerateReceiptNo(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGenerateReceiptNo(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<string>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<string>;
+        }));
+    }
+
+    protected processGenerateReceiptNo(response: HttpResponseBase): Observable<string> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param patientDepositId (optional) 
+     * @return OK
+     */
+    getAllByPatientDeposit(patientDepositId: number | undefined): Observable<DepositTransactionDtoListResultDto> {
+        let url_ = this.baseUrl + "/api/services/app/DepositTransaction/GetAllByPatientDeposit?";
+        if (patientDepositId === null)
+            throw new Error("The parameter 'patientDepositId' cannot be null.");
+        else if (patientDepositId !== undefined)
+            url_ += "patientDepositId=" + encodeURIComponent("" + patientDepositId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAllByPatientDeposit(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAllByPatientDeposit(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<DepositTransactionDtoListResultDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<DepositTransactionDtoListResultDto>;
+        }));
+    }
+
+    protected processGetAllByPatientDeposit(response: HttpResponseBase): Observable<DepositTransactionDtoListResultDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DepositTransactionDtoListResultDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * @param id (optional) 
      * @return OK
      */
-    get(id: number | undefined): Observable<DepositDto> {
-        let url_ = this.baseUrl + "/api/services/app/Deposit/Get?";
+    get(id: number | undefined): Observable<DepositTransactionDto> {
+        let url_ = this.baseUrl + "/api/services/app/DepositTransaction/Get?";
         if (id === null)
             throw new Error("The parameter 'id' cannot be null.");
         else if (id !== undefined)
@@ -3622,14 +3669,14 @@ export class DepositServiceProxy {
                 try {
                     return this.processGet(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<DepositDto>;
+                    return _observableThrow(e) as any as Observable<DepositTransactionDto>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<DepositDto>;
+                return _observableThrow(response_) as any as Observable<DepositTransactionDto>;
         }));
     }
 
-    protected processGet(response: HttpResponseBase): Observable<DepositDto> {
+    protected processGet(response: HttpResponseBase): Observable<DepositTransactionDto> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -3640,7 +3687,7 @@ export class DepositServiceProxy {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = DepositDto.fromJS(resultData200);
+            result200 = DepositTransactionDto.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -3652,17 +3699,17 @@ export class DepositServiceProxy {
     }
 
     /**
-     * @param keyword (optional) 
+     * @param sorting (optional) 
      * @param skipCount (optional) 
      * @param maxResultCount (optional) 
      * @return OK
      */
-    getAll(keyword: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<DepositDtoPagedResultDto> {
-        let url_ = this.baseUrl + "/api/services/app/Deposit/GetAll?";
-        if (keyword === null)
-            throw new Error("The parameter 'keyword' cannot be null.");
-        else if (keyword !== undefined)
-            url_ += "Keyword=" + encodeURIComponent("" + keyword) + "&";
+    getAll(sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<DepositTransactionDtoPagedResultDto> {
+        let url_ = this.baseUrl + "/api/services/app/DepositTransaction/GetAll?";
+        if (sorting === null)
+            throw new Error("The parameter 'sorting' cannot be null.");
+        else if (sorting !== undefined)
+            url_ += "Sorting=" + encodeURIComponent("" + sorting) + "&";
         if (skipCount === null)
             throw new Error("The parameter 'skipCount' cannot be null.");
         else if (skipCount !== undefined)
@@ -3688,14 +3735,14 @@ export class DepositServiceProxy {
                 try {
                     return this.processGetAll(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<DepositDtoPagedResultDto>;
+                    return _observableThrow(e) as any as Observable<DepositTransactionDtoPagedResultDto>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<DepositDtoPagedResultDto>;
+                return _observableThrow(response_) as any as Observable<DepositTransactionDtoPagedResultDto>;
         }));
     }
 
-    protected processGetAll(response: HttpResponseBase): Observable<DepositDtoPagedResultDto> {
+    protected processGetAll(response: HttpResponseBase): Observable<DepositTransactionDtoPagedResultDto> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -3706,7 +3753,7 @@ export class DepositServiceProxy {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = DepositDtoPagedResultDto.fromJS(resultData200);
+            result200 = DepositTransactionDtoPagedResultDto.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -3721,8 +3768,8 @@ export class DepositServiceProxy {
      * @param body (optional) 
      * @return OK
      */
-    create(body: CreateUpdateDepositDto | undefined): Observable<DepositDto> {
-        let url_ = this.baseUrl + "/api/services/app/Deposit/Create";
+    create(body: CreateUpdateDepositTransactionDto | undefined): Observable<DepositTransactionDto> {
+        let url_ = this.baseUrl + "/api/services/app/DepositTransaction/Create";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -3744,14 +3791,14 @@ export class DepositServiceProxy {
                 try {
                     return this.processCreate(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<DepositDto>;
+                    return _observableThrow(e) as any as Observable<DepositTransactionDto>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<DepositDto>;
+                return _observableThrow(response_) as any as Observable<DepositTransactionDto>;
         }));
     }
 
-    protected processCreate(response: HttpResponseBase): Observable<DepositDto> {
+    protected processCreate(response: HttpResponseBase): Observable<DepositTransactionDto> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -3762,7 +3809,7 @@ export class DepositServiceProxy {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = DepositDto.fromJS(resultData200);
+            result200 = DepositTransactionDto.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -3777,8 +3824,8 @@ export class DepositServiceProxy {
      * @param body (optional) 
      * @return OK
      */
-    update(body: CreateUpdateDepositDto | undefined): Observable<DepositDto> {
-        let url_ = this.baseUrl + "/api/services/app/Deposit/Update";
+    update(body: CreateUpdateDepositTransactionDto | undefined): Observable<DepositTransactionDto> {
+        let url_ = this.baseUrl + "/api/services/app/DepositTransaction/Update";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -3800,14 +3847,14 @@ export class DepositServiceProxy {
                 try {
                     return this.processUpdate(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<DepositDto>;
+                    return _observableThrow(e) as any as Observable<DepositTransactionDto>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<DepositDto>;
+                return _observableThrow(response_) as any as Observable<DepositTransactionDto>;
         }));
     }
 
-    protected processUpdate(response: HttpResponseBase): Observable<DepositDto> {
+    protected processUpdate(response: HttpResponseBase): Observable<DepositTransactionDto> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -3818,7 +3865,7 @@ export class DepositServiceProxy {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = DepositDto.fromJS(resultData200);
+            result200 = DepositTransactionDto.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -3834,7 +3881,7 @@ export class DepositServiceProxy {
      * @return OK
      */
     delete(id: number | undefined): Observable<void> {
-        let url_ = this.baseUrl + "/api/services/app/Deposit/Delete?";
+        let url_ = this.baseUrl + "/api/services/app/DepositTransaction/Delete?";
         if (id === null)
             throw new Error("The parameter 'id' cannot be null.");
         else if (id !== undefined)
@@ -11200,6 +11247,304 @@ export class PatientServiceProxy {
 }
 
 @Injectable()
+export class PatientDepositServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    get(id: number | undefined): Observable<PatientDepositDto> {
+        let url_ = this.baseUrl + "/api/services/app/PatientDeposit/Get?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGet(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PatientDepositDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PatientDepositDto>;
+        }));
+    }
+
+    protected processGet(response: HttpResponseBase): Observable<PatientDepositDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PatientDepositDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param sorting (optional) 
+     * @param skipCount (optional) 
+     * @param maxResultCount (optional) 
+     * @return OK
+     */
+    getAll(sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<PatientDepositDtoPagedResultDto> {
+        let url_ = this.baseUrl + "/api/services/app/PatientDeposit/GetAll?";
+        if (sorting === null)
+            throw new Error("The parameter 'sorting' cannot be null.");
+        else if (sorting !== undefined)
+            url_ += "Sorting=" + encodeURIComponent("" + sorting) + "&";
+        if (skipCount === null)
+            throw new Error("The parameter 'skipCount' cannot be null.");
+        else if (skipCount !== undefined)
+            url_ += "SkipCount=" + encodeURIComponent("" + skipCount) + "&";
+        if (maxResultCount === null)
+            throw new Error("The parameter 'maxResultCount' cannot be null.");
+        else if (maxResultCount !== undefined)
+            url_ += "MaxResultCount=" + encodeURIComponent("" + maxResultCount) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAll(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAll(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PatientDepositDtoPagedResultDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PatientDepositDtoPagedResultDto>;
+        }));
+    }
+
+    protected processGetAll(response: HttpResponseBase): Observable<PatientDepositDtoPagedResultDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PatientDepositDtoPagedResultDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    create(body: CreateUpdatePatientDepositDto | undefined): Observable<PatientDepositDto> {
+        let url_ = this.baseUrl + "/api/services/app/PatientDeposit/Create";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PatientDepositDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PatientDepositDto>;
+        }));
+    }
+
+    protected processCreate(response: HttpResponseBase): Observable<PatientDepositDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PatientDepositDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    update(body: CreateUpdatePatientDepositDto | undefined): Observable<PatientDepositDto> {
+        let url_ = this.baseUrl + "/api/services/app/PatientDeposit/Update";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PatientDepositDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PatientDepositDto>;
+        }));
+    }
+
+    protected processUpdate(response: HttpResponseBase): Observable<PatientDepositDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PatientDepositDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    delete(id: number | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/PatientDeposit/Delete?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDelete(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDelete(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDelete(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
 export class PharmacistServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -18048,7 +18393,7 @@ export class Admission implements IAdmission {
     totalCharges: number;
     totalDeposits: number;
     ipdChargeEntries: IpdChargeEntry[] | undefined;
-    deposits: Deposit[] | undefined;
+    patientDeposits: PatientDeposit[] | undefined;
     patient: Patient;
     doctor: Doctor;
     nurse: Nurse;
@@ -18084,10 +18429,10 @@ export class Admission implements IAdmission {
                 for (let item of _data["ipdChargeEntries"])
                     this.ipdChargeEntries.push(IpdChargeEntry.fromJS(item));
             }
-            if (Array.isArray(_data["deposits"])) {
-                this.deposits = [] as any;
-                for (let item of _data["deposits"])
-                    this.deposits.push(Deposit.fromJS(item));
+            if (Array.isArray(_data["patientDeposits"])) {
+                this.patientDeposits = [] as any;
+                for (let item of _data["patientDeposits"])
+                    this.patientDeposits.push(PatientDeposit.fromJS(item));
             }
             this.patient = _data["patient"] ? Patient.fromJS(_data["patient"]) : <any>undefined;
             this.doctor = _data["doctor"] ? Doctor.fromJS(_data["doctor"]) : <any>undefined;
@@ -18124,10 +18469,10 @@ export class Admission implements IAdmission {
             for (let item of this.ipdChargeEntries)
                 data["ipdChargeEntries"].push(item.toJSON());
         }
-        if (Array.isArray(this.deposits)) {
-            data["deposits"] = [];
-            for (let item of this.deposits)
-                data["deposits"].push(item.toJSON());
+        if (Array.isArray(this.patientDeposits)) {
+            data["patientDeposits"] = [];
+            for (let item of this.patientDeposits)
+                data["patientDeposits"].push(item.toJSON());
         }
         data["patient"] = this.patient ? this.patient.toJSON() : <any>undefined;
         data["doctor"] = this.doctor ? this.doctor.toJSON() : <any>undefined;
@@ -18160,7 +18505,7 @@ export interface IAdmission {
     totalCharges: number;
     totalDeposits: number;
     ipdChargeEntries: IpdChargeEntry[] | undefined;
-    deposits: Deposit[] | undefined;
+    patientDeposits: PatientDeposit[] | undefined;
     patient: Patient;
     doctor: Doctor;
     nurse: Nurse;
@@ -19974,6 +20319,7 @@ export enum ChargeType {
     _2 = 2,
     _3 = 3,
     _4 = 4,
+    _5 = 5,
 }
 
 export class CreateLabTestReceiptDto implements ICreateLabTestReceiptDto {
@@ -20614,16 +20960,18 @@ export interface ICreateUpdateDepartmentDto {
     name: string | undefined;
 }
 
-export class CreateUpdateDepositDto implements ICreateUpdateDepositDto {
+export class CreateUpdateDepositTransactionDto implements ICreateUpdateDepositTransactionDto {
     id: number;
     tenantId: number;
-    patientId: number;
+    patientDepositId: number;
     amount: number;
+    transactionType: TransactionType;
     paymentMethod: PaymentMethod;
-    billingMethod: BillingMethod;
-    depositDateTime: moment.Moment;
+    transactionDate: moment.Moment;
+    description: string | undefined;
+    isPaid: boolean;
 
-    constructor(data?: ICreateUpdateDepositDto) {
+    constructor(data?: ICreateUpdateDepositTransactionDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -20636,17 +20984,19 @@ export class CreateUpdateDepositDto implements ICreateUpdateDepositDto {
         if (_data) {
             this.id = _data["id"];
             this.tenantId = _data["tenantId"];
-            this.patientId = _data["patientId"];
+            this.patientDepositId = _data["patientDepositId"];
             this.amount = _data["amount"];
+            this.transactionType = _data["transactionType"];
             this.paymentMethod = _data["paymentMethod"];
-            this.billingMethod = _data["billingMethod"];
-            this.depositDateTime = _data["depositDateTime"] ? moment(_data["depositDateTime"].toString()) : <any>undefined;
+            this.transactionDate = _data["transactionDate"] ? moment(_data["transactionDate"].toString()) : <any>undefined;
+            this.description = _data["description"];
+            this.isPaid = _data["isPaid"];
         }
     }
 
-    static fromJS(data: any): CreateUpdateDepositDto {
+    static fromJS(data: any): CreateUpdateDepositTransactionDto {
         data = typeof data === 'object' ? data : {};
-        let result = new CreateUpdateDepositDto();
+        let result = new CreateUpdateDepositTransactionDto();
         result.init(data);
         return result;
     }
@@ -20655,30 +21005,34 @@ export class CreateUpdateDepositDto implements ICreateUpdateDepositDto {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["tenantId"] = this.tenantId;
-        data["patientId"] = this.patientId;
+        data["patientDepositId"] = this.patientDepositId;
         data["amount"] = this.amount;
+        data["transactionType"] = this.transactionType;
         data["paymentMethod"] = this.paymentMethod;
-        data["billingMethod"] = this.billingMethod;
-        data["depositDateTime"] = this.depositDateTime ? this.depositDateTime.toISOString() : <any>undefined;
+        data["transactionDate"] = this.transactionDate ? this.transactionDate.toISOString() : <any>undefined;
+        data["description"] = this.description;
+        data["isPaid"] = this.isPaid;
         return data;
     }
 
-    clone(): CreateUpdateDepositDto {
+    clone(): CreateUpdateDepositTransactionDto {
         const json = this.toJSON();
-        let result = new CreateUpdateDepositDto();
+        let result = new CreateUpdateDepositTransactionDto();
         result.init(json);
         return result;
     }
 }
 
-export interface ICreateUpdateDepositDto {
+export interface ICreateUpdateDepositTransactionDto {
     id: number;
     tenantId: number;
-    patientId: number;
+    patientDepositId: number;
     amount: number;
+    transactionType: TransactionType;
     paymentMethod: PaymentMethod;
-    billingMethod: BillingMethod;
-    depositDateTime: moment.Moment;
+    transactionDate: moment.Moment;
+    description: string | undefined;
+    isPaid: boolean;
 }
 
 export class CreateUpdateDoctorDto implements ICreateUpdateDoctorDto {
@@ -21838,6 +22192,57 @@ export interface ICreateUpdateNurseDto {
     yearsOfExperience: number;
     dateOfBirth: moment.Moment | undefined;
     abpUserId: number;
+}
+
+export class CreateUpdatePatientDepositDto implements ICreateUpdatePatientDepositDto {
+    id: number;
+    tenantId: number;
+    patientId: number;
+
+    constructor(data?: ICreateUpdatePatientDepositDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.patientId = _data["patientId"];
+        }
+    }
+
+    static fromJS(data: any): CreateUpdatePatientDepositDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateUpdatePatientDepositDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["patientId"] = this.patientId;
+        return data;
+    }
+
+    clone(): CreateUpdatePatientDepositDto {
+        const json = this.toJSON();
+        let result = new CreateUpdatePatientDepositDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ICreateUpdatePatientDepositDto {
+    id: number;
+    tenantId: number;
+    patientId: number;
 }
 
 export class CreateUpdatePatientDto implements ICreateUpdatePatientDto {
@@ -23142,17 +23547,20 @@ export interface IDepartmentListDtoPagedResultDto {
     totalCount: number;
 }
 
-export class Deposit implements IDeposit {
+export class DepositTransaction implements IDepositTransaction {
     id: number;
     tenantId: number;
-    patientId: number;
+    patientDepositId: number;
     amount: number;
+    transactionType: TransactionType;
     paymentMethod: PaymentMethod;
-    billingMethod: BillingMethod;
-    depositDateTime: moment.Moment;
-    patient: Patient;
+    transactionDate: moment.Moment;
+    description: string | undefined;
+    receiptNo: string | undefined;
+    isPaid: boolean;
+    patientDeposit: PatientDeposit;
 
-    constructor(data?: IDeposit) {
+    constructor(data?: IDepositTransaction) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -23165,18 +23573,21 @@ export class Deposit implements IDeposit {
         if (_data) {
             this.id = _data["id"];
             this.tenantId = _data["tenantId"];
-            this.patientId = _data["patientId"];
+            this.patientDepositId = _data["patientDepositId"];
             this.amount = _data["amount"];
+            this.transactionType = _data["transactionType"];
             this.paymentMethod = _data["paymentMethod"];
-            this.billingMethod = _data["billingMethod"];
-            this.depositDateTime = _data["depositDateTime"] ? moment(_data["depositDateTime"].toString()) : <any>undefined;
-            this.patient = _data["patient"] ? Patient.fromJS(_data["patient"]) : <any>undefined;
+            this.transactionDate = _data["transactionDate"] ? moment(_data["transactionDate"].toString()) : <any>undefined;
+            this.description = _data["description"];
+            this.receiptNo = _data["receiptNo"];
+            this.isPaid = _data["isPaid"];
+            this.patientDeposit = _data["patientDeposit"] ? PatientDeposit.fromJS(_data["patientDeposit"]) : <any>undefined;
         }
     }
 
-    static fromJS(data: any): Deposit {
+    static fromJS(data: any): DepositTransaction {
         data = typeof data === 'object' ? data : {};
-        let result = new Deposit();
+        let result = new DepositTransaction();
         result.init(data);
         return result;
     }
@@ -23185,45 +23596,53 @@ export class Deposit implements IDeposit {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["tenantId"] = this.tenantId;
-        data["patientId"] = this.patientId;
+        data["patientDepositId"] = this.patientDepositId;
         data["amount"] = this.amount;
+        data["transactionType"] = this.transactionType;
         data["paymentMethod"] = this.paymentMethod;
-        data["billingMethod"] = this.billingMethod;
-        data["depositDateTime"] = this.depositDateTime ? this.depositDateTime.toISOString() : <any>undefined;
-        data["patient"] = this.patient ? this.patient.toJSON() : <any>undefined;
+        data["transactionDate"] = this.transactionDate ? this.transactionDate.toISOString() : <any>undefined;
+        data["description"] = this.description;
+        data["receiptNo"] = this.receiptNo;
+        data["isPaid"] = this.isPaid;
+        data["patientDeposit"] = this.patientDeposit ? this.patientDeposit.toJSON() : <any>undefined;
         return data;
     }
 
-    clone(): Deposit {
+    clone(): DepositTransaction {
         const json = this.toJSON();
-        let result = new Deposit();
+        let result = new DepositTransaction();
         result.init(json);
         return result;
     }
 }
 
-export interface IDeposit {
+export interface IDepositTransaction {
     id: number;
     tenantId: number;
-    patientId: number;
+    patientDepositId: number;
     amount: number;
+    transactionType: TransactionType;
     paymentMethod: PaymentMethod;
-    billingMethod: BillingMethod;
-    depositDateTime: moment.Moment;
-    patient: Patient;
+    transactionDate: moment.Moment;
+    description: string | undefined;
+    receiptNo: string | undefined;
+    isPaid: boolean;
+    patientDeposit: PatientDeposit;
 }
 
-export class DepositDto implements IDepositDto {
+export class DepositTransactionDto implements IDepositTransactionDto {
     id: number;
     tenantId: number;
-    patientId: number;
-    patientName: string | undefined;
+    patientDepositId: number;
     amount: number;
+    transactionType: TransactionType;
     paymentMethod: PaymentMethod;
-    billingMethod: BillingMethod;
-    depositDateTime: moment.Moment;
+    transactionDate: moment.Moment;
+    description: string | undefined;
+    receiptNo: string | undefined;
+    isPaid: boolean;
 
-    constructor(data?: IDepositDto) {
+    constructor(data?: IDepositTransactionDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -23236,18 +23655,20 @@ export class DepositDto implements IDepositDto {
         if (_data) {
             this.id = _data["id"];
             this.tenantId = _data["tenantId"];
-            this.patientId = _data["patientId"];
-            this.patientName = _data["patientName"];
+            this.patientDepositId = _data["patientDepositId"];
             this.amount = _data["amount"];
+            this.transactionType = _data["transactionType"];
             this.paymentMethod = _data["paymentMethod"];
-            this.billingMethod = _data["billingMethod"];
-            this.depositDateTime = _data["depositDateTime"] ? moment(_data["depositDateTime"].toString()) : <any>undefined;
+            this.transactionDate = _data["transactionDate"] ? moment(_data["transactionDate"].toString()) : <any>undefined;
+            this.description = _data["description"];
+            this.receiptNo = _data["receiptNo"];
+            this.isPaid = _data["isPaid"];
         }
     }
 
-    static fromJS(data: any): DepositDto {
+    static fromJS(data: any): DepositTransactionDto {
         data = typeof data === 'object' ? data : {};
-        let result = new DepositDto();
+        let result = new DepositTransactionDto();
         result.init(data);
         return result;
     }
@@ -23256,39 +23677,42 @@ export class DepositDto implements IDepositDto {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["tenantId"] = this.tenantId;
-        data["patientId"] = this.patientId;
-        data["patientName"] = this.patientName;
+        data["patientDepositId"] = this.patientDepositId;
         data["amount"] = this.amount;
+        data["transactionType"] = this.transactionType;
         data["paymentMethod"] = this.paymentMethod;
-        data["billingMethod"] = this.billingMethod;
-        data["depositDateTime"] = this.depositDateTime ? this.depositDateTime.toISOString() : <any>undefined;
+        data["transactionDate"] = this.transactionDate ? this.transactionDate.toISOString() : <any>undefined;
+        data["description"] = this.description;
+        data["receiptNo"] = this.receiptNo;
+        data["isPaid"] = this.isPaid;
         return data;
     }
 
-    clone(): DepositDto {
+    clone(): DepositTransactionDto {
         const json = this.toJSON();
-        let result = new DepositDto();
+        let result = new DepositTransactionDto();
         result.init(json);
         return result;
     }
 }
 
-export interface IDepositDto {
+export interface IDepositTransactionDto {
     id: number;
     tenantId: number;
-    patientId: number;
-    patientName: string | undefined;
+    patientDepositId: number;
     amount: number;
+    transactionType: TransactionType;
     paymentMethod: PaymentMethod;
-    billingMethod: BillingMethod;
-    depositDateTime: moment.Moment;
+    transactionDate: moment.Moment;
+    description: string | undefined;
+    receiptNo: string | undefined;
+    isPaid: boolean;
 }
 
-export class DepositDtoPagedResultDto implements IDepositDtoPagedResultDto {
-    items: DepositDto[] | undefined;
-    totalCount: number;
+export class DepositTransactionDtoListResultDto implements IDepositTransactionDtoListResultDto {
+    items: DepositTransactionDto[] | undefined;
 
-    constructor(data?: IDepositDtoPagedResultDto) {
+    constructor(data?: IDepositTransactionDtoListResultDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -23302,15 +23726,67 @@ export class DepositDtoPagedResultDto implements IDepositDtoPagedResultDto {
             if (Array.isArray(_data["items"])) {
                 this.items = [] as any;
                 for (let item of _data["items"])
-                    this.items.push(DepositDto.fromJS(item));
+                    this.items.push(DepositTransactionDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): DepositTransactionDtoListResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new DepositTransactionDtoListResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): DepositTransactionDtoListResultDto {
+        const json = this.toJSON();
+        let result = new DepositTransactionDtoListResultDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IDepositTransactionDtoListResultDto {
+    items: DepositTransactionDto[] | undefined;
+}
+
+export class DepositTransactionDtoPagedResultDto implements IDepositTransactionDtoPagedResultDto {
+    items: DepositTransactionDto[] | undefined;
+    totalCount: number;
+
+    constructor(data?: IDepositTransactionDtoPagedResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(DepositTransactionDto.fromJS(item));
             }
             this.totalCount = _data["totalCount"];
         }
     }
 
-    static fromJS(data: any): DepositDtoPagedResultDto {
+    static fromJS(data: any): DepositTransactionDtoPagedResultDto {
         data = typeof data === 'object' ? data : {};
-        let result = new DepositDtoPagedResultDto();
+        let result = new DepositTransactionDtoPagedResultDto();
         result.init(data);
         return result;
     }
@@ -23326,64 +23802,17 @@ export class DepositDtoPagedResultDto implements IDepositDtoPagedResultDto {
         return data;
     }
 
-    clone(): DepositDtoPagedResultDto {
+    clone(): DepositTransactionDtoPagedResultDto {
         const json = this.toJSON();
-        let result = new DepositDtoPagedResultDto();
+        let result = new DepositTransactionDtoPagedResultDto();
         result.init(json);
         return result;
     }
 }
 
-export interface IDepositDtoPagedResultDto {
-    items: DepositDto[] | undefined;
+export interface IDepositTransactionDtoPagedResultDto {
+    items: DepositTransactionDto[] | undefined;
     totalCount: number;
-}
-
-export class DepositResponseDto implements IDepositResponseDto {
-    deposit: DepositDto;
-    stripeRedirectUrl: string | undefined;
-
-    constructor(data?: IDepositResponseDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.deposit = _data["deposit"] ? DepositDto.fromJS(_data["deposit"]) : <any>undefined;
-            this.stripeRedirectUrl = _data["stripeRedirectUrl"];
-        }
-    }
-
-    static fromJS(data: any): DepositResponseDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new DepositResponseDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["deposit"] = this.deposit ? this.deposit.toJSON() : <any>undefined;
-        data["stripeRedirectUrl"] = this.stripeRedirectUrl;
-        return data;
-    }
-
-    clone(): DepositResponseDto {
-        const json = this.toJSON();
-        let result = new DepositResponseDto();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface IDepositResponseDto {
-    deposit: DepositDto;
-    stripeRedirectUrl: string | undefined;
 }
 
 export class Doctor implements IDoctor {
@@ -28689,7 +29118,7 @@ export class Patient implements IPatient {
     abpUser: User;
     prescriptions: Prescription[] | undefined;
     admissions: Admission[] | undefined;
-    deposits: Deposit[] | undefined;
+    patientDeposits: PatientDeposit[] | undefined;
     vitals: Vital[] | undefined;
     appointments: Appointment[] | undefined;
     visit: Visit[] | undefined;
@@ -28734,10 +29163,10 @@ export class Patient implements IPatient {
                 for (let item of _data["admissions"])
                     this.admissions.push(Admission.fromJS(item));
             }
-            if (Array.isArray(_data["deposits"])) {
-                this.deposits = [] as any;
-                for (let item of _data["deposits"])
-                    this.deposits.push(Deposit.fromJS(item));
+            if (Array.isArray(_data["patientDeposits"])) {
+                this.patientDeposits = [] as any;
+                for (let item of _data["patientDeposits"])
+                    this.patientDeposits.push(PatientDeposit.fromJS(item));
             }
             if (Array.isArray(_data["vitals"])) {
                 this.vitals = [] as any;
@@ -28815,10 +29244,10 @@ export class Patient implements IPatient {
             for (let item of this.admissions)
                 data["admissions"].push(item.toJSON());
         }
-        if (Array.isArray(this.deposits)) {
-            data["deposits"] = [];
-            for (let item of this.deposits)
-                data["deposits"].push(item.toJSON());
+        if (Array.isArray(this.patientDeposits)) {
+            data["patientDeposits"] = [];
+            for (let item of this.patientDeposits)
+                data["patientDeposits"].push(item.toJSON());
         }
         if (Array.isArray(this.vitals)) {
             data["vitals"] = [];
@@ -28888,7 +29317,7 @@ export interface IPatient {
     abpUser: User;
     prescriptions: Prescription[] | undefined;
     admissions: Admission[] | undefined;
-    deposits: Deposit[] | undefined;
+    patientDeposits: PatientDeposit[] | undefined;
     vitals: Vital[] | undefined;
     appointments: Appointment[] | undefined;
     visit: Visit[] | undefined;
@@ -28972,6 +29401,207 @@ export interface IPatientAppointmentHistoryDto {
     nurseName: string | undefined;
     status: AppointmentStatus;
     reasonForVisit: string | undefined;
+}
+
+export class PatientDeposit implements IPatientDeposit {
+    id: number;
+    tenantId: number;
+    patientId: number;
+    totalCreditAmount: number;
+    totalDebitAmount: number;
+    totalBalance: number;
+    patient: Patient;
+    transactions: DepositTransaction[] | undefined;
+
+    constructor(data?: IPatientDeposit) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.patientId = _data["patientId"];
+            this.totalCreditAmount = _data["totalCreditAmount"];
+            this.totalDebitAmount = _data["totalDebitAmount"];
+            this.totalBalance = _data["totalBalance"];
+            this.patient = _data["patient"] ? Patient.fromJS(_data["patient"]) : <any>undefined;
+            if (Array.isArray(_data["transactions"])) {
+                this.transactions = [] as any;
+                for (let item of _data["transactions"])
+                    this.transactions.push(DepositTransaction.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): PatientDeposit {
+        data = typeof data === 'object' ? data : {};
+        let result = new PatientDeposit();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["patientId"] = this.patientId;
+        data["totalCreditAmount"] = this.totalCreditAmount;
+        data["totalDebitAmount"] = this.totalDebitAmount;
+        data["totalBalance"] = this.totalBalance;
+        data["patient"] = this.patient ? this.patient.toJSON() : <any>undefined;
+        if (Array.isArray(this.transactions)) {
+            data["transactions"] = [];
+            for (let item of this.transactions)
+                data["transactions"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): PatientDeposit {
+        const json = this.toJSON();
+        let result = new PatientDeposit();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IPatientDeposit {
+    id: number;
+    tenantId: number;
+    patientId: number;
+    totalCreditAmount: number;
+    totalDebitAmount: number;
+    totalBalance: number;
+    patient: Patient;
+    transactions: DepositTransaction[] | undefined;
+}
+
+export class PatientDepositDto implements IPatientDepositDto {
+    id: number;
+    tenantId: number;
+    patientId: number;
+    patientName: string | undefined;
+    totalCreditAmount: number;
+    totalDebitAmount: number;
+    totalBalance: number;
+
+    constructor(data?: IPatientDepositDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.patientId = _data["patientId"];
+            this.patientName = _data["patientName"];
+            this.totalCreditAmount = _data["totalCreditAmount"];
+            this.totalDebitAmount = _data["totalDebitAmount"];
+            this.totalBalance = _data["totalBalance"];
+        }
+    }
+
+    static fromJS(data: any): PatientDepositDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PatientDepositDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["patientId"] = this.patientId;
+        data["patientName"] = this.patientName;
+        data["totalCreditAmount"] = this.totalCreditAmount;
+        data["totalDebitAmount"] = this.totalDebitAmount;
+        data["totalBalance"] = this.totalBalance;
+        return data;
+    }
+
+    clone(): PatientDepositDto {
+        const json = this.toJSON();
+        let result = new PatientDepositDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IPatientDepositDto {
+    id: number;
+    tenantId: number;
+    patientId: number;
+    patientName: string | undefined;
+    totalCreditAmount: number;
+    totalDebitAmount: number;
+    totalBalance: number;
+}
+
+export class PatientDepositDtoPagedResultDto implements IPatientDepositDtoPagedResultDto {
+    items: PatientDepositDto[] | undefined;
+    totalCount: number;
+
+    constructor(data?: IPatientDepositDtoPagedResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(PatientDepositDto.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): PatientDepositDtoPagedResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PatientDepositDtoPagedResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+
+    clone(): PatientDepositDtoPagedResultDto {
+        const json = this.toJSON();
+        let result = new PatientDepositDtoPagedResultDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IPatientDepositDtoPagedResultDto {
+    items: PatientDepositDto[] | undefined;
+    totalCount: number;
 }
 
 export class PatientDetailsAndMedicalHistoryDto implements IPatientDetailsAndMedicalHistoryDto {
@@ -33079,6 +33709,11 @@ export class TestResultLimitDtoPagedResultDto implements ITestResultLimitDtoPage
 export interface ITestResultLimitDtoPagedResultDto {
     items: TestResultLimitDto[] | undefined;
     totalCount: number;
+}
+
+export enum TransactionType {
+    _0 = 0,
+    _1 = 1,
 }
 
 export class Triage implements ITriage {
