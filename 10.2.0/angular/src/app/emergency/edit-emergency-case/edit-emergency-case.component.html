@@ -2,6 +2,10 @@
     <abp-modal-header title="Edit Emergency Case" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
 
     <div class="modal-body">
+        <div class="row justify-content-end px-2" *ngIf="emergency.status===4">
+            <span class="text-success px-2">Admitted</span>
+            <i class="pi pi-check-circle text-success" style="font-size: 1.5rem"></i>
+        </div>
         <div class="row">
             <div class="col-md-12">
                 <label><b>Select Patient</b></label>
@@ -14,7 +18,7 @@
             <div class="col-md-6 d-flex flex-column">
                 <label>Select Doctor</label>
                 <p-select [(ngModel)]="emergency.doctorId" [optionValue]="'id'" name="doctorId" [options]="doctors"
-                    optionLabel="fullName" placeholder="Select doctor" class="w-100" required />
+                    optionLabel="fullName" placeholder="Select doctor" class="w-100" />
             </div>
             <div class="col-md-6 d-flex flex-column">
                 <label>Select Nurse</label>
@@ -41,12 +45,6 @@
                 <label>Status</label>
                 <p-select [(ngModel)]="emergency.status" name="status" [options]="statusOptions" optionLabel="label"
                     optionValue="value" placeholder="Select status" class="w-100" required />
-            </div>
-            <div class="col-md-6 d-flex flex-column">
-                <label>Arrival Time</label>
-                <p-datepicker [(ngModel)]="uiArrivalTime" name="arrivalTime" [showIcon]="true"
-                    placeholder="Select arrival time" showTime="true" required>
-                </p-datepicker>
             </div>
         </div>
     </div>

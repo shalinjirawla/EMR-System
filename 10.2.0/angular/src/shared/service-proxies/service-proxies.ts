@@ -4819,6 +4819,58 @@ export class EmergencyServiceProxy {
     }
 
     /**
+     * @param body (optional) 
+     * @return OK
+     */
+    updateEmergencyCase(body: CreateUpdateEmergencyCaseDto | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/Emergency/UpdateEmergencyCase";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateEmergencyCase(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateEmergencyCase(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processUpdateEmergencyCase(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * @param id (optional) 
      * @return OK
      */
@@ -18393,6 +18445,8 @@ export class Admission implements IAdmission {
     totalCharges: number;
     totalDeposits: number;
     ipdChargeEntries: IpdChargeEntry[] | undefined;
+    deposits: Deposit[] | undefined;
+    emergencyCases: EmergencyCase[] | undefined;
     patientDeposits: PatientDeposit[] | undefined;
     patient: Patient;
     doctor: Doctor;
@@ -18434,6 +18488,11 @@ export class Admission implements IAdmission {
                 for (let item of _data["patientDeposits"])
                     this.patientDeposits.push(PatientDeposit.fromJS(item));
             }
+            if (Array.isArray(_data["emergencyCases"])) {
+                this.emergencyCases = [] as any;
+                for (let item of _data["emergencyCases"])
+                    this.emergencyCases.push(EmergencyCase.fromJS(item));
+            }
             this.patient = _data["patient"] ? Patient.fromJS(_data["patient"]) : <any>undefined;
             this.doctor = _data["doctor"] ? Doctor.fromJS(_data["doctor"]) : <any>undefined;
             this.nurse = _data["nurse"] ? Nurse.fromJS(_data["nurse"]) : <any>undefined;
@@ -18474,6 +18533,11 @@ export class Admission implements IAdmission {
             for (let item of this.patientDeposits)
                 data["patientDeposits"].push(item.toJSON());
         }
+        if (Array.isArray(this.emergencyCases)) {
+            data["emergencyCases"] = [];
+            for (let item of this.emergencyCases)
+                data["emergencyCases"].push(item.toJSON());
+        }
         data["patient"] = this.patient ? this.patient.toJSON() : <any>undefined;
         data["doctor"] = this.doctor ? this.doctor.toJSON() : <any>undefined;
         data["nurse"] = this.nurse ? this.nurse.toJSON() : <any>undefined;
@@ -18506,6 +18570,8 @@ export interface IAdmission {
     totalDeposits: number;
     ipdChargeEntries: IpdChargeEntry[] | undefined;
     patientDeposits: PatientDeposit[] | undefined;
+    deposits: Deposit[] | undefined;
+    emergencyCases: EmergencyCase[] | undefined;
     patient: Patient;
     doctor: Doctor;
     nurse: Nurse;
@@ -21177,12 +21243,14 @@ export class CreateUpdateEmergencyCaseDto implements ICreateUpdateEmergencyCaseD
     id: number;
     tenantId: number;
     patientId: number | undefined;
+    emergencyNumber: string | undefined;
+    arrivalTime: moment.Moment;
     modeOfArrival: ModeOfArrival;
     severity: EmergencySeverity;
     status: EmergencyStatus;
     doctorId: number | undefined;
     nurseId: number | undefined;
-    arrivalTime: moment.Moment;
+    admissionsId: number | undefined;
 
     constructor(data?: ICreateUpdateEmergencyCaseDto) {
         if (data) {
@@ -21198,12 +21266,14 @@ export class CreateUpdateEmergencyCaseDto implements ICreateUpdateEmergencyCaseD
             this.id = _data["id"];
             this.tenantId = _data["tenantId"];
             this.patientId = _data["patientId"];
+            this.emergencyNumber = _data["emergencyNumber"];
+            this.arrivalTime = _data["arrivalTime"] ? moment(_data["arrivalTime"].toString()) : <any>undefined;
             this.modeOfArrival = _data["modeOfArrival"];
             this.severity = _data["severity"];
             this.status = _data["status"];
             this.doctorId = _data["doctorId"];
             this.nurseId = _data["nurseId"];
-            this.arrivalTime = _data["arrivalTime"] ? moment(_data["arrivalTime"].toString()) : <any>undefined;
+            this.admissionsId = _data["admissionsId"];
         }
     }
 
@@ -21219,12 +21289,14 @@ export class CreateUpdateEmergencyCaseDto implements ICreateUpdateEmergencyCaseD
         data["id"] = this.id;
         data["tenantId"] = this.tenantId;
         data["patientId"] = this.patientId;
+        data["emergencyNumber"] = this.emergencyNumber;
+        data["arrivalTime"] = this.arrivalTime ? this.arrivalTime.toISOString() : <any>undefined;
         data["modeOfArrival"] = this.modeOfArrival;
         data["severity"] = this.severity;
         data["status"] = this.status;
         data["doctorId"] = this.doctorId;
         data["nurseId"] = this.nurseId;
-        data["arrivalTime"] = this.arrivalTime ? this.arrivalTime.toISOString() : <any>undefined;
+        data["admissionsId"] = this.admissionsId;
         return data;
     }
 
@@ -21240,12 +21312,14 @@ export interface ICreateUpdateEmergencyCaseDto {
     id: number;
     tenantId: number;
     patientId: number | undefined;
+    emergencyNumber: string | undefined;
+    arrivalTime: moment.Moment;
     modeOfArrival: ModeOfArrival;
     severity: EmergencySeverity;
     status: EmergencyStatus;
     doctorId: number | undefined;
     nurseId: number | undefined;
-    arrivalTime: moment.Moment;
+    admissionsId: number | undefined;
 }
 
 export class CreateUpdateHealthPackageDto implements ICreateUpdateHealthPackageDto {
@@ -22998,14 +23072,16 @@ export interface ICreateUpdateTestResultLimitDto {
 export class CreateUpdateTriageDto implements ICreateUpdateTriageDto {
     id: number;
     tenantId: number;
+    time: moment.Moment;
     emergencyCaseId: number;
-    notes: string | undefined;
-    temperature: number | undefined;
-    pulse: number | undefined;
-    respiratoryRate: number | undefined;
+    heartRate: number | undefined;
     bloodPressureSystolic: number | undefined;
     bloodPressureDiastolic: number | undefined;
-    assessmentTime: moment.Moment;
+    temperature: number | undefined;
+    oxygenSaturation: number | undefined;
+    respiratoryRate: number | undefined;
+    notes: string | undefined;
+    severity: EmergencySeverity;
 
     constructor(data?: ICreateUpdateTriageDto) {
         if (data) {
@@ -23020,14 +23096,16 @@ export class CreateUpdateTriageDto implements ICreateUpdateTriageDto {
         if (_data) {
             this.id = _data["id"];
             this.tenantId = _data["tenantId"];
+            this.time = _data["time"] ? moment(_data["time"].toString()) : <any>undefined;
             this.emergencyCaseId = _data["emergencyCaseId"];
-            this.notes = _data["notes"];
-            this.temperature = _data["temperature"];
-            this.pulse = _data["pulse"];
-            this.respiratoryRate = _data["respiratoryRate"];
+            this.heartRate = _data["heartRate"];
             this.bloodPressureSystolic = _data["bloodPressureSystolic"];
             this.bloodPressureDiastolic = _data["bloodPressureDiastolic"];
-            this.assessmentTime = _data["assessmentTime"] ? moment(_data["assessmentTime"].toString()) : <any>undefined;
+            this.temperature = _data["temperature"];
+            this.oxygenSaturation = _data["oxygenSaturation"];
+            this.respiratoryRate = _data["respiratoryRate"];
+            this.notes = _data["notes"];
+            this.severity = _data["severity"];
         }
     }
 
@@ -23042,14 +23120,16 @@ export class CreateUpdateTriageDto implements ICreateUpdateTriageDto {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["tenantId"] = this.tenantId;
+        data["time"] = this.time ? this.time.toISOString() : <any>undefined;
         data["emergencyCaseId"] = this.emergencyCaseId;
-        data["notes"] = this.notes;
-        data["temperature"] = this.temperature;
-        data["pulse"] = this.pulse;
-        data["respiratoryRate"] = this.respiratoryRate;
+        data["heartRate"] = this.heartRate;
         data["bloodPressureSystolic"] = this.bloodPressureSystolic;
         data["bloodPressureDiastolic"] = this.bloodPressureDiastolic;
-        data["assessmentTime"] = this.assessmentTime ? this.assessmentTime.toISOString() : <any>undefined;
+        data["temperature"] = this.temperature;
+        data["oxygenSaturation"] = this.oxygenSaturation;
+        data["respiratoryRate"] = this.respiratoryRate;
+        data["notes"] = this.notes;
+        data["severity"] = this.severity;
         return data;
     }
 
@@ -23064,14 +23144,16 @@ export class CreateUpdateTriageDto implements ICreateUpdateTriageDto {
 export interface ICreateUpdateTriageDto {
     id: number;
     tenantId: number;
+    time: moment.Moment;
     emergencyCaseId: number;
-    notes: string | undefined;
-    temperature: number | undefined;
-    pulse: number | undefined;
-    respiratoryRate: number | undefined;
+    heartRate: number | undefined;
     bloodPressureSystolic: number | undefined;
     bloodPressureDiastolic: number | undefined;
-    assessmentTime: moment.Moment;
+    temperature: number | undefined;
+    oxygenSaturation: number | undefined;
+    respiratoryRate: number | undefined;
+    notes: string | undefined;
+    severity: EmergencySeverity;
 }
 
 export class CreateUpdateVisitDto implements ICreateUpdateVisitDto {
@@ -24335,6 +24417,7 @@ export class EmergencyCase implements IEmergencyCase {
     patient: Patient;
     emergencyNumber: string | undefined;
     arrivalTime: moment.Moment;
+    dischargeTime: moment.Moment | undefined;
     modeOfArrival: ModeOfArrival;
     severity: EmergencySeverity;
     status: EmergencyStatus;
@@ -24342,6 +24425,8 @@ export class EmergencyCase implements IEmergencyCase {
     doctor: Doctor;
     nurseId: number | undefined;
     nurse: Nurse;
+    admissionsId: number | undefined;
+    admissions: Admission;
     triages: Triage[] | undefined;
 
     constructor(data?: IEmergencyCase) {
@@ -24361,6 +24446,7 @@ export class EmergencyCase implements IEmergencyCase {
             this.patient = _data["patient"] ? Patient.fromJS(_data["patient"]) : <any>undefined;
             this.emergencyNumber = _data["emergencyNumber"];
             this.arrivalTime = _data["arrivalTime"] ? moment(_data["arrivalTime"].toString()) : <any>undefined;
+            this.dischargeTime = _data["dischargeTime"] ? moment(_data["dischargeTime"].toString()) : <any>undefined;
             this.modeOfArrival = _data["modeOfArrival"];
             this.severity = _data["severity"];
             this.status = _data["status"];
@@ -24368,6 +24454,8 @@ export class EmergencyCase implements IEmergencyCase {
             this.doctor = _data["doctor"] ? Doctor.fromJS(_data["doctor"]) : <any>undefined;
             this.nurseId = _data["nurseId"];
             this.nurse = _data["nurse"] ? Nurse.fromJS(_data["nurse"]) : <any>undefined;
+            this.admissionsId = _data["admissionsId"];
+            this.admissions = _data["admissions"] ? Admission.fromJS(_data["admissions"]) : <any>undefined;
             if (Array.isArray(_data["triages"])) {
                 this.triages = [] as any;
                 for (let item of _data["triages"])
@@ -24391,6 +24479,7 @@ export class EmergencyCase implements IEmergencyCase {
         data["patient"] = this.patient ? this.patient.toJSON() : <any>undefined;
         data["emergencyNumber"] = this.emergencyNumber;
         data["arrivalTime"] = this.arrivalTime ? this.arrivalTime.toISOString() : <any>undefined;
+        data["dischargeTime"] = this.dischargeTime ? this.dischargeTime.toISOString() : <any>undefined;
         data["modeOfArrival"] = this.modeOfArrival;
         data["severity"] = this.severity;
         data["status"] = this.status;
@@ -24398,6 +24487,8 @@ export class EmergencyCase implements IEmergencyCase {
         data["doctor"] = this.doctor ? this.doctor.toJSON() : <any>undefined;
         data["nurseId"] = this.nurseId;
         data["nurse"] = this.nurse ? this.nurse.toJSON() : <any>undefined;
+        data["admissionsId"] = this.admissionsId;
+        data["admissions"] = this.admissions ? this.admissions.toJSON() : <any>undefined;
         if (Array.isArray(this.triages)) {
             data["triages"] = [];
             for (let item of this.triages)
@@ -24421,6 +24512,7 @@ export interface IEmergencyCase {
     patient: Patient;
     emergencyNumber: string | undefined;
     arrivalTime: moment.Moment;
+    dischargeTime: moment.Moment | undefined;
     modeOfArrival: ModeOfArrival;
     severity: EmergencySeverity;
     status: EmergencyStatus;
@@ -24428,6 +24520,8 @@ export interface IEmergencyCase {
     doctor: Doctor;
     nurseId: number | undefined;
     nurse: Nurse;
+    admissionsId: number | undefined;
+    admissions: Admission;
     triages: Triage[] | undefined;
 }
 
@@ -24436,15 +24530,17 @@ export class EmergencyCaseDto implements IEmergencyCaseDto {
     tenantId: number;
     patientId: number | undefined;
     patientName: string | undefined;
+    patientDateOfBirth: moment.Moment | undefined;
     emergencyNumber: string | undefined;
     arrivalTime: moment.Moment;
     modeOfArrival: ModeOfArrival;
     severity: EmergencySeverity;
     status: EmergencyStatus;
     doctorId: number | undefined;
-    nurseId: number | undefined;
     doctorName: string | undefined;
+    nurseId: number | undefined;
     nurseName: string | undefined;
+    admissionsId: number | undefined;
 
     constructor(data?: IEmergencyCaseDto) {
         if (data) {
@@ -24461,15 +24557,17 @@ export class EmergencyCaseDto implements IEmergencyCaseDto {
             this.tenantId = _data["tenantId"];
             this.patientId = _data["patientId"];
             this.patientName = _data["patientName"];
+            this.patientDateOfBirth = _data["patientDateOfBirth"] ? moment(_data["patientDateOfBirth"].toString()) : <any>undefined;
             this.emergencyNumber = _data["emergencyNumber"];
             this.arrivalTime = _data["arrivalTime"] ? moment(_data["arrivalTime"].toString()) : <any>undefined;
             this.modeOfArrival = _data["modeOfArrival"];
             this.severity = _data["severity"];
             this.status = _data["status"];
             this.doctorId = _data["doctorId"];
-            this.nurseId = _data["nurseId"];
             this.doctorName = _data["doctorName"];
+            this.nurseId = _data["nurseId"];
             this.nurseName = _data["nurseName"];
+            this.admissionsId = _data["admissionsId"];
         }
     }
 
@@ -24486,15 +24584,17 @@ export class EmergencyCaseDto implements IEmergencyCaseDto {
         data["tenantId"] = this.tenantId;
         data["patientId"] = this.patientId;
         data["patientName"] = this.patientName;
+        data["patientDateOfBirth"] = this.patientDateOfBirth ? this.patientDateOfBirth.toISOString() : <any>undefined;
         data["emergencyNumber"] = this.emergencyNumber;
         data["arrivalTime"] = this.arrivalTime ? this.arrivalTime.toISOString() : <any>undefined;
         data["modeOfArrival"] = this.modeOfArrival;
         data["severity"] = this.severity;
         data["status"] = this.status;
         data["doctorId"] = this.doctorId;
-        data["nurseId"] = this.nurseId;
         data["doctorName"] = this.doctorName;
+        data["nurseId"] = this.nurseId;
         data["nurseName"] = this.nurseName;
+        data["admissionsId"] = this.admissionsId;
         return data;
     }
 
@@ -24511,15 +24611,17 @@ export interface IEmergencyCaseDto {
     tenantId: number;
     patientId: number | undefined;
     patientName: string | undefined;
+    patientDateOfBirth: moment.Moment | undefined;
     emergencyNumber: string | undefined;
     arrivalTime: moment.Moment;
     modeOfArrival: ModeOfArrival;
     severity: EmergencySeverity;
     status: EmergencyStatus;
     doctorId: number | undefined;
-    nurseId: number | undefined;
     doctorName: string | undefined;
+    nurseId: number | undefined;
     nurseName: string | undefined;
+    admissionsId: number | undefined;
 }
 
 export class EmergencyCaseDtoPagedResultDto implements IEmergencyCaseDtoPagedResultDto {
@@ -24588,6 +24690,8 @@ export enum EmergencyStatus {
     _1 = 1,
     _2 = 2,
     _3 = 3,
+    _4 = 4,
+    _5 = 5,
 }
 
 export class FlatPermissionDto implements IFlatPermissionDto {
@@ -28684,6 +28788,7 @@ export class Nurse implements INurse {
     medicineOrders: MedicineOrder[] | undefined;
     admissions: Admission[] | undefined;
     emergencyCases: EmergencyCase[] | undefined;
+    triages: Triage[] | undefined;
 
     constructor(data?: INurse) {
         if (data) {
@@ -28731,6 +28836,11 @@ export class Nurse implements INurse {
                 this.emergencyCases = [] as any;
                 for (let item of _data["emergencyCases"])
                     this.emergencyCases.push(EmergencyCase.fromJS(item));
+            }
+            if (Array.isArray(_data["triages"])) {
+                this.triages = [] as any;
+                for (let item of _data["triages"])
+                    this.triages.push(Triage.fromJS(item));
             }
         }
     }
@@ -28780,6 +28890,11 @@ export class Nurse implements INurse {
             for (let item of this.emergencyCases)
                 data["emergencyCases"].push(item.toJSON());
         }
+        if (Array.isArray(this.triages)) {
+            data["triages"] = [];
+            for (let item of this.triages)
+                data["triages"].push(item.toJSON());
+        }
         return data;
     }
 
@@ -28808,6 +28923,7 @@ export interface INurse {
     medicineOrders: MedicineOrder[] | undefined;
     admissions: Admission[] | undefined;
     emergencyCases: EmergencyCase[] | undefined;
+    triages: Triage[] | undefined;
 }
 
 export class NurseDto implements INurseDto {
@@ -33721,13 +33837,17 @@ export class Triage implements ITriage {
     tenantId: number;
     emergencyCaseId: number;
     emergencyCase: EmergencyCase;
-    notes: string | undefined;
-    temperature: number | undefined;
-    pulse: number | undefined;
-    respiratoryRate: number | undefined;
+    time: moment.Moment;
+    nurseId: number | undefined;
+    nurse: Nurse;
+    heartRate: number | undefined;
     bloodPressureSystolic: number | undefined;
     bloodPressureDiastolic: number | undefined;
-    assessmentTime: moment.Moment;
+    temperature: number | undefined;
+    oxygenSaturation: number | undefined;
+    respiratoryRate: number | undefined;
+    notes: string | undefined;
+    severity: EmergencySeverity;
 
     constructor(data?: ITriage) {
         if (data) {
@@ -33744,13 +33864,17 @@ export class Triage implements ITriage {
             this.tenantId = _data["tenantId"];
             this.emergencyCaseId = _data["emergencyCaseId"];
             this.emergencyCase = _data["emergencyCase"] ? EmergencyCase.fromJS(_data["emergencyCase"]) : <any>undefined;
-            this.notes = _data["notes"];
-            this.temperature = _data["temperature"];
-            this.pulse = _data["pulse"];
-            this.respiratoryRate = _data["respiratoryRate"];
+            this.time = _data["time"] ? moment(_data["time"].toString()) : <any>undefined;
+            this.nurseId = _data["nurseId"];
+            this.nurse = _data["nurse"] ? Nurse.fromJS(_data["nurse"]) : <any>undefined;
+            this.heartRate = _data["heartRate"];
             this.bloodPressureSystolic = _data["bloodPressureSystolic"];
             this.bloodPressureDiastolic = _data["bloodPressureDiastolic"];
-            this.assessmentTime = _data["assessmentTime"] ? moment(_data["assessmentTime"].toString()) : <any>undefined;
+            this.temperature = _data["temperature"];
+            this.oxygenSaturation = _data["oxygenSaturation"];
+            this.respiratoryRate = _data["respiratoryRate"];
+            this.notes = _data["notes"];
+            this.severity = _data["severity"];
         }
     }
 
@@ -33767,13 +33891,17 @@ export class Triage implements ITriage {
         data["tenantId"] = this.tenantId;
         data["emergencyCaseId"] = this.emergencyCaseId;
         data["emergencyCase"] = this.emergencyCase ? this.emergencyCase.toJSON() : <any>undefined;
-        data["notes"] = this.notes;
-        data["temperature"] = this.temperature;
-        data["pulse"] = this.pulse;
-        data["respiratoryRate"] = this.respiratoryRate;
+        data["time"] = this.time ? this.time.toISOString() : <any>undefined;
+        data["nurseId"] = this.nurseId;
+        data["nurse"] = this.nurse ? this.nurse.toJSON() : <any>undefined;
+        data["heartRate"] = this.heartRate;
         data["bloodPressureSystolic"] = this.bloodPressureSystolic;
         data["bloodPressureDiastolic"] = this.bloodPressureDiastolic;
-        data["assessmentTime"] = this.assessmentTime ? this.assessmentTime.toISOString() : <any>undefined;
+        data["temperature"] = this.temperature;
+        data["oxygenSaturation"] = this.oxygenSaturation;
+        data["respiratoryRate"] = this.respiratoryRate;
+        data["notes"] = this.notes;
+        data["severity"] = this.severity;
         return data;
     }
 
@@ -33790,27 +33918,35 @@ export interface ITriage {
     tenantId: number;
     emergencyCaseId: number;
     emergencyCase: EmergencyCase;
-    notes: string | undefined;
-    temperature: number | undefined;
-    pulse: number | undefined;
-    respiratoryRate: number | undefined;
+    time: moment.Moment;
+    nurseId: number | undefined;
+    nurse: Nurse;
+    heartRate: number | undefined;
     bloodPressureSystolic: number | undefined;
     bloodPressureDiastolic: number | undefined;
-    assessmentTime: moment.Moment;
+    temperature: number | undefined;
+    oxygenSaturation: number | undefined;
+    respiratoryRate: number | undefined;
+    notes: string | undefined;
+    severity: EmergencySeverity;
 }
 
 export class TriageDto implements ITriageDto {
     id: number;
     tenantId: number;
     emergencyCaseId: number;
-    emergencyNumber: string | undefined;
-    notes: string | undefined;
-    temperature: number | undefined;
-    pulse: number | undefined;
-    respiratoryRate: number | undefined;
+    time: moment.Moment;
+    nurseId: number | undefined;
+    nurseName: string | undefined;
+    heartRate: number | undefined;
     bloodPressureSystolic: number | undefined;
     bloodPressureDiastolic: number | undefined;
-    assessmentTime: moment.Moment;
+    readonly bloodPressureDisplay: string | undefined;
+    temperature: number | undefined;
+    oxygenSaturation: number | undefined;
+    respiratoryRate: number | undefined;
+    notes: string | undefined;
+    severity: EmergencySeverity;
 
     constructor(data?: ITriageDto) {
         if (data) {
@@ -33826,14 +33962,18 @@ export class TriageDto implements ITriageDto {
             this.id = _data["id"];
             this.tenantId = _data["tenantId"];
             this.emergencyCaseId = _data["emergencyCaseId"];
-            this.emergencyNumber = _data["emergencyNumber"];
-            this.notes = _data["notes"];
-            this.temperature = _data["temperature"];
-            this.pulse = _data["pulse"];
-            this.respiratoryRate = _data["respiratoryRate"];
+            this.time = _data["time"] ? moment(_data["time"].toString()) : <any>undefined;
+            this.nurseId = _data["nurseId"];
+            this.nurseName = _data["nurseName"];
+            this.heartRate = _data["heartRate"];
             this.bloodPressureSystolic = _data["bloodPressureSystolic"];
             this.bloodPressureDiastolic = _data["bloodPressureDiastolic"];
-            this.assessmentTime = _data["assessmentTime"] ? moment(_data["assessmentTime"].toString()) : <any>undefined;
+            (<any>this).bloodPressureDisplay = _data["bloodPressureDisplay"];
+            this.temperature = _data["temperature"];
+            this.oxygenSaturation = _data["oxygenSaturation"];
+            this.respiratoryRate = _data["respiratoryRate"];
+            this.notes = _data["notes"];
+            this.severity = _data["severity"];
         }
     }
 
@@ -33849,14 +33989,18 @@ export class TriageDto implements ITriageDto {
         data["id"] = this.id;
         data["tenantId"] = this.tenantId;
         data["emergencyCaseId"] = this.emergencyCaseId;
-        data["emergencyNumber"] = this.emergencyNumber;
-        data["notes"] = this.notes;
-        data["temperature"] = this.temperature;
-        data["pulse"] = this.pulse;
-        data["respiratoryRate"] = this.respiratoryRate;
+        data["time"] = this.time ? this.time.toISOString() : <any>undefined;
+        data["nurseId"] = this.nurseId;
+        data["nurseName"] = this.nurseName;
+        data["heartRate"] = this.heartRate;
         data["bloodPressureSystolic"] = this.bloodPressureSystolic;
         data["bloodPressureDiastolic"] = this.bloodPressureDiastolic;
-        data["assessmentTime"] = this.assessmentTime ? this.assessmentTime.toISOString() : <any>undefined;
+        data["bloodPressureDisplay"] = this.bloodPressureDisplay;
+        data["temperature"] = this.temperature;
+        data["oxygenSaturation"] = this.oxygenSaturation;
+        data["respiratoryRate"] = this.respiratoryRate;
+        data["notes"] = this.notes;
+        data["severity"] = this.severity;
         return data;
     }
 
@@ -33872,14 +34016,18 @@ export interface ITriageDto {
     id: number;
     tenantId: number;
     emergencyCaseId: number;
-    emergencyNumber: string | undefined;
-    notes: string | undefined;
-    temperature: number | undefined;
-    pulse: number | undefined;
-    respiratoryRate: number | undefined;
+    time: moment.Moment;
+    nurseId: number | undefined;
+    nurseName: string | undefined;
+    heartRate: number | undefined;
     bloodPressureSystolic: number | undefined;
     bloodPressureDiastolic: number | undefined;
-    assessmentTime: moment.Moment;
+    bloodPressureDisplay: string | undefined;
+    temperature: number | undefined;
+    oxygenSaturation: number | undefined;
+    respiratoryRate: number | undefined;
+    notes: string | undefined;
+    severity: EmergencySeverity;
 }
 
 export class TriageDtoPagedResultDto implements ITriageDtoPagedResultDto {

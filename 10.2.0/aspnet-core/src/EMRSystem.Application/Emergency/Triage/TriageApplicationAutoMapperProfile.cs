@@ -11,9 +11,8 @@ namespace EMRSystem.Emergency.Triage
     {
         public TriageApplicationAutoMapperProfile()
         {
-            CreateMap<Triage, TriageDto>()
-                 .ForMember(d => d.EmergencyNumber, opt => opt.MapFrom(s => s.EmergencyCase != null ? s.EmergencyCase.EmergencyNumber : ""));
-            CreateMap<CreateUpdateTriageDto, Triage>();
+            CreateMap<Triage, TriageDto>().ReverseMap();
+            CreateMap<CreateUpdateTriageDto, Triage>().ReverseMap();
         }
     }
 }

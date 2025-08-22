@@ -1,4 +1,4 @@
-import { Component, Injector, OnInit, ViewChild, ChangeDetectorRef, EventEmitter, Output } from '@angular/core';
+import { Component, Injector, OnInit, ViewChild, ChangeDetectorRef, EventEmitter, Output, Input } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { AppComponentBase } from '@shared/app-component-base';
 import { BsModalRef } from 'ngx-bootstrap/modal';
@@ -13,7 +13,7 @@ import { DatePickerModule } from 'primeng/datepicker';
   selector: 'app-create-addmission',
   templateUrl: './create-addmission.component.html',
   styleUrl: './create-addmission.component.css',
-  providers: [PatientServiceProxy, DoctorServiceProxy, BedServiceProxy,NurseServiceProxy, RoomServiceProxy, AdmissionServiceProxy],
+  providers: [PatientServiceProxy, DoctorServiceProxy, BedServiceProxy, NurseServiceProxy, RoomServiceProxy, AdmissionServiceProxy],
   imports: [
     FormsModule,
     CommonModule,
@@ -47,6 +47,11 @@ export class CreateAddmissionComponent extends AppComponentBase implements OnIni
     { label: 'Self Pay(No Insurance)', value: BillingMethod._1 },
     { label: 'Insurance + Self Pay(Insurance But not Cashless)', value: BillingMethod._2 }
   ];
+  @Input() disableRoleSelection: boolean = false;
+  @Input() selectedPatientId: number = 0;
+  @Input() selectedNurseId: number = 0;
+  @Input() selectDoctorId: number = 0;
+  @Input() admissionType: number = 0;
   admission: any = {
     tenantId: abp.session.tenantId,
     patientId: null,
@@ -56,7 +61,7 @@ export class CreateAddmissionComponent extends AppComponentBase implements OnIni
     roomId: null,
     admissionType: null,
   };
-  @Output() onSave = new EventEmitter<void>();
+  @Output() onSave = new EventEmitter<any>();
   constructor(
     injector: Injector,
     public bsModalRef: BsModalRef,
@@ -75,6 +80,19 @@ export class CreateAddmissionComponent extends AppComponentBase implements OnIni
     this.loadDoctors();
     this.loadNurses();
     this.loadRooms();
+    if (this.selectedPatientId>0) {
+      this.admission.patientId = this.selectedPatientId;
+    }
+    if (this.selectDoctorId>0) {
+      this.admission.doctorId = this.selectDoctorId;
+    }
+    if (this.selectedNurseId>0) {
+      this.admission.nurseId = this.selectedNurseId;
+    }
+    debugger
+    if (this.admissionType>0) {
+      this.admission.admissionType=AdmissionType._2;
+    }
   }
   loadPatients() {
     this._patientService.getOpdPatients().subscribe(res => {
@@ -102,17 +120,17 @@ export class CreateAddmissionComponent extends AppComponentBase implements OnIni
   }
 
   onRoomChange(roomId: number) {
-  if (!roomId) {
-    this.beds = [];
-    this.admission.bedId = null;
-    return;
-  }
+    if (!roomId) {
+      this.beds = [];
+      this.admission.bedId = null;
+      return;
+    }
 
-  this._bedService.getAvailableBedsByRoom(this.admission.tenantId, roomId).subscribe(res => {
-    this.beds = res;
-    this.cd.detectChanges();
-  });
-}
+    this._bedService.getAvailableBedsByRoom(this.admission.tenantId, roomId).subscribe(res => {
+      this.beds = res;
+      this.cd.detectChanges();
+    });
+  }
 
   save() {
     if (!this.createAdmissionForm?.form?.valid) {
@@ -129,14 +147,13 @@ export class CreateAddmissionComponent extends AppComponentBase implements OnIni
     input.roomId = this.admission.roomId;
     input.bedId = this.admission.bedId
     input.admissionType = this.admission.admissionType;
-    debugger
-    
+
     this._admissionService.create(input).subscribe({
       next: (res) => {
         this.notify.info(this.l('SavedSuccessfully'));
         this.saving = false;
         this.bsModalRef.hide();
-        this.onSave.emit();
+        this.onSave.emit(res.id);
       },
       error: (err) => {
         this.saving = false;

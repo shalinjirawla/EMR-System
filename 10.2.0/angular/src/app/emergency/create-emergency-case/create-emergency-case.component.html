@@ -4,96 +4,67 @@
   <div class="modal-body">
     <div class="row">
       <div class="col-md-12">
-        <label><b>Select Patient</b></label>
-        <p-select 
-          [options]="patients" 
-          optionLabel="fullName" 
-          placeholder="Select patient"
-          [optionValue]="'id'" 
-          [(ngModel)]="emergency.patientId" 
-          name="patientId" 
-          class="w-100" />
+        <div class="d-flex justify-content-between align-items-center">
+          <b>Select Patient</b>
+          <p-button label="Add New Patient" variant="text" severity="info" *ngIf="showAddPatientButton"
+            (onClick)="showCreatePatientDialog()">
+          </p-button>
+        </div>
+        <p-select id="patientSelect" [options]="patients" optionLabel="fullName"
+          placeholder="Select patient {{isPatientRequired ? '(required)' : '(optional)'}}" [optionValue]="'id'"
+          [(ngModel)]="emergency.patientId" name="patientId"
+          [class.is-invalid]="isPatientRequired && !emergency.patientId" class="w-100"/>
+        <!-- Validation message -->
+        <div *ngIf="isPatientRequired && !emergency.patientId" class="invalid-feedback d-block">
+          Patient selection is required when status is "Admitted".
+        </div>
       </div>
     </div>
 
     <div class="row mt-3">
-      <div class="col-md-6 d-flex flex-column">
-        <label>Select Doctor</label>
-        <p-select 
-          [(ngModel)]="emergency.doctorId" 
-          [optionValue]="'id'" 
-          name="doctorId"
-          [options]="doctors" 
-          optionLabel="fullName" 
-          placeholder="Select doctor" 
-          class="w-100" required />
+      <div class="col-md-6">
+        <label for="doctorSelect">Select Doctor</label>
+        <p-select id="doctorSelect" [(ngModel)]="emergency.doctorId" [optionValue]="'id'" name="doctorId"
+          [options]="doctors" optionLabel="fullName" placeholder="Select doctor (optional)" class="w-100" />
       </div>
-      <div class="col-md-6 d-flex flex-column">
-        <label>Select Nurse</label>
-        <p-select 
-          [(ngModel)]="emergency.nurseId" 
-          [optionValue]="'id'" 
-          name="nurseId"
-          [options]="nurses" 
-          optionLabel="fullName" 
-          placeholder="Select nurse" 
-          class="w-100" />
+      <div class="col-md-6">
+        <label for="nurseSelect">Select Nurse</label>
+        <p-select id="nurseSelect" [(ngModel)]="emergency.nurseId" [optionValue]="'id'" name="nurseId"
+          [options]="nurses" optionLabel="fullName" placeholder="Select nurse (optional)" class="w-100" />
       </div>
     </div>
 
     <div class="row mt-3">
-      <div class="col-md-6 d-flex flex-column">
-        <label>Mode of Arrival</label>
-        <p-select 
-          [(ngModel)]="emergency.modeOfArrival" 
-          name="modeOfArrival"
-          [options]="modeOfArrivalOptions" 
-          optionLabel="label" 
-          optionValue="value"
-          placeholder="Select mode" 
+      <div class="col-md-6">
+        <label for="modeOfArrivalSelect">Mode of Arrival</label>
+        <p-select id="modeOfArrivalSelect" [(ngModel)]="emergency.modeOfArrival" name="modeOfArrival" (onChange)="onChangeModeOfArrival($event)"
+          [options]="modeOfArrivalOptions" optionLabel="label" optionValue="value" placeholder="Select mode"
           class="w-100" required />
       </div>
-      <div class="col-md-6 d-flex flex-column">
-        <label>Severity</label>
-        <p-select 
-          [(ngModel)]="emergency.severity" 
-          name="severity"
-          [options]="severityOptions" 
-          optionLabel="label" 
-          optionValue="value"
-          placeholder="Select severity" 
-          class="w-100" required />
+      <div class="col-md-6">
+        <label for="severitySelect">Severity</label>
+        <p-select id="severitySelect" [(ngModel)]="emergency.severity" name="severity" [options]="severityOptions"
+          optionLabel="label" optionValue="value" placeholder="Select severity" class="w-100" required />
       </div>
     </div>
 
     <div class="row mt-3">
-      <div class="col-md-6 d-flex flex-column">
-        <label>Status</label>
-        <p-select 
-          [(ngModel)]="emergency.status" 
-          name="status"
-          [options]="statusOptions" 
-          optionLabel="label" 
-          optionValue="value"
-          placeholder="Select status" 
+      <div class="col-md-6">
+        <label for="statusSelect">Status</label>
+        <p-select id="statusSelect" [(ngModel)]="emergency.status" name="status" [options]="statusOptions"
+          optionLabel="label" optionValue="value" placeholder="Select status" (onChange)="statusChange($event)"
           class="w-100" required />
       </div>
-      <div class="col-md-6 d-flex flex-column">
-        <label>Arrival Time</label>
-        <p-datepicker 
-          [(ngModel)]="emergency.arrivalTime" 
-          name="arrivalTime"
-          [showIcon]="true" 
-          placeholder="Select arrival time" 
-          showTime="true" 
-          required />
+      <div class="col-md-6">
+        <label for="arrivalTimePicker">Arrival Time</label>
+        <p-datepicker id="arrivalTimePicker" [(ngModel)]="emergency.arrivalTime" name="arrivalTime" [showIcon]="true"
+          placeholder="Select arrival time" [showTime]="true" [required]="true" class="w-100" />
       </div>
     </div>
   </div>
 
-  <abp-modal-footer 
-    [cancelDisabled]="saving" 
-    [saveDisabled]="!createEmergencyForm.form.valid || saving"
+  <abp-modal-footer [cancelDisabled]="saving"
+    [saveDisabled]="!createEmergencyForm.form.valid || saving || (isPatientRequired && !emergency.patientId)"
     (onCancelClick)="bsModalRef.hide()">
   </abp-modal-footer>
 </form>

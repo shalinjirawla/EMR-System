@@ -65,14 +65,13 @@ loadTriage(id: number) {
         tenantId: res.tenantId,
         emergencyCaseId: res.emergencyCaseId,
         temperature: res.temperature,
-        pulse: res.pulse,
         respiratoryRate: res.respiratoryRate,
         bloodPressureSystolic: res.bloodPressureSystolic,
         bloodPressureDiastolic: res.bloodPressureDiastolic,
         notes: res.notes,
-        assessmentTime: res.assessmentTime
+        assessmentTime: res.time
       };
-      this.uiAssessmentTime=this.toDate(res.assessmentTime);
+      this.uiAssessmentTime=this.toDate(res.time);
       this.cd.detectChanges();
     });
   }
@@ -100,12 +99,11 @@ loadTriage(id: number) {
   input.tenantId = abp.session.tenantId;
   input.emergencyCaseId = this.triage.emergencyCaseId;
   input.temperature = this.triage.temperature;
-  input.pulse = this.triage.pulse;
   input.respiratoryRate = this.triage.respiratoryRate;
   input.bloodPressureSystolic = this.triage.bloodPressureSystolic;
   input.bloodPressureDiastolic = this.triage.bloodPressureDiastolic;
   input.notes = this.triage.notes;
-  input.assessmentTime = this.uiAssessmentTime ? moment(this.uiAssessmentTime) : undefined;
+  input.time = this.uiAssessmentTime ? moment(this.uiAssessmentTime) : undefined;
 debugger
   if (this.id) {
     // Update existing triage

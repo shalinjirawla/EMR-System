@@ -46,7 +46,7 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
     public DbSet<Vital> Vitals { get; set; }
     //public DbSet<PrescriptionItem> PrescriptionItems { get; set; }
     public DbSet<PrescriptionLabTest> PrescriptionLabTests { get; set; }
-    public DbSet<Invoice> Invoices{ get; set; }
+    public DbSet<Invoice> Invoices { get; set; }
     public DbSet<InvoiceItem> InvoiceItems { get; set; }
     public DbSet<Visit> Visits { get; set; }
     public DbSet<Department> Departments { get; set; }
@@ -63,7 +63,7 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
     public DbSet<EMRSystem.IpdChargeEntry.IpdChargeEntry> IpdChargeEntries { get; set; }
     public DbSet<EMRSystem.LabReportTemplateItem.LabReportTemplateItem> LabReportTemplateItems { get; set; }
     public DbSet<EMRSystem.LabMasters.MeasureUnit> MeasureUnits { get; set; }
-    public DbSet<EMRSystem.LabMasters.LabTest>LabTests { get; set; }
+    public DbSet<EMRSystem.LabMasters.LabTest> LabTests { get; set; }
     public DbSet<EMRSystem.LabMasters.LabReportTypeItem> LabReportTypeItems { get; set; }
     public DbSet<TestResultLimit> TestResultLimits { get; set; }
     public DbSet<EMRSystem.LabTestReceipt.LabTestReceipt> LabTestReceipts { get; set; }
@@ -593,6 +593,7 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
             b.HasOne(e => e.Patient)
              .WithMany(p => p.EmergencyCases)
              .HasForeignKey(e => e.PatientId)
+             .IsRequired(false)
              .OnDelete(DeleteBehavior.Restrict);
 
             b.HasOne(e => e.Doctor)
@@ -604,6 +605,16 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
              .WithMany(n => n.EmergencyCases)
              .HasForeignKey(e => e.NurseId)
              .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(e => e.Admissions)
+             .WithMany(n => n.EmergencyCases)
+             .HasForeignKey(e => e.AdmissionsId)
+             .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasMany(ec => ec.Triages)
+           .WithOne(t => t.EmergencyCase) // Triage.EmergencyCase is the inverse navigation
+           .HasForeignKey(t => t.EmergencyCaseId)
+           .OnDelete(DeleteBehavior.Cascade); // Deleting a Case should delete all its Triages
 
             // Unique emergency number
             b.HasIndex(e => e.EmergencyNumber).IsUnique();
@@ -617,6 +628,11 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
              .WithMany(e => e.Triages)
              .HasForeignKey(t => t.EmergencyCaseId)
              .OnDelete(DeleteBehavior.Cascade);
+
+            b.HasOne(t => t.Nurse)
+            .WithMany(e => e.Triages)
+            .HasForeignKey(t => t.NurseId)
+            .OnDelete(DeleteBehavior.Restrict);
         });
         modelBuilder.Entity<PatientDeposit>(b =>
         {

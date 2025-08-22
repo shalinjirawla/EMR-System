@@ -1,4 +1,5 @@
 ﻿using Abp.Domain.Entities;
+using EMRSystem.Admission;
 using EMRSystem.Doctors;
 using EMRSystem.Nurses;
 using EMRSystem.Patients;
@@ -16,18 +17,22 @@ namespace EMRSystem.Emergency.EmergencyCase
 
         public long? PatientId { get; set; }
         public virtual Patient Patient { get; set; }
+
         public string EmergencyNumber { get; set; }
         public DateTime ArrivalTime { get; set; } = DateTime.Now;
+        public DateTime? DischargeTime { get; set; } // Important for analytics
 
         public ModeOfArrival ModeOfArrival { get; set; }
         public EmergencySeverity Severity { get; set; }
-        public EmergencyStatus Status { get; set; } = EmergencyStatus.Ongoing;
+        public EmergencyStatus Status { get; set; } = EmergencyStatus.PendingTriage;
 
         public long? DoctorId { get; set; }
         public virtual Doctor Doctor { get; set; }
         public long? NurseId { get; set; }
         public virtual Nurse Nurse { get; set; }
-        public ICollection<Triage.Triage> Triages { get; set; }
+        public long? AdmissionsId { get; set; }
+        public virtual EMRSystem.Admission.Admission Admissions { get; set; }
+        public virtual ICollection<Triage.Triage> Triages { get; set; }
     }
 
     public enum ModeOfArrival
@@ -47,9 +52,11 @@ namespace EMRSystem.Emergency.EmergencyCase
 
     public enum EmergencyStatus
     {
-        Ongoing,
-        Discharged,
-        Admitted,
-        Expired
+        PendingTriage, // Just arrived, not yet triaged
+        Waiting,       // Triaged, waiting for treatment
+        InTreatment,   // Currently with a doctor/nurse
+        AdmissionPending, // Decision made to admit, waiting for bed
+        Admitted,      // Transferred to a ward
+        Discharged,    // Sent home
     }
 }
