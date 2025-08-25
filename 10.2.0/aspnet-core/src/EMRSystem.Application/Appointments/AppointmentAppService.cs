@@ -50,7 +50,7 @@ namespace EMRSystem.Appointments
         private readonly UserManager _userManager;
         private readonly IRepository<EMRSystem.AppointmentReceipt.AppointmentReceipt, long> _receiptRepository;
         private readonly IRepository<EMRSystem.DoctorMaster.DoctorMaster, long> _doctorMasterRepository;
-        private readonly IRepository<Patient, long> _patientRepository; 
+        private readonly IRepository<Patient, long> _patientRepository;
         private readonly IRepository<EMRSystem.IpdChargeEntry.IpdChargeEntry, long> _ipdChargeEntryRepository;
         public AppointmentAppService(
                 IRepository<Appointment, long> repository,
@@ -61,19 +61,19 @@ namespace EMRSystem.Appointments
                 IRepository<EMRSystem.AppointmentReceipt.AppointmentReceipt, long> receiptRepository,
                 IRepository<EMRSystem.DoctorMaster.DoctorMaster, long> doctorMasterRepository,
                 IRepository<Patient, long> patientRepository, // Add this
-                IRepository<EMRSystem.Doctors.Doctor,long> doctorRepository,
+                IRepository<EMRSystem.Doctors.Doctor, long> doctorRepository,
                 IRepository<EMRSystem.IpdChargeEntry.IpdChargeEntry, long> ipdChargeEntryRepository)
     : base(repository)
         {
-                _doctorAppService = doctorAppService;
-                _configuration = configuration;
-                _nurseAppService = nurseAppService;
-                _userManager = userManager;
-                _receiptRepository = receiptRepository;
-                _doctorMasterRepository = doctorMasterRepository;
-                _patientRepository = patientRepository;
+            _doctorAppService = doctorAppService;
+            _configuration = configuration;
+            _nurseAppService = nurseAppService;
+            _userManager = userManager;
+            _receiptRepository = receiptRepository;
+            _doctorMasterRepository = doctorMasterRepository;
+            _patientRepository = patientRepository;
             _doctorRepository = doctorRepository;
-                _ipdChargeEntryRepository = ipdChargeEntryRepository;
+            _ipdChargeEntryRepository = ipdChargeEntryRepository;
         }
         protected override IQueryable<Appointment> CreateFilteredQuery(PagedAppoinmentResultRequestDto input)
         {
@@ -86,7 +86,7 @@ namespace EMRSystem.Appointments
                 .GetAll()
                 .Include(x => x.Patient)
                 .Include(x => x.Doctor);
-                //.Include(x => x.Nurse);
+            //.Include(x => x.Nurse);
 
             var filteredQuery = baseQuery.Where(x => x.TenantId == AbpSession.TenantId.Value).AsQueryable(); // Explicitly convert to IQueryable
 
@@ -126,8 +126,8 @@ namespace EMRSystem.Appointments
                 PatientId = x.PatientId,
                 DoctorId = x.DoctorId,
                 //NurseId = x.NurseId,
-                AppointmentTypeId=x.AppointmentTypeId,
-                AppointmentType = x.AppointmentType==null?null:new EMRSystem.AppointmentType.AppointmentType
+                AppointmentTypeId = x.AppointmentTypeId,
+                AppointmentType = x.AppointmentType == null ? null : new EMRSystem.AppointmentType.AppointmentType
                 {
                     Id = x.AppointmentType.Id,
                     Name = x.AppointmentType.Name
@@ -209,7 +209,7 @@ namespace EMRSystem.Appointments
                   PatientId = x.PatientId,
                   DoctorId = x.DoctorId,
                   //NurseId = x.NurseId,
-                  AppointmentTypeId=x.AppointmentTypeId,
+                  AppointmentTypeId = x.AppointmentTypeId,
                   Patient = x.Patient == null ? null : new Patient
                   {
                       Id = x.Patient.Id,
@@ -297,6 +297,7 @@ namespace EMRSystem.Appointments
                     PatientId = patient.Id,
                     ChargeType = ChargeType.Appointment,
                     Description = $"Consultation - Dr. {doctor.FullName}",
+                    EntryDate = appointment.AppointmentDate,
                     Amount = doctorFee?.Fee ?? 0,
                     //ReferenceId = appointment.Id
                 };
@@ -370,7 +371,7 @@ namespace EMRSystem.Appointments
                 "http://localhost:4200/app/nurse/appointments"
             );
         }
-        private async Task<string> CreateStripeCheckoutSessionForAppointment(Appointment appointment,decimal amount,string successUrl,string cancelUrl)
+        private async Task<string> CreateStripeCheckoutSessionForAppointment(Appointment appointment, decimal amount, string successUrl, string cancelUrl)
         {
             // 1. Add null checks
             if (appointment == null)

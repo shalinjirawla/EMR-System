@@ -8,7 +8,6 @@ using EMRSystem.Deposit;
 using EMRSystem.Doctors;
 using EMRSystem.Emergency.EmergencyCase;
 using EMRSystem.Emergency.Triage;
-using EMRSystem.EmergencyChargeEntries;
 using EMRSystem.Invoices;
 using EMRSystem.LabMasters;
 using EMRSystem.LabReports;
@@ -75,9 +74,6 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
     public DbSet<Triage> Triages { get; set; }
     public DbSet<PatientDeposit> PatientDeposits { get; set; }
     public DbSet<DepositTransaction> DepositTransactions { get; set; }
-    public DbSet<Emergency.EmergencyMaster.EmergencyMaster> EmergencyMasters { get; set; }
-    public DbSet<EmergencyChargeEntry> EmergencyChargeEntry { get; set; }
-
 
 
 
@@ -273,6 +269,9 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
             b.Property(e => e.PaymentMethod)
                 .HasConversion<string?>()
                 .HasMaxLength(30);
+            b.Property(e => e.InvoiceType)
+                .HasConversion<string?>()
+                .HasMaxLength(30);
 
             // Relationships
             b.HasOne(i => i.Patient)
@@ -280,10 +279,10 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
                 .HasForeignKey(i => i.PatientId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            b.HasOne(i => i.Appointment)
-                .WithMany()
-                .HasForeignKey(i => i.AppointmentId)
-                .OnDelete(DeleteBehavior.Restrict);
+            //b.HasOne(i => i.Appointment)
+            //    .WithMany()
+            //    .HasForeignKey(i => i.AppointmentId)
+            //    .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<InvoiceItem>(b =>
@@ -295,9 +294,9 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
                 .HasColumnType("decimal(18,2)");
 
             // Configure enum as string
-            b.Property(e => e.ItemType)
-                .HasConversion<string>()
-                .HasMaxLength(20);
+            //b.Property(e => e.ItemType)
+            //    .HasConversion<string>()
+            //    .HasMaxLength(20);
 
             // Relationship with Invoice
             b.HasOne(ii => ii.Invoice)

@@ -28,9 +28,9 @@ export class PatientReceiptListComponent implements OnInit {
   ngOnInit(): void {
     if (this.patientDepositId) {
       this._transactionService.getAllByPatientDeposit(this.patientDepositId).subscribe(res => {
-        // ab sure kar rahe ki hamesha array mile
+     
         this.receipts = res.items ?? [];
-        this.cd.detectChanges(); // UI refresh ke liye
+        this.cd.detectChanges(); 
       });
     }
   }

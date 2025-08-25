@@ -14,46 +14,32 @@
     <!-- Patient Selection -->
     <div class="row">
       <div class="col-md-12">
-        <div class="d-flex justify-content-between align-items-center">
-          <b>Select Patient</b>
-        </div>
-        <p-select [(ngModel)]="invoice.patientId" name="patientId" [options]="patients" optionLabel="fullName"
-          optionValue="id" placeholder="Select a patient" class="w-100" required>
+        <b>Select Patient</b>
+        <p-select [(ngModel)]="selectedPatientId" name="patientId" filter="true" [options]="patients" optionLabel="fullName"
+          optionValue="id" placeholder="Select a patient" class="w-100" required
+          (onChange)="onPatientChange($event)">
         </p-select>
       </div>
     </div>
 
-    <!-- Due Date Section -->
-    <div class="row mt-3">
+    <!-- Invoice Type (if admitted patient) -->
+    <div class="row mt-3" *ngIf="showInvoiceTypeDropdown">
       <div class="col-md-12">
-        <label><b>Due Date</b></label>
-        <p-calendar [(ngModel)]="invoice.dueDate" name="dueDate" [showIcon]="true" dateFormat="yy-mm-dd" class="w-100"
-          [minDate]="minDate" [maxDate]="maxDate" required (onSelect)="validateDueDate()">
-        </p-calendar>
-        <small *ngIf="showDateError" class="text-danger">
-          Due date must be within 15 days from today
-        </small>
+        <label><b>Invoice Type</b></label>
+        <p-dropdown [(ngModel)]="selectedInvoiceType" name="invoiceType" [options]="invoiceTypeOptions"
+          optionLabel="label" optionValue="value" placeholder="Select invoice type" class="w-100"
+          (onChange)="onInvoiceTypeChange($event)">
+        </p-dropdown>
       </div>
     </div>
 
-    <!-- Payment Method -->
-    <div class="row mt-3">
+    <!-- Payment Method (only for Full Invoice) -->
+    <div class="row mt-3" *ngIf="selectedInvoiceType === invoiceTypeEnum.FullInvoice">
       <div class="col-md-12">
         <label><b>Payment Method</b></label>
         <p-dropdown [(ngModel)]="invoice.paymentMethod" name="paymentMethod" [options]="paymentMethodOptions"
           optionLabel="label" optionValue="value" placeholder="Select payment method" class="w-100">
         </p-dropdown>
-      </div>
-    </div>
-    <!-- Add after Payment Method section -->
-    <div class="row mt-3">
-      <div class="col-md-12">
-        <label><b>Amount Paid</b></label>
-        <input type="number" class="form-control" [(ngModel)]="amountPaid" name="amountPaid" [max]="calculateTotal()"
-          min="0" step="0.01" (input)="validateAmountPaid()">
-        <small *ngIf="amountPaidError" class="text-danger">
-          Amount paid cannot exceed total amount
-        </small>
       </div>
     </div>
 
@@ -62,36 +48,27 @@
       <div class="col-md-12">
         <h5>Invoice Items</h5>
 
-        <!-- Card for adding new items -->
+        <!-- Add New Item Card -->
         <div class="card mb-4">
           <div class="card-header bg-light">
             <h6 class="m-0 font-weight-bold">Add New Item</h6>
           </div>
           <div class="card-body">
             <div class="row">
-              <!-- Item Type -->
-              <div class="col-md-3 mb-3">
-                <label class="form-label">Item Type</label>
-                <p-dropdown [options]="itemTypeOptions" [ngModel]="newItem.itemType"
-                  (onChange)="onItemTypeChange($event)" optionLabel="label" placeholder="Select item type">
-                </p-dropdown>
-              </div>
-
               <!-- Description -->
-              <div class="col-md-4 mb-2">
+              <div class="col-md-6 mb-2">
                 <label class="form-label">Description</label>
                 <input type="text" class="form-control" [(ngModel)]="newItem.description" name="newItemDescription">
               </div>
 
               <!-- Unit Price -->
-              <div class="col-md-2 mb-2">
+              <div class="col-md-3 mb-2">
                 <label class="form-label">Unit Price</label>
-                <input type="number" class="form-control" [(ngModel)]="newItem.unitPrice" name="newItemUnitPrice"
-                  min="0">
+                <input type="number" class="form-control" [(ngModel)]="newItem.unitPrice" name="newItemUnitPrice" min="0">
               </div>
 
               <!-- Quantity -->
-              <div class="col-md-2 mb-2">
+              <div class="col-md-3 mb-2">
                 <label class="form-label">Quantity</label>
                 <input type="number" class="form-control" [(ngModel)]="newItem.quantity" name="newItemQuantity" min="1"
                   value="1">
@@ -114,7 +91,6 @@
           <table class="table">
             <thead>
               <tr>
-                <th>Type</th>
                 <th>Description</th>
                 <th>Unit Price</th>
                 <th>Qty</th>
@@ -124,19 +100,16 @@
             </thead>
             <tbody>
               <tr *ngFor="let item of invoice.items; let i = index">
-                <td>{{getItemTypeLabel(item.itemType)}}</td>
                 <td>{{item.description}}</td>
                 <td>{{item.unitPrice | currency}}</td>
                 <td>{{item.quantity}}</td>
                 <td>{{item.unitPrice * item.quantity | currency}}</td>
                 <td>
-                  <button type="button" class="btn btn-sm btn-danger" (click)="removeItem(i)">
-                    Remove
-                  </button>
+                  <button  *ngIf="item.isRemovable"  type="button" class="btn btn-sm btn-danger" (click)="removeItem(i)">Remove</button>
                 </td>
               </tr>
               <tr *ngIf="invoice.items.length === 0">
-                <td colspan="6" class="text-center">No items added yet</td>
+                <td colspan="5" class="text-center">No Charges added yet</td>
               </tr>
             </tbody>
           </table>

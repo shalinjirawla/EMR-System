@@ -18,7 +18,7 @@
       <tr *ngFor="let r of receipts">
         <td>{{ r.receiptNo }}</td>
         <td>{{ r.amount | currency:'INR' }}</td>
-        <td>{{ r.paymentMethod }}</td>
+        <td>{{ r.paymentMethod==0 ? 'Cash' : 'Card' }}</td>
         <td>{{ r.transactionDate | date:'short' }}</td>
         <td>
           <button class="view-btn" (click)="viewReceipt(r)">

@@ -13,16 +13,19 @@ namespace EMRSystem.Invoice.Dto
         public int TenantId { get; set; }
         public long PatientId { get; set; }
         public string PatientName { get; set; }
-        public long AppointmentId { get; set; }
-        public DateTime AppointmentDate { get; set; }
+        public string InvoiceNo { get; set; }
+        public InvoiceType InvoiceType { get; set; }
         public DateTime InvoiceDate { get; set; }
-        public DateTime DueDate { get; set; }
         public decimal SubTotal { get; set; }
         public decimal GstAmount { get; set; }
         public decimal TotalAmount { get; set; }
-        public decimal AmountPaid { get; set; }
         public InvoiceStatus Status { get; set; }
         public PaymentMethod? PaymentMethod { get; set; }
+        public List<InvoiceItemDto> Items { get; set; }
+        //public long AppointmentId { get; set; }
+        //public DateTime AppointmentDate { get; set; }
+        //public DateTime DueDate { get; set; }
+        //public decimal AmountPaid { get; set; }
         //public List<InvoiceItemDto> Items { get; set; } = new();
     }
 }

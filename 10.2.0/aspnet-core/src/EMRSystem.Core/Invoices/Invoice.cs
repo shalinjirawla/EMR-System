@@ -15,15 +15,17 @@ namespace EMRSystem.Invoices
         public int TenantId { get; set; }
         public long PatientId { get; set; }
         public virtual Patient Patient { get; set; }
-        public long AppointmentId { get; set; }
-        public virtual Appointment Appointment { get; set; }
+        public string InvoiceNo { get; set; }   // Auto generated invoice no
+        public InvoiceType InvoiceType { get; set; }
+        //public long AppointmentId { get; set; }
+        //public virtual Appointment Appointment { get; set; }
         public DateTime InvoiceDate { get; set; } = DateTime.Now;
-        public DateTime DueDate { get; set; } = DateTime.Now.AddDays(15);
+        //public DateTime DueDate { get; set; } = DateTime.Now.AddDays(15);
         public decimal SubTotal { get; set; }
         public decimal GstAmount { get; set; }
         public decimal TotalAmount { get; set; }
-        public decimal AmountPaid { get; set; }
-        public InvoiceStatus Status { get; set; } = InvoiceStatus.Unpaid;
+        //public decimal AmountPaid { get; set; }
+        public InvoiceStatus Status { get; set; } = InvoiceStatus.Paid;
         public PaymentMethod? PaymentMethod { get; set; }
 
         public virtual ICollection<InvoiceItem> Items { get; set; } = new List<InvoiceItem>();
@@ -31,13 +33,18 @@ namespace EMRSystem.Invoices
     public enum InvoiceStatus
     {
         Unpaid,
-        Paid,
-        PartiallyPaid
+        Paid
+        //PartiallyPaid
     }
 
     public enum PaymentMethod
     {
         Cash,
         Card
+    }
+    public enum InvoiceType
+    {
+        DailyInvoice,
+        FullInvoice
     }
 }
