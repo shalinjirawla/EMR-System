@@ -12,6 +12,7 @@ import { ButtonModule } from 'primeng/button';
 import { PermissionCheckerService } from '@node_modules/abp-ng2-module';
 import { CreateUserDialogComponent } from '@app/users/create-user/create-user-dialog.component';
 import { CreateAddmissionComponent } from '@app/admission/create-addmission/create-addmission.component';
+import moment from '@node_modules/moment-timezone';
 @Component({
   selector: 'app-create-emergency-case',
   imports: [
@@ -133,7 +134,7 @@ export class CreateEmergencyCaseComponent extends AppComponentBase implements On
     input.modeOfArrival = this.emergency.modeOfArrival;
     input.severity = this.emergency.severity;
     input.status = this.emergency.status;
-    input.arrivalTime = this.emergency.arrivalTime;
+    input.arrivalTime = null;
     if (admissionId) {
       input.admissionsId = admissionId;
     }
@@ -187,7 +188,6 @@ export class CreateEmergencyCaseComponent extends AppComponentBase implements On
   }
 
   FillAdmissionForm(emengencyData:any) {
-    debugger
     let fillAdmissionForm: BsModalRef;
     fillAdmissionForm = this._modalService.show(CreateAddmissionComponent, {
       class: 'modal-lg',

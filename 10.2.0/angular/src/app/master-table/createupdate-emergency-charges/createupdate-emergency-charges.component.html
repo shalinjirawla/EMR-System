@@ -1,0 +1,21 @@
+<form class="form-horizontal" autocomplete="off" #emergencyMasterForm="ngForm" (ngSubmit)="save()">
+    <abp-modal-header [title]="id ? 'Edit Emergency charge' : 'Create Emergency charge'"
+        (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-md-12">
+                <label for="fee"><b>Title</b></label>
+                <input pInputText type="text" id="title" name="title" class="form-control" [(ngModel)]="title" required placeholder="Enter title" />
+            </div>
+
+            <div class="col-md-12">
+                <label for="fee"><b>Fee</b></label>
+                <input pInputText type="number" id="fee" name="fee" class="form-control" [(ngModel)]="fee" required
+                    min="0" placeholder="Enter Fee Amount" />
+            </div>
+        </div>
+    </div>
+
+    <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="!isFormValid || saving"
+        (onCancelClick)="bsModalRef.hide()"></abp-modal-footer>
+</form>
