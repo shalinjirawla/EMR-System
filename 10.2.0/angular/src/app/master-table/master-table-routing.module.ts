@@ -12,6 +12,7 @@ import { LabTestItemsComponent } from './lab-test-items/lab-test-items.component
 import { TestResultLimitComponent } from './test-result-limit/test-result-limit.component';
 import { HealthPackageComponent } from './health-package/health-package.component';
 import { BedsComponent } from './beds/beds.component';
+import { EmergencyChargesComponent } from './emergency-charges/emergency-charges.component';
 
 
 const routes: Routes = [
@@ -63,6 +64,10 @@ const routes: Routes = [
     {
         path:'beds',
         component:BedsComponent
+    },
+    {
+        path:'emergency-charges',
+        component:EmergencyChargesComponent
     }
 ];
 

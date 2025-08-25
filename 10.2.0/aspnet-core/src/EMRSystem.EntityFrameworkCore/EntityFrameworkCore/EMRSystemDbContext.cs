@@ -8,6 +8,7 @@ using EMRSystem.Deposit;
 using EMRSystem.Doctors;
 using EMRSystem.Emergency.EmergencyCase;
 using EMRSystem.Emergency.Triage;
+using EMRSystem.EmergencyChargeEntries;
 using EMRSystem.Invoices;
 using EMRSystem.LabMasters;
 using EMRSystem.LabReports;
@@ -74,6 +75,9 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
     public DbSet<Triage> Triages { get; set; }
     public DbSet<PatientDeposit> PatientDeposits { get; set; }
     public DbSet<DepositTransaction> DepositTransactions { get; set; }
+    public DbSet<Emergency.EmergencyMaster.EmergencyMaster> EmergencyMasters { get; set; }
+    public DbSet<EmergencyChargeEntry> EmergencyChargeEntry { get; set; }
+
 
 
 

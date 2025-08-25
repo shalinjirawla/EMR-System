@@ -24,6 +24,8 @@ import {
 import moment from 'moment';
 import { CreateAddmissionComponent } from '@app/admission/create-addmission/create-addmission.component';
 import { CreateUserDialogComponent } from '@app/users/create-user/create-user-dialog.component';
+import { PermissionCheckerService } from '@node_modules/abp-ng2-module';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'app-edit-emergency-case',
@@ -33,7 +35,7 @@ import { CreateUserDialogComponent } from '@app/users/create-user/create-user-di
     SelectModule,
     DatePickerModule,
     AbpModalHeaderComponent,
-    AbpModalFooterComponent,
+    AbpModalFooterComponent,ButtonModule
   ],
   providers: [PatientServiceProxy, DoctorServiceProxy, NurseServiceProxy, EmergencyServiceProxy],
   templateUrl: './edit-emergency-case.component.html',
@@ -75,6 +77,7 @@ export class EditEmergencyCaseComponent extends AppComponentBase implements OnIn
   ];
   showAddPatientButton = false;
   isPatientRequired = false;
+  isAdmitted=false;
   constructor(
     injector: Injector,
     public bsModalRef: BsModalRef,
@@ -84,11 +87,13 @@ export class EditEmergencyCaseComponent extends AppComponentBase implements OnIn
     private _nurseService: NurseServiceProxy,
     private _emergencyService: EmergencyServiceProxy,
     private _modalService: BsModalService,
+    private permissionChecker: PermissionCheckerService,
   ) {
     super(injector);
   }
 
   ngOnInit(): void {
+    this.showAddPatientButton = this.permissionChecker.isGranted('Pages.Users');
     this.loadPatients();
     this.loadDoctors();
     this.loadNurses();
@@ -99,7 +104,9 @@ export class EditEmergencyCaseComponent extends AppComponentBase implements OnIn
 
         // Convert Moment/string -> Date for the datepicker
         this.uiArrivalTime = this.toDate(res.arrivalTime);
-
+        if(this.emergency.status===4){
+          this.isAdmitted=true;
+        }
         this.cd.detectChanges();
       });
     }
@@ -175,7 +182,7 @@ export class EditEmergencyCaseComponent extends AppComponentBase implements OnIn
     });
   }
   save() {
-    if (this.emergency.status === EmergencyStatus._4) {
+    if (this.emergency.status === EmergencyStatus._4 && !this.isAdmitted) {
       this.FillAdmissionForm(this.emergency);
     }
     else {

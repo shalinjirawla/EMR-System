@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using EMRSystem.DoctorMaster.Dto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,10 @@ namespace EMRSystem.Emergency.EmergencyCase
             .ForMember(d => d.DoctorName, opt => opt.MapFrom(s => s.Doctor != null ? s.Doctor.FullName : ""))
             .ForMember(d => d.NurseName, opt => opt.MapFrom(s => s.Nurse != null ? s.Nurse.FullName : "")).ReverseMap();
             CreateMap<CreateUpdateEmergencyCaseDto, EmergencyCase>();
+
+            CreateMap<EMRSystem.DoctorMaster.DoctorMaster, DoctorMasterDto>()
+                .ForMember(dest => dest.Doctor, opt => opt.MapFrom(src => src.Doctor));
+            CreateMap<EMRSystem.DoctorMaster.DoctorMaster, CreateUpdateDoctorMasterDto>().ReverseMap();
         }
     }
 }

@@ -28,7 +28,7 @@ namespace EMRSystem.Admission
         public decimal TotalCharges { get; set; } = 0;
         public decimal TotalDeposits { get; set; } = 0; 
         public virtual ICollection<EMRSystem.IpdChargeEntry.IpdChargeEntry> IpdChargeEntries { get; set; }
-        public virtual ICollection<EMRSystem.Deposit.Deposit> Deposits { get; set; }
+        //public virtual ICollection<EMRSystem.Deposit.Deposit> Deposits { get; set; }
         public virtual ICollection<EMRSystem.Emergency.EmergencyCase.EmergencyCase> EmergencyCases { get; set; }
         //public virtual ICollection<PatientDeposits> Deposits { get; set; }
         public virtual ICollection<PatientDeposit> PatientDeposits { get; set; }
