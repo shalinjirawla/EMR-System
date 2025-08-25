@@ -8,7 +8,7 @@ namespace EMRSystem.Deposit
     public class PatientDeposit : Entity<long>, IMustHaveTenant
     {
         public int TenantId { get; set; }
-        public long PatientId { get; set; }
+        public long? PatientId { get; set; }
 
         public decimal TotalCreditAmount { get; set; }
         public decimal TotalDebitAmount { get; set; }

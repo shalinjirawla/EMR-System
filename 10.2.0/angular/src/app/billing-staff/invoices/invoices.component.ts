@@ -7,7 +7,7 @@ import { LazyLoadEvent, PrimeTemplate } from 'primeng/api';
 import { finalize } from 'rxjs/operators';
 import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { FormsModule } from '@node_modules/@angular/forms';
-import { NgIf } from '@node_modules/@angular/common';
+import { DatePipe, NgIf } from '@node_modules/@angular/common';
 import { ChangeDetectorRef, Component, Injector, ViewChild } from '@angular/core';
 import { BillingDto, BillingDtoPagedResultDto, BillingServiceProxy, InvoiceDto, InvoiceDtoPagedResultDto, InvoiceServiceProxy, PatientServiceProxy, UserServiceProxy } from '@shared/service-proxies/service-proxies';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
@@ -17,7 +17,7 @@ import { CreateInvoiceComponent } from '../create-invoice/create-invoice.compone
 
 @Component({
   selector: 'app-invoices',
-  imports: [FormsModule, TableModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe],
+  imports: [FormsModule, TableModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe,DatePipe],
   animations: [appModuleAnimation()],
   templateUrl: './invoices.component.html',
   styleUrl: './invoices.component.css',
@@ -41,38 +41,38 @@ export class InvoicesComponent extends PagedListingComponentBase<InvoiceDto> {
     ) {
         super(injector, cd);
         this.keyword = this._activatedRoute.snapshot.queryParams['filterText'] || '';
-        this.processPaymentResult();
+        //this.processPaymentResult();
     }
-    private processPaymentResult(): void {
-    const params = new URLSearchParams(window.location.search);
-    const paymentStatus = params.get('payment');
-    const invoiceId = params.get('invoiceId');
-    const amountpaid = params.get('amount');
+//     private processPaymentResult(): void {
+//     const params = new URLSearchParams(window.location.search);
+//     const paymentStatus = params.get('payment');
+//     const invoiceId = params.get('invoiceId');
+//     const amountpaid = params.get('amount');
 
 
 
-    if (paymentStatus && invoiceId && amountpaid) {
-        const id = Number(invoiceId);
-        const amount = Number(amountpaid);
+//     if (paymentStatus && invoiceId && amountpaid) {
+//         const id = Number(invoiceId);
+//         const amount = Number(amountpaid);
 
 
-        if (paymentStatus === 'success') {
-            this._invoiceService.markAsPaid(id,amount).subscribe({
-                next: () => {  // Remove the success parameter
-                    this.notify.success('Payment processed successfully!');
-                    this.refresh(); // Refresh invoice list
-                },
-                error: () => this.notify.error('Error verifying payment')
-            });
-        } 
-        else if (paymentStatus === 'canceled') {
-            this.notify.warn('Payment was canceled');
-        }
+//         if (paymentStatus === 'success') {
+//             this._invoiceService.markAsPaid(id,amount).subscribe({
+//                 next: () => {  // Remove the success parameter
+//                     this.notify.success('Payment processed successfully!');
+//                     this.refresh(); // Refresh invoice list
+//                 },
+//                 error: () => this.notify.error('Error verifying payment')
+//             });
+//         } 
+//         else if (paymentStatus === 'canceled') {
+//             this.notify.warn('Payment was canceled');
+//         }
 
-        // Clear URL parameters
-        window.history.replaceState({}, document.title, window.location.pathname);
-    }
-}
+//         // Clear URL parameters
+//         window.history.replaceState({}, document.title, window.location.pathname);
+//     }
+// }
 
     clearFilters(): void {
         this.keyword = '';
@@ -81,7 +81,6 @@ export class InvoicesComponent extends PagedListingComponentBase<InvoiceDto> {
     }
 
     list(event?: LazyLoadEvent): void {
-        debugger
         if (this.primengTableHelper.shouldResetPaging(event)) {
             this.paginator.changePage(0);
 

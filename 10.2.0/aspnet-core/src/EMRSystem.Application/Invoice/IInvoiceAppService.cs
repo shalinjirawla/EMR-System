@@ -2,6 +2,8 @@
 using Abp.Application.Services.Dto;
 using EMRSystem.Doctor.Dto;
 using EMRSystem.Invoice.Dto;
+using EMRSystem.Invoices;
+using EMRSystem.IpdChargeEntry.Dto;
 using EMRSystem.LabReport.Dto;
 using System;
 using System.Collections.Generic;
@@ -15,8 +17,10 @@ namespace EMRSystem.Invoice
    InvoiceDto, long, PagedInvoiceResultRequestDto, CreateUpdateInvoiceDto, CreateUpdateInvoiceDto>
     {
         Task<InvoiceDetailsDto> GetInvoiceDetailsByAppointmentIdUsingSp(long appointmentId);
-        Task MarkAsPaid(long invoiceId, decimal? amount = null);
-        public  Task<string> CreateStripeCheckoutSession(long invoiceId, decimal amount, string successUrl, string cancelUrl);
+        //Task MarkAsPaid(long invoiceId, decimal? amount = null);
+        Task<List<IpdChargeEntryDto>> GetChargesByPatientAsync(long patientId, InvoiceType invoiceType);
+
+        public Task<string> CreateStripeCheckoutSession(long invoiceId, decimal amount, string successUrl, string cancelUrl);
     }
 
 }

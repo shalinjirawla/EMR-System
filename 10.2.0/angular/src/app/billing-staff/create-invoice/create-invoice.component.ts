@@ -3,7 +3,7 @@ import { ChangeDetectorRef, Component, EventEmitter, Injector, OnInit, Output, V
 import { FormsModule, NgForm } from '@angular/forms';
 import { CalendarModule } from 'primeng/calendar';
 import { AppComponentBase } from '@shared/app-component-base';
-import { AppointmentServiceProxy, CreateUpdateInvoiceDto, InvoiceItemDto, InvoiceItemType, InvoiceServiceProxy, InvoiceStatus, PatientDropDownDto, PatientServiceProxy, PaymentMethod } from '@shared/service-proxies/service-proxies';
+import { AppointmentServiceProxy, CreateUpdateInvoiceDto, InvoiceItemDto, InvoiceServiceProxy, InvoiceStatus, PatientDropDownDto, PatientServiceProxy, PaymentMethod } from '@shared/service-proxies/service-proxies';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { CommonModule } from '@angular/common';
 import { AbpModalFooterComponent } from "../../../shared/components/modal/abp-modal-footer.component";
@@ -33,7 +33,6 @@ import { Calendar } from 'primeng/calendar';
 })
 export class CreateInvoiceComponent extends AppComponentBase implements OnInit {
   @ViewChild('invoiceForm', { static: true }) invoiceForm: NgForm;
-  @ViewChild(Calendar) calendar: Calendar;
   @Output() onSave = new EventEmitter<void>();
 
 
@@ -41,21 +40,18 @@ export class CreateInvoiceComponent extends AppComponentBase implements OnInit {
   saving = false;
   patients: PatientDropDownDto[] = [];
   moment = moment;
-  minDate: Date;
-  maxDate: Date;
-  showDateError = false;
   createdInvoice: any;
   paymentProcessingError = '';
-  amountPaid: number = 0;
-  amountPaidError = false;
-  paymentMethodCashValue = PaymentMethod._0; // For template comparison
-  paymentMethodCardValue = PaymentMethod._1; // For template comparison
-
-  // Item type options for dropdown
-  itemTypeOptions = [
-    { label: 'Consultation', value: InvoiceItemType._0 },
-    { label: 'Medicine', value: InvoiceItemType._1 },
-    { label: 'Lab Test', value: InvoiceItemType._2 }
+  selectedPatientId: number | null = null;
+  showInvoiceTypeDropdown = false;
+  selectedInvoiceType: number | null = null;
+   invoiceTypeEnum = {
+    DailyInvoice: 0,
+    FullInvoice: 1
+  };
+  invoiceTypeOptions = [
+    { label: 'Daily Invoice', value: this.invoiceTypeEnum.DailyInvoice },
+    { label: 'Full Invoice', value: this.invoiceTypeEnum.FullInvoice }
   ];
 
   paymentMethodOptions = [
@@ -63,33 +59,20 @@ export class CreateInvoiceComponent extends AppComponentBase implements OnInit {
     { label: 'Card', value: PaymentMethod._1 }
   ];
 
-  // Template for new items
+
+invoice = {
+    tenantId: abp.session.tenantId,
+    patientId: null as number | null,
+    status: InvoiceStatus._0,
+    paymentMethod: null as PaymentMethod | null,
+    items: [] as InvoiceItemDto[]
+  };
+
+   // Manual new item
   newItem = {
-    itemType: InvoiceItemType._0,  // Initialize with a specific enum value
     description: '',
     unitPrice: 0,
     quantity: 1
-  };
-  ngAfterViewInit() {
-    if (this.calendar) {
-      this.calendar.ngOnInit();
-    }
-  }
-  getItemTypeLabel(type: InvoiceItemType): string {
-    const option = this.itemTypeOptions.find(opt => opt.value === type);
-    return option ? option.label : 'Unknown';
-  }
-  validateAmountPaid(): void {
-    this.amountPaidError = this.amountPaid > this.calculateTotal();
-  }
-
-  invoice = {
-    tenantId: abp.session.tenantId,
-    patientId: null as number | null,
-    dueDate: moment().add(15, 'days'),
-    status: InvoiceStatus._0,
-    paymentMethod: PaymentMethod._0 as PaymentMethod | null,
-    items: [] as InvoiceItemDto[]
   };
 
   constructor(
@@ -100,27 +83,12 @@ export class CreateInvoiceComponent extends AppComponentBase implements OnInit {
     private _invoiceService: InvoiceServiceProxy
   ) {
     super(injector);
-    const today = new Date();
-    this.minDate = today;
-    this.maxDate = new Date();
-    this.maxDate.setDate(today.getDate() + 15);
   }
 
   ngOnInit(): void {
     this.loadPatients();
   }
 
-  validateDueDate(): void {
-    if (this.invoice.dueDate) {
-      const selectedDate = moment(this.invoice.dueDate);
-      const today = moment();
-      const maxAllowedDate = moment().add(15, 'days');
-
-      this.showDateError = selectedDate.isBefore(today, 'day') || selectedDate.isAfter(maxAllowedDate, 'day');
-    } else {
-      this.showDateError = false;
-    }
-  }
 
   loadPatients(): void {
     this._patientService.patientDropDown()
@@ -129,69 +97,81 @@ export class CreateInvoiceComponent extends AppComponentBase implements OnInit {
         error: () => this.notify.error('Failed to load patients')
       });
   }
+  onPatientChange(event: any): void {
+    const patientId = event.value;
+    this.selectedPatientId = patientId;
+    this.invoice.patientId = patientId;
 
-  // Item management methods
-  canAddItem(): boolean {
+    this._patientService.get(patientId).subscribe(patient => {
+      if (patient.isAdmitted) {
+        this.showInvoiceTypeDropdown = true;
+        this.invoice.items = [];
+      } else {
+        this.showInvoiceTypeDropdown = false;
+        this.loadCharges(patientId, this.invoiceTypeEnum.FullInvoice);
+      }
+    });
+  }
+
+   onInvoiceTypeChange(event: any): void {
+    if (this.selectedPatientId) {
+      this.loadCharges(this.selectedPatientId, event.value);
+    }
+  }
+
+   private loadCharges(patientId: number, invoiceType: number): void {
+    this._invoiceService.getChargesByPatient(patientId, invoiceType)
+      .subscribe(charges => {
+        this.invoice.items = charges.map(c => {
+          const item = new InvoiceItemDto();
+          item.id = 0;
+          item.invoiceId = 0;
+          item.description = c.description;
+          item.unitPrice = c.amount;
+          item.quantity = 1;
+          (item as any).isRemovable = false;
+          return item;
+        });
+      });
+  }
+
+   canAddItem(): boolean {
     return this.newItem.description.trim() !== '' &&
       this.newItem.unitPrice > 0 &&
       this.newItem.quantity > 0;
   }
-  // In your component class
-  onItemTypeChange(event: any) {
-    this.newItem.itemType = event.value.value;
-  }
   addItem(): void {
     const item = new InvoiceItemDto();
-
-    // Set properties directly
-    item.itemType = this.newItem.itemType;
+    item.id = 0;
+    item.invoiceId = 0;
     item.description = this.newItem.description;
     item.unitPrice = this.newItem.unitPrice;
     item.quantity = this.newItem.quantity;
-    item.totalPrice = this.newItem.unitPrice * this.newItem.quantity;
-
-    // Set default values for other required properties
-    item.id = 0;
-    item.invoiceId = 0;
-
+    (item as any).isRemovable = true;
     this.invoice.items.push(item);
 
-    // Reset new item form WITHOUT changing the itemType
-    this.newItem = {
-      itemType: this.newItem.itemType, // Keep the same item type
-      description: '',
-      unitPrice: 0,
-      quantity: 1
-    };
+    this.newItem = { description: '', unitPrice: 0, quantity: 1 };
   }
 
   removeItem(index: number): void {
     this.invoice.items.splice(index, 1);
   }
-
-
-
-  // Calculation methods
-  calculateSubtotal(): number {
+calculateSubtotal(): number {
     return this.invoice.items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
   }
-
   calculateGst(): number {
-    return this.calculateSubtotal() * 0.18; // 18% GST
+    return this.calculateSubtotal() * 0.18;
   }
-
   calculateTotal(): number {
     return this.calculateSubtotal() + this.calculateGst();
   }
+
   isSaveDisabled(): boolean {
     return !this.invoiceForm?.valid ||
       this.saving ||
       this.invoice.items.length === 0 ||
-      !this.invoice.patientId ||
-      this.showDateError ||
-      this.amountPaidError;
+      !this.invoice.patientId;
   }
-
   private async redirectToStripeCheckout(invoiceId: number, amount: number): Promise<void> {
     this.isProcessingPayment = true;
     this.paymentProcessingError = '';
@@ -221,51 +201,29 @@ export class CreateInvoiceComponent extends AppComponentBase implements OnInit {
     this.isProcessingPayment = true;
     this.cd.detectChanges();
 
-    let paymentStatus = InvoiceStatus._0;
-    const total = this.calculateTotal();
-    if (this.amountPaid === total) {
-      paymentStatus = InvoiceStatus._1; // Paid
-    } else if (this.amountPaid > 0) {
-      paymentStatus = InvoiceStatus._2; // Partially Paid
-    }
-
     const input = new CreateUpdateInvoiceDto({
       id: 0,
       tenantId: abp.session.tenantId,
-      appointmentId: 1,
       patientId: this.invoice.patientId,
+       invoiceType: this.selectedInvoiceType ?? this.invoiceTypeEnum.FullInvoice,
       invoiceDate: moment(),
-      dueDate: moment(this.invoice.dueDate),
       status: this.invoice.status,
-      paymentMethod: this.invoice.paymentMethod,
+      paymentMethod: this.invoice.paymentMethod??null,
       items: this.invoice.items,
-      amountPaid: this.amountPaid,
       subTotal: this.calculateSubtotal(),
       gstAmount: this.calculateGst(),
       totalAmount: this.calculateTotal()
     });
-
+    debugger
     this._invoiceService.create(input).subscribe({
       next: (createdInvoice) => {
         this.createdInvoice = createdInvoice;
-
-        if (this.invoice.paymentMethod === PaymentMethod._1) {
-          const remainingAmount = this.amountPaid;
-          const amountToCharge = remainingAmount > 0 ? remainingAmount : 0;
-          this.bsModalRef.hide();
-          this.redirectToStripeCheckout(
-            createdInvoice.id,
-            amountToCharge
-          );
-        } else {
-          // Cash payment
-          this.isProcessingPayment = false;
-          this.saving = false;
-          this.notify.info(this.l('InvoiceCreatedSuccessfully'));
-          this.onSave.emit();
-          this.bsModalRef.hide();
-          this.cd.detectChanges();
-        }
+        this.isProcessingPayment = false;
+        this.saving = false;
+        this.notify.info(this.l('InvoiceCreatedSuccessfully'));
+        this.onSave.emit();
+        this.bsModalRef.hide();
+        this.cd.detectChanges();
       },
       error: (err) => {
         this.isProcessingPayment = false;

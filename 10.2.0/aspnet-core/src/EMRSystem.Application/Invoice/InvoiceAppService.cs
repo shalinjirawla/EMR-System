@@ -4,8 +4,11 @@ using Abp.EntityFrameworkCore.Repositories;
 using Abp.Extensions;
 using Abp.UI;
 using EMRSystem.Appointments;
+using EMRSystem.Deposit;
 using EMRSystem.Invoice.Dto;
 using EMRSystem.Invoices;
+using EMRSystem.IpdChargeEntry;
+using EMRSystem.IpdChargeEntry.Dto;
 using EMRSystem.Patients;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -29,9 +32,20 @@ namespace EMRSystem.Invoice
      IInvoiceAppService
     {
         private readonly IConfiguration _configuration;
-        public InvoiceAppService(IRepository<EMRSystem.Invoices.Invoice, long> repository, IConfiguration configuration) : base(repository)
+        private readonly IRepository<PatientDeposit, long> _patientDepositRepository;
+        private readonly IRepository<DepositTransaction, long> _depositTransactionRepository;
+        private readonly IRepository<EMRSystem.IpdChargeEntry.IpdChargeEntry, long> _ipdChargeEntryRepository;
+        public InvoiceAppService(
+            IRepository<EMRSystem.Invoices.Invoice, long> repository,
+            IRepository<PatientDeposit, long> patientDepositRepository,
+            IRepository<DepositTransaction, long> depositTransactionRepository,
+            IConfiguration configuration,
+            IRepository<EMRSystem.IpdChargeEntry.IpdChargeEntry, long> ipdChargeEntryRepository) : base(repository)
         {
             _configuration = configuration;
+            _patientDepositRepository = patientDepositRepository;
+            _depositTransactionRepository = depositTransactionRepository;
+            _ipdChargeEntryRepository = ipdChargeEntryRepository;
             StripeConfiguration.ApiKey = _configuration["Stripe:SecretKey"];
         }
 
@@ -47,8 +61,8 @@ namespace EMRSystem.Invoice
             if (!input.Keyword.IsNullOrWhiteSpace())
             {
                 filteredQuery = filteredQuery.Where(x =>
-                    (x.Patient.FullName != null && x.Patient.FullName.Contains(input.Keyword)) ||
-                    (x.Appointment.ReasonForVisit != null && x.Appointment.ReasonForVisit.Contains(input.Keyword)));
+                    (x.Patient.FullName != null && x.Patient.FullName.Contains(input.Keyword)));
+                //(x.Appointment.ReasonForVisit != null && x.Appointment.ReasonForVisit.Contains(input.Keyword)));
             }
 
             //if (input.Status.HasValue)
@@ -77,33 +91,35 @@ namespace EMRSystem.Invoice
                 Id = x.Id,
                 TenantId = x.TenantId,
                 InvoiceDate = x.InvoiceDate,
-                DueDate = x.DueDate,
+                InvoiceNo = x.InvoiceNo,
+                InvoiceType = x.InvoiceType,
+                //DueDate = x.DueDate,
                 SubTotal = x.SubTotal,
                 GstAmount = x.GstAmount,
                 TotalAmount = x.TotalAmount,
                 Status = x.Status,
                 PaymentMethod = x.PaymentMethod,
-                AmountPaid=x.AmountPaid,
+                //AmountPaid=x.AmountPaid,
                 PatientId = x.PatientId,
-                AppointmentId = x.AppointmentId,
+                //AppointmentId = x.AppointmentId,
                 Patient = x.Patient == null ? null : new Patient
                 {
                     Id = x.Patient.Id,
                     FullName = x.Patient.FullName
                 },
-                Appointment = x.Appointment == null ? null : new Appointment
-                {
-                    Id = x.Appointment.Id,
-                    AppointmentDate = x.Appointment.AppointmentDate,
-                    ReasonForVisit = x.Appointment.ReasonForVisit
-                },
+                //Appointment = x.Appointment == null ? null : new Appointment
+                //{
+                //    Id = x.Appointment.Id,
+                //    AppointmentDate = x.Appointment.AppointmentDate,
+                //    ReasonForVisit = x.Appointment.ReasonForVisit
+                //},
                 Items = x.Items.Select(i => new InvoiceItem
                 {
                     Id = i.Id,
                     Description = i.Description,
                     UnitPrice = i.UnitPrice,
                     Quantity = i.Quantity,
-                    ItemType = i.ItemType
+                    //ItemType = i.ItemType
                 }).ToList()
             });
 
@@ -237,75 +253,70 @@ namespace EMRSystem.Invoice
         }
         public override async Task<InvoiceDto> CreateAsync(CreateUpdateInvoiceDto input)
         {
-            try
+            var invoice = ObjectMapper.Map<Invoices.Invoice>(input);
+
+            // Generate invoice no
+            invoice.InvoiceNo = $"INV-{DateTime.Now:yyyyMMddHHmmss}";
+
+            // Save Invoice
+            await Repository.InsertAsync(invoice);
+            await CurrentUnitOfWork.SaveChangesAsync();
+
+            // Save Invoice Items
+            foreach (var item in input.Items)
             {
-                // Validate input
-                if (input == null)
-                    throw new ArgumentNullException(nameof(input));
+                var invoiceItem = ObjectMapper.Map<InvoiceItem>(item);
+                invoiceItem.InvoiceId = invoice.Id;
+                await Repository.GetDbContext().Set<InvoiceItem>().AddAsync(invoiceItem);
+            }
+            await CurrentUnitOfWork.SaveChangesAsync();
 
-                if (input.Items == null || !input.Items.Any())
-                    throw new UserFriendlyException("Invoice must contain at least one item");
+            // Handle Deposit
+            var patientDeposit = await _patientDepositRepository.FirstOrDefaultAsync(x =>
+                x.PatientId == input.PatientId && x.TenantId == input.TenantId);
 
-                if(input.PaymentMethod==PaymentMethod.Cash)
+            if (patientDeposit == null)
+            {
+                throw new UserFriendlyException("Patient Deposit record not found.");
+            }
+
+            var transaction = new DepositTransaction
+            {
+                TenantId = input.TenantId,
+                PatientDepositId = patientDeposit.Id,
+                Amount = input.TotalAmount,
+                TransactionType = TransactionType.Debit,
+                PaymentMethod = null,
+                TransactionDate = DateTime.Now,
+                Description = $"Invoice {invoice.InvoiceNo}",
+                ReceiptNo = null,
+                IsPaid = false
+            };
+            await _depositTransactionRepository.InsertAsync(transaction);
+
+            patientDeposit.TotalDebitAmount += input.TotalAmount;
+            patientDeposit.TotalBalance = patientDeposit.TotalCreditAmount - patientDeposit.TotalDebitAmount;
+
+            await _patientDepositRepository.UpdateAsync(patientDeposit);
+            await CurrentUnitOfWork.SaveChangesAsync();
+
+            // ✅ Mark IpdChargeEntries as Processed
+            var charges = await GetChargesByPatientAsync(input.PatientId, input.InvoiceType);
+            if (charges.Any())
+            {
+                foreach (var chargeDto in charges)
                 {
-                    if (input.AmountPaid >= input.TotalAmount)
-                    {
-                        input.Status = InvoiceStatus.Paid;
-                    }
-                    else
-                    {
-                        input.Status = InvoiceStatus.PartiallyPaid;
-                    }
-
+                    var chargeEntity = await _ipdChargeEntryRepository.GetAsync(chargeDto.Id);
+                    chargeEntity.IsProcessed = true;
+                    await _ipdChargeEntryRepository.UpdateAsync(chargeEntity);
                 }
-
-
-                // Create the invoice entity
-                var invoice = new EMRSystem.Invoices.Invoice
-                {
-                    TenantId = input.TenantId,
-                    PatientId = input.PatientId,
-                    AppointmentId = input.AppointmentId,
-                    AmountPaid = input.AmountPaid,
-                    InvoiceDate = input.InvoiceDate,
-                    DueDate = input.DueDate,
-                    Status = input.Status,
-                    PaymentMethod = (PaymentMethod?)input.PaymentMethod,
-                    Items = new List<InvoiceItem>()
-                };
-
-                // Calculate totals
-                CalculateInvoiceTotals(input, invoice);
-
-                // Add invoice items
-                foreach (var itemDto in input.Items)
-                {
-                    invoice.Items.Add(new InvoiceItem
-                    {   InvoiceId=invoice.Id,
-                        ItemType = (InvoiceItemType)itemDto.ItemType,
-                        Description = itemDto.Description,
-                        UnitPrice = itemDto.UnitPrice,
-                        Quantity = itemDto.Quantity
-                    });
-                }
-
-                // Save to database
-                await Repository.InsertAsync(invoice);
                 await CurrentUnitOfWork.SaveChangesAsync();
+            }
 
-                // Return the created invoice
-                return MapToEntityDto(invoice);
-            }
-            catch (UserFriendlyException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                Logger.Error("Error creating invoice", ex);
-                throw new UserFriendlyException("An error occurred while creating the invoice");
-            }
+            // Return final DTO
+            return MapToEntityDto(invoice);
         }
+
 
         private void CalculateInvoiceTotals(CreateUpdateInvoiceDto input, EMRSystem.Invoices.Invoice invoice)
         {
@@ -316,56 +327,74 @@ namespace EMRSystem.Invoice
             invoice.GstAmount = gstAmount;
             invoice.TotalAmount = subtotal + gstAmount;
         }
-        public async Task MarkAsPaid(long invoiceId, decimal? amount = null)
+        //public async Task MarkAsPaid(long invoiceId, decimal? amount = null)
+        //{
+        //    try
+        //    {
+        //        var invoice = await Repository.GetAsync(invoiceId);
+        //        if (invoice == null)
+        //            throw new UserFriendlyException("Invoice not found");
+
+        //        // Determine payment amount
+        //        decimal paymentAmount = amount.HasValue
+        //            ? amount.Value
+        //            : invoice.TotalAmount - invoice.AmountPaid;
+
+        //        // Validate payment amount
+        //        if (paymentAmount <= 0)
+        //        {
+        //            throw new UserFriendlyException(
+        //                "Payment amount must be greater than zero");
+        //        }
+
+        //        decimal newAmountPaid = invoice.AmountPaid;
+
+        //        // Validate payment doesn't exceed total
+        //        if (newAmountPaid > invoice.TotalAmount)
+        //        {
+        //            throw new UserFriendlyException(
+        //                $"Payment amount exceeds total due. Maximum allowed: {invoice.TotalAmount - invoice.AmountPaid:C}");
+        //        }
+
+        //        // Update payment information
+        //        invoice.AmountPaid = newAmountPaid;
+
+        //        // Update status based on payment
+        //        if (invoice.AmountPaid >= invoice.TotalAmount)
+        //        {
+        //            invoice.Status = InvoiceStatus.Paid;
+        //        }
+        //        else
+        //        {
+        //            invoice.Status = InvoiceStatus.PartiallyPaid;
+        //        }
+
+        //        await Repository.UpdateAsync(invoice);
+        //        await CurrentUnitOfWork.SaveChangesAsync();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Logger.Error("Error recording payment", ex);
+        //        throw new UserFriendlyException("Error updating payment information");
+        //    }
+        //}
+        public async Task<List<IpdChargeEntryDto>> GetChargesByPatientAsync(long patientId, InvoiceType invoiceType)
         {
-            try
+            var query = _ipdChargeEntryRepository
+                        .GetAllIncluding(x => x.Patient, x => x.Admission)
+                        .Where(x => x.PatientId == patientId && !x.IsProcessed);
+
+            // 🔥 InvoiceType ke hisaab se filter lagana
+            if (invoiceType == InvoiceType.DailyInvoice)
             {
-                var invoice = await Repository.GetAsync(invoiceId);
-                if (invoice == null)
-                    throw new UserFriendlyException("Invoice not found");
-
-                // Determine payment amount
-                decimal paymentAmount = amount.HasValue
-                    ? amount.Value
-                    : invoice.TotalAmount - invoice.AmountPaid;
-
-                // Validate payment amount
-                if (paymentAmount <= 0)
-                {
-                    throw new UserFriendlyException(
-                        "Payment amount must be greater than zero");
-                }
-
-                decimal newAmountPaid = invoice.AmountPaid;
-
-                // Validate payment doesn't exceed total
-                if (newAmountPaid > invoice.TotalAmount)
-                {
-                    throw new UserFriendlyException(
-                        $"Payment amount exceeds total due. Maximum allowed: {invoice.TotalAmount - invoice.AmountPaid:C}");
-                }
-
-                // Update payment information
-                invoice.AmountPaid = newAmountPaid;
-
-                // Update status based on payment
-                if (invoice.AmountPaid >= invoice.TotalAmount)
-                {
-                    invoice.Status = InvoiceStatus.Paid;
-                }
-                else
-                {
-                    invoice.Status = InvoiceStatus.PartiallyPaid;
-                }
-
-                await Repository.UpdateAsync(invoice);
-                await CurrentUnitOfWork.SaveChangesAsync();
+                var today = DateTime.Today;
+                query = query.Where(x => x.EntryDate.Date == today);
             }
-            catch (Exception ex)
-            {
-                Logger.Error("Error recording payment", ex);
-                throw new UserFriendlyException("Error updating payment information");
-            }
+            // Agar FullInvoice hai to filter nahi lagega (sare charges aayenge)
+
+            var charges = query.ToList(); // execute query
+
+            return ObjectMapper.Map<List<IpdChargeEntryDto>>(charges);
         }
 
         public async Task<string> CreateStripeCheckoutSession(long invoiceId, decimal amount, string successUrl, string cancelUrl)
@@ -408,7 +437,7 @@ namespace EMRSystem.Invoice
 
                 var service = new SessionService();
                 var session = await service.CreateAsync(options);
-                return session.Url; 
+                return session.Url;
             }
             catch (StripeException e)
             {
@@ -416,4 +445,4 @@ namespace EMRSystem.Invoice
             }
         }
     }
-    }
+}

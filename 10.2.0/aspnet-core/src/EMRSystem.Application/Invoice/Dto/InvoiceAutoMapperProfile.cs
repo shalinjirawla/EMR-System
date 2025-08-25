@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using EMRSystem.Invoices;
+using EMRSystem.IpdChargeEntry.Dto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,18 +13,28 @@ namespace EMRSystem.Invoice.Dto
     {
         public InvoiceAutoMapperProfile()
         {
-            // Invoice mappings
-            CreateMap<CreateUpdateInvoiceDto, EMRSystem.Invoices.Invoice>();
-
+            // Invoice -> InvoiceDto
             CreateMap<EMRSystem.Invoices.Invoice, InvoiceDto>()
-                .ForMember(dest => dest.PatientName, opt => opt.MapFrom(src => src.Patient.FullName))
-                .ForMember(dest => dest.AppointmentDate, opt => opt.MapFrom(src =>
-                    src.Appointment.AppointmentDate));
+               .ForMember(dest => dest.PatientName, opt => opt.MapFrom(src => src.Patient.FullName))
+               //.ForMember(dest => dest.InvoiceType, opt => opt.MapFrom(src => src.InvoiceType.ToString()))
+               .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items));
 
-            // InvoiceItem mappings
-            CreateMap<CreateUpdateInvoiceItemDto, InvoiceItem>();
-
+            // InvoiceItem -> InvoiceItemDto
             CreateMap<InvoiceItem, InvoiceItemDto>();
+
+            // CreateUpdateInvoiceDto -> Invoice
+            CreateMap<CreateUpdateInvoiceDto, EMRSystem.Invoices.Invoice>()
+                .ForMember(dest => dest.InvoiceNo, opt => opt.Ignore())
+                .ForMember(dest => dest.Items, opt => opt.Ignore());
+
+            // CreateUpdateInvoiceItemDto -> InvoiceItem
+            CreateMap<CreateUpdateInvoiceItemDto, InvoiceItem>();
+            CreateMap<InvoiceItem, InvoiceItemDto>();
+
+            // IpdChargeEntry -> IpdChargeEntryDto
+            CreateMap<EMRSystem.IpdChargeEntry.IpdChargeEntry, IpdChargeEntryDto>()
+                .ForMember(dest => dest.PatientName, opt => opt.MapFrom(src => src.Patient.FullName))
+                .ForMember(dest => dest.ChargeType, opt => opt.MapFrom(src => src.ChargeType.ToString()));
         }
     }
 }
