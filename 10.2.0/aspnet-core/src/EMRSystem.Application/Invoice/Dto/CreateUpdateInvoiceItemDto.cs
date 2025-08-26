@@ -12,7 +12,7 @@ namespace EMRSystem.Invoice.Dto
 {
     public class CreateUpdateInvoiceItemDto : EntityDto<long>
     {
-        public int TenantId { get; set; }
+        //public int TenantId { get; set; }
 
         public long InvoiceId { get; set; }
 
