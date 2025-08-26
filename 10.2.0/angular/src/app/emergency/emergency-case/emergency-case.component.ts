@@ -15,7 +15,7 @@ import { ChipModule } from 'primeng/chip';
 import { OverlayPanel, OverlayPanelModule } from 'primeng/overlaypanel';
 import { MenuModule } from 'primeng/menu';
 import { ButtonModule } from 'primeng/button';
-import { EmergencyCaseDto, EmergencyCaseDtoPagedResultDto, EmergencyServiceProxy } from '@shared/service-proxies/service-proxies';
+import { EmergencyCaseDto, EmergencyCaseDtoPagedResultDto, EmergencyServiceProxy, EmergencyStatus } from '@shared/service-proxies/service-proxies';
 import { CreateEmergencyCaseComponent } from '../create-emergency-case/create-emergency-case.component';
 import { EditEmergencyCaseComponent } from '../edit-emergency-case/edit-emergency-case.component';
 import { TagModule } from 'primeng/tag';
@@ -176,5 +176,9 @@ export class EmergencyCaseComponent extends PagedListingComponentBase<EmergencyC
       case 5: return 'success';     // Discharged - successful outcome (green)
       default: return 'info';
     }
+  }
+  idAdmitted(status:any){
+    const isAdmitted = status === EmergencyStatus._4;
+    return isAdmitted
   }
 }

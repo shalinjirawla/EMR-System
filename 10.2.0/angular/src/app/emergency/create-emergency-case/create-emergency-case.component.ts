@@ -172,6 +172,10 @@ export class CreateEmergencyCaseComponent extends AppComponentBase implements On
     createOrEditPatientDialog.content.onSave.subscribe(() => {
       this.loadPatients();
     });
+    // Also subscribe to the onHide event to handle cases where modal closes without saving
+    createOrEditPatientDialog.onHide.subscribe(() => {
+      this.loadPatients(); // Refresh when modal closes regardless of save action
+    });
   }
   statusChange(event: any) {
     const isWalkIn = this.emergency.modeOfArrival === ModeOfArrival._0;
@@ -187,7 +191,7 @@ export class CreateEmergencyCaseComponent extends AppComponentBase implements On
     return null;
   }
 
-  FillAdmissionForm(emengencyData:any) {
+  FillAdmissionForm(emengencyData: any) {
     let fillAdmissionForm: BsModalRef;
     fillAdmissionForm = this._modalService.show(CreateAddmissionComponent, {
       class: 'modal-lg',
@@ -195,7 +199,7 @@ export class CreateEmergencyCaseComponent extends AppComponentBase implements On
         selectedPatientId: emengencyData.patientId,
         selectedNurseId: emengencyData.nurseId,
         selectDoctorId: emengencyData.doctorId,
-        admissionType: emengencyData.status===EmergencyStatus._4?emengencyData.status:0,
+        admissionType: emengencyData.status === EmergencyStatus._4 ? emengencyData.status : 0,
         disableRoleSelection: true
       }
     });
