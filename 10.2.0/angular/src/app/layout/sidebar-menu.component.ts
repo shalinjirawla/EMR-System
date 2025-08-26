@@ -129,7 +129,6 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
             new MenuItem(this.l('Emergency Portal'), '', 'fas fa-ambulance', 'Pages.Users', [
                 new MenuItem(this.l('Emergency Cases'), '/app/emergency/cases', 'fas fa-notes-medical', 'Pages.Users'),
                 new MenuItem(this.l('Triage'), '/app/emergency/triage', 'fas fa-heartbeat', 'Pages.Users'),
-                new MenuItem(this.l('Patient Flow'), '/app/emergency/patient-flow', 'fas fa-random', 'Pages.Users'),
             ]),
             // Doctor Section
             new MenuItem(this.l('Doctor Portal'), '', 'fas fa-user-md', 'Pages.Doctors', [

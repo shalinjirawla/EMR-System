@@ -15,6 +15,7 @@ namespace EMRSystem.Emergency.Triage
         public DateTime Time { get; set; } = DateTime.Now;
         [Required]
         public long EmergencyCaseId { get; set; }
+        public long? NurseId { get; set; }
         public float? HeartRate { get; set; } // BPM
         public float? BloodPressureSystolic { get; set; } // mmHg
         public float? BloodPressureDiastolic { get; set; } // mmHg

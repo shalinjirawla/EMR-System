@@ -7,7 +7,7 @@ import { AbpModalHeaderComponent } from '../../../shared/components/modal/abp-mo
 import { AbpModalFooterComponent } from '../../../shared/components/modal/abp-modal-footer.component';
 import { DatePickerModule } from 'primeng/datepicker';
 import { SelectModule } from 'primeng/select';
-import { CreateUpdateTriageDto, EmergencyCaseDto, EmergencyServiceProxy, TriageServiceProxy } from '@shared/service-proxies/service-proxies';
+import { CreateUpdateTriageDto, EmergencyCaseDto, EmergencyServiceProxy, EmergencySeverity, NurseDto, NurseServiceProxy, TriageServiceProxy } from '@shared/service-proxies/service-proxies';
 import moment from 'moment';
 @Component({
   selector: 'app-create-update-triage',
@@ -19,17 +19,17 @@ import moment from 'moment';
     AbpModalHeaderComponent,
     AbpModalFooterComponent
   ],
-  providers: [TriageServiceProxy, EmergencyServiceProxy],
+  providers: [TriageServiceProxy, EmergencyServiceProxy,NurseServiceProxy],
   templateUrl: './create-update-triage.component.html',
   styleUrl: './create-update-triage.component.css'
 })
 export class CreateUpdateTriageComponent extends AppComponentBase implements OnInit {
   @ViewChild('createTriageForm', { static: true }) createTriageForm: NgForm;
   @Output() onSave = new EventEmitter<void>();
-uiAssessmentTime: Date | null = null;
+  uiAssessmentTime: Date | null = null;
   saving = false;
   emergencyCases: EmergencyCaseDto[] = [];
-id:number;
+  id: number;
   triage: any = {
     tenantId: abp.session.tenantId,
     emergencyCaseId: null,
@@ -41,26 +41,39 @@ id:number;
     notes: '',
     assessmentTime: new Date()
   };
-
+  severityOptions = [
+    { label: 'Critical', value: EmergencySeverity._0 },
+    { label: 'Serious', value: EmergencySeverity._1 },
+    { label: 'Stable', value: EmergencySeverity._2 }
+  ];
+  nurses: NurseDto[] = [];
   constructor(
     injector: Injector,
     public bsModalRef: BsModalRef,
     private cd: ChangeDetectorRef,
     private _triageService: TriageServiceProxy,
-    private _emergencyService: EmergencyServiceProxy
+    private _emergencyService: EmergencyServiceProxy,
+    private _nurseService:NurseServiceProxy
   ) {
     super(injector);
   }
 
   ngOnInit(): void {
     this.loadEmergencyCases();
-
+    this.loadNurses();
     if (this.id) {
       this.loadTriage(this.id);
     }
   }
-loadTriage(id: number) {
+  loadNurses() {
+    this._nurseService.getAllNursesByTenantID(abp.session.tenantId).subscribe(res => {
+      this.nurses = res.items;
+      this.cd.detectChanges();
+    });
+  }
+  loadTriage(id: number) {
     this._triageService.get(id).subscribe(res => {
+      debugger;
       this.triage = {
         tenantId: res.tenantId,
         emergencyCaseId: res.emergencyCaseId,
@@ -69,9 +82,13 @@ loadTriage(id: number) {
         bloodPressureSystolic: res.bloodPressureSystolic,
         bloodPressureDiastolic: res.bloodPressureDiastolic,
         notes: res.notes,
-        assessmentTime: res.time
+        assessmentTime: res.time,
+        heartRate:res.heartRate,
+        oxygenSaturation:res.oxygenSaturation,
+        nurseId:res.nurseId,
+        severity:res.severity
       };
-      this.uiAssessmentTime=this.toDate(res.time);
+      this.uiAssessmentTime = this.toDate(res.time);
       this.cd.detectChanges();
     });
   }
@@ -82,56 +99,58 @@ loadTriage(id: number) {
     });
   }
   private toDate(val: any): Date | null {
-      if (!val) return null;
-      // ABP proxies usually give moment.Moment; but handle ISO string too
-      return moment.isMoment(val) ? val.toDate() : new Date(val);
-    }
+    if (!val) return null;
+    // ABP proxies usually give moment.Moment; but handle ISO string too
+    return moment.isMoment(val) ? val.toDate() : new Date(val);
+  }
 
   save() {
-  if (!this.createTriageForm?.form?.valid) {
-    this.message.warn('Please complete the form properly.');
-    return;
-  }
+    if (!this.createTriageForm?.form?.valid) {
+      this.message.warn('Please complete the form properly.');
+      return;
+    }
 
-  this.saving = true;
-  const input = new CreateUpdateTriageDto();
-  input.id = this.id; // will be undefined for create
-  input.tenantId = abp.session.tenantId;
-  input.emergencyCaseId = this.triage.emergencyCaseId;
-  input.temperature = this.triage.temperature;
-  input.respiratoryRate = this.triage.respiratoryRate;
-  input.bloodPressureSystolic = this.triage.bloodPressureSystolic;
-  input.bloodPressureDiastolic = this.triage.bloodPressureDiastolic;
-  input.notes = this.triage.notes;
-  input.time = this.uiAssessmentTime ? moment(this.uiAssessmentTime) : undefined;
-debugger
-  if (this.id) {
-    // Update existing triage
-    this._triageService.update(input).subscribe({
-      next: () => {
-        this.notify.info(this.l('UpdatedSuccessfully'));
-        this.saving = false;
-        this.bsModalRef.hide();
-        this.onSave.emit();
-      },
-      error: () => {
-        this.saving = false;
-      }
-    });
-  } else {
-    // Create new triage
-    this._triageService.create(input).subscribe({
-      next: () => {
-        this.notify.info(this.l('SavedSuccessfully'));
-        this.saving = false;
-        this.bsModalRef.hide();
-        this.onSave.emit();
-      },
-      error: () => {
-        this.saving = false;
-      }
-    });
+    this.saving = true;
+    const input = new CreateUpdateTriageDto();
+    input.id = this.id;
+    input.tenantId = abp.session.tenantId;
+    input.emergencyCaseId = this.triage.emergencyCaseId;
+    input.notes = this.triage.notes;
+    input.temperature = this.triage.temperature;
+    input.respiratoryRate = this.triage.respiratoryRate;
+    input.bloodPressureSystolic = this.triage.bloodPressureSystolic;
+    input.bloodPressureDiastolic = this.triage.bloodPressureDiastolic;
+    input.heartRate = this.triage.heartRate;
+    input.oxygenSaturation = this.triage.oxygenSaturation;
+    input.nurseId = this.triage.nurseId;
+    input.severity = this.triage.severity;
+    if (this.id) {
+      // Update existing triage
+      this._triageService.update(input).subscribe({
+        next: () => {
+          this.notify.info(this.l('UpdatedSuccessfully'));
+          this.saving = false;
+          this.bsModalRef.hide();
+          this.onSave.emit();
+        },
+        error: () => {
+          this.saving = false;
+        }
+      });
+    } else {
+      // Create new triage
+      this._triageService.create(input).subscribe({
+        next: () => {
+          this.notify.info(this.l('SavedSuccessfully'));
+          this.saving = false;
+          this.bsModalRef.hide();
+          this.onSave.emit();
+        },
+        error: () => {
+          this.saving = false;
+        }
+      });
+    }
   }
-}
 
 }

@@ -13,11 +13,11 @@ import { appModuleAnimation } from '@shared/animations/routerTransition';
 import { CommonModule } from '@node_modules/@angular/common';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { ButtonModule } from 'primeng/button';
-
+import { TagModule } from 'primeng/tag';
 
 @Component({
   selector: 'app-emergency-triage',
-  imports: [Paginator, LocalizePipe,FormsModule, TableModule,CommonModule,OverlayPanelModule,ButtonModule],
+  imports: [Paginator, LocalizePipe,FormsModule,TagModule, TableModule, CommonModule, OverlayPanelModule, ButtonModule],
   providers:[TriageServiceProxy],
   animations: [appModuleAnimation()],
   templateUrl: './emergency-triage.component.html',
@@ -28,12 +28,16 @@ export class EmergencyTriageComponent extends PagedListingComponentBase<TriageDt
   @ViewChild('paginator', { static: true }) paginator: Paginator;
   keyword = '';
   selectedRecord: TriageDto;
-
+  severityOptions = [
+    { label: 'Critical', value: 0 },
+    { label: 'Serious', value: 1 },
+    { label: 'Stable', value: 2 }
+  ];
   constructor(
     injector: Injector,
     private _triageService: TriageServiceProxy,
     private _modalService: BsModalService,
-     cd: ChangeDetectorRef
+    cd: ChangeDetectorRef
   ) {
     super(injector, cd);
   }
@@ -90,5 +94,16 @@ export class EmergencyTriageComponent extends PagedListingComponentBase<TriageDt
         });
       }
     });
+  }
+  getSeverityLabel(value: number): string {
+    return this.severityOptions.find(x => x.value === value)?.label || '';
+  }
+  getSeverityTag(value: number): 'danger' | 'warn' | 'success' {
+    switch (value) {
+      case 0: return 'danger';   // Critical
+      case 1: return 'warn';     // Serious
+      case 2: return 'success';  // Stable
+      default: return 'warn';
+    }
   }
 }

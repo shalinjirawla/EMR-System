@@ -28,10 +28,8 @@
                     <i class="fas fa-search"></i>
                   </button>
                 </div>
-                <input type="text" class="form-control" name="keyword"
-                       [placeholder]="'SearchWithThreeDot' | localize"
-                       [(ngModel)]="keyword"
-                       (keyup.enter)="list()" />
+                <input type="text" class="form-control" name="keyword" [placeholder]="'SearchWithThreeDot' | localize"
+                  [(ngModel)]="keyword" (keyup.enter)="list()" />
               </div>
             </div>
           </div>
@@ -40,21 +38,19 @@
         <div class="card-body table-responsive table-striped table-bordered">
           <div class="primeng-datatable-container">
             <p-table #dataTable sortMode="multiple" [value]="primengTableHelper.records"
-                     rows="{{ primengTableHelper.defaultRecordsCountPerPage }}"
-                     [paginator]="false" [lazy]="true"
-                     [tableStyle]="{ 'min-width': '60rem' }"
-                     (onLazyLoad)="list($event)">
+              rows="{{ primengTableHelper.defaultRecordsCountPerPage }}" [paginator]="false" [lazy]="true"
+              [tableStyle]="{ 'min-width': '60rem' }" (onLazyLoad)="list($event)">
 
               <ng-template pTemplate="header">
                 <tr>
                   <th>Emergency No</th>
-                  <th>Patient</th>
                   <th>Temperature</th>
-                  <th>Pulse</th>
                   <th>Respiratory Rate</th>
+                  <th>Heart Rate</th>
+                  <th>Oxygen Saturation</th>
                   <th>BP</th>
-                  <th>Notes</th>
                   <th>Assessment Time</th>
+                  <th>Severity</th>
                   <th>Actions</th>
                 </tr>
               </ng-template>
@@ -62,16 +58,18 @@
               <ng-template pTemplate="body" let-record="$implicit">
                 <tr>
                   <td>{{ record.emergencyNumber }}</td>
-                  <td>{{ record.patientName || 'Unknown' }}</td>
                   <td>{{ record.temperature }}</td>
-                  <td>{{ record.pulse }}</td>
                   <td>{{ record.respiratoryRate }}</td>
+                  <td>{{ record.heartRate }}</td>
+                  <td>{{ record.oxygenSaturation }}</td>
                   <td>{{ record.bloodPressureSystolic }}/{{ record.bloodPressureDiastolic }}</td>
-                  <td>{{ record.notes }}</td>
-                  <td>{{ record.assessmentTime | date:'dd/MM/yyyy HH:mm' }}</td>
+                  <td>{{ record.time | date:'dd/MM/yyyy HH:mm' }}</td>
+                  <td><p-tag [value]="getSeverityLabel(record.severity)" [severity]="getSeverityTag(record.severity)"
+                      [rounded]="true">
+                    </p-tag></td>
                   <td>
                     <button type="button" pButton icon="pi pi-ellipsis-v" class="p-button-text"
-                            (click)="rowMenu.toggle($event); selectedRecord = record">
+                      (click)="rowMenu.toggle($event); selectedRecord = record">
                     </button>
                     <p-overlayPanel #rowMenu class="custom-overlay" [dismissable]="true">
                       <ul class="custom-overlay-menu">
@@ -104,11 +102,9 @@
             <div class="col-sm-8 col-12">
               <div class="float-sm-right m-auto">
                 <p-paginator [rows]="primengTableHelper.defaultRecordsCountPerPage" #paginator
-                             (onPageChange)="list($event)"
-                             [totalRecords]="primengTableHelper.totalRecordsCount"
-                             [rowsPerPageOptions]="primengTableHelper.predefinedRecordsCountPerPage"
-                             [showCurrentPageReport]="true"
-                             [currentPageReportTemplate]="'TotalRecordsCount' | localize: primengTableHelper.totalRecordsCount">
+                  (onPageChange)="list($event)" [totalRecords]="primengTableHelper.totalRecordsCount"
+                  [rowsPerPageOptions]="primengTableHelper.predefinedRecordsCountPerPage" [showCurrentPageReport]="true"
+                  [currentPageReportTemplate]="'TotalRecordsCount' | localize: primengTableHelper.totalRecordsCount">
                 </p-paginator>
               </div>
             </div>
