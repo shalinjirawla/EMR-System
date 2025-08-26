@@ -675,6 +675,20 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
              .HasForeignKey(dt => dt.PatientDepositId)
              .OnDelete(DeleteBehavior.Cascade);
         });
+        modelBuilder.Entity<EmergencyChargeEntry>(b =>
+        {
+            b.ToTable("EmergencyChargeEntry");
+
+            b.HasOne(e => e.Patient)
+             .WithMany(d => d.EmergencyChargeEntries)
+             .HasForeignKey(e => e.PatientId)
+             .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(e => e.EmergencyCases)
+            .WithMany(d => d.EmergencyChargeEntries)
+            .HasForeignKey(e => e.EmergencyCaseId)
+            .OnDelete(DeleteBehavior.Restrict);
+        });
 
     }
 }

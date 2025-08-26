@@ -54,7 +54,7 @@ namespace EMRSystem.Emergency.EmergencyCase
 
             entity.EmergencyNumber = $"ER-{DateTime.Now.Year}-{Guid.NewGuid().ToString("N").Substring(0, 4).ToUpper()}";
 
-            await Repository.InsertAsync(entity);
+            var result= await Repository.InsertAndGetIdAsync(entity);
             var res = await _emergencyMasterRepository.GetAllAsync();
             var amount = await res.FirstOrDefaultAsync();
             if (input.Status == EmergencyStatus.Admitted)
@@ -102,7 +102,8 @@ namespace EMRSystem.Emergency.EmergencyCase
                     PatientId = input.PatientId,
                     ChargeType = ChargeType.Other,
                     Description = $"Emergency Case Only",
-                    Amount = amount.Fee > 0 ? amount.Fee : 0
+                    Amount = amount.Fee > 0 ? amount.Fee : 0,
+                    EmergencyCaseId = result,
                 };
 
                 await _emergencyChargeEntriesRepository.InsertAsync(chargeEntry);
@@ -115,9 +116,32 @@ namespace EMRSystem.Emergency.EmergencyCase
             {
                 input.EmergencyNumber = $"ER-{DateTime.Now.Year}-{Guid.NewGuid().ToString("N").Substring(0, 4).ToUpper()}";
             }
+
+            // Update EmergencyCase
             var emergencyCase = ObjectMapper.Map<EmergencyCase>(input);
             await Repository.UpdateAsync(emergencyCase);
-            CurrentUnitOfWork.SaveChanges();
+
+            // ✅ EmergencyChargeEntry update
+            var chargeEntries = await _emergencyChargeEntriesRepository
+                .GetAllListAsync(x => x.EmergencyCaseId == input.Id);
+
+            foreach (var entry in chargeEntries)
+            {
+                entry.PatientId = input.PatientId; // update patient
+                await _emergencyChargeEntriesRepository.UpdateAsync(entry);
+            }
+            if (input.PatientId.HasValue)
+            {
+                var patient = await _patientRepository.GetAsync(input.PatientId.Value);
+                if (patient != null)
+                {
+                    patient.IsEmergencyCharge = true;
+                    await _patientRepository.UpdateAsync(patient);
+                }
+            }
+
+            await CurrentUnitOfWork.SaveChangesAsync();
         }
+
     }
 }

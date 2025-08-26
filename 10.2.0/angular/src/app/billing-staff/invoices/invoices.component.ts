@@ -12,12 +12,15 @@ import { ChangeDetectorRef, Component, Injector, ViewChild } from '@angular/core
 import { BillingDto, BillingDtoPagedResultDto, BillingServiceProxy, InvoiceDto, InvoiceDtoPagedResultDto, InvoiceServiceProxy, PatientServiceProxy, UserServiceProxy } from '@shared/service-proxies/service-proxies';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
 import { CreateInvoiceComponent } from '../create-invoice/create-invoice.component';
+import { ViewInvoiceComponent } from '../view-invoice/view-invoice.component';
+import { OverlayPanelModule } from 'primeng/overlaypanel';
+import { ButtonModule } from 'primeng/button';
 
 
 
 @Component({
   selector: 'app-invoices',
-  imports: [FormsModule, TableModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe,DatePipe],
+  imports: [FormsModule, TableModule, PrimeTemplate, NgIf, PaginatorModule,OverlayPanelModule,ButtonModule, LocalizePipe,DatePipe],
   animations: [appModuleAnimation()],
   templateUrl: './invoices.component.html',
   styleUrl: './invoices.component.css',
@@ -140,6 +143,16 @@ getPaymentMethodString(method: number): string {
    this.showCreateOrEditPrescriptionDialog();
   }
 
+  viewInvoice(invoice: InvoiceDto): void {
+  let viewInvoiceDialog: BsModalRef;
+
+  viewInvoiceDialog = this._modalService.show(ViewInvoiceComponent, {
+    class: 'modal-lg',
+    initialState: {
+      id: invoice.id,   // Pass invoice id to modal
+    },
+  });
+}
   showCreateOrEditPrescriptionDialog(id?: number): void {
       let createOrEditUserDialog: BsModalRef;
       if (!id) {

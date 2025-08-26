@@ -26,6 +26,7 @@ namespace EMRSystem.Patients
         public int TenantId { get; set; }
         public decimal CurrentBalance { get; set; } = 0;
         public bool IsAdmitted { get; set; } = false;
+        public bool IsEmergencyCharge { get; set; } = false;
         public string FullName { get; set; }
         public string Gender { get; set; }
         public string Address { get; set; }
@@ -46,6 +47,7 @@ namespace EMRSystem.Patients
         public virtual ICollection<EMRSystem.IpdChargeEntry.IpdChargeEntry> IpdChargeEntries { get; set; }
         public virtual ICollection<EMRSystem.LabTestReceipt.LabTestReceipt> LabTestReceipts { get; set; }
         public virtual ICollection<EmergencyCase> EmergencyCases { get; set; }
+        public virtual ICollection<EMRSystem.EmergencyChargeEntries.EmergencyChargeEntry> EmergencyChargeEntries { get; set; }
 
 
         //public DateTime? AdmissionDate { get; set; }
