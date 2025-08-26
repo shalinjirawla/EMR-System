@@ -16,11 +16,4 @@ namespace EMRSystem.Invoices
 
 
     }
-
-    public enum InvoiceItemType
-    {
-        Consultation,
-        Medicine,
-        LabTest
-    }
 }

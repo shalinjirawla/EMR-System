@@ -33,6 +33,7 @@ namespace EMRSystem.Emergency.EmergencyCase
         public long? AdmissionsId { get; set; }
         public virtual EMRSystem.Admission.Admission Admissions { get; set; }
         public virtual ICollection<Triage.Triage> Triages { get; set; }
+        public virtual ICollection<EMRSystem.EmergencyChargeEntries.EmergencyChargeEntry> EmergencyChargeEntries { get; set; }
     }
 
     public enum ModeOfArrival

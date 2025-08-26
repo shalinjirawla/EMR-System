@@ -5,6 +5,7 @@ using Abp.Extensions;
 using Abp.UI;
 using EMRSystem.Appointments;
 using EMRSystem.Deposit;
+using EMRSystem.EmergencyChargeEntries;
 using EMRSystem.Invoice.Dto;
 using EMRSystem.Invoices;
 using EMRSystem.IpdChargeEntry;
@@ -33,19 +34,25 @@ namespace EMRSystem.Invoice
     {
         private readonly IConfiguration _configuration;
         private readonly IRepository<PatientDeposit, long> _patientDepositRepository;
+        private readonly IRepository<Patient, long> _patientRepository;
         private readonly IRepository<DepositTransaction, long> _depositTransactionRepository;
         private readonly IRepository<EMRSystem.IpdChargeEntry.IpdChargeEntry, long> _ipdChargeEntryRepository;
+        private readonly IRepository<EMRSystem.EmergencyChargeEntries.EmergencyChargeEntry, long> _emergencyChargeEntriesRepository;
         public InvoiceAppService(
             IRepository<EMRSystem.Invoices.Invoice, long> repository,
+            IRepository<Patient, long> patientRepository,
             IRepository<PatientDeposit, long> patientDepositRepository,
             IRepository<DepositTransaction, long> depositTransactionRepository,
+            IRepository<EMRSystem.EmergencyChargeEntries.EmergencyChargeEntry, long> emergencyChargeEntriesRepository,
             IConfiguration configuration,
             IRepository<EMRSystem.IpdChargeEntry.IpdChargeEntry, long> ipdChargeEntryRepository) : base(repository)
         {
             _configuration = configuration;
+            _patientRepository = patientRepository;
             _patientDepositRepository = patientDepositRepository;
             _depositTransactionRepository = depositTransactionRepository;
             _ipdChargeEntryRepository = ipdChargeEntryRepository;
+            _emergencyChargeEntriesRepository = emergencyChargeEntriesRepository;
             StripeConfiguration.ApiKey = _configuration["Stripe:SecretKey"];
         }
 
@@ -259,6 +266,7 @@ namespace EMRSystem.Invoice
             invoice.InvoiceNo = $"INV-{DateTime.Now:yyyyMMddHHmmss}";
 
             // Save Invoice
+            invoice.Status = InvoiceStatus.Paid;
             await Repository.InsertAsync(invoice);
             await CurrentUnitOfWork.SaveChangesAsync();
 
@@ -300,7 +308,29 @@ namespace EMRSystem.Invoice
             await _patientDepositRepository.UpdateAsync(patientDeposit);
             await CurrentUnitOfWork.SaveChangesAsync();
 
-            // ✅ Mark IpdChargeEntries as Processed
+
+            // ✅ Check & Update Patient EmergencyCharge
+            var patient = await _patientRepository.FirstOrDefaultAsync(x => x.Id == input.PatientId);
+            if (patient != null && patient.IsEmergencyCharge)   // <-- ye property tumhare patient entity me honi chahiye
+            {
+                patient.IsEmergencyCharge = false;
+                await _patientRepository.UpdateAsync(patient);
+            }
+
+            // ✅ Mark EmergencyChargeEntries as Processed
+            var emergencyCharges = await _emergencyChargeEntriesRepository.GetAllListAsync(x =>
+                x.PatientId == input.PatientId && !x.IsProcessed);
+
+            if (emergencyCharges.Any())
+            {
+                foreach (var charge in emergencyCharges)
+                {
+                    charge.IsProcessed = true;
+                    await _emergencyChargeEntriesRepository.UpdateAsync(charge);
+                }
+            }
+
+            // ✅ Mark IpdChargeEntries as Processed (jo tum already kar rahe ho)
             var charges = await GetChargesByPatientAsync(input.PatientId, input.InvoiceType);
             if (charges.Any())
             {
@@ -310,13 +340,13 @@ namespace EMRSystem.Invoice
                     chargeEntity.IsProcessed = true;
                     await _ipdChargeEntryRepository.UpdateAsync(chargeEntity);
                 }
-                await CurrentUnitOfWork.SaveChangesAsync();
             }
+
+            await CurrentUnitOfWork.SaveChangesAsync();
 
             // Return final DTO
             return MapToEntityDto(invoice);
         }
-
 
         private void CalculateInvoiceTotals(CreateUpdateInvoiceDto input, EMRSystem.Invoices.Invoice invoice)
         {
@@ -378,25 +408,92 @@ namespace EMRSystem.Invoice
         //        throw new UserFriendlyException("Error updating payment information");
         //    }
         //}
+        //public async Task<List<IpdChargeEntryDto>> GetChargesByPatientAsync(long patientId, InvoiceType invoiceType)
+        //{
+        //    var query = _ipdChargeEntryRepository
+        //                .GetAllIncluding(x => x.Patient, x => x.Admission)
+        //                .Where(x => x.PatientId == patientId && !x.IsProcessed);
+
+        //    // 🔥 InvoiceType ke hisaab se filter lagana
+        //    if (invoiceType == InvoiceType.DailyInvoice)
+        //    {
+        //        var today = DateTime.Today;
+        //        query = query.Where(x => x.EntryDate.Date == today);
+        //    }
+        //    // Agar FullInvoice hai to filter nahi lagega (sare charges aayenge)
+
+        //    var charges = query.ToList(); // execute query
+
+        //    return ObjectMapper.Map<List<IpdChargeEntryDto>>(charges);
+        //}
+
         public async Task<List<IpdChargeEntryDto>> GetChargesByPatientAsync(long patientId, InvoiceType invoiceType)
         {
-            var query = _ipdChargeEntryRepository
-                        .GetAllIncluding(x => x.Patient, x => x.Admission)
-                        .Where(x => x.PatientId == patientId && !x.IsProcessed);
+            // 🔹 Patient fetch kar le
+            var patient = await _patientRepository.GetAsync(patientId);
 
-            // 🔥 InvoiceType ke hisaab se filter lagana
+            var today = DateTime.Today;
+
+            // 🔹 IPD Charges
+            var ipdQuery = _ipdChargeEntryRepository
+                .GetAllIncluding(x => x.Patient, x => x.Admission)
+                .Where(x => x.PatientId == patientId && !x.IsProcessed);
+
             if (invoiceType == InvoiceType.DailyInvoice)
             {
-                var today = DateTime.Today;
-                query = query.Where(x => x.EntryDate.Date == today);
+                ipdQuery = ipdQuery.Where(x => x.EntryDate.Date == today);
             }
-            // Agar FullInvoice hai to filter nahi lagega (sare charges aayenge)
 
-            var charges = query.ToList(); // execute query
+            var ipdCharges = await ipdQuery.ToListAsync();
 
-            return ObjectMapper.Map<List<IpdChargeEntryDto>>(charges);
+            // 🔹 Emergency Charges (agar patient emergency ka hai)
+            var emergencyCharges = new List<EmergencyChargeEntry>();
+            if (patient.IsEmergencyCharge)
+            {
+                // ⚡ Sirf IsProcessed check karna hai, EntryDate filter nahi lagega
+                emergencyCharges = await _emergencyChargeEntriesRepository
+                    .GetAllIncluding(x => x.Patient, x => x.EmergencyCases)
+                    .Where(x => x.PatientId == patientId && !x.IsProcessed)
+                    .ToListAsync();
+            }
+
+            // 🔹 Map to DTO
+            var ipdDtos = ObjectMapper.Map<List<IpdChargeEntryDto>>(ipdCharges);
+
+            // ⚡ EmergencyChargeEntry ko bhi IpdChargeEntryDto me map karna padega
+            var emergencyDtos = emergencyCharges.Select(e => new IpdChargeEntryDto
+            {
+                Id = e.Id,
+                PatientId = e.PatientId ?? 0, // null safe
+                ChargeType = e.ChargeType.ToString(),
+                Description = e.Description,
+                Amount = e.Amount,
+                EntryDate = e.EntryDate,
+                IsProcessed = e.IsProcessed,
+                ReferenceId = e.ReferenceId
+            }).ToList();
+
+            // 🔹 Combine both
+            var allCharges = ipdDtos.Concat(emergencyDtos).ToList();
+
+            return allCharges;
         }
 
+        public async Task<InvoiceDto> GetInvoiceWithItemsAsync(long id)
+        {
+            var invoice = await Repository
+                .GetAll()
+                .Include(x => x.Items)            
+                .Include(x => x.Patient)          
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (invoice == null)
+            {
+                throw new Abp.UI.UserFriendlyException("Invoice not found");
+            }
+
+            return ObjectMapper.Map<InvoiceDto>(invoice);
+        }
         public async Task<string> CreateStripeCheckoutSession(long invoiceId, decimal amount, string successUrl, string cancelUrl)
         {
             try

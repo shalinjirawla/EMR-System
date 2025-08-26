@@ -10,6 +10,7 @@ using EMRSystem.Appointments;
 using EMRSystem.Appointments.Dto;
 using EMRSystem.Authorization.Users;
 using EMRSystem.Doctor;
+using EMRSystem.Doctors;
 using EMRSystem.Invoices;
 using EMRSystem.Nurse;
 using EMRSystem.Nurse.Dto;
@@ -121,11 +122,14 @@ namespace EMRSystem.Patients
         public async Task<PagedResultDto<PatientsForDoctorAndNurseDto>> PatientsForNurse(PagedPatientResultRequestDto input)
         {
             long nurseID = 0;
+            bool isAdmin = false;
             if (AbpSession.UserId.HasValue)
             {
                 var nurse = _nurseAppService.GetNurseDetailsByAbpUserID(AbpSession.UserId.Value);
                 if (nurse != null)
                     nurseID = nurse.Id;
+                else
+                    isAdmin = true;
             }
 
             var query = Repository.GetAll()
@@ -136,6 +140,7 @@ namespace EMRSystem.Patients
                 .Include(p => p.Admissions)
                   .ThenInclude(a => a.Nurse)
                 .Where(p => p.IsAdmitted)
+                .WhereIf(!isAdmin && nurseID > 0, p => p.Admissions.Any(a => a.NurseId == nurseID))
                 //.WhereIf(nurseID > 0, i => i.AssignedNurseId == nurseID)
                 .WhereIf(!input.Keyword.IsNullOrWhiteSpace(),
                     x => x.FullName.Contains(input.Keyword) ||
@@ -166,11 +171,15 @@ namespace EMRSystem.Patients
         public async Task<PagedResultDto<PatientsForDoctorAndNurseDto>> PatientsForDoctor(PagedPatientResultRequestDto input)
         {
             long doctorID = 0;
+            bool isAdmin = false;
+
             if (AbpSession.UserId.HasValue)
             {
                 var doctor = _doctorAppService.GetDoctorDetailsByAbpUserID(AbpSession.UserId.Value);
                 if (doctor != null)
                     doctorID = doctor.Id;
+                else
+                    isAdmin = true; // ✅ agar doctor null hai → admin (sab records dikhao)
             }
 
             var query = Repository.GetAll()
@@ -179,7 +188,8 @@ namespace EMRSystem.Patients
                     .ThenInclude(a => a.Doctor)
                 .Include(p => p.Admissions)
                     .ThenInclude(a => a.Nurse)
-                .Where(p => p.IsAdmitted) 
+                .Where(p => p.IsAdmitted)
+                .WhereIf(!isAdmin && doctorID > 0, p => p.Admissions.Any(a => a.DoctorId == doctorID))
                 .WhereIf(!input.Keyword.IsNullOrWhiteSpace(),
                     x => x.FullName.Contains(input.Keyword) ||
                          (x.AbpUser != null && x.AbpUser.EmailAddress.Contains(input.Keyword)));
@@ -202,6 +212,7 @@ namespace EMRSystem.Patients
             var mapped = ObjectMapper.Map<List<PatientsForDoctorAndNurseDto>>(patients);
             return new PagedResultDto<PatientsForDoctorAndNurseDto>(totalCount, mapped);
         }
+
 
 
         [HttpGet]

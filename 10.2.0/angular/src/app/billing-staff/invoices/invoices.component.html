@@ -101,10 +101,10 @@
                                     <th style="min-width: 150px">
                                         {{ 'Invoice Number' | localize }}
                                     </th>
-                                     <th style="min-width: 150px">
+                                    <th style="min-width: 150px">
                                         {{ 'Invoice Type' | localize }}
                                     </th>
-                                     <th style="min-width: 150px">
+                                    <th style="min-width: 150px">
                                         {{ 'Invoice Date' | localize }}
                                     </th>
                                     <th style="min-width: 100px" pSortableColumn="patientName">
@@ -115,7 +115,7 @@
                                         {{ 'TotalAmount' | localize }}
                                         <p-sortIcon field="totalAmount"></p-sortIcon>
                                     </th>
-                                    <th style="min-width: 150px" >
+                                    <th style="min-width: 150px">
                                         {{ 'PaymentStatus' | localize }}
                                     </th>
                                     <th style="min-width: 130px">
@@ -157,17 +157,25 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <button type="button" class="btn btn-sm bg-secondary"
-                                            (click)="editAppoinment(record)">
-                                            <i class="fas fa-pencil-alt"></i>
-                                            {{ 'Edit' | localize }}
+                                        <button type="button" pButton icon="pi pi-ellipsis-v" class="p-button-text"
+                                            (click)="rowMenu.toggle($event); selectedRecord = record">
                                         </button>
-                                        <button type="button" class="btn btn-sm bg-danger mx-2"
-                                            (click)="delete(record)">
-                                            <i class="fas fa-trash"></i>
-                                            {{ 'Delete' | localize }}
-                                        </button>
+
+                                        <p-overlayPanel #rowMenu class="custom-overlay" [dismissable]="true">
+                                            <ul class="custom-overlay-menu">
+                                                <li (click)="viewInvoice(selectedRecord)">
+                                                    <i class="pi pi-eye"></i> View Invoice
+                                                </li>
+                                                <li (click)="editInvoice(selectedRecord)">
+                                                    <i class="pi pi-pencil"></i> Edit
+                                                </li>
+                                                <li (click)="delete(selectedRecord)">
+                                                    <i class="pi pi-trash"></i> Delete
+                                                </li>
+                                            </ul>
+                                        </p-overlayPanel>
                                     </td>
+
                                 </tr>
                             </ng-template>
                         </p-table>
