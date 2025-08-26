@@ -38,7 +38,7 @@ export class EmergencyChargesComponent extends PagedListingComponentBase<Emergen
         injector: Injector,
         private _modalService: BsModalService,
         private _activatedRoute: ActivatedRoute,
-        private _emergencyMasterService: EmergencyMasterServiceProxy,
+        private _emergencyMasterService:EmergencyMasterServiceProxy,
         cd: ChangeDetectorRef,
     ) {
         super(injector, cd);
