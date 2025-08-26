@@ -62,7 +62,7 @@
               <ng-template pTemplate="body" let-record="$implicit">
                 <tr>
                   <td>{{ record.emergencyNumber }}</td>
-                  <td>{{ record.patientName||'Unknown' }}</td>
+                  <td>{{ record.patientName||'' }}</td>
                   <td>
                     <span *ngIf="record.doctorName">Dr.</span>{{ record.doctorName }}
                   </td>
@@ -85,7 +85,7 @@
                     </button>
                     <p-overlayPanel #rowMenu class="custom-overlay" [dismissable]="true">
                       <ul class="custom-overlay-menu">
-                        <li (click)="editEmergencyCase(selectedRecord)">
+                        <li (click)="editEmergencyCase(selectedRecord)" *ngIf="!idAdmitted(record.status)">
                           <i class="pi pi-pencil"></i> Edit
                         </li>
                         <li (click)="delete(selectedRecord)">

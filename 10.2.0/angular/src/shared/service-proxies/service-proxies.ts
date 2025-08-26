@@ -24836,6 +24836,7 @@ export class EmergencyCase implements IEmergencyCase {
     admissionsId: number | undefined;
     admissions: Admission;
     triages: Triage[] | undefined;
+    emergencyChargeEntries: EmergencyChargeEntry[] | undefined;
 
     constructor(data?: IEmergencyCase) {
         if (data) {
@@ -24868,6 +24869,11 @@ export class EmergencyCase implements IEmergencyCase {
                 this.triages = [] as any;
                 for (let item of _data["triages"])
                     this.triages.push(Triage.fromJS(item));
+            }
+            if (Array.isArray(_data["emergencyChargeEntries"])) {
+                this.emergencyChargeEntries = [] as any;
+                for (let item of _data["emergencyChargeEntries"])
+                    this.emergencyChargeEntries.push(EmergencyChargeEntry.fromJS(item));
             }
         }
     }
@@ -24902,6 +24908,11 @@ export class EmergencyCase implements IEmergencyCase {
             for (let item of this.triages)
                 data["triages"].push(item.toJSON());
         }
+        if (Array.isArray(this.emergencyChargeEntries)) {
+            data["emergencyChargeEntries"] = [];
+            for (let item of this.emergencyChargeEntries)
+                data["emergencyChargeEntries"].push(item.toJSON());
+        }
         return data;
     }
 
@@ -24931,6 +24942,7 @@ export interface IEmergencyCase {
     admissionsId: number | undefined;
     admissions: Admission;
     triages: Triage[] | undefined;
+    emergencyChargeEntries: EmergencyChargeEntry[] | undefined;
 }
 
 export class EmergencyCaseDto implements IEmergencyCaseDto {
@@ -25085,6 +25097,93 @@ export class EmergencyCaseDtoPagedResultDto implements IEmergencyCaseDtoPagedRes
 export interface IEmergencyCaseDtoPagedResultDto {
     items: EmergencyCaseDto[] | undefined;
     totalCount: number;
+}
+
+export class EmergencyChargeEntry implements IEmergencyChargeEntry {
+    id: number;
+    tenantId: number;
+    patientId: number | undefined;
+    patient: Patient;
+    chargeType: ChargeType;
+    description: string | undefined;
+    amount: number;
+    entryDate: moment.Moment;
+    isProcessed: boolean;
+    referenceId: number | undefined;
+    emergencyCaseId: number | undefined;
+    emergencyCases: EmergencyCase;
+
+    constructor(data?: IEmergencyChargeEntry) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.patientId = _data["patientId"];
+            this.patient = _data["patient"] ? Patient.fromJS(_data["patient"]) : <any>undefined;
+            this.chargeType = _data["chargeType"];
+            this.description = _data["description"];
+            this.amount = _data["amount"];
+            this.entryDate = _data["entryDate"] ? moment(_data["entryDate"].toString()) : <any>undefined;
+            this.isProcessed = _data["isProcessed"];
+            this.referenceId = _data["referenceId"];
+            this.emergencyCaseId = _data["emergencyCaseId"];
+            this.emergencyCases = _data["emergencyCases"] ? EmergencyCase.fromJS(_data["emergencyCases"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): EmergencyChargeEntry {
+        data = typeof data === 'object' ? data : {};
+        let result = new EmergencyChargeEntry();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["patientId"] = this.patientId;
+        data["patient"] = this.patient ? this.patient.toJSON() : <any>undefined;
+        data["chargeType"] = this.chargeType;
+        data["description"] = this.description;
+        data["amount"] = this.amount;
+        data["entryDate"] = this.entryDate ? this.entryDate.toISOString() : <any>undefined;
+        data["isProcessed"] = this.isProcessed;
+        data["referenceId"] = this.referenceId;
+        data["emergencyCaseId"] = this.emergencyCaseId;
+        data["emergencyCases"] = this.emergencyCases ? this.emergencyCases.toJSON() : <any>undefined;
+        return data;
+    }
+
+    clone(): EmergencyChargeEntry {
+        const json = this.toJSON();
+        let result = new EmergencyChargeEntry();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IEmergencyChargeEntry {
+    id: number;
+    tenantId: number;
+    patientId: number | undefined;
+    patient: Patient;
+    chargeType: ChargeType;
+    description: string | undefined;
+    amount: number;
+    entryDate: moment.Moment;
+    isProcessed: boolean;
+    referenceId: number | undefined;
+    emergencyCaseId: number | undefined;
+    emergencyCases: EmergencyCase;
 }
 
 export class EmergencyMasterDto implements IEmergencyMasterDto {
@@ -29830,6 +29929,7 @@ export class Patient implements IPatient {
     ipdChargeEntries: IpdChargeEntry[] | undefined;
     labTestReceipts: LabTestReceipt[] | undefined;
     emergencyCases: EmergencyCase[] | undefined;
+    emergencyChargeEntries: EmergencyChargeEntry[] | undefined;
 
     constructor(data?: IPatient) {
         if (data) {
@@ -29910,6 +30010,11 @@ export class Patient implements IPatient {
                 this.emergencyCases = [] as any;
                 for (let item of _data["emergencyCases"])
                     this.emergencyCases.push(EmergencyCase.fromJS(item));
+            }
+            if (Array.isArray(_data["emergencyChargeEntries"])) {
+                this.emergencyChargeEntries = [] as any;
+                for (let item of _data["emergencyChargeEntries"])
+                    this.emergencyChargeEntries.push(EmergencyChargeEntry.fromJS(item));
             }
         }
     }
@@ -29992,6 +30097,11 @@ export class Patient implements IPatient {
             for (let item of this.emergencyCases)
                 data["emergencyCases"].push(item.toJSON());
         }
+        if (Array.isArray(this.emergencyChargeEntries)) {
+            data["emergencyChargeEntries"] = [];
+            for (let item of this.emergencyChargeEntries)
+                data["emergencyChargeEntries"].push(item.toJSON());
+        }
         return data;
     }
 
@@ -30029,6 +30139,7 @@ export interface IPatient {
     ipdChargeEntries: IpdChargeEntry[] | undefined;
     labTestReceipts: LabTestReceipt[] | undefined;
     emergencyCases: EmergencyCase[] | undefined;
+    emergencyChargeEntries: EmergencyChargeEntry[] | undefined;
 }
 
 export class PatientAppointmentHistoryDto implements IPatientAppointmentHistoryDto {

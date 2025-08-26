@@ -25,12 +25,12 @@
       <div class="col-md-6">
         <label for="doctorSelect">Select Doctor</label>
         <p-select id="doctorSelect" [(ngModel)]="emergency.doctorId" [optionValue]="'id'" name="doctorId"
-          [options]="doctors" optionLabel="fullName" placeholder="Select doctor (optional)" class="w-100" />
+          [options]="doctors" optionLabel="fullName" placeholder="Select doctor" class="w-100" required/>
       </div>
       <div class="col-md-6">
         <label for="nurseSelect">Select Nurse</label>
         <p-select id="nurseSelect" [(ngModel)]="emergency.nurseId" [optionValue]="'id'" name="nurseId"
-          [options]="nurses" optionLabel="fullName" placeholder="Select nurse (optional)" class="w-100" />
+          [options]="nurses" optionLabel="fullName" placeholder="Select nurse" class="w-100" required/>
       </div>
     </div>
 
