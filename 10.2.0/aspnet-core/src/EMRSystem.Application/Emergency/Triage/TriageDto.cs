@@ -12,10 +12,10 @@ namespace EMRSystem.Emergency.Triage
     {
         public int TenantId { get; set; }
         public long EmergencyCaseId { get; set; }
+        public string EmergencyNumber { get; set; }
         public DateTime Time { get; set; }
         public long? NurseId { get; set; }
         public string NurseName { get; set; }
-
         public float? HeartRate { get; set; }
         public float? BloodPressureSystolic { get; set; }
         public float? BloodPressureDiastolic { get; set; }

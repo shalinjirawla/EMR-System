@@ -35,7 +35,7 @@ import { ButtonModule } from 'primeng/button';
     SelectModule,
     DatePickerModule,
     AbpModalHeaderComponent,
-    AbpModalFooterComponent,ButtonModule
+    AbpModalFooterComponent, ButtonModule
   ],
   providers: [PatientServiceProxy, DoctorServiceProxy, NurseServiceProxy, EmergencyServiceProxy],
   templateUrl: './edit-emergency-case.component.html',
@@ -77,7 +77,7 @@ export class EditEmergencyCaseComponent extends AppComponentBase implements OnIn
   ];
   showAddPatientButton = false;
   isPatientRequired = false;
-  isAdmitted=false;
+  isAdmitted = false;
   constructor(
     injector: Injector,
     public bsModalRef: BsModalRef,
@@ -104,8 +104,8 @@ export class EditEmergencyCaseComponent extends AppComponentBase implements OnIn
 
         // Convert Moment/string -> Date for the datepicker
         this.uiArrivalTime = this.toDate(res.arrivalTime);
-        if(this.emergency.status===4){
-          this.isAdmitted=true;
+        if (this.emergency.status === 4) {
+          this.isAdmitted = true;
         }
         this.cd.detectChanges();
       });
@@ -201,6 +201,10 @@ export class EditEmergencyCaseComponent extends AppComponentBase implements OnIn
     createOrEditPatientDialog.content.onSave.subscribe(() => {
       this.loadPatients();
     });
+    // Also subscribe to the onHide event to handle cases where modal closes without saving
+    createOrEditPatientDialog.onHide.subscribe(() => {
+      this.loadPatients(); // Refresh when modal closes regardless of save action
+    });
   }
   statusChange(event: any) {
     const isWalkIn = this.emergency.modeOfArrival === ModeOfArrival._0;
@@ -217,7 +221,6 @@ export class EditEmergencyCaseComponent extends AppComponentBase implements OnIn
   }
 
   FillAdmissionForm(emengencyData: any) {
-    debugger
     let fillAdmissionForm: BsModalRef;
     fillAdmissionForm = this._modalService.show(CreateAddmissionComponent, {
       class: 'modal-lg',

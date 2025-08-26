@@ -1,70 +1,84 @@
 <form class="form-horizontal" autocomplete="off" #createTriageForm="ngForm" (ngSubmit)="save()">
-  <abp-modal-header title="Create Triage" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
-
+  <abp-modal-header [title]="id ? 'Edit Triage' : 'Create Triage'" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
   <div class="modal-body">
     <div class="row">
       <div class="col-md-12">
         <label><b>Select Emergency Case</b></label>
-        <p-select 
-          [options]="emergencyCases" 
-          optionLabel="emergencyNumber" 
-          placeholder="Select emergency case"
-          [optionValue]="'id'" 
-          [(ngModel)]="triage.emergencyCaseId" 
-          name="emergencyCaseId" 
-          class="w-100" required />
+        <p-select [options]="emergencyCases" placeholder="Select emergency case" [optionValue]="'id'"
+          [(ngModel)]="triage.emergencyCaseId" name="emergencyCaseId" class="w-100" required>
+          <ng-template let-emergencyCase pTemplate="item">
+            <div>
+              <strong>{{ emergencyCase.emergencyNumber }}</strong> - {{ emergencyCase.patientName }}
+            </div>
+          </ng-template>
+          <ng-template let-emergencyCase pTemplate="selectedItem">
+            <div>
+              {{ emergencyCase.emergencyNumber }} - {{ emergencyCase.patientName }}
+            </div>
+          </ng-template>
+        </p-select>
       </div>
     </div>
 
     <div class="row mt-3">
-      <div class="col-md-6">
+      <div class="col-md-4">
         <label>Temperature (°C)</label>
-        <input type="number" [(ngModel)]="triage.temperature" name="temperature" class="form-control" step="0.1" required />
+        <input type="number" [(ngModel)]="triage.temperature" name="temperature" class="form-control" step="0.1"
+          placeholder="Temperature (°C)" required />
       </div>
-      <div class="col-md-6">
-        <label>Pulse (bpm)</label>
-        <input type="number" [(ngModel)]="triage.pulse" name="pulse" class="form-control" required />
+      <div class="col-md-4">
+        <label>Heart Rate</label>
+        <input type="number" placeholder="Heart Rate" [(ngModel)]="triage.heartRate" name="heartRate"
+          class="form-control" required />
+      </div>
+      <div class="col-md-4">
+        <label>Oxygen Saturation</label>
+        <input type="number" placeholder="Oxygen Saturation" [(ngModel)]="triage.oxygenSaturation"
+          name="oxygenSaturation" class="form-control" step="0.1" required />
       </div>
     </div>
 
     <div class="row mt-3">
-      <div class="col-md-6">
+      <div class="col-md-4">
         <label>Respiratory Rate</label>
-        <input type="number" [(ngModel)]="triage.respiratoryRate" name="respiratoryRate" class="form-control" required />
+        <input type="number" placeholder="Respiratory Rate" [(ngModel)]="triage.respiratoryRate" name="respiratoryRate"
+          class="form-control" required />
       </div>
-      <div class="col-md-6">
+      <div class="col-md-8">
         <label>Blood Pressure (Systolic/Diastolic)</label>
-        <div class="d-flex">
-          <input type="number" [(ngModel)]="triage.bloodPressureSystolic" name="bpSystolic" class="form-control me-2" placeholder="Systolic" required />
-          <input type="number" [(ngModel)]="triage.bloodPressureDiastolic" name="bpDiastolic" class="form-control" placeholder="Diastolic" required />
+        <div class="row">
+          <div class="col-md-6">
+            <input type="number" [(ngModel)]="triage.bloodPressureSystolic" name="bpSystolic" class="form-control"
+              placeholder="Systolic" required />
+          </div>
+          <div class="col-md-6">
+            <input type="number" [(ngModel)]="triage.bloodPressureDiastolic" name="bpDiastolic" class="form-control"
+              placeholder="Diastolic" required />
+          </div>
         </div>
       </div>
     </div>
-
+    <div class="row mt-3">
+      <div class="col-md-6 d-flex flex-column">
+        <label for="nurseSelect">Select Nurse</label>
+        <p-select id="nurseSelect" [(ngModel)]="triage.nurseId" [optionValue]="'id'" name="nurseId" [options]="nurses"
+          optionLabel="fullName" placeholder="Select nurse" required />
+      </div>
+      <div class="col-md-6 d-flex flex-column">
+        <label for="severitySelect">Severity</label>
+        <p-select id="severitySelect" [(ngModel)]="triage.severity" name="severity" [options]="severityOptions"
+          optionLabel="label" optionValue="value" placeholder="Select severity" required />
+      </div>
+    </div>
     <div class="row mt-3">
       <div class="col-md-12">
         <label>Notes</label>
-        <textarea [(ngModel)]="triage.notes" name="notes" class="form-control" rows="3"></textarea>
-      </div>
-    </div>
-
-    <div class="row mt-3">
-      <div class="col-md-12">
-        <label>Assessment Time</label>
-        <p-datepicker 
-          [(ngModel)]="uiAssessmentTime" 
-          name="assessmentTime"
-          [showIcon]="true" 
-          showTime="true"
-          placeholder="Select assessment time"
-          required />
+        <textarea placeholder="Notes" [(ngModel)]="triage.notes" name="notes" class="form-control" rows="3"></textarea>
       </div>
     </div>
   </div>
 
-  <abp-modal-footer 
-    [cancelDisabled]="saving" 
-    [saveDisabled]="!createTriageForm.form.valid || saving"
+  <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="!createTriageForm.form.valid || saving"
     (onCancelClick)="bsModalRef.hide()">
   </abp-modal-footer>
 </form>
