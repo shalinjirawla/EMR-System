@@ -1,8 +1,10 @@
 ﻿using Abp.Domain.Entities;
 using EMRSystem.Admission;
 using EMRSystem.Doctors;
+using EMRSystem.LabReports;
 using EMRSystem.Nurses;
 using EMRSystem.Patients;
+using EMRSystem.Prescriptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,6 +36,8 @@ namespace EMRSystem.Emergency.EmergencyCase
         public virtual EMRSystem.Admission.Admission Admissions { get; set; }
         public virtual ICollection<Triage.Triage> Triages { get; set; }
         public virtual ICollection<EMRSystem.EmergencyChargeEntries.EmergencyChargeEntry> EmergencyChargeEntries { get; set; }
+        public ICollection<Prescription> Prescriptions { get; set; }
+        public virtual ICollection<PrescriptionLabTest> PrescriptionLabTests { get; set; }
     }
 
     public enum ModeOfArrival

@@ -156,6 +156,12 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
               .HasForeignKey(s => s.AppointmentId)
               .OnDelete(DeleteBehavior.NoAction); // or NoAction
 
+        modelBuilder.Entity<Prescription>()
+              .HasOne(s => s.EmergencyCase)
+              .WithMany(e => e.Prescriptions)
+              .HasForeignKey(s => s.EmergencyCaseId)
+              .OnDelete(DeleteBehavior.NoAction); // or NoAction
+
 
         modelBuilder.Entity<Prescription>()
               .HasOne(s => s.Doctor)
@@ -225,6 +231,11 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
              .WithMany(ltr => ltr.PrescriptionLabTests)
              .HasForeignKey(plt => plt.LabTestReceiptId)
              .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(plt => plt.EmergencyCase)
+            .WithMany(ltr => ltr.PrescriptionLabTests)
+            .HasForeignKey(plt => plt.EmergencyCaseId)
+            .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<LabReportResultItem>()

@@ -1,4 +1,5 @@
 ﻿using Abp.Domain.Entities;
+using EMRSystem.Emergency.EmergencyCase;
 using EMRSystem.LabMasters;
 using EMRSystem.LabReportsTypes;
 using EMRSystem.LabTestReceipt;
@@ -42,6 +43,9 @@ namespace EMRSystem.LabReports
         public virtual HealthPackage HealthPackage { get; set; }
 
         public ICollection<LabReportResultItem> LabReportResultItems { get; set; }
+        public bool IsEmergencyPrescription { get; set; }
+        public long? EmergencyCaseId { get; set; }
+        public virtual EmergencyCase EmergencyCase { get; set; }
     }
 
     public enum LabTestStatus

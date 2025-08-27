@@ -23102,11 +23102,13 @@ export class CreateUpdatePrescriptionDto implements ICreateUpdatePrescriptionDto
     notes: string | undefined;
     issueDate: moment.Moment;
     isFollowUpRequired: boolean;
-    appointmentId: number;
-    doctorId: number;
-    patientId: number;
+    appointmentId: number | undefined;
+    doctorId: number | undefined;
+    patientId: number | undefined;
     labTestIds: number[] | undefined;
     items: CreateUpdatePrescriptionItemDto[] | undefined;
+    isEmergencyPrescription: boolean;
+    emergencyCaseId: number | undefined;
 
     constructor(data?: ICreateUpdatePrescriptionDto) {
         if (data) {
@@ -23138,6 +23140,8 @@ export class CreateUpdatePrescriptionDto implements ICreateUpdatePrescriptionDto
                 for (let item of _data["items"])
                     this.items.push(CreateUpdatePrescriptionItemDto.fromJS(item));
             }
+            this.isEmergencyPrescription = _data["isEmergencyPrescription"];
+            this.emergencyCaseId = _data["emergencyCaseId"];
         }
     }
 
@@ -23169,6 +23173,8 @@ export class CreateUpdatePrescriptionDto implements ICreateUpdatePrescriptionDto
             for (let item of this.items)
                 data["items"].push(item.toJSON());
         }
+        data["isEmergencyPrescription"] = this.isEmergencyPrescription;
+        data["emergencyCaseId"] = this.emergencyCaseId;
         return data;
     }
 
@@ -23187,11 +23193,13 @@ export interface ICreateUpdatePrescriptionDto {
     notes: string | undefined;
     issueDate: moment.Moment;
     isFollowUpRequired: boolean;
-    appointmentId: number;
-    doctorId: number;
-    patientId: number;
+    appointmentId: number | undefined;
+    doctorId: number | undefined;
+    patientId: number | undefined;
     labTestIds: number[] | undefined;
     items: CreateUpdatePrescriptionItemDto[] | undefined;
+    isEmergencyPrescription: boolean;
+    emergencyCaseId: number | undefined;
 }
 
 export class CreateUpdatePrescriptionItemDto implements ICreateUpdatePrescriptionItemDto {
@@ -24972,6 +24980,8 @@ export class EmergencyCase implements IEmergencyCase {
     admissions: Admission;
     triages: Triage[] | undefined;
     emergencyChargeEntries: EmergencyChargeEntry[] | undefined;
+    prescriptions: Prescription[] | undefined;
+    prescriptionLabTests: PrescriptionLabTest[] | undefined;
 
     constructor(data?: IEmergencyCase) {
         if (data) {
@@ -25009,6 +25019,16 @@ export class EmergencyCase implements IEmergencyCase {
                 this.emergencyChargeEntries = [] as any;
                 for (let item of _data["emergencyChargeEntries"])
                     this.emergencyChargeEntries.push(EmergencyChargeEntry.fromJS(item));
+            }
+            if (Array.isArray(_data["prescriptions"])) {
+                this.prescriptions = [] as any;
+                for (let item of _data["prescriptions"])
+                    this.prescriptions.push(Prescription.fromJS(item));
+            }
+            if (Array.isArray(_data["prescriptionLabTests"])) {
+                this.prescriptionLabTests = [] as any;
+                for (let item of _data["prescriptionLabTests"])
+                    this.prescriptionLabTests.push(PrescriptionLabTest.fromJS(item));
             }
         }
     }
@@ -25048,6 +25068,16 @@ export class EmergencyCase implements IEmergencyCase {
             for (let item of this.emergencyChargeEntries)
                 data["emergencyChargeEntries"].push(item.toJSON());
         }
+        if (Array.isArray(this.prescriptions)) {
+            data["prescriptions"] = [];
+            for (let item of this.prescriptions)
+                data["prescriptions"].push(item.toJSON());
+        }
+        if (Array.isArray(this.prescriptionLabTests)) {
+            data["prescriptionLabTests"] = [];
+            for (let item of this.prescriptionLabTests)
+                data["prescriptionLabTests"].push(item.toJSON());
+        }
         return data;
     }
 
@@ -25078,6 +25108,8 @@ export interface IEmergencyCase {
     admissions: Admission;
     triages: Triage[] | undefined;
     emergencyChargeEntries: EmergencyChargeEntry[] | undefined;
+    prescriptions: Prescription[] | undefined;
+    prescriptionLabTests: PrescriptionLabTest[] | undefined;
 }
 
 export class EmergencyCaseDto implements IEmergencyCaseDto {
@@ -31856,11 +31888,14 @@ export class Prescription implements IPrescription {
     notes: string | undefined;
     issueDate: moment.Moment;
     isFollowUpRequired: boolean;
-    appointmentId: number;
+    appointmentId: number | undefined;
     appointment: Appointment;
-    doctorId: number;
+    isEmergencyPrescription: boolean;
+    emergencyCaseId: number | undefined;
+    emergencyCase: EmergencyCase;
+    doctorId: number | undefined;
     doctor: Doctor;
-    patientId: number;
+    patientId: number | undefined;
     patient: Patient;
     items: PrescriptionItem[] | undefined;
     labTests: PrescriptionLabTest[] | undefined;
@@ -31884,6 +31919,9 @@ export class Prescription implements IPrescription {
             this.isFollowUpRequired = _data["isFollowUpRequired"];
             this.appointmentId = _data["appointmentId"];
             this.appointment = _data["appointment"] ? Appointment.fromJS(_data["appointment"]) : <any>undefined;
+            this.isEmergencyPrescription = _data["isEmergencyPrescription"];
+            this.emergencyCaseId = _data["emergencyCaseId"];
+            this.emergencyCase = _data["emergencyCase"] ? EmergencyCase.fromJS(_data["emergencyCase"]) : <any>undefined;
             this.doctorId = _data["doctorId"];
             this.doctor = _data["doctor"] ? Doctor.fromJS(_data["doctor"]) : <any>undefined;
             this.patientId = _data["patientId"];
@@ -31918,6 +31956,9 @@ export class Prescription implements IPrescription {
         data["isFollowUpRequired"] = this.isFollowUpRequired;
         data["appointmentId"] = this.appointmentId;
         data["appointment"] = this.appointment ? this.appointment.toJSON() : <any>undefined;
+        data["isEmergencyPrescription"] = this.isEmergencyPrescription;
+        data["emergencyCaseId"] = this.emergencyCaseId;
+        data["emergencyCase"] = this.emergencyCase ? this.emergencyCase.toJSON() : <any>undefined;
         data["doctorId"] = this.doctorId;
         data["doctor"] = this.doctor ? this.doctor.toJSON() : <any>undefined;
         data["patientId"] = this.patientId;
@@ -31950,11 +31991,14 @@ export interface IPrescription {
     notes: string | undefined;
     issueDate: moment.Moment;
     isFollowUpRequired: boolean;
-    appointmentId: number;
+    appointmentId: number | undefined;
     appointment: Appointment;
-    doctorId: number;
+    isEmergencyPrescription: boolean;
+    emergencyCaseId: number | undefined;
+    emergencyCase: EmergencyCase;
+    doctorId: number | undefined;
     doctor: Doctor;
-    patientId: number;
+    patientId: number | undefined;
     patient: Patient;
     items: PrescriptionItem[] | undefined;
     labTests: PrescriptionLabTest[] | undefined;
@@ -31973,6 +32017,8 @@ export class PrescriptionDto implements IPrescriptionDto {
     items: PrescriptionItemDto[] | undefined;
     labTestIds: number[] | undefined;
     labTests: PrescriptionLabTestDto[] | undefined;
+    isEmergencyPrescription: boolean;
+    emergencyCaseId: number | undefined;
 
     constructor(data?: IPrescriptionDto) {
         if (data) {
@@ -32009,6 +32055,8 @@ export class PrescriptionDto implements IPrescriptionDto {
                 for (let item of _data["labTests"])
                     this.labTests.push(PrescriptionLabTestDto.fromJS(item));
             }
+            this.isEmergencyPrescription = _data["isEmergencyPrescription"];
+            this.emergencyCaseId = _data["emergencyCaseId"];
         }
     }
 
@@ -32045,6 +32093,8 @@ export class PrescriptionDto implements IPrescriptionDto {
             for (let item of this.labTests)
                 data["labTests"].push(item.toJSON());
         }
+        data["isEmergencyPrescription"] = this.isEmergencyPrescription;
+        data["emergencyCaseId"] = this.emergencyCaseId;
         return data;
     }
 
@@ -32069,6 +32119,8 @@ export interface IPrescriptionDto {
     items: PrescriptionItemDto[] | undefined;
     labTestIds: number[] | undefined;
     labTests: PrescriptionLabTestDto[] | undefined;
+    isEmergencyPrescription: boolean;
+    emergencyCaseId: number | undefined;
 }
 
 export class PrescriptionDtoListResultDto implements IPrescriptionDtoListResultDto {
@@ -32464,6 +32516,9 @@ export class PrescriptionLabTest implements IPrescriptionLabTest {
     healthPackageId: number | undefined;
     healthPackage: HealthPackage;
     labReportResultItems: LabReportResultItem[] | undefined;
+    isEmergencyPrescription: boolean;
+    emergencyCaseId: number | undefined;
+    emergencyCase: EmergencyCase;
 
     constructor(data?: IPrescriptionLabTest) {
         if (data) {
@@ -32498,6 +32553,9 @@ export class PrescriptionLabTest implements IPrescriptionLabTest {
                 for (let item of _data["labReportResultItems"])
                     this.labReportResultItems.push(LabReportResultItem.fromJS(item));
             }
+            this.isEmergencyPrescription = _data["isEmergencyPrescription"];
+            this.emergencyCaseId = _data["emergencyCaseId"];
+            this.emergencyCase = _data["emergencyCase"] ? EmergencyCase.fromJS(_data["emergencyCase"]) : <any>undefined;
         }
     }
 
@@ -32532,6 +32590,9 @@ export class PrescriptionLabTest implements IPrescriptionLabTest {
             for (let item of this.labReportResultItems)
                 data["labReportResultItems"].push(item.toJSON());
         }
+        data["isEmergencyPrescription"] = this.isEmergencyPrescription;
+        data["emergencyCaseId"] = this.emergencyCaseId;
+        data["emergencyCase"] = this.emergencyCase ? this.emergencyCase.toJSON() : <any>undefined;
         return data;
     }
 
@@ -32562,6 +32623,9 @@ export interface IPrescriptionLabTest {
     healthPackageId: number | undefined;
     healthPackage: HealthPackage;
     labReportResultItems: LabReportResultItem[] | undefined;
+    isEmergencyPrescription: boolean;
+    emergencyCaseId: number | undefined;
+    emergencyCase: EmergencyCase;
 }
 
 export class PrescriptionLabTestDto implements IPrescriptionLabTestDto {

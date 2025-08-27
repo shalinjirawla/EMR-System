@@ -19,6 +19,8 @@ namespace EMRSystem.Prescriptions.Dto
         public string Notes { get; set; }
         public DateTime IssueDate { get; set; } = DateTime.Now;
         public bool IsFollowUpRequired { get; set; }
+        public bool IsEmergencyPrescription { get; set; }
+        public long? EmergencyCaseId { get; set; }
         public AppointmentDto Appointment { get; set; }
         public DoctorDto Doctor { get; set; }
         public PatientDto Patient { get; set; }
