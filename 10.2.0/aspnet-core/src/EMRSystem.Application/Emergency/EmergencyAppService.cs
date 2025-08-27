@@ -27,15 +27,17 @@ namespace EMRSystem.Emergency.EmergencyCase
         private readonly IRepository<EMRSystem.Emergency.EmergencyMaster.EmergencyMaster, long> _emergencyMasterRepository;
         private readonly IRepository<EMRSystem.IpdChargeEntry.IpdChargeEntry, long> _ipdChargeEntryRepository;
         private readonly IRepository<EMRSystem.EmergencyChargeEntries.EmergencyChargeEntry, long> _emergencyChargeEntriesRepository;
+        private readonly IRepository<EMRSystem.Prescriptions.Prescription, long> _prescriptionRepository;
         public EmergencyAppService(IRepository<EmergencyCase, long> repository, IRepository<Patient, long> patientRepository,
                 IRepository<EMRSystem.IpdChargeEntry.IpdChargeEntry, long> ipdChargeEntryRepository, IRepository<EMRSystem.Emergency.EmergencyMaster.EmergencyMaster, long> emergencyMasterRepository,
-                IRepository<EMRSystem.EmergencyChargeEntries.EmergencyChargeEntry, long> emergencyChargeEntriesRepository)
+                IRepository<EMRSystem.EmergencyChargeEntries.EmergencyChargeEntry, long> emergencyChargeEntriesRepository, IRepository<Prescriptions.Prescription, long> prescriptionRepository)
             : base(repository)
         {
             _patientRepository = patientRepository;
             _ipdChargeEntryRepository = ipdChargeEntryRepository;
             _emergencyMasterRepository = emergencyMasterRepository;
             _emergencyChargeEntriesRepository = emergencyChargeEntriesRepository;
+            _prescriptionRepository = prescriptionRepository;
         }
 
         protected override IQueryable<EmergencyCase> CreateFilteredQuery(PagedEmergencyCaseResultRequestDto input)
@@ -54,7 +56,7 @@ namespace EMRSystem.Emergency.EmergencyCase
 
             entity.EmergencyNumber = $"ER-{DateTime.Now.Year}-{Guid.NewGuid().ToString("N").Substring(0, 4).ToUpper()}";
 
-            var result= await Repository.InsertAndGetIdAsync(entity);
+            var result = await Repository.InsertAndGetIdAsync(entity);
             var res = await _emergencyMasterRepository.GetAllAsync();
             var amount = await res.FirstOrDefaultAsync();
             if (input.Status == EmergencyStatus.Admitted)
@@ -81,7 +83,7 @@ namespace EMRSystem.Emergency.EmergencyCase
                 //var doctorFee = await _doctorMasterRepository.FirstOrDefaultAsync(dm =>
                 //    dm.DoctorId == appointment.DoctorId &&
                 //    dm.TenantId == appointment.TenantId);
-                
+
                 var chargeEntry = new EMRSystem.IpdChargeEntry.IpdChargeEntry
                 {
                     AdmissionId = admission.Id,
@@ -121,14 +123,27 @@ namespace EMRSystem.Emergency.EmergencyCase
             var emergencyCase = ObjectMapper.Map<EmergencyCase>(input);
             await Repository.UpdateAsync(emergencyCase);
 
-            // ✅ EmergencyChargeEntry update
-            var chargeEntries = await _emergencyChargeEntriesRepository
-                .GetAllListAsync(x => x.EmergencyCaseId == input.Id);
-
-            foreach (var entry in chargeEntries)
+            if (input.PatientId.HasValue)
             {
-                entry.PatientId = input.PatientId; // update patient
-                await _emergencyChargeEntriesRepository.UpdateAsync(entry);
+                // ✅ EmergencyChargeEntry update
+                var chargeEntries = await _emergencyChargeEntriesRepository
+                    .GetAllListAsync(x => x.EmergencyCaseId == input.Id);
+
+                foreach (var entry in chargeEntries)
+                {
+                    entry.PatientId = input.PatientId; // update patient
+                    await _emergencyChargeEntriesRepository.UpdateAsync(entry);
+                }
+
+                // ✅ Prescription update
+                var prescriptionEntries = await _prescriptionRepository
+                    .GetAllListAsync(x => x.EmergencyCaseId == input.Id);
+
+                foreach (var entry in prescriptionEntries)
+                {
+                    entry.PatientId = input.PatientId; // update patient
+                    await _prescriptionRepository.UpdateAsync(entry);
+                }
             }
             if (input.PatientId.HasValue)
             {

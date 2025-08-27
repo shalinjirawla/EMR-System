@@ -57,62 +57,64 @@ namespace EMRSystem.Prescriptions
             try
             {
 
-            var userId = AbpSession.UserId;
-            var doctor = _doctorAppService.GetDoctorDetailsByAbpUserID(userId.Value);
+                var userId = AbpSession.UserId;
+                var doctor = _doctorAppService.GetDoctorDetailsByAbpUserID(userId.Value);
 
-            return Repository
-                .GetAll()
-                .Include(x => x.Patient)
-                .Include(x => x.Doctor)
-                .Include(x => x.LabTests) 
-                .WhereIf(!input.Keyword.IsNullOrWhiteSpace(), x =>
-                    x.Diagnosis.Contains(input.Keyword) ||
-                    x.Notes.Contains(input.Keyword) ||
-                    x.Patient.FullName.Contains(input.Keyword) ||
-                    x.Doctor.FullName.Contains(input.Keyword) ||
-                    x.Items.Any(i => i.MedicineName.Contains(input.Keyword)))
-                .WhereIf(input.FromDate.HasValue, x => x.IssueDate >= input.FromDate.Value)
-                .WhereIf(input.ToDate.HasValue, x => x.IssueDate <= input.ToDate.Value)
-                .WhereIf(doctor != null, x => x.Doctor.Id == doctor.Id)
-                .Select(x => new Prescription
-                {
-                    Id = x.Id,
-                    TenantId = x.TenantId,
-                    Diagnosis = x.Diagnosis,
-                    Notes = x.Notes,
-                    IssueDate = x.IssueDate,
-                    IsFollowUpRequired = x.IsFollowUpRequired,
-                    Patient = x.Patient == null ? null : new Patient
+                return Repository
+                    .GetAll()
+                    .Include(x => x.Patient)
+                    .Include(x => x.Doctor)
+                    .Include(x => x.LabTests)
+                    .WhereIf(!input.Keyword.IsNullOrWhiteSpace(), x =>
+                        x.Diagnosis.Contains(input.Keyword) ||
+                        x.Notes.Contains(input.Keyword) ||
+                        x.Patient.FullName.Contains(input.Keyword) ||
+                        x.Doctor.FullName.Contains(input.Keyword) ||
+                        x.Items.Any(i => i.MedicineName.Contains(input.Keyword)))
+                    .WhereIf(input.FromDate.HasValue, x => x.IssueDate >= input.FromDate.Value)
+                    .WhereIf(input.ToDate.HasValue, x => x.IssueDate <= input.ToDate.Value)
+                    .WhereIf(doctor != null, x => x.Doctor.Id == doctor.Id)
+                    .Select(x => new Prescription
                     {
-                        Id = x.Patient.Id,
-                        FullName = x.Patient.FullName,
-                        IsAdmitted = x.Patient.IsAdmitted
-                        
-                    },
-                    Doctor = x.Doctor == null ? null : new EMRSystem.Doctors.Doctor
-                    {
-                        Id = x.Doctor.Id,
-                        FullName = x.Doctor.FullName
-                    },
-                    Items = x.Items.Select(i => new PrescriptionItem
-                    {
-                        Id = i.Id,
-                        MedicineName = i.MedicineName,
-                        Dosage = i.Dosage,
-                        Frequency = i.Frequency,
-                        Duration = i.Duration,
-                        Instructions = i.Instructions,
-                    }).ToList(),
-                    LabTests = x.LabTests.Select(lt => new EMRSystem.LabReports.PrescriptionLabTest
-                    {
-                        Id = lt.Id,
-                        LabReportsTypeId = lt.LabReportsTypeId,
-                        TestStatus = lt.TestStatus,
-                        CreatedDate = lt.CreatedDate
-                    }).ToList()
-                });
+                        Id = x.Id,
+                        TenantId = x.TenantId,
+                        Diagnosis = x.Diagnosis,
+                        Notes = x.Notes,
+                        IssueDate = x.IssueDate,
+                        IsFollowUpRequired = x.IsFollowUpRequired,
+                        IsEmergencyPrescription=x.IsEmergencyPrescription,
+                        EmergencyCaseId=x.EmergencyCaseId,
+                        Patient = x.Patient == null ? null : new Patient
+                        {
+                            Id = x.Patient.Id,
+                            FullName = x.Patient.FullName,
+                            IsAdmitted = x.Patient.IsAdmitted
+
+                        },
+                        Doctor = x.Doctor == null ? null : new EMRSystem.Doctors.Doctor
+                        {
+                            Id = x.Doctor.Id,
+                            FullName = x.Doctor.FullName
+                        },
+                        Items = x.Items.Select(i => new PrescriptionItem
+                        {
+                            Id = i.Id,
+                            MedicineName = i.MedicineName,
+                            Dosage = i.Dosage,
+                            Frequency = i.Frequency,
+                            Duration = i.Duration,
+                            Instructions = i.Instructions,
+                        }).ToList(),
+                        LabTests = x.LabTests.Select(lt => new EMRSystem.LabReports.PrescriptionLabTest
+                        {
+                            Id = lt.Id,
+                            LabReportsTypeId = lt.LabReportsTypeId,
+                            TestStatus = lt.TestStatus,
+                            CreatedDate = lt.CreatedDate
+                        }).ToList()
+                    });
             }
-            catch(SqlException sqlEx)
+            catch (SqlException sqlEx)
             {
                 throw sqlEx;
             }
@@ -154,9 +156,12 @@ namespace EMRSystem.Prescriptions
             await Repository.InsertAsync(prescription);
             await CurrentUnitOfWork.SaveChangesAsync(); // Needed to get prescription.Id
 
+            bool isAdmitted = false;
             // Fetch patient to check admission
-            var patient = await _patientRepository.GetAsync(input.PatientId);
-            bool isAdmitted = patient.IsAdmitted;
+            if (input.PatientId.HasValue) {
+                var patient = await _patientRepository.GetAsync(input.PatientId.Value);
+                isAdmitted = patient.IsAdmitted;
+            }
 
             if (isAdmitted)
             {
@@ -171,7 +176,7 @@ namespace EMRSystem.Prescriptions
                         LabReportsTypeId = labTestId,
                         IsPaid = isAdmitted,
                         TestStatus = LabTestStatus.Pending,
-                        IsPrescribed=true,
+                        IsPrescribed = true,
                         IsFromPackage = false,
                         CreatedDate = DateTime.Now
                     };
@@ -190,8 +195,8 @@ namespace EMRSystem.Prescriptions
                         PrescriptionId = prescription.Id,
                         LabReportsTypeId = labTestId,
                         IsPaid = false,
-                        IsPrescribed=true,
-                        IsFromPackage=false,
+                        IsPrescribed = true,
+                        IsFromPackage = false,
                         TestStatus = LabTestStatus.Pending,
                         CreatedDate = DateTime.Now
                     };
@@ -201,9 +206,12 @@ namespace EMRSystem.Prescriptions
             }
 
             // Mark appointment as completed
-            var appointment = await _appointmentRepository.GetAsync(input.AppointmentId);
-            appointment.Status = AppointmentStatus.Completed;
-            await _appointmentRepository.UpdateAsync(appointment);
+            if (input.AppointmentId.HasValue)
+            {
+                var appointment = await _appointmentRepository.GetAsync(input.AppointmentId.Value);
+                appointment.Status = AppointmentStatus.Completed;
+                await _appointmentRepository.UpdateAsync(appointment);
+            }
 
             await CurrentUnitOfWork.SaveChangesAsync();
         }
@@ -285,6 +293,8 @@ namespace EMRSystem.Prescriptions
                     Notes = x.Notes,
                     IssueDate = x.IssueDate,
                     IsFollowUpRequired = x.IsFollowUpRequired,
+                    IsEmergencyPrescription = x.IsEmergencyPrescription,
+                    EmergencyCaseId = x.EmergencyCaseId,
                     Patient = x.Patient == null ? null : new Patient
                     {
                         Id = x.Patient.Id,
@@ -304,7 +314,7 @@ namespace EMRSystem.Prescriptions
                     {
                         Id = i.Id,
                         MedicineName = i.MedicineName,
-                        MedicineId=i.MedicineId,
+                        MedicineId = i.MedicineId,
                         Dosage = i.Dosage,
                         Frequency = i.Frequency,
                         Duration = i.Duration,

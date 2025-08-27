@@ -14,10 +14,12 @@ namespace EMRSystem.Prescriptions.Dto
         public string Notes { get; set; }
         public DateTime IssueDate { get; set; } = DateTime.Now;
         public bool IsFollowUpRequired { get; set; }
-        public long AppointmentId { get; set; }
-        public long DoctorId { get; set; }
-        public long PatientId { get; set; }
+        public long? AppointmentId { get; set; }
+        public long? DoctorId { get; set; }
+        public long? PatientId { get; set; }
         public List<int> LabTestIds { get; set; }
         public List<CreateUpdatePrescriptionItemDto> Items { get; set; }
+        public bool IsEmergencyPrescription { get; set; }
+        public long? EmergencyCaseId { get; set; }
     }
 }

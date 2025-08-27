@@ -91,7 +91,7 @@ export class EditPrescriptionsComponent extends AppComponentBase implements OnIn
     this.loadLabTestsAndPrescription();
   }
 
- loadLabTestsAndPrescription(): void {
+  loadLabTestsAndPrescription(): void {
     // First load all available lab tests
     this._labService.getAllTestByTenantID(abp.session.tenantId).subscribe({
       next: (labRes) => {
@@ -101,7 +101,7 @@ export class EditPrescriptionsComponent extends AppComponentBase implements OnIn
           name: item.reportType,
           value: item.id // Add value property for PrimeNG
         }));
-        
+
         // Then load the prescription
         this.loadPrescription();
       },
@@ -133,7 +133,7 @@ export class EditPrescriptionsComponent extends AppComponentBase implements OnIn
               id: i.id,
               tenantId: i.tenantId,
               medicineName: i.medicineName,
-              medicineId:i.medicineId,
+              medicineId: i.medicineId,
               dosage: i.dosage,
               frequency: i.frequency,
               duration: i.duration,
@@ -145,11 +145,11 @@ export class EditPrescriptionsComponent extends AppComponentBase implements OnIn
           })
         };
 
-      
+
         this.selectedLabTests = this.prescription.labTestIds
           .map(id => this.labTests.find(test => test.id === id))
           .filter(test => test !== undefined);
-        
+
 
         this.loadAppointmentDetails();
       },
@@ -161,7 +161,7 @@ export class EditPrescriptionsComponent extends AppComponentBase implements OnIn
 
   loadAppointmentDetails(): void {
     if (!this.prescription.appointmentId) return;
-    
+
     this._appointmentService.get(this.prescription.appointmentId).subscribe({
       next: (app) => {
         const selectedPatient = this.patients.find(p => p.id === this.prescription.patientId);
@@ -186,66 +186,66 @@ export class EditPrescriptionsComponent extends AppComponentBase implements OnIn
     });
   }
 
-//   loadMedicines(): void {
-//     this._pharmacistInventoryService.getAll(
-//       undefined, undefined, undefined, undefined,
-//       undefined,  true, undefined, undefined
-//     ).subscribe({
-//       next: (res) => {
-//         if (res.items && res.items.length > 0) {
-//           this.medicineOptions = res.items.map(item => ({
-//             label: item.medicineName,
-//             value: item.id, // Use medicineId as value
-//             name: item.medicineName // Store name separately
-//           }));
+  //   loadMedicines(): void {
+  //     this._pharmacistInventoryService.getAll(
+  //       undefined, undefined, undefined, undefined,
+  //       undefined,  true, undefined, undefined
+  //     ).subscribe({
+  //       next: (res) => {
+  //         if (res.items && res.items.length > 0) {
+  //           this.medicineOptions = res.items.map(item => ({
+  //             label: item.medicineName,
+  //             value: item.id, // Use medicineId as value
+  //             name: item.medicineName // Store name separately
+  //           }));
 
 
-//           res.items.forEach(medicine => {
-//             if (medicine.unit) {
-//               const units = medicine.unit.split(',').map(u => u.trim());
-//               this.medicineDosageOptions[medicine.medicineName] = units;
-//               this.selectedMedicineUnits[medicine.medicineName] = units[0];
-//             }
-//           });
-//         }
-//       },
-//       error: (err) => {
-//         this.notify.error('Could not load medicines');
-//       }
-//     });
-//   }
+  //           res.items.forEach(medicine => {
+  //             if (medicine.unit) {
+  //               const units = medicine.unit.split(',').map(u => u.trim());
+  //               this.medicineDosageOptions[medicine.medicineName] = units;
+  //               this.selectedMedicineUnits[medicine.medicineName] = units[0];
+  //             }
+  //           });
+  //         }
+  //       },
+  //       error: (err) => {
+  //         this.notify.error('Could not load medicines');
+  //       }
+  //     });
+  //   }
 
-//   getDosageOptions(medicineName: string): any[] {
-//     if (!medicineName || !this.medicineDosageOptions[medicineName]) return [];
-//     return this.medicineDosageOptions[medicineName].map(unit => ({
-//       label: unit,
-//       value: unit
-//     }));
-//   }
+  //   getDosageOptions(medicineName: string): any[] {
+  //     if (!medicineName || !this.medicineDosageOptions[medicineName]) return [];
+  //     return this.medicineDosageOptions[medicineName].map(unit => ({
+  //       label: unit,
+  //       value: unit
+  //     }));
+  //   }
 
-//   // onMedicineChange(item: any, index: number): void {
-//   //   const selectedMedicine = item.medicineName;
-//   //   if (selectedMedicine && this.medicineDosageOptions[selectedMedicine]) {
-//   //     item.dosage = this.selectedMedicineUnits[selectedMedicine];
-//   //   } else {
-//   //     item.dosage = '';
-//   //   }
-//   // }
-//   onMedicineChange(item: any, index: number) {
-//   const selected = this.medicineOptions.find(m => m.value === item.medicineId);
-//   if (selected) {
-//     item.medicineName = selected.name;
+  //   // onMedicineChange(item: any, index: number): void {
+  //   //   const selectedMedicine = item.medicineName;
+  //   //   if (selectedMedicine && this.medicineDosageOptions[selectedMedicine]) {
+  //   //     item.dosage = this.selectedMedicineUnits[selectedMedicine];
+  //   //   } else {
+  //   //     item.dosage = '';
+  //   //   }
+  //   // }
+  //   onMedicineChange(item: any, index: number) {
+  //   const selected = this.medicineOptions.find(m => m.value === item.medicineId);
+  //   if (selected) {
+  //     item.medicineName = selected.name;
 
-//     // Set default dosage
-//     if (this.medicineDosageOptions[selected.name]) {
-//       item.dosage = this.selectedMedicineUnits[selected.name];
-//     } else {
-//       item.dosage = '';
-//     }
-//   }
-// }
+  //     // Set default dosage
+  //     if (this.medicineDosageOptions[selected.name]) {
+  //       item.dosage = this.selectedMedicineUnits[selected.name];
+  //     } else {
+  //       item.dosage = '';
+  //     }
+  //   }
+  // }
 
-loadMedicines() {
+  loadMedicines() {
     // Call getAll() with default parameters to get all available medicines
     this._pharmacistInventoryService.getAll(
       undefined,  // keyword
@@ -294,18 +294,18 @@ loadMedicines() {
   }
 
   onMedicineChange(item: any, index: number) {
-  const selected = this.medicineOptions.find(m => m.value === item.medicineId);
-  if (selected) {
-    item.medicineName = selected.name;
+    const selected = this.medicineOptions.find(m => m.value === item.medicineId);
+    if (selected) {
+      item.medicineName = selected.name;
 
-    // Set default dosage
-    if (this.medicineDosageOptions[selected.name]) {
-      item.dosage = this.selectedMedicineUnits[selected.name];
-    } else {
-      item.dosage = '';
+      // Set default dosage
+      if (this.medicineDosageOptions[selected.name]) {
+        item.dosage = this.selectedMedicineUnits[selected.name];
+      } else {
+        item.dosage = '';
+      }
     }
   }
-}
 
   addItem(): void {
     const item: any = {
@@ -373,7 +373,7 @@ loadMedicines() {
         id: item.id,
         tenantId: abp.session.tenantId,
         medicineName: item.medicineName,
-        medicineId:item.medicineId,
+        medicineId: item.medicineId,
         dosage: item.dosage,
         frequency: item.frequency,
         duration: `${item.durationValue} ${item.durationUnit}`,

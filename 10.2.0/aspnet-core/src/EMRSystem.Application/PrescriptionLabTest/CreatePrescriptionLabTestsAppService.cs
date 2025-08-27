@@ -179,7 +179,7 @@ namespace EMRSystem.PrescriptionLabTest
             }
             else if (labTest.Prescription?.PatientId > 0)
             {
-                patientEntity = await _patientRepository.GetAsync(labTest.Prescription.PatientId);
+                patientEntity = await _patientRepository.GetAsync(labTest.Prescription.PatientId.Value);
             }
             else
             {

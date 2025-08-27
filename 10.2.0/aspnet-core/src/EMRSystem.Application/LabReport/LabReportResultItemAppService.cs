@@ -78,7 +78,7 @@ namespace EMRSystem.LabReport
                 if (prescription == null)
                     return;
 
-                var patient = await _patientRepository.GetAsync(prescription.PatientId);
+                var patient = await _patientRepository.GetAsync(prescription.PatientId.Value);
 
                 if (patient?.IsAdmitted != true)
                     return;

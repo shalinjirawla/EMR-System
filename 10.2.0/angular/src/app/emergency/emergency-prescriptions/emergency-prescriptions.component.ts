@@ -7,8 +7,7 @@ import { TableModule, Table } from "primeng/table";
 import { appModuleAnimation } from "../../../shared/animations/routerTransition";
 import { LocalizePipe } from "../../../shared/pipes/localize.pipe";
 import { PrescriptionServiceProxy, PrescriptionDto, PrescriptionDtoPagedResultDto } from "../../../shared/service-proxies/service-proxies";
-import { CreatePrescriptionsComponent } from "../create-prescriptions/create-prescriptions.component";
-import { EditPrescriptionsComponent } from "../edit-prescriptions/edit-prescriptions.component";
+import { CreateUpdateEmergencyPrescriptionsComponent } from "../create-update-emergency-prescriptions/create-update-emergency-prescriptions.component";
 import { PagedListingComponentBase } from "@shared/paged-listing-component-base";
 import { LazyLoadEvent, PrimeTemplate } from 'primeng/api';
 import { finalize } from 'rxjs/operators';
@@ -19,19 +18,16 @@ import { MenuModule } from 'primeng/menu';
 import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
 import {ViewPrescriptionComponent} from '@app/doctors/view-prescription/view-prescription.component'
-
-
-
 import moment from 'moment';
 @Component({
-  selector: 'app-prescriptions',
+  selector: 'app-emergency-prescriptions',
   animations: [appModuleAnimation()],
   imports: [FormsModule, TableModule, PrimeTemplate, CalendarModule, NgIf, PaginatorModule, ButtonModule, LocalizePipe, DatePipe, CommonModule, OverlayPanelModule, MenuModule],
-  templateUrl: './prescriptions.component.html',
-  styleUrl: './prescriptions.component.css',
+  templateUrl: './emergency-prescriptions.component.html',
+  styleUrl: './emergency-prescriptions.component.css',
   providers: [PrescriptionServiceProxy]
 })
-export class PrescriptionsComponent extends PagedListingComponentBase<PrescriptionDto> implements OnInit {
+export class EmergencyPrescriptionsComponent extends PagedListingComponentBase<PrescriptionDto> implements OnInit {
   @ViewChild('dataTable', { static: true }) dataTable: Table;
   @ViewChild('paginator', { static: true }) paginator: Paginator;
   prescriptions: PrescriptionDto[] = [];
@@ -85,9 +81,8 @@ export class PrescriptionsComponent extends PagedListingComponentBase<Prescripti
         this.primengTableHelper.hideLoadingIndicator();
       }))
       .subscribe((result: PrescriptionDtoPagedResultDto) => {
-        const filteredItems = result.items.filter(x => !x.isEmergencyPrescription);
-        this.primengTableHelper.records = filteredItems;
-        this.primengTableHelper.totalRecordsCount = filteredItems.length;
+        this.primengTableHelper.records = result.items;
+        this.primengTableHelper.totalRecordsCount = result.totalCount;
         this.cd.detectChanges();
       });
   }
@@ -125,12 +120,12 @@ export class PrescriptionsComponent extends PagedListingComponentBase<Prescripti
   showCreateOrEditPrescriptionDialog(id?: number): void {
     let createOrEditUserDialog: BsModalRef;
     if (!id) {
-      createOrEditUserDialog = this._modalService.show(CreatePrescriptionsComponent, {
+      createOrEditUserDialog = this._modalService.show(CreateUpdateEmergencyPrescriptionsComponent, {
         class: 'modal-lg',
       });
     }
     else {
-      createOrEditUserDialog = this._modalService.show(EditPrescriptionsComponent, {
+      createOrEditUserDialog = this._modalService.show(CreateUpdateEmergencyPrescriptionsComponent, {
         class: 'modal-lg',
         initialState: {
           id: id,

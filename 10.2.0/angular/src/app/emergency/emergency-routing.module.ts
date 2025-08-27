@@ -3,6 +3,8 @@ import { RouterModule, Routes } from '@angular/router';
 import { EmergencyComponent } from './emergency.component';
 import { EmergencyCaseComponent } from './emergency-case/emergency-case.component';
 import { EmergencyTriageComponent } from './emergency-triage/emergency-triage.component';
+import { EmergencyPrescriptionsComponent } from './emergency-prescriptions/emergency-prescriptions.component';
+import { EmergencyLabOrdersComponent } from './emergency-lab-orders/emergency-lab-orders.component';
 
 const routes: Routes = [
   {
@@ -17,6 +19,14 @@ const routes: Routes = [
   {
     path: 'triage',
     component: EmergencyTriageComponent,
+  },
+  {
+    path: 'prescriptions',
+    component: EmergencyPrescriptionsComponent,
+  },
+  {
+    path: 'lab-order',
+    component: EmergencyLabOrdersComponent,
   },
 ];
 
