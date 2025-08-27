@@ -13,8 +13,8 @@ namespace EMRSystem.Departments.Dto
     {
         public DepartmentMapProfile()
         {
-            CreateMap<DepartmentListDto, Department>().ReverseMap();
-            CreateMap<CreateUpdateDepartmentDto, Department>().ReverseMap();
+            CreateMap<Department, DepartmentDto>();
+            CreateMap<CreateUpdateDepartmentDto, Department>();
         }
     }
 }

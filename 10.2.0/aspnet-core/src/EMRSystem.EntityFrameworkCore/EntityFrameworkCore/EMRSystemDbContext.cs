@@ -102,6 +102,11 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
                .WithMany(e => e.Doctors)
                .HasForeignKey(s => s.AbpUserId)
                .OnDelete(DeleteBehavior.NoAction); // or NoAction
+        modelBuilder.Entity<Doctor>()
+                .HasOne(d => d.Department)
+                .WithMany(dep => dep.Doctors)
+                .HasForeignKey(d => d.DepartmentId)
+                .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<LabTechnician>()
                 .HasOne(s => s.AbpUser)
@@ -565,11 +570,11 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
           .HasForeignKey(s => s.DoctorId)
           .OnDelete(DeleteBehavior.NoAction); // or NoAction
 
-        modelBuilder.Entity<Visit>()
-          .HasOne(s => s.Department)
-          .WithMany(e => e.Visits)
-          .HasForeignKey(s => s.DepartmentId)
-          .OnDelete(DeleteBehavior.NoAction); // or NoAction
+        //modelBuilder.Entity<Visit>()
+        //  .HasOne(s => s.Department)
+        //  .WithMany(e => e.Visits)
+        //  .HasForeignKey(s => s.DepartmentId)
+        //  .OnDelete(DeleteBehavior.NoAction); // or NoAction
 
         modelBuilder.Entity<HealthPackage>()
            .ToTable("HealthPackages");

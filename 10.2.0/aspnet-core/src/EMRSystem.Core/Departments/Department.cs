@@ -1,4 +1,5 @@
 ﻿using Abp.Domain.Entities;
+using EMRSystem.Doctors;
 using EMRSystem.Visits;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,10 @@ namespace EMRSystem.Departments
     public class Department : Entity<long>, IMustHaveTenant
     {
         public int TenantId { get; set; }
-        public string Name { get; set; }
-        public ICollection<Visit> Visits { get; set; }
+        public string DepartmentName { get; set; }
+
+        public bool IsActive { get; set; } = true;
+        public virtual ICollection<Doctor> Doctors { get; set; }
+
     }
 }

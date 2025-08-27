@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
-import { PatientDropDownDto, PaymentMode, DepartmentServiceProxy, DepartmentListDto, NurseDto, NurseServiceProxy, DoctorServiceProxy, CreateUpdateVisitDto, VisitServiceProxy } from '@shared/service-proxies/service-proxies';
+import { PatientDropDownDto, PaymentMode, DepartmentServiceProxy, NurseDto, NurseServiceProxy, DoctorServiceProxy, CreateUpdateVisitDto, VisitServiceProxy } from '@shared/service-proxies/service-proxies';
 import { AbpModalHeaderComponent } from '../../../shared/components/modal/abp-modal-header.component';
 import { AbpModalFooterComponent } from '../../../shared/components/modal/abp-modal-footer.component';
 import { AppComponentBase } from '../../../shared/app-component-base';
@@ -54,7 +54,7 @@ export class EditVisitComponent extends AppComponentBase implements OnInit {
     consultationFee: 0,
     doctorId: 0,
   };
-  departments!: DepartmentListDto[];
+  //departments!: DepartmentListDto[];
   nurse!: NurseDto[];
   selectedPaymentMethod: string;
   minVisitDate: Date;
@@ -78,7 +78,7 @@ export class EditVisitComponent extends AppComponentBase implements OnInit {
     this.showAddPatientButton = this.permissionChecker.isGranted('Pages.Users');
     this.FetchDoctorID();
     this.LoadPatients();
-    this.LoadDepartMent();
+    //this.LoadDepartMent();
     this.LoadNurse();
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -89,7 +89,7 @@ export class EditVisitComponent extends AppComponentBase implements OnInit {
       this.visit.id = result.id;
       this.visit.tenantId = abp.session.tenantId;
       this.visit.patientId = result.patient.id;
-      this.visit.departmentId = result.department.id;
+      //this.visit.departmentId = result.department.id;
       this.visit.doctorId = result.doctor.id;
       this.visit.nurseId = result.nurse.id;
       this.visit.dateOfVisit = result.dateOfVisit ? moment(result.dateOfVisit).toDate() : null;
@@ -115,12 +115,12 @@ export class EditVisitComponent extends AppComponentBase implements OnInit {
       }
     });
   }
-  LoadDepartMent() {
-    this._departmentService.getAllDepartmentByTenantID().subscribe(res => {
-      this.departments = res.items;
-      this.cd.detectChanges();
-    })
-  }
+  // LoadDepartMent() {
+  //   this._departmentService.getAllDepartmentByTenantID().subscribe(res => {
+  //     this.departments = res.items;
+  //     this.cd.detectChanges();
+  //   })
+  // }
   LoadNurse() {
     this._nurseService.getAllNursesByTenantID(abp.session.tenantId).subscribe({
       next: (res) => {
@@ -152,7 +152,7 @@ export class EditVisitComponent extends AppComponentBase implements OnInit {
     input.id = this.visit.id;
     input.tenantId = abp.session.tenantId;
     input.patientId = this.visit.patientId;
-    input.departmentId = this.visit.departmentId;
+    //input.departmentId = this.visit.departmentId;
     input.doctorId = this.doctorID;
     input.nurseId = this.visit.nurseId;
     input.dateOfVisit = this.visit.dateOfVisit;

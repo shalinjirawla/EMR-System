@@ -3,7 +3,7 @@ import { DialogService } from 'primeng/dynamicdialog';
 import { AddDataDialogComponent } from './add-data-dialog/add-data-dialog.component';
 import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
-import { DepartmentListDto, DepartmentServiceProxy, LabReportsTypeDto, LabReportsTypeDtoListResultDto, LabReportsTypeServiceProxy, RoomFacilityMasterServiceProxy, RoomTypeMasterServiceProxy } from '@shared/service-proxies/service-proxies';
+import { DepartmentServiceProxy, LabReportsTypeDto, LabReportsTypeDtoListResultDto, LabReportsTypeServiceProxy, RoomFacilityMasterServiceProxy, RoomTypeMasterServiceProxy } from '@shared/service-proxies/service-proxies';
 @Component({
   selector: 'app-master-table',
   standalone: true,
@@ -16,7 +16,7 @@ export class MasterTableComponent implements OnInit {
   medicalReportCount!: number;
   totalDepartmentCount!: number;
   labReportsTypeList!: LabReportsTypeDto[];
-  ldepartmentList!: DepartmentListDto[];
+  //ldepartmentList!: DepartmentListDto[];
    totalRoomFacilityCount!: number;
   totalRoomTypeCount!: number;
   constructor(private dialogService: DialogService,
@@ -29,7 +29,7 @@ export class MasterTableComponent implements OnInit {
 
   ngOnInit(): void {
     this.GetMedicalReports();
-    this.GetDepartmentReports();
+    //this.GetDepartmentReports();
     this.GetRoomFacilityCount();
     this.GetRoomTypeCount();
   }
@@ -83,17 +83,17 @@ export class MasterTableComponent implements OnInit {
       }
     });
   }
-  GetDepartmentReports() {
-    this._departmentService.getAllDepartmentByTenantID().subscribe({
-      next: (res) => {
-        this.totalDepartmentCount=res.items.length;
-        this.cd.detectChanges();
-      },
-      error: (err) => {
-        console.log('Could not load lab tests');
-      }
-    });
-  }
+  // GetDepartmentReports() {
+  //   this._departmentService.getAllDepartmentByTenantID().subscribe({
+  //     next: (res) => {
+  //       this.totalDepartmentCount=res.items.length;
+  //       this.cd.detectChanges();
+  //     },
+  //     error: (err) => {
+  //       console.log('Could not load lab tests');
+  //     }
+  //   });
+  // }
    GetRoomFacilityCount() {
     this._facilitySvc.getAllRoomFacilityByTenantID(abp.session.tenantId).subscribe({
       next: (res) => {

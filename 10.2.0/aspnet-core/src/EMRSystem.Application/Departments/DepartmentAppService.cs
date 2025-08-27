@@ -1,35 +1,63 @@
 ﻿
-using Abp.Application.Services.Dto;
 using Abp.Application.Services;
+using Abp.Application.Services.Dto;
 using Abp.Domain.Repositories;
-using EMRSystem.Visits.Dto;
+using Abp.EntityFrameworkCore;
+using EMRSystem.Departments.Dto;
+using EMRSystem.EntityFrameworkCore;
+using EMRSystem.LabMasters;
+using EMRSystem.LabMasters.Dto.MeasureUnit;
+using EMRSystem.LabReportsType.Dto;
 using EMRSystem.Visits;
+using EMRSystem.Visits.Dto;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using EMRSystem.Departments.Dto;
-using EMRSystem.LabReportsType.Dto;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Mvc;
 
 namespace EMRSystem.Departments
 {
-    public class DepartmentAppService : AsyncCrudAppService<Department, DepartmentListDto, long, PagedAndSortedResultRequestDto, CreateUpdateDepartmentDto, CreateUpdateDepartmentDto>,
-IDepartmentAppService
+    public class DepartmentAppService : AsyncCrudAppService<
+            Department,
+            DepartmentDto,
+            long,
+            PagedAndSortedResultRequestDto,
+            CreateUpdateDepartmentDto,
+            CreateUpdateDepartmentDto>,
+        IDepartmentAppService
     {
-        public DepartmentAppService(IRepository<Department, long> repository) : base(repository)
+        private readonly IDbContextProvider<EMRSystemDbContext> _dbContextProvider;
+
+        public DepartmentAppService(IDbContextProvider<EMRSystemDbContext> dbContextProvider, IRepository<Department, long> repository)
+            : base(repository)
         {
+            _dbContextProvider = dbContextProvider;
         }
-        [HttpGet]
-        public async Task<ListResultDto<DepartmentListDto>> GetAllDepartmentByTenantID()
+
+        public async Task<List<DepartmentDto>> CreateBulkAsync(List<CreateUpdateDepartmentDto> inputs)
         {
-            var query = Repository.GetAll()
-                .Where(x => x.TenantId == AbpSession.TenantId.Value);
-            var labReports = await query.ToListAsync();
-            var mapped = ObjectMapper.Map<List<DepartmentListDto>>(labReports);
-            return new ListResultDto<DepartmentListDto>(mapped);
+            var entities = ObjectMapper.Map<List<Department>>(inputs);
+
+            var dbContext = await _dbContextProvider.GetDbContextAsync();
+            dbContext.Departments.AddRange(entities); // 👈 Fast batch tracking
+            await dbContext.SaveChangesAsync();        // 👈 One DB call only
+
+            return ObjectMapper.Map<List<DepartmentDto>>(entities);
         }
+        public async Task<ListResultDto<DepartmentDto>> GetAllDepartmentForDropdownAsync()
+        {
+            var departments = await Repository
+         .GetAll()
+         .Where(x => x.IsActive)
+         .ToListAsync();
+
+            return new ListResultDto<DepartmentDto>(
+                ObjectMapper.Map<List<DepartmentDto>>(departments)
+            );
+        }
+
     }
 }

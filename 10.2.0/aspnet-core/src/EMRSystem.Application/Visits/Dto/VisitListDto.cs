@@ -16,7 +16,7 @@ namespace EMRSystem.Visits.Dto
     public class VisitListDto : EntityDto<long>
     {
         public virtual PatientDto Patient { get; set; }
-        public virtual DepartmentListDto Department { get; set; }
+        //public virtual DepartmentDto Department { get; set; }
         public virtual DoctorDto Doctor { get; set; }
         public virtual NurseDto Nurse { get; set; }
         public DateTime DateOfVisit { get; set; }

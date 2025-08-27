@@ -52,8 +52,8 @@ namespace EMRSystem.Visits
                 .GetAll()
                 .Include(x => x.Patient)
                 .Include(x => x.Doctor)
-                .Include(x => x.Nurse)
-                .Include(x => x.Department);
+                .Include(x => x.Nurse);
+                //.Include(x => x.Department);
 
             var filteredQuery = baseQuery.AsQueryable(); // Explicitly convert to IQueryable
 
@@ -84,7 +84,7 @@ namespace EMRSystem.Visits
                 Id = x.Id,
                 TenantId = x.TenantId,
                 PatientId = x.PatientId,
-                DepartmentId = x.DepartmentId,
+                //DepartmentId = x.DepartmentId,
                 NurseId = x.NurseId,
                 DoctorId = x.DoctorId,
                 DateOfVisit = x.DateOfVisit,
@@ -107,11 +107,11 @@ namespace EMRSystem.Visits
                     Id = x.Nurse.Id,
                     FullName = x.Nurse.FullName
                 },
-                Department = x.Department == null ? null : new EMRSystem.Departments.Department
-                {
-                    Id = x.Department.Id,
-                    Name = x.Department.Name
-                },
+                //Department = x.Department == null ? null : new EMRSystem.Departments.Department
+                //{
+                //    Id = x.Department.Id,
+                //    Name = x.Department.Name
+                //},
             });
 
             return result;

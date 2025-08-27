@@ -1,5 +1,4 @@
 <form #doctorForm="ngForm">
-  
 
   <!-- Gender -->
   <div class="form-group row required">
@@ -65,26 +64,35 @@
     </div>
   </div>
 
-  <!-- Department -->
-  <div class="form-group row required">
-    <label class="col-md-3 col-form-label" for="department">Department</label>
-    <div class="col-md-9">
-      <input type="text" id="department" name="department"
-             class="form-control"
-             required
-             [(ngModel)]="doctorData.department"
-             (ngModelChange)="onInputChange()"
-             #departmentModel="ngModel"
-             #departmentEl>
-      <abp-validation-summary [control]="departmentModel" [controlEl]="departmentEl"></abp-validation-summary>
-    </div>
+<div class="form-group row required">
+  <label class="col-md-3 col-form-label" for="department">Department</label>
+  <div class="col-md-9">
+    <select id="department" name="departmentId"
+        class="form-control"
+        required
+        [(ngModel)]="doctorData.departmentId"
+        (ngModelChange)="onInputChange()"
+        #departmentModel="ngModel"
+        #departmentEl>
+  <option [ngValue]="null" disabled>-- Select Department --</option>
+  <option *ngFor="let dept of departments" [value]="dept.id">
+    {{ dept.departmentName }}
+  </option>
+</select>
+
+
+    <abp-validation-summary 
+        [control]="departmentModel" 
+        [controlEl]="departmentEl">
+    </abp-validation-summary>
   </div>
+</div>
 
   <!-- Registration Number -->
   <div class="form-group row required">
     <label class="col-md-3 col-form-label" for="registration">Registration Number</label>
     <div class="col-md-9">
-      <input type="text" id="registration" name="registration"
+      <input type="text" id="registration" name="registrationNumber"
              class="form-control"
              required
              [(ngModel)]="doctorData.registrationNumber"
@@ -99,9 +107,10 @@
   <div class="form-group row required">
     <label class="col-md-3 col-form-label" for="dob">Date of Birth</label>
     <div class="col-md-9">
-      <input type="date" id="dob" name="dob"
+      <input type="date" id="dob" name="dateOfBirth"
              class="form-control"
              required
+             [max]="maxDate"
              [(ngModel)]="doctorData.dateOfBirth"
              (ngModelChange)="onInputChange()"
              #dobModel="ngModel"

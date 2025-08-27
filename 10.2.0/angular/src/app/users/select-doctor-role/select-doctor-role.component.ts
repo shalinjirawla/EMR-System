@@ -1,17 +1,19 @@
-import { Component, EventEmitter, forwardRef, Output, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, forwardRef, OnInit, Output, ViewChild } from '@angular/core';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR, NgForm } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AbpValidationSummaryComponent } from '../../../shared/components/validation/abp-validation.summary.component';
 import { fn } from 'moment';
+import { DepartmentServiceProxy } from '@shared/service-proxies/service-proxies';
 
 
 @Component({
   selector: 'app-select-doctor-role',
   imports: [FormsModule,CommonModule,AbpValidationSummaryComponent],
+  providers:[DepartmentServiceProxy],
   templateUrl: './select-doctor-role.component.html',
   styleUrl: './select-doctor-role.component.css'
 })
-export class SelectDoctorRoleComponent {
+export class SelectDoctorRoleComponent implements OnInit {
   @Output() doctorDataChange = new EventEmitter<any>();
   @ViewChild('doctorForm', { static: true }) doctorForm: NgForm;
 
@@ -20,14 +22,17 @@ export class SelectDoctorRoleComponent {
     specialization: '',
     qualification: '',
     yearsOfExperience: 0,
-    department: '',
+    departmentId: null,
     registrationNumber: '',
     dateOfBirth: null
   };
-
+constructor(
+    private _departmentService: DepartmentServiceProxy,
+    private cd: ChangeDetectorRef
+  ) {}
   genders = ['Male', 'Female', 'Other'];
-
-
+departments: { id: number; name: string }[] = [];
+maxDate: string;
 
   onInputChange() {
     this.updateData();
@@ -35,5 +40,29 @@ export class SelectDoctorRoleComponent {
 
   updateData() {
     this.doctorDataChange.emit(this.doctorData);
+  }
+    ngOnInit(): void {
+    this.loadDepartments();
+     const today = new Date();
+  this.maxDate = today.toISOString().split('T')[0];
+  }
+
+  loadDepartments(): void {
+    // Adjust method name if your generated proxy has a different name (e.g., getAllForDropdownAsync)
+    this._departmentService.getAllDepartmentForDropdown().subscribe({
+      next: (res: any) => {
+        // If proxy returns ListResultDto<DepartmentDto> with "items"
+        const items = (res && res.items) ? res.items : res;
+        this.departments = items.map((d: any) => ({
+          id: d.id ?? d.value ?? d.departmentId ?? d.key ?? 0,
+          name: d.name ?? d.departmentName ?? d.label ?? d.text ?? ''
+        }));
+        this.cd.detectChanges();
+      },
+      error: () => {
+        // optional: handle error (notify/log)
+        this.departments = [];
+      }
+    });
   }
 }

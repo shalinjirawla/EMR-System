@@ -3124,10 +3124,73 @@ export class DepartmentServiceProxy {
     }
 
     /**
+     * @param body (optional) 
      * @return OK
      */
-    getAllDepartmentByTenantID(): Observable<DepartmentListDtoListResultDto> {
-        let url_ = this.baseUrl + "/api/services/app/Department/GetAllDepartmentByTenantID";
+    createBulk(body: CreateUpdateDepartmentDto[] | undefined): Observable<DepartmentDto[]> {
+        let url_ = this.baseUrl + "/api/services/app/Department/CreateBulk";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreateBulk(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreateBulk(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<DepartmentDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<DepartmentDto[]>;
+        }));
+    }
+
+    protected processCreateBulk(response: HttpResponseBase): Observable<DepartmentDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200.push(DepartmentDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    getAllDepartmentForDropdown(): Observable<DepartmentDtoListResultDto> {
+        let url_ = this.baseUrl + "/api/services/app/Department/GetAllDepartmentForDropdown";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -3139,20 +3202,20 @@ export class DepartmentServiceProxy {
         };
 
         return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetAllDepartmentByTenantID(response_);
+            return this.processGetAllDepartmentForDropdown(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processGetAllDepartmentByTenantID(response_ as any);
+                    return this.processGetAllDepartmentForDropdown(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<DepartmentListDtoListResultDto>;
+                    return _observableThrow(e) as any as Observable<DepartmentDtoListResultDto>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<DepartmentListDtoListResultDto>;
+                return _observableThrow(response_) as any as Observable<DepartmentDtoListResultDto>;
         }));
     }
 
-    protected processGetAllDepartmentByTenantID(response: HttpResponseBase): Observable<DepartmentListDtoListResultDto> {
+    protected processGetAllDepartmentForDropdown(response: HttpResponseBase): Observable<DepartmentDtoListResultDto> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -3163,7 +3226,7 @@ export class DepartmentServiceProxy {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = DepartmentListDtoListResultDto.fromJS(resultData200);
+            result200 = DepartmentDtoListResultDto.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -3178,7 +3241,7 @@ export class DepartmentServiceProxy {
      * @param id (optional) 
      * @return OK
      */
-    get(id: number | undefined): Observable<DepartmentListDto> {
+    get(id: number | undefined): Observable<DepartmentDto> {
         let url_ = this.baseUrl + "/api/services/app/Department/Get?";
         if (id === null)
             throw new Error("The parameter 'id' cannot be null.");
@@ -3201,14 +3264,14 @@ export class DepartmentServiceProxy {
                 try {
                     return this.processGet(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<DepartmentListDto>;
+                    return _observableThrow(e) as any as Observable<DepartmentDto>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<DepartmentListDto>;
+                return _observableThrow(response_) as any as Observable<DepartmentDto>;
         }));
     }
 
-    protected processGet(response: HttpResponseBase): Observable<DepartmentListDto> {
+    protected processGet(response: HttpResponseBase): Observable<DepartmentDto> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -3219,7 +3282,7 @@ export class DepartmentServiceProxy {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = DepartmentListDto.fromJS(resultData200);
+            result200 = DepartmentDto.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -3236,7 +3299,7 @@ export class DepartmentServiceProxy {
      * @param maxResultCount (optional) 
      * @return OK
      */
-    getAll(sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<DepartmentListDtoPagedResultDto> {
+    getAll(sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<DepartmentDtoPagedResultDto> {
         let url_ = this.baseUrl + "/api/services/app/Department/GetAll?";
         if (sorting === null)
             throw new Error("The parameter 'sorting' cannot be null.");
@@ -3267,14 +3330,14 @@ export class DepartmentServiceProxy {
                 try {
                     return this.processGetAll(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<DepartmentListDtoPagedResultDto>;
+                    return _observableThrow(e) as any as Observable<DepartmentDtoPagedResultDto>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<DepartmentListDtoPagedResultDto>;
+                return _observableThrow(response_) as any as Observable<DepartmentDtoPagedResultDto>;
         }));
     }
 
-    protected processGetAll(response: HttpResponseBase): Observable<DepartmentListDtoPagedResultDto> {
+    protected processGetAll(response: HttpResponseBase): Observable<DepartmentDtoPagedResultDto> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -3285,7 +3348,7 @@ export class DepartmentServiceProxy {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = DepartmentListDtoPagedResultDto.fromJS(resultData200);
+            result200 = DepartmentDtoPagedResultDto.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -3300,7 +3363,7 @@ export class DepartmentServiceProxy {
      * @param body (optional) 
      * @return OK
      */
-    create(body: CreateUpdateDepartmentDto | undefined): Observable<DepartmentListDto> {
+    create(body: CreateUpdateDepartmentDto | undefined): Observable<DepartmentDto> {
         let url_ = this.baseUrl + "/api/services/app/Department/Create";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -3323,14 +3386,14 @@ export class DepartmentServiceProxy {
                 try {
                     return this.processCreate(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<DepartmentListDto>;
+                    return _observableThrow(e) as any as Observable<DepartmentDto>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<DepartmentListDto>;
+                return _observableThrow(response_) as any as Observable<DepartmentDto>;
         }));
     }
 
-    protected processCreate(response: HttpResponseBase): Observable<DepartmentListDto> {
+    protected processCreate(response: HttpResponseBase): Observable<DepartmentDto> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -3341,7 +3404,7 @@ export class DepartmentServiceProxy {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = DepartmentListDto.fromJS(resultData200);
+            result200 = DepartmentDto.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -3356,7 +3419,7 @@ export class DepartmentServiceProxy {
      * @param body (optional) 
      * @return OK
      */
-    update(body: CreateUpdateDepartmentDto | undefined): Observable<DepartmentListDto> {
+    update(body: CreateUpdateDepartmentDto | undefined): Observable<DepartmentDto> {
         let url_ = this.baseUrl + "/api/services/app/Department/Update";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -3379,14 +3442,14 @@ export class DepartmentServiceProxy {
                 try {
                     return this.processUpdate(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<DepartmentListDto>;
+                    return _observableThrow(e) as any as Observable<DepartmentDto>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<DepartmentListDto>;
+                return _observableThrow(response_) as any as Observable<DepartmentDto>;
         }));
     }
 
-    protected processUpdate(response: HttpResponseBase): Observable<DepartmentListDto> {
+    protected processUpdate(response: HttpResponseBase): Observable<DepartmentDto> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -3397,7 +3460,7 @@ export class DepartmentServiceProxy {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = DepartmentListDto.fromJS(resultData200);
+            result200 = DepartmentDto.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -21336,7 +21399,8 @@ export interface ICreateUpdateBillingDto {
 export class CreateUpdateDepartmentDto implements ICreateUpdateDepartmentDto {
     id: number;
     tenantId: number;
-    name: string | undefined;
+    departmentName: string | undefined;
+    isActive: boolean;
 
     constructor(data?: ICreateUpdateDepartmentDto) {
         if (data) {
@@ -21351,7 +21415,8 @@ export class CreateUpdateDepartmentDto implements ICreateUpdateDepartmentDto {
         if (_data) {
             this.id = _data["id"];
             this.tenantId = _data["tenantId"];
-            this.name = _data["name"];
+            this.departmentName = _data["departmentName"];
+            this.isActive = _data["isActive"];
         }
     }
 
@@ -21366,7 +21431,8 @@ export class CreateUpdateDepartmentDto implements ICreateUpdateDepartmentDto {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["tenantId"] = this.tenantId;
-        data["name"] = this.name;
+        data["departmentName"] = this.departmentName;
+        data["isActive"] = this.isActive;
         return data;
     }
 
@@ -21381,7 +21447,8 @@ export class CreateUpdateDepartmentDto implements ICreateUpdateDepartmentDto {
 export interface ICreateUpdateDepartmentDto {
     id: number;
     tenantId: number;
-    name: string | undefined;
+    departmentName: string | undefined;
+    isActive: boolean;
 }
 
 export class CreateUpdateDepositTransactionDto implements ICreateUpdateDepositTransactionDto {
@@ -21467,7 +21534,7 @@ export class CreateUpdateDoctorDto implements ICreateUpdateDoctorDto {
     specialization: string | undefined;
     qualification: string | undefined;
     yearsOfExperience: number;
-    department: string | undefined;
+    departmentId: number;
     registrationNumber: string | undefined;
     dateOfBirth: moment.Moment | undefined;
     abpUserId: number;
@@ -21490,7 +21557,7 @@ export class CreateUpdateDoctorDto implements ICreateUpdateDoctorDto {
             this.specialization = _data["specialization"];
             this.qualification = _data["qualification"];
             this.yearsOfExperience = _data["yearsOfExperience"];
-            this.department = _data["department"];
+            this.departmentId = _data["departmentId"];
             this.registrationNumber = _data["registrationNumber"];
             this.dateOfBirth = _data["dateOfBirth"] ? moment(_data["dateOfBirth"].toString()) : <any>undefined;
             this.abpUserId = _data["abpUserId"];
@@ -21513,7 +21580,7 @@ export class CreateUpdateDoctorDto implements ICreateUpdateDoctorDto {
         data["specialization"] = this.specialization;
         data["qualification"] = this.qualification;
         data["yearsOfExperience"] = this.yearsOfExperience;
-        data["department"] = this.department;
+        data["departmentId"] = this.departmentId;
         data["registrationNumber"] = this.registrationNumber;
         data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
         data["abpUserId"] = this.abpUserId;
@@ -21536,7 +21603,7 @@ export interface ICreateUpdateDoctorDto {
     specialization: string | undefined;
     qualification: string | undefined;
     yearsOfExperience: number;
-    department: string | undefined;
+    departmentId: number;
     registrationNumber: string | undefined;
     dateOfBirth: moment.Moment | undefined;
     abpUserId: number;
@@ -23628,7 +23695,6 @@ export class CreateUpdateVisitDto implements ICreateUpdateVisitDto {
     id: number;
     tenantId: number;
     patientId: number;
-    departmentId: number;
     doctorId: number;
     nurseId: number;
     dateOfVisit: moment.Moment;
@@ -23651,7 +23717,6 @@ export class CreateUpdateVisitDto implements ICreateUpdateVisitDto {
             this.id = _data["id"];
             this.tenantId = _data["tenantId"];
             this.patientId = _data["patientId"];
-            this.departmentId = _data["departmentId"];
             this.doctorId = _data["doctorId"];
             this.nurseId = _data["nurseId"];
             this.dateOfVisit = _data["dateOfVisit"] ? moment(_data["dateOfVisit"].toString()) : <any>undefined;
@@ -23674,7 +23739,6 @@ export class CreateUpdateVisitDto implements ICreateUpdateVisitDto {
         data["id"] = this.id;
         data["tenantId"] = this.tenantId;
         data["patientId"] = this.patientId;
-        data["departmentId"] = this.departmentId;
         data["doctorId"] = this.doctorId;
         data["nurseId"] = this.nurseId;
         data["dateOfVisit"] = this.dateOfVisit ? this.dateOfVisit.toISOString() : <any>undefined;
@@ -23697,7 +23761,6 @@ export interface ICreateUpdateVisitDto {
     id: number;
     tenantId: number;
     patientId: number;
-    departmentId: number;
     doctorId: number;
     nurseId: number;
     dateOfVisit: moment.Moment;
@@ -23880,8 +23943,9 @@ export interface ICreateUserDto {
 export class Department implements IDepartment {
     id: number;
     tenantId: number;
-    name: string | undefined;
-    visits: Visit[] | undefined;
+    departmentName: string | undefined;
+    isActive: boolean;
+    doctors: Doctor[] | undefined;
 
     constructor(data?: IDepartment) {
         if (data) {
@@ -23896,11 +23960,12 @@ export class Department implements IDepartment {
         if (_data) {
             this.id = _data["id"];
             this.tenantId = _data["tenantId"];
-            this.name = _data["name"];
-            if (Array.isArray(_data["visits"])) {
-                this.visits = [] as any;
-                for (let item of _data["visits"])
-                    this.visits.push(Visit.fromJS(item));
+            this.departmentName = _data["departmentName"];
+            this.isActive = _data["isActive"];
+            if (Array.isArray(_data["doctors"])) {
+                this.doctors = [] as any;
+                for (let item of _data["doctors"])
+                    this.doctors.push(Doctor.fromJS(item));
             }
         }
     }
@@ -23916,11 +23981,12 @@ export class Department implements IDepartment {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["tenantId"] = this.tenantId;
-        data["name"] = this.name;
-        if (Array.isArray(this.visits)) {
-            data["visits"] = [];
-            for (let item of this.visits)
-                data["visits"].push(item.toJSON());
+        data["departmentName"] = this.departmentName;
+        data["isActive"] = this.isActive;
+        if (Array.isArray(this.doctors)) {
+            data["doctors"] = [];
+            for (let item of this.doctors)
+                data["doctors"].push(item.toJSON());
         }
         return data;
     }
@@ -23936,16 +24002,18 @@ export class Department implements IDepartment {
 export interface IDepartment {
     id: number;
     tenantId: number;
-    name: string | undefined;
-    visits: Visit[] | undefined;
+    departmentName: string | undefined;
+    isActive: boolean;
+    doctors: Doctor[] | undefined;
 }
 
-export class DepartmentListDto implements IDepartmentListDto {
+export class DepartmentDto implements IDepartmentDto {
     id: number;
     tenantId: number;
-    name: string | undefined;
+    departmentName: string | undefined;
+    isActive: boolean;
 
-    constructor(data?: IDepartmentListDto) {
+    constructor(data?: IDepartmentDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -23958,13 +24026,14 @@ export class DepartmentListDto implements IDepartmentListDto {
         if (_data) {
             this.id = _data["id"];
             this.tenantId = _data["tenantId"];
-            this.name = _data["name"];
+            this.departmentName = _data["departmentName"];
+            this.isActive = _data["isActive"];
         }
     }
 
-    static fromJS(data: any): DepartmentListDto {
+    static fromJS(data: any): DepartmentDto {
         data = typeof data === 'object' ? data : {};
-        let result = new DepartmentListDto();
+        let result = new DepartmentDto();
         result.init(data);
         return result;
     }
@@ -23973,28 +24042,30 @@ export class DepartmentListDto implements IDepartmentListDto {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["tenantId"] = this.tenantId;
-        data["name"] = this.name;
+        data["departmentName"] = this.departmentName;
+        data["isActive"] = this.isActive;
         return data;
     }
 
-    clone(): DepartmentListDto {
+    clone(): DepartmentDto {
         const json = this.toJSON();
-        let result = new DepartmentListDto();
+        let result = new DepartmentDto();
         result.init(json);
         return result;
     }
 }
 
-export interface IDepartmentListDto {
+export interface IDepartmentDto {
     id: number;
     tenantId: number;
-    name: string | undefined;
+    departmentName: string | undefined;
+    isActive: boolean;
 }
 
-export class DepartmentListDtoListResultDto implements IDepartmentListDtoListResultDto {
-    items: DepartmentListDto[] | undefined;
+export class DepartmentDtoListResultDto implements IDepartmentDtoListResultDto {
+    items: DepartmentDto[] | undefined;
 
-    constructor(data?: IDepartmentListDtoListResultDto) {
+    constructor(data?: IDepartmentDtoListResultDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -24008,14 +24079,14 @@ export class DepartmentListDtoListResultDto implements IDepartmentListDtoListRes
             if (Array.isArray(_data["items"])) {
                 this.items = [] as any;
                 for (let item of _data["items"])
-                    this.items.push(DepartmentListDto.fromJS(item));
+                    this.items.push(DepartmentDto.fromJS(item));
             }
         }
     }
 
-    static fromJS(data: any): DepartmentListDtoListResultDto {
+    static fromJS(data: any): DepartmentDtoListResultDto {
         data = typeof data === 'object' ? data : {};
-        let result = new DepartmentListDtoListResultDto();
+        let result = new DepartmentDtoListResultDto();
         result.init(data);
         return result;
     }
@@ -24030,23 +24101,23 @@ export class DepartmentListDtoListResultDto implements IDepartmentListDtoListRes
         return data;
     }
 
-    clone(): DepartmentListDtoListResultDto {
+    clone(): DepartmentDtoListResultDto {
         const json = this.toJSON();
-        let result = new DepartmentListDtoListResultDto();
+        let result = new DepartmentDtoListResultDto();
         result.init(json);
         return result;
     }
 }
 
-export interface IDepartmentListDtoListResultDto {
-    items: DepartmentListDto[] | undefined;
+export interface IDepartmentDtoListResultDto {
+    items: DepartmentDto[] | undefined;
 }
 
-export class DepartmentListDtoPagedResultDto implements IDepartmentListDtoPagedResultDto {
-    items: DepartmentListDto[] | undefined;
+export class DepartmentDtoPagedResultDto implements IDepartmentDtoPagedResultDto {
+    items: DepartmentDto[] | undefined;
     totalCount: number;
 
-    constructor(data?: IDepartmentListDtoPagedResultDto) {
+    constructor(data?: IDepartmentDtoPagedResultDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -24060,15 +24131,15 @@ export class DepartmentListDtoPagedResultDto implements IDepartmentListDtoPagedR
             if (Array.isArray(_data["items"])) {
                 this.items = [] as any;
                 for (let item of _data["items"])
-                    this.items.push(DepartmentListDto.fromJS(item));
+                    this.items.push(DepartmentDto.fromJS(item));
             }
             this.totalCount = _data["totalCount"];
         }
     }
 
-    static fromJS(data: any): DepartmentListDtoPagedResultDto {
+    static fromJS(data: any): DepartmentDtoPagedResultDto {
         data = typeof data === 'object' ? data : {};
-        let result = new DepartmentListDtoPagedResultDto();
+        let result = new DepartmentDtoPagedResultDto();
         result.init(data);
         return result;
     }
@@ -24084,16 +24155,16 @@ export class DepartmentListDtoPagedResultDto implements IDepartmentListDtoPagedR
         return data;
     }
 
-    clone(): DepartmentListDtoPagedResultDto {
+    clone(): DepartmentDtoPagedResultDto {
         const json = this.toJSON();
-        let result = new DepartmentListDtoPagedResultDto();
+        let result = new DepartmentDtoPagedResultDto();
         result.init(json);
         return result;
     }
 }
 
-export interface IDepartmentListDtoPagedResultDto {
-    items: DepartmentListDto[] | undefined;
+export interface IDepartmentDtoPagedResultDto {
+    items: DepartmentDto[] | undefined;
     totalCount: number;
 }
 
@@ -24373,11 +24444,12 @@ export class Doctor implements IDoctor {
     specialization: string | undefined;
     qualification: string | undefined;
     yearsOfExperience: number;
-    department: string | undefined;
     registrationNumber: string | undefined;
     dateOfBirth: moment.Moment | undefined;
     abpUserId: number;
+    departmentId: number;
     abpUser: User;
+    department: Department;
     prescriptions: Prescription[] | undefined;
     appointments: Appointment[] | undefined;
     admissions: Admission[] | undefined;
@@ -24402,11 +24474,12 @@ export class Doctor implements IDoctor {
             this.specialization = _data["specialization"];
             this.qualification = _data["qualification"];
             this.yearsOfExperience = _data["yearsOfExperience"];
-            this.department = _data["department"];
             this.registrationNumber = _data["registrationNumber"];
             this.dateOfBirth = _data["dateOfBirth"] ? moment(_data["dateOfBirth"].toString()) : <any>undefined;
             this.abpUserId = _data["abpUserId"];
+            this.departmentId = _data["departmentId"];
             this.abpUser = _data["abpUser"] ? User.fromJS(_data["abpUser"]) : <any>undefined;
+            this.department = _data["department"] ? Department.fromJS(_data["department"]) : <any>undefined;
             if (Array.isArray(_data["prescriptions"])) {
                 this.prescriptions = [] as any;
                 for (let item of _data["prescriptions"])
@@ -24451,11 +24524,12 @@ export class Doctor implements IDoctor {
         data["specialization"] = this.specialization;
         data["qualification"] = this.qualification;
         data["yearsOfExperience"] = this.yearsOfExperience;
-        data["department"] = this.department;
         data["registrationNumber"] = this.registrationNumber;
         data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
         data["abpUserId"] = this.abpUserId;
+        data["departmentId"] = this.departmentId;
         data["abpUser"] = this.abpUser ? this.abpUser.toJSON() : <any>undefined;
+        data["department"] = this.department ? this.department.toJSON() : <any>undefined;
         if (Array.isArray(this.prescriptions)) {
             data["prescriptions"] = [];
             for (let item of this.prescriptions)
@@ -24500,11 +24574,12 @@ export interface IDoctor {
     specialization: string | undefined;
     qualification: string | undefined;
     yearsOfExperience: number;
-    department: string | undefined;
     registrationNumber: string | undefined;
     dateOfBirth: moment.Moment | undefined;
     abpUserId: number;
+    departmentId: number;
     abpUser: User;
+    department: Department;
     prescriptions: Prescription[] | undefined;
     appointments: Appointment[] | undefined;
     admissions: Admission[] | undefined;
@@ -24520,7 +24595,7 @@ export class DoctorDto implements IDoctorDto {
     specialization: string | undefined;
     qualification: string | undefined;
     yearsOfExperience: number;
-    department: string | undefined;
+    department: DepartmentDto;
     registrationNumber: string | undefined;
     dateOfBirth: moment.Moment | undefined;
     abpUser: UserDto;
@@ -24544,7 +24619,7 @@ export class DoctorDto implements IDoctorDto {
             this.specialization = _data["specialization"];
             this.qualification = _data["qualification"];
             this.yearsOfExperience = _data["yearsOfExperience"];
-            this.department = _data["department"];
+            this.department = _data["department"] ? DepartmentDto.fromJS(_data["department"]) : <any>undefined;
             this.registrationNumber = _data["registrationNumber"];
             this.dateOfBirth = _data["dateOfBirth"] ? moment(_data["dateOfBirth"].toString()) : <any>undefined;
             this.abpUser = _data["abpUser"] ? UserDto.fromJS(_data["abpUser"]) : <any>undefined;
@@ -24572,7 +24647,7 @@ export class DoctorDto implements IDoctorDto {
         data["specialization"] = this.specialization;
         data["qualification"] = this.qualification;
         data["yearsOfExperience"] = this.yearsOfExperience;
-        data["department"] = this.department;
+        data["department"] = this.department ? this.department.toJSON() : <any>undefined;
         data["registrationNumber"] = this.registrationNumber;
         data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
         data["abpUser"] = this.abpUser ? this.abpUser.toJSON() : <any>undefined;
@@ -24600,7 +24675,7 @@ export interface IDoctorDto {
     specialization: string | undefined;
     qualification: string | undefined;
     yearsOfExperience: number;
-    department: string | undefined;
+    department: DepartmentDto;
     registrationNumber: string | undefined;
     dateOfBirth: moment.Moment | undefined;
     abpUser: UserDto;
@@ -25171,7 +25246,7 @@ export class EmergencyChargeEntry implements IEmergencyChargeEntry {
     isProcessed: boolean;
     referenceId: number | undefined;
     emergencyCaseId: number | undefined;
-    emergencyCases: EmergencyCase;
+    emergencyCase: EmergencyCase;
 
     constructor(data?: IEmergencyChargeEntry) {
         if (data) {
@@ -25195,7 +25270,7 @@ export class EmergencyChargeEntry implements IEmergencyChargeEntry {
             this.isProcessed = _data["isProcessed"];
             this.referenceId = _data["referenceId"];
             this.emergencyCaseId = _data["emergencyCaseId"];
-            this.emergencyCases = _data["emergencyCases"] ? EmergencyCase.fromJS(_data["emergencyCases"]) : <any>undefined;
+            this.emergencyCase = _data["emergencyCase"] ? EmergencyCase.fromJS(_data["emergencyCase"]) : <any>undefined;
         }
     }
 
@@ -25219,7 +25294,7 @@ export class EmergencyChargeEntry implements IEmergencyChargeEntry {
         data["isProcessed"] = this.isProcessed;
         data["referenceId"] = this.referenceId;
         data["emergencyCaseId"] = this.emergencyCaseId;
-        data["emergencyCases"] = this.emergencyCases ? this.emergencyCases.toJSON() : <any>undefined;
+        data["emergencyCase"] = this.emergencyCase ? this.emergencyCase.toJSON() : <any>undefined;
         return data;
     }
 
@@ -25243,7 +25318,7 @@ export interface IEmergencyChargeEntry {
     isProcessed: boolean;
     referenceId: number | undefined;
     emergencyCaseId: number | undefined;
-    emergencyCases: EmergencyCase;
+    emergencyCase: EmergencyCase;
 }
 
 export class EmergencyMasterDto implements IEmergencyMasterDto {
@@ -35948,8 +36023,6 @@ export class Visit implements IVisit {
     tenantId: number;
     patientId: number;
     patient: Patient;
-    departmentId: number;
-    department: Department;
     nurseId: number;
     nurse: Nurse;
     doctorId: number;
@@ -35975,8 +36048,6 @@ export class Visit implements IVisit {
             this.tenantId = _data["tenantId"];
             this.patientId = _data["patientId"];
             this.patient = _data["patient"] ? Patient.fromJS(_data["patient"]) : <any>undefined;
-            this.departmentId = _data["departmentId"];
-            this.department = _data["department"] ? Department.fromJS(_data["department"]) : <any>undefined;
             this.nurseId = _data["nurseId"];
             this.nurse = _data["nurse"] ? Nurse.fromJS(_data["nurse"]) : <any>undefined;
             this.doctorId = _data["doctorId"];
@@ -36002,8 +36073,6 @@ export class Visit implements IVisit {
         data["tenantId"] = this.tenantId;
         data["patientId"] = this.patientId;
         data["patient"] = this.patient ? this.patient.toJSON() : <any>undefined;
-        data["departmentId"] = this.departmentId;
-        data["department"] = this.department ? this.department.toJSON() : <any>undefined;
         data["nurseId"] = this.nurseId;
         data["nurse"] = this.nurse ? this.nurse.toJSON() : <any>undefined;
         data["doctorId"] = this.doctorId;
@@ -36029,8 +36098,6 @@ export interface IVisit {
     tenantId: number;
     patientId: number;
     patient: Patient;
-    departmentId: number;
-    department: Department;
     nurseId: number;
     nurse: Nurse;
     doctorId: number;
@@ -36045,7 +36112,6 @@ export interface IVisit {
 export class VisitListDto implements IVisitListDto {
     id: number;
     patient: PatientDto;
-    department: DepartmentListDto;
     doctor: DoctorDto;
     nurse: NurseDto;
     dateOfVisit: moment.Moment;
@@ -36067,7 +36133,6 @@ export class VisitListDto implements IVisitListDto {
         if (_data) {
             this.id = _data["id"];
             this.patient = _data["patient"] ? PatientDto.fromJS(_data["patient"]) : <any>undefined;
-            this.department = _data["department"] ? DepartmentListDto.fromJS(_data["department"]) : <any>undefined;
             this.doctor = _data["doctor"] ? DoctorDto.fromJS(_data["doctor"]) : <any>undefined;
             this.nurse = _data["nurse"] ? NurseDto.fromJS(_data["nurse"]) : <any>undefined;
             this.dateOfVisit = _data["dateOfVisit"] ? moment(_data["dateOfVisit"].toString()) : <any>undefined;
@@ -36089,7 +36154,6 @@ export class VisitListDto implements IVisitListDto {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["patient"] = this.patient ? this.patient.toJSON() : <any>undefined;
-        data["department"] = this.department ? this.department.toJSON() : <any>undefined;
         data["doctor"] = this.doctor ? this.doctor.toJSON() : <any>undefined;
         data["nurse"] = this.nurse ? this.nurse.toJSON() : <any>undefined;
         data["dateOfVisit"] = this.dateOfVisit ? this.dateOfVisit.toISOString() : <any>undefined;
@@ -36111,7 +36175,6 @@ export class VisitListDto implements IVisitListDto {
 export interface IVisitListDto {
     id: number;
     patient: PatientDto;
-    department: DepartmentListDto;
     doctor: DoctorDto;
     nurse: NurseDto;
     dateOfVisit: moment.Moment;

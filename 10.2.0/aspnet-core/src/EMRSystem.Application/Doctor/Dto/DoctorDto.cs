@@ -1,5 +1,6 @@
 ﻿using Abp.Application.Services.Dto;
 using EMRSystem.Authorization.Users;
+using EMRSystem.Departments.Dto;
 using EMRSystem.Patients;
 using EMRSystem.Patients.Dto;
 using EMRSystem.Prescriptions;
@@ -22,7 +23,7 @@ namespace EMRSystem.Doctor.Dto
         public string Specialization { get; set; }
         public string Qualification { get; set; }
         public int YearsOfExperience { get; set; }
-        public string Department { get; set; }
+        public DepartmentDto Department { get; set; }
         public string RegistrationNumber { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public virtual UserDto AbpUser { get; set; }

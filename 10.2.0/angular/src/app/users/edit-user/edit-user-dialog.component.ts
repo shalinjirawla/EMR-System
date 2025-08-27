@@ -131,6 +131,7 @@ export class EditUserDialogComponent extends AppComponentBase implements OnInit 
             dateOfBirth: doc.dateOfBirth?.format('YYYY-MM-DD') ?? null,
             abpUserId: doc.abpUserId,
             id: doc.id,
+             departmentId: doc.department?.id,
             tenantId: data.tenantId
 
         };

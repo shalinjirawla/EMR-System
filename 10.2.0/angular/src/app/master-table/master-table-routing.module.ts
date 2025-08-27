@@ -13,7 +13,7 @@ import { TestResultLimitComponent } from './test-result-limit/test-result-limit.
 import { HealthPackageComponent } from './health-package/health-package.component';
 import { BedsComponent } from './beds/beds.component';
 import { EmergencyChargesComponent } from './emergency-charges/emergency-charges.component';
-
+import {DepartmentComponent} from './department/department.component'
 
 const routes: Routes = [
     {
@@ -68,6 +68,10 @@ const routes: Routes = [
     {
         path:'emergency-charges',
         component:EmergencyChargesComponent
+    },
+    {
+        path:'department',
+        component:DepartmentComponent
     }
 ];
 
