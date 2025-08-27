@@ -7,9 +7,10 @@ using System.Threading.Tasks;
 
 namespace EMRSystem.Departments.Dto
 {
-    public class DepartmentListDto : EntityDto<long>
+    public class DepartmentDto : EntityDto<long>
     {
         public int TenantId { get; set; }
-        public string Name { get; set; }
+        public string DepartmentName { get; set; }
+        public bool IsActive { get; set; }
     }
 }

@@ -23,11 +23,12 @@ namespace EMRSystem.Doctors
         public string Specialization { get; set; }
         public string Qualification { get; set; }
         public int YearsOfExperience { get; set; }
-        public string Department { get; set; }
         public string RegistrationNumber { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public long AbpUserId { get; set; }
+        public long DepartmentId { get; set; }
         public virtual User AbpUser { get; set; }
+        public virtual Departments.Department Department { get; set; }
         //public ICollection<Patient> Patients { get; set; }
         public ICollection<Prescription> Prescriptions { get; set; }
         public virtual ICollection<Appointment> Appointments { get; set; }

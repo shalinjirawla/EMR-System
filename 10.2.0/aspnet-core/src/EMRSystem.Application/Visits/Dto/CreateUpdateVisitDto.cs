@@ -11,7 +11,7 @@ namespace EMRSystem.Visits.Dto
     {
         public int TenantId { get; set; }
         public long PatientId { get; set; }
-        public long DepartmentId { get; set; }
+        //public long DepartmentId { get; set; }
         public long DoctorId { get; set; }
         public long NurseId { get; set; }
         public DateTime DateOfVisit { get; set; }

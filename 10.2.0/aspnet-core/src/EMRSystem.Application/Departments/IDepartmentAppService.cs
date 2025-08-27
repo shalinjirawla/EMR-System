@@ -11,6 +11,6 @@ using EMRSystem.Departments.Dto;
 namespace EMRSystem.Departments
 {
     public interface IDepartmentAppService : IAsyncCrudAppService<
-   DepartmentListDto, long, PagedAndSortedResultRequestDto, CreateUpdateDepartmentDto, CreateUpdateDepartmentDto>
+   DepartmentDto, long, PagedAndSortedResultRequestDto, CreateUpdateDepartmentDto, CreateUpdateDepartmentDto>
     { }
 }

@@ -13,7 +13,9 @@ namespace EMRSystem.Doctor.Dto
     {
         public DoctorMapProfile()
         {
-            CreateMap<EMRSystem.Doctors.Doctor, DoctorDto>().ReverseMap();
+            CreateMap<EMRSystem.Doctors.Doctor, DoctorDto>()
+                 .ForMember(dest => dest.Department, opt => opt.MapFrom(src => src.Department)); // Map Department
+
             CreateMap<EMRSystem.Doctors.Doctor, CreateUpdateDoctorDto>().ReverseMap();
         }
     }

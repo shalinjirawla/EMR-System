@@ -1,0 +1,56 @@
+<form class="form-horizontal" autocomplete="off" #departmentForm="ngForm" (ngSubmit)="save()">
+  <abp-modal-header
+    [title]="id ? 'Edit Department' : 'Create Departments'"
+    (onCloseClick)="bsModalRef.hide()"
+  ></abp-modal-header>
+
+  <div class="modal-body">
+    <!-- Bulk Create -->
+    <div class="form-group" *ngIf="!id">
+      <label><b>Department Names *</b></label><br>
+      <p-autoComplete
+        [(ngModel)]="selectedDepartmentNames"
+        name="departmentNames"
+        [suggestions]="filteredDepartmentNames"
+        (completeMethod)="filterDepartmentNames($event)"
+        [multiple]="true"
+        [typeahead]="false"
+        placeholder="Enter or select multiple department names"
+        class="w-100"
+        required
+      ></p-autoComplete>
+    </div>
+
+    <!-- Update -->
+    <div class="form-group" *ngIf="id">
+      <label for="departmentName"><b>Name *</b></label>
+      <input
+        pInputText
+        type="text"
+        id="departmentName"
+        name="departmentName"
+        class="form-control"
+        [(ngModel)]="department.departmentName"
+        required
+        maxlength="100"
+        placeholder="Enter department name"
+      />
+    </div>
+
+    <!-- Switch for Active/Inactive -->
+    <div class="form-group">
+      <label for="isActive"><b>Active</b></label><br />
+      <p-inputSwitch
+        id="isActive"
+        name="isActive"
+        [(ngModel)]="isActive"
+      ></p-inputSwitch>
+    </div>
+  </div>
+
+  <abp-modal-footer
+    [cancelDisabled]="saving"
+    [saveDisabled]="!isFormValid || saving"
+    (onCancelClick)="bsModalRef.hide()"
+  ></abp-modal-footer>
+</form>

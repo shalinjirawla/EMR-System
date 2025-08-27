@@ -50,7 +50,7 @@ allFacilities: RoomFacilityMasterDto[] = [];
 
     switch (this.dataType) {
       case 'report': return this.saveReport();
-      case 'department': return this.saveDepartment();
+      //case 'department': return this.saveDepartment();
       case 'roomfacility': return this.saveRoomFacility();
       case 'roomtype': return this.saveRoomType();
       default:             /* diagnosis or others */ return;
@@ -85,17 +85,17 @@ allFacilities: RoomFacilityMasterDto[] = [];
       complete: () => this.saving = false
     });
   }
-  private saveDepartment(): void {
-    const input = new CreateUpdateDepartmentDto();
-    input.name = this.name.trim();
-    input.tenantId = abp.session.tenantId;
+  // private saveDepartment(): void {
+  //   const input = new CreateUpdateDepartmentDto();
+  //   input.name = this.name.trim();
+  //   input.tenantId = abp.session.tenantId;
 
-    this._departmentService.create(input).subscribe({
-      next: () => this.handleSuccess(),
-      error: () => this.handleError(),
-      complete: () => this.saving = false
-    });
-  }
+  //   this._departmentService.create(input).subscribe({
+  //     next: () => this.handleSuccess(),
+  //     error: () => this.handleError(),
+  //     complete: () => this.saving = false
+  //   });
+  // }
 
   private saveRoomFacility(): void {
     const dto = { facilityName: this.name.trim(), tenantId: abp.session.tenantId } as any;

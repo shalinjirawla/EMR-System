@@ -21,7 +21,7 @@ namespace EMRSystem.Doctor.Dto
         public string Specialization { get; set; }
         public string Qualification { get; set; }
         public int YearsOfExperience { get; set; }
-        public string Department { get; set; }
+        public long DepartmentId { get; set; }
         public string RegistrationNumber { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public long AbpUserId { get; set; }

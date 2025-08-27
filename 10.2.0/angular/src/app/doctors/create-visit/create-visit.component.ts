@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
-import { PatientDropDownDto, PaymentMode, DepartmentServiceProxy, DepartmentListDto, NurseDto, NurseServiceProxy, DoctorServiceProxy, CreateUpdateVisitDto, VisitServiceProxy } from '@shared/service-proxies/service-proxies';
+import { PatientDropDownDto, PaymentMode, DepartmentServiceProxy, NurseDto, NurseServiceProxy, DoctorServiceProxy, CreateUpdateVisitDto, VisitServiceProxy } from '@shared/service-proxies/service-proxies';
 import { AbpModalHeaderComponent } from '../../../shared/components/modal/abp-modal-header.component';
 import { AbpModalFooterComponent } from '../../../shared/components/modal/abp-modal-footer.component';
 import { AppComponentBase } from '../../../shared/app-component-base';
@@ -55,7 +55,7 @@ export class CreateVisitComponent extends AppComponentBase implements OnInit {
     creationTime: undefined,
     doctorId: 0,
   };
-  departments!: DepartmentListDto[];
+  //departments!: DepartmentListDto[];
   nurse!: NurseDto[];
   selectedPaymentMethod: string;
   minVisitDate: Date;
@@ -78,7 +78,7 @@ export class CreateVisitComponent extends AppComponentBase implements OnInit {
     this.showAddPatientButton = this.permissionChecker.isGranted('Pages.Users');
     this.FetchDoctorID();
     this.LoadPatients();
-    this.LoadDepartMent();
+    //this.LoadDepartMent();
     this.LoadNurse();
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -92,11 +92,11 @@ export class CreateVisitComponent extends AppComponentBase implements OnInit {
       }
     });
   }
-  LoadDepartMent() {
-    this._departmentService.getAllDepartmentByTenantID().subscribe(res => {
-      this.departments = res.items;
-    })
-  }
+  // LoadDepartMent() {
+  //   this._departmentService.getAllDepartmentByTenantID().subscribe(res => {
+  //     this.departments = res.items;
+  //   })
+  // }
   LoadNurse() {
     this._nurseService.getAllNursesByTenantID(abp.session.tenantId).subscribe({
       next: (res) => {
@@ -126,7 +126,7 @@ export class CreateVisitComponent extends AppComponentBase implements OnInit {
     input.id = 0;
     input.tenantId = abp.session.tenantId;
     input.patientId = this.visit.patientId;
-    input.departmentId = this.visit.departmentId;
+    //input.departmentId = this.visit.departmentId;
     input.doctorId = this.doctorID;
     input.nurseId = this.visit.nurseId;
     input.dateOfVisit = this.visit.dateOfVisit;

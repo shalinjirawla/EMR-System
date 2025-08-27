@@ -16,8 +16,8 @@ namespace EMRSystem.Visits
         public int TenantId { get; set; }
         public long PatientId { get; set; }
         public virtual Patient Patient { get; set; }
-        public long DepartmentId { get; set; }
-        public virtual Department Department { get; set; }
+        //public long DepartmentId { get; set; }
+        //public virtual Department Department { get; set; }
         public long NurseId { get; set; }
         public virtual Nurse Nurse { get; set; }
         public long DoctorId { get; set; }
