@@ -452,7 +452,7 @@ namespace EMRSystem.Invoice
             {
                 // ⚡ Sirf IsProcessed check karna hai, EntryDate filter nahi lagega
                 emergencyCharges = await _emergencyChargeEntriesRepository
-                    .GetAllIncluding(x => x.Patient, x => x.EmergencyCases)
+                    .GetAllIncluding(x => x.Patient, x => x.EmergencyCase)
                     .Where(x => x.PatientId == patientId && !x.IsProcessed)
                     .ToListAsync();
             }

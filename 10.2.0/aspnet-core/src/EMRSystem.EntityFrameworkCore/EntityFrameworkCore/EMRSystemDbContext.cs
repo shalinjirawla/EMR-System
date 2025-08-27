@@ -684,7 +684,7 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
              .HasForeignKey(e => e.PatientId)
              .OnDelete(DeleteBehavior.Restrict);
 
-            b.HasOne(e => e.EmergencyCases)
+            b.HasOne(e => e.EmergencyCase)
             .WithMany(d => d.EmergencyChargeEntries)
             .HasForeignKey(e => e.EmergencyCaseId)
             .OnDelete(DeleteBehavior.Restrict);
