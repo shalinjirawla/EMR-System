@@ -22,6 +22,6 @@ namespace EMRSystem.EmergencyChargeEntries
         public bool IsProcessed { get; set; } = false;
         public long? ReferenceId { get; set; }
         public long? EmergencyCaseId { get; set; }
-        public virtual EmergencyCase EmergencyCases { get; set; }
+        public virtual EmergencyCase EmergencyCase { get; set; }
     }
 }

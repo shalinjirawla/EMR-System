@@ -18,10 +18,10 @@ import { ButtonModule } from 'primeng/button';
 import { CreateDepositComponent } from './create-deposit/create-deposit.component';
 import {PatientReceiptListComponent} from './patient-receipt-list/patient-receipt-list.component'
 import { PatientDepositDto, PatientDepositDtoPagedResultDto, PatientDepositServiceProxy } from '@shared/service-proxies/service-proxies';
-
+import { TagModule } from 'primeng/tag';
 @Component({
   selector: 'app-deposit',
-  imports: [LocalizePipe, TableModule, PaginatorModule, FormsModule, NgIf, PrimeTemplate, ChipModule, OverlayPanelModule, MenuModule, ButtonModule],
+  imports: [LocalizePipe, TableModule,TagModule, PaginatorModule, FormsModule, NgIf, PrimeTemplate, ChipModule, OverlayPanelModule, MenuModule, ButtonModule],
   animations: [appModuleAnimation()],
   providers: [PatientDepositServiceProxy],
   templateUrl: './deposit.component.html',
