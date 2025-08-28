@@ -1,6 +1,7 @@
 ﻿using Abp.Domain.Entities;
 using Abp.Domain.Entities.Auditing;
 using EMRSystem.Appointments;
+using EMRSystem.Departments;
 using EMRSystem.Doctors;
 using EMRSystem.Emergency.EmergencyCase;
 using EMRSystem.LabReports;
@@ -27,6 +28,11 @@ namespace EMRSystem.Prescriptions
         public virtual EmergencyCase EmergencyCase { get; set; }
         public long? DoctorId { get; set; }
         public virtual Doctor Doctor { get; set; }
+        public long? SpecialistDoctorId { get; set; }
+        public virtual Doctor SpecialistDoctor { get; set; }
+        public bool IsSpecialAdviceRequired { get; set; }
+        public virtual Department Department { get; set; }
+        public long? DepartmentId { get; set; }
         public long? PatientId { get; set; }
         public virtual Patient Patient { get; set; }
         public ICollection<PrescriptionItem> Items { get; set; }

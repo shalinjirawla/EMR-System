@@ -32,7 +32,7 @@ import { forkJoin } from 'rxjs';
         EditLabTechnicianComponent,
         EditPatientsComponent
     ],
-    providers: [DoctorServiceProxy,NurseServiceProxy,LapTechnicianServiceProxy,PatientServiceProxy]
+    providers: [DoctorServiceProxy, NurseServiceProxy, LapTechnicianServiceProxy, PatientServiceProxy]
 })
 export class EditUserDialogComponent extends AppComponentBase implements OnInit {
     @Output() onSave = new EventEmitter<any>();
@@ -131,9 +131,9 @@ export class EditUserDialogComponent extends AppComponentBase implements OnInit 
             dateOfBirth: doc.dateOfBirth?.format('YYYY-MM-DD') ?? null,
             abpUserId: doc.abpUserId,
             id: doc.id,
-             departmentId: doc.department?.id,
-            tenantId: data.tenantId
-
+            departmentId: doc.department?.id,
+            tenantId: data.tenantId,
+            isEmergencyDoctor: doc.isEmergencyDoctor
         };
     }
 
@@ -161,8 +161,8 @@ export class EditUserDialogComponent extends AppComponentBase implements OnInit 
 
         this.technicianData = {
             gender: tech.gender,
-            qualification:tech.qualification,
-            certificationNumber:tech.certificationNumber,
+            qualification: tech.qualification,
+            certificationNumber: tech.certificationNumber,
             department: tech.department,
             yearsOfExperience: tech.yearsOfExperience,
             dateOfBirth: tech.dateOfBirth?.format('YYYY-MM-DD') ?? null,
@@ -185,10 +185,10 @@ export class EditUserDialogComponent extends AppComponentBase implements OnInit 
             emergencyContactName: patient.emergencyContactName,
             emergencyContactNumber: patient.emergencyContactNumber,
             assignedNurseId: patient.assignedNurseId,
-            depositAmount:patient.depositAmount,
-            billingMethod:patient.billingMethod,
-            paymentMethod:patient.paymentMethod,
-            roomId:patient.roomId,
+            depositAmount: patient.depositAmount,
+            billingMethod: patient.billingMethod,
+            paymentMethod: patient.paymentMethod,
+            roomId: patient.roomId,
             //isAdmitted: patient.isAdmitted,
             admissionDate: patient.admissionDate?.format('YYYY-MM-DD') ?? null,
             // dischargeDate: patient.dischargeDate?.format('YYYY-MM-DD') ?? null,
@@ -281,7 +281,7 @@ export class EditUserDialogComponent extends AppComponentBase implements OnInit 
     }
 
     updatePatient(): void {
-         this.patientData.fullName = `${this.user.name} ${this.user.surname}`;
+        this.patientData.fullName = `${this.user.name} ${this.user.surname}`;
         this._patientService.update(this.patientData).subscribe();
     }
 }

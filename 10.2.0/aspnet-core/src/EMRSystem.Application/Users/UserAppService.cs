@@ -310,6 +310,7 @@ public class UserAppService : AsyncCrudAppService<User, UserDto, long, PagedUser
                      RegistrationNumber = i.RegistrationNumber,
                      DateOfBirth = i.DateOfBirth,
                      AbpUserId = i.AbpUserId,
+                     isEmergencyDoctor=i.isEmergencyDoctor,
                  }).ToList(),
                  LabTechnicians = x.LabTechnicians.Select(i => new EMRSystem.LabReports.LabTechnician
                  {

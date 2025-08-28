@@ -1,5 +1,6 @@
 ﻿using Abp.Application.Services.Dto;
 using EMRSystem.Appointments.Dto;
+using EMRSystem.Departments.Dto;
 using EMRSystem.Doctor.Dto;
 using EMRSystem.Patients;
 using EMRSystem.Patients.Dto;
@@ -23,9 +24,12 @@ namespace EMRSystem.Prescriptions.Dto
         public long? EmergencyCaseId { get; set; }
         public AppointmentDto Appointment { get; set; }
         public DoctorDto Doctor { get; set; }
+        public DoctorDto SpecialistDoctor { get; set; }
         public PatientDto Patient { get; set; }
         public List<PrescriptionItemDto> Items { get; set; }
         public List<long> LabTestIds { get; set; }
         public List<PrescriptionLabTestDto> LabTests { get; set; }
+        public DepartmentDto Departments { get; set; }
+        public bool IsSpecialAdviceRequired { get; set; }
     }
 }

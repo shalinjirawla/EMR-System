@@ -1,5 +1,6 @@
 ﻿using Abp.Domain.Entities;
 using EMRSystem.Doctors;
+using EMRSystem.Prescriptions;
 using EMRSystem.Visits;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,7 @@ namespace EMRSystem.Departments
 
         public bool IsActive { get; set; } = true;
         public virtual ICollection<Doctor> Doctors { get; set; }
+        public ICollection<Prescription> Prescriptions { get; set; }
 
     }
 }

@@ -18,6 +18,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -58,7 +59,7 @@ namespace EMRSystem.LabReport
             _ipdChargeEntryRepository = ipdChargeEntryRepository;
             _emergencyChargeEntriesRepository = emergencyChargeEntriesRepository;
         }
-        public async Task AddLabReportResultItem(List<CreateUpdateLabReportResultItemDto> reportResultItemDtos, long? emergencyCaseId, bool isEmergencyCase = false)
+        public async Task AddLabReportResultItem(List<CreateUpdateLabReportResultItemDto> reportResultItemDtos, [Optional] long? emergencyCaseId, bool isEmergencyCase = false)
         {
             try
             {
@@ -71,30 +72,18 @@ namespace EMRSystem.LabReport
 
                 var prescriptionLabTestId = reportResultItemDtos[0].PrescriptionLabTestId;
                 await _prescriptionLabTestsAppService.MakeInprogressReports(prescriptionLabTestId);
+
                 var prescriptionLabTest = await _prescriptionLabTestRepository.GetAsync(prescriptionLabTestId);
 
-                if (prescriptionLabTest == null || !prescriptionLabTest.PrescriptionId.HasValue)
-                    return;
+                var prescription = (prescriptionLabTest.PrescriptionId.HasValue) ? await _prescriptionRepository.GetAsync(prescriptionLabTest.PrescriptionId.Value) : null;
 
-                var prescription = await _prescriptionRepository.GetAsync(prescriptionLabTest.PrescriptionId.Value);
+                var patient = (prescription != null && prescription.PatientId.HasValue) ? await _patientRepository.GetAsync(prescription.PatientId.Value) : null;
 
-                if (prescription == null)
-                    return;
-
-                var patient = await _patientRepository.GetAsync(prescription.PatientId.Value);
-
-                if (patient?.IsAdmitted != true && !isEmergencyCase)
-                    return;
-
-                var admission = await _admissionRepository.FirstOrDefaultAsync(a =>
-                    a.PatientId == patient.Id && a.IsDischarged == false);
-
-                if (admission == null && !isEmergencyCase)
-                    return;
+                var admission = (patient != null && patient.Id > 0) ? await _admissionRepository.FirstOrDefaultAsync(a => a.PatientId == patient.Id && a.IsDischarged == false) : null;
 
                 var reportType = await _labReportsTypeRepository.GetAsync(prescriptionLabTest.LabReportsTypeId);
 
-                if (!isEmergencyCase)
+                if (!isEmergencyCase && admission != null && patient.IsAdmitted)
                 {
                     var chargeEntry = new EMRSystem.IpdChargeEntry.IpdChargeEntry
                     {
@@ -116,7 +105,7 @@ namespace EMRSystem.LabReport
                 {
                     var chargeEntry = new EMRSystem.EmergencyChargeEntries.EmergencyChargeEntry
                     {
-                        PatientId = patient.Id,
+                        PatientId = patient?.Id,
                         ChargeType = ChargeType.LabTest,
                         Description = $"Emergency Case Only",
                         Amount = reportType?.ReportPrice ?? 0,

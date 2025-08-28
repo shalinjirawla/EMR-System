@@ -29,5 +29,6 @@ namespace EMRSystem.Doctor.Dto
         public virtual UserDto AbpUser { get; set; }
         //public List<PatientDto> Patients { get; set; }
         public List<PrescriptionDto> Prescriptions { get; set; }
+        public bool isEmergencyDoctor { get; set; }
     }
 }

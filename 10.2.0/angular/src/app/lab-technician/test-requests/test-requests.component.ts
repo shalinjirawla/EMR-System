@@ -189,6 +189,7 @@ export class TestRequestsComponent extends PagedListingComponentBase<Prescriptio
         });
     }
     CreateReport(record: LabRequestListDto): void {
+        debugger//3
         let createReportDialog: BsModalRef;
         if (record.labReportsTypeId) {
             createReportDialog = this._modalService.show(GenerateLabReportComponent, {
@@ -199,7 +200,7 @@ export class TestRequestsComponent extends PagedListingComponentBase<Prescriptio
                     testName: record.labReportTypeName,
                     patientName: record.patientName,
                     emergencyCaseId: record.emergencyCaseId,
-                    isEmergencyCase: true,  
+                    isEmergencyCase: record.isEmergencyPrescription,  
                 },
             });
         }

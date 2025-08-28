@@ -21,5 +21,8 @@ namespace EMRSystem.Prescriptions.Dto
         public List<CreateUpdatePrescriptionItemDto> Items { get; set; }
         public bool IsEmergencyPrescription { get; set; }
         public long? EmergencyCaseId { get; set; }
+        public long? DepartmentId { get; set; }
+        public long? SpecialistDoctorId { get; set; }
+        public bool IsSpecialAdviceRequired { get; set; }
     }
 }
