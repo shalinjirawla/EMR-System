@@ -21544,10 +21544,11 @@ export class CreateUpdateDoctorDto implements ICreateUpdateDoctorDto {
     specialization: string | undefined;
     qualification: string | undefined;
     yearsOfExperience: number;
-    departmentId: number;
+    departmentId: number | undefined;
     registrationNumber: string | undefined;
     dateOfBirth: moment.Moment | undefined;
     abpUserId: number;
+    isEmergencyDoctor: boolean;
 
     constructor(data?: ICreateUpdateDoctorDto) {
         if (data) {
@@ -21571,6 +21572,7 @@ export class CreateUpdateDoctorDto implements ICreateUpdateDoctorDto {
             this.registrationNumber = _data["registrationNumber"];
             this.dateOfBirth = _data["dateOfBirth"] ? moment(_data["dateOfBirth"].toString()) : <any>undefined;
             this.abpUserId = _data["abpUserId"];
+            this.isEmergencyDoctor = _data["isEmergencyDoctor"];
         }
     }
 
@@ -21594,6 +21596,7 @@ export class CreateUpdateDoctorDto implements ICreateUpdateDoctorDto {
         data["registrationNumber"] = this.registrationNumber;
         data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
         data["abpUserId"] = this.abpUserId;
+        data["isEmergencyDoctor"] = this.isEmergencyDoctor;
         return data;
     }
 
@@ -21613,10 +21616,11 @@ export interface ICreateUpdateDoctorDto {
     specialization: string | undefined;
     qualification: string | undefined;
     yearsOfExperience: number;
-    departmentId: number;
+    departmentId: number | undefined;
     registrationNumber: string | undefined;
     dateOfBirth: moment.Moment | undefined;
     abpUserId: number;
+    isEmergencyDoctor: boolean;
 }
 
 export class CreateUpdateDoctorMasterDto implements ICreateUpdateDoctorMasterDto {
@@ -23119,6 +23123,9 @@ export class CreateUpdatePrescriptionDto implements ICreateUpdatePrescriptionDto
     items: CreateUpdatePrescriptionItemDto[] | undefined;
     isEmergencyPrescription: boolean;
     emergencyCaseId: number | undefined;
+    departmentId: number | undefined;
+    specialistDoctorId: number | undefined;
+    isSpecialAdviceRequired: boolean;
 
     constructor(data?: ICreateUpdatePrescriptionDto) {
         if (data) {
@@ -23152,6 +23159,9 @@ export class CreateUpdatePrescriptionDto implements ICreateUpdatePrescriptionDto
             }
             this.isEmergencyPrescription = _data["isEmergencyPrescription"];
             this.emergencyCaseId = _data["emergencyCaseId"];
+            this.departmentId = _data["departmentId"];
+            this.specialistDoctorId = _data["specialistDoctorId"];
+            this.isSpecialAdviceRequired = _data["isSpecialAdviceRequired"];
         }
     }
 
@@ -23185,6 +23195,9 @@ export class CreateUpdatePrescriptionDto implements ICreateUpdatePrescriptionDto
         }
         data["isEmergencyPrescription"] = this.isEmergencyPrescription;
         data["emergencyCaseId"] = this.emergencyCaseId;
+        data["departmentId"] = this.departmentId;
+        data["specialistDoctorId"] = this.specialistDoctorId;
+        data["isSpecialAdviceRequired"] = this.isSpecialAdviceRequired;
         return data;
     }
 
@@ -23210,6 +23223,9 @@ export interface ICreateUpdatePrescriptionDto {
     items: CreateUpdatePrescriptionItemDto[] | undefined;
     isEmergencyPrescription: boolean;
     emergencyCaseId: number | undefined;
+    departmentId: number | undefined;
+    specialistDoctorId: number | undefined;
+    isSpecialAdviceRequired: boolean;
 }
 
 export class CreateUpdatePrescriptionItemDto implements ICreateUpdatePrescriptionItemDto {
@@ -23964,6 +23980,7 @@ export class Department implements IDepartment {
     departmentName: string | undefined;
     isActive: boolean;
     doctors: Doctor[] | undefined;
+    prescriptions: Prescription[] | undefined;
 
     constructor(data?: IDepartment) {
         if (data) {
@@ -23984,6 +24001,11 @@ export class Department implements IDepartment {
                 this.doctors = [] as any;
                 for (let item of _data["doctors"])
                     this.doctors.push(Doctor.fromJS(item));
+            }
+            if (Array.isArray(_data["prescriptions"])) {
+                this.prescriptions = [] as any;
+                for (let item of _data["prescriptions"])
+                    this.prescriptions.push(Prescription.fromJS(item));
             }
         }
     }
@@ -24006,6 +24028,11 @@ export class Department implements IDepartment {
             for (let item of this.doctors)
                 data["doctors"].push(item.toJSON());
         }
+        if (Array.isArray(this.prescriptions)) {
+            data["prescriptions"] = [];
+            for (let item of this.prescriptions)
+                data["prescriptions"].push(item.toJSON());
+        }
         return data;
     }
 
@@ -24023,6 +24050,7 @@ export interface IDepartment {
     departmentName: string | undefined;
     isActive: boolean;
     doctors: Doctor[] | undefined;
+    prescriptions: Prescription[] | undefined;
 }
 
 export class DepartmentDto implements IDepartmentDto {
@@ -24465,14 +24493,16 @@ export class Doctor implements IDoctor {
     registrationNumber: string | undefined;
     dateOfBirth: moment.Moment | undefined;
     abpUserId: number;
-    departmentId: number;
+    departmentId: number | undefined;
     abpUser: User;
     department: Department;
     prescriptions: Prescription[] | undefined;
+    specialistPrescriptions: Prescription[] | undefined;
     appointments: Appointment[] | undefined;
     admissions: Admission[] | undefined;
     emergencyCases: EmergencyCase[] | undefined;
     visits: Visit[] | undefined;
+    isEmergencyDoctor: boolean;
 
     constructor(data?: IDoctor) {
         if (data) {
@@ -24503,6 +24533,11 @@ export class Doctor implements IDoctor {
                 for (let item of _data["prescriptions"])
                     this.prescriptions.push(Prescription.fromJS(item));
             }
+            if (Array.isArray(_data["specialistPrescriptions"])) {
+                this.specialistPrescriptions = [] as any;
+                for (let item of _data["specialistPrescriptions"])
+                    this.specialistPrescriptions.push(Prescription.fromJS(item));
+            }
             if (Array.isArray(_data["appointments"])) {
                 this.appointments = [] as any;
                 for (let item of _data["appointments"])
@@ -24523,6 +24558,7 @@ export class Doctor implements IDoctor {
                 for (let item of _data["visits"])
                     this.visits.push(Visit.fromJS(item));
             }
+            this.isEmergencyDoctor = _data["isEmergencyDoctor"];
         }
     }
 
@@ -24553,6 +24589,11 @@ export class Doctor implements IDoctor {
             for (let item of this.prescriptions)
                 data["prescriptions"].push(item.toJSON());
         }
+        if (Array.isArray(this.specialistPrescriptions)) {
+            data["specialistPrescriptions"] = [];
+            for (let item of this.specialistPrescriptions)
+                data["specialistPrescriptions"].push(item.toJSON());
+        }
         if (Array.isArray(this.appointments)) {
             data["appointments"] = [];
             for (let item of this.appointments)
@@ -24573,6 +24614,7 @@ export class Doctor implements IDoctor {
             for (let item of this.visits)
                 data["visits"].push(item.toJSON());
         }
+        data["isEmergencyDoctor"] = this.isEmergencyDoctor;
         return data;
     }
 
@@ -24595,14 +24637,16 @@ export interface IDoctor {
     registrationNumber: string | undefined;
     dateOfBirth: moment.Moment | undefined;
     abpUserId: number;
-    departmentId: number;
+    departmentId: number | undefined;
     abpUser: User;
     department: Department;
     prescriptions: Prescription[] | undefined;
+    specialistPrescriptions: Prescription[] | undefined;
     appointments: Appointment[] | undefined;
     admissions: Admission[] | undefined;
     emergencyCases: EmergencyCase[] | undefined;
     visits: Visit[] | undefined;
+    isEmergencyDoctor: boolean;
 }
 
 export class DoctorDto implements IDoctorDto {
@@ -24618,6 +24662,7 @@ export class DoctorDto implements IDoctorDto {
     dateOfBirth: moment.Moment | undefined;
     abpUser: UserDto;
     prescriptions: PrescriptionDto[] | undefined;
+    isEmergencyDoctor: boolean;
 
     constructor(data?: IDoctorDto) {
         if (data) {
@@ -24646,6 +24691,7 @@ export class DoctorDto implements IDoctorDto {
                 for (let item of _data["prescriptions"])
                     this.prescriptions.push(PrescriptionDto.fromJS(item));
             }
+            this.isEmergencyDoctor = _data["isEmergencyDoctor"];
         }
     }
 
@@ -24674,6 +24720,7 @@ export class DoctorDto implements IDoctorDto {
             for (let item of this.prescriptions)
                 data["prescriptions"].push(item.toJSON());
         }
+        data["isEmergencyDoctor"] = this.isEmergencyDoctor;
         return data;
     }
 
@@ -24698,6 +24745,7 @@ export interface IDoctorDto {
     dateOfBirth: moment.Moment | undefined;
     abpUser: UserDto;
     prescriptions: PrescriptionDto[] | undefined;
+    isEmergencyDoctor: boolean;
 }
 
 export class DoctorDtoListResultDto implements IDoctorDtoListResultDto {
@@ -31921,6 +31969,11 @@ export class Prescription implements IPrescription {
     emergencyCase: EmergencyCase;
     doctorId: number | undefined;
     doctor: Doctor;
+    specialistDoctorId: number | undefined;
+    specialistDoctor: Doctor;
+    isSpecialAdviceRequired: boolean;
+    department: Department;
+    departmentId: number | undefined;
     patientId: number | undefined;
     patient: Patient;
     items: PrescriptionItem[] | undefined;
@@ -31950,6 +32003,11 @@ export class Prescription implements IPrescription {
             this.emergencyCase = _data["emergencyCase"] ? EmergencyCase.fromJS(_data["emergencyCase"]) : <any>undefined;
             this.doctorId = _data["doctorId"];
             this.doctor = _data["doctor"] ? Doctor.fromJS(_data["doctor"]) : <any>undefined;
+            this.specialistDoctorId = _data["specialistDoctorId"];
+            this.specialistDoctor = _data["specialistDoctor"] ? Doctor.fromJS(_data["specialistDoctor"]) : <any>undefined;
+            this.isSpecialAdviceRequired = _data["isSpecialAdviceRequired"];
+            this.department = _data["department"] ? Department.fromJS(_data["department"]) : <any>undefined;
+            this.departmentId = _data["departmentId"];
             this.patientId = _data["patientId"];
             this.patient = _data["patient"] ? Patient.fromJS(_data["patient"]) : <any>undefined;
             if (Array.isArray(_data["items"])) {
@@ -31987,6 +32045,11 @@ export class Prescription implements IPrescription {
         data["emergencyCase"] = this.emergencyCase ? this.emergencyCase.toJSON() : <any>undefined;
         data["doctorId"] = this.doctorId;
         data["doctor"] = this.doctor ? this.doctor.toJSON() : <any>undefined;
+        data["specialistDoctorId"] = this.specialistDoctorId;
+        data["specialistDoctor"] = this.specialistDoctor ? this.specialistDoctor.toJSON() : <any>undefined;
+        data["isSpecialAdviceRequired"] = this.isSpecialAdviceRequired;
+        data["department"] = this.department ? this.department.toJSON() : <any>undefined;
+        data["departmentId"] = this.departmentId;
         data["patientId"] = this.patientId;
         data["patient"] = this.patient ? this.patient.toJSON() : <any>undefined;
         if (Array.isArray(this.items)) {
@@ -32024,6 +32087,11 @@ export interface IPrescription {
     emergencyCase: EmergencyCase;
     doctorId: number | undefined;
     doctor: Doctor;
+    specialistDoctorId: number | undefined;
+    specialistDoctor: Doctor;
+    isSpecialAdviceRequired: boolean;
+    department: Department;
+    departmentId: number | undefined;
     patientId: number | undefined;
     patient: Patient;
     items: PrescriptionItem[] | undefined;
@@ -32041,10 +32109,13 @@ export class PrescriptionDto implements IPrescriptionDto {
     emergencyCaseId: number | undefined;
     appointment: AppointmentDto;
     doctor: DoctorDto;
+    specialistDoctor: DoctorDto;
     patient: PatientDto;
     items: PrescriptionItemDto[] | undefined;
     labTestIds: number[] | undefined;
     labTests: PrescriptionLabTestDto[] | undefined;
+    departments: DepartmentDto;
+    isSpecialAdviceRequired: boolean;
 
     constructor(data?: IPrescriptionDto) {
         if (data) {
@@ -32067,6 +32138,7 @@ export class PrescriptionDto implements IPrescriptionDto {
             this.emergencyCaseId = _data["emergencyCaseId"];
             this.appointment = _data["appointment"] ? AppointmentDto.fromJS(_data["appointment"]) : <any>undefined;
             this.doctor = _data["doctor"] ? DoctorDto.fromJS(_data["doctor"]) : <any>undefined;
+            this.specialistDoctor = _data["specialistDoctor"] ? DoctorDto.fromJS(_data["specialistDoctor"]) : <any>undefined;
             this.patient = _data["patient"] ? PatientDto.fromJS(_data["patient"]) : <any>undefined;
             if (Array.isArray(_data["items"])) {
                 this.items = [] as any;
@@ -32083,6 +32155,8 @@ export class PrescriptionDto implements IPrescriptionDto {
                 for (let item of _data["labTests"])
                     this.labTests.push(PrescriptionLabTestDto.fromJS(item));
             }
+            this.departments = _data["departments"] ? DepartmentDto.fromJS(_data["departments"]) : <any>undefined;
+            this.isSpecialAdviceRequired = _data["isSpecialAdviceRequired"];
         }
     }
 
@@ -32105,6 +32179,7 @@ export class PrescriptionDto implements IPrescriptionDto {
         data["emergencyCaseId"] = this.emergencyCaseId;
         data["appointment"] = this.appointment ? this.appointment.toJSON() : <any>undefined;
         data["doctor"] = this.doctor ? this.doctor.toJSON() : <any>undefined;
+        data["specialistDoctor"] = this.specialistDoctor ? this.specialistDoctor.toJSON() : <any>undefined;
         data["patient"] = this.patient ? this.patient.toJSON() : <any>undefined;
         if (Array.isArray(this.items)) {
             data["items"] = [];
@@ -32121,6 +32196,8 @@ export class PrescriptionDto implements IPrescriptionDto {
             for (let item of this.labTests)
                 data["labTests"].push(item.toJSON());
         }
+        data["departments"] = this.departments ? this.departments.toJSON() : <any>undefined;
+        data["isSpecialAdviceRequired"] = this.isSpecialAdviceRequired;
         return data;
     }
 
@@ -32143,10 +32220,13 @@ export interface IPrescriptionDto {
     emergencyCaseId: number | undefined;
     appointment: AppointmentDto;
     doctor: DoctorDto;
+    specialistDoctor: DoctorDto;
     patient: PatientDto;
     items: PrescriptionItemDto[] | undefined;
     labTestIds: number[] | undefined;
     labTests: PrescriptionLabTestDto[] | undefined;
+    departments: DepartmentDto;
+    isSpecialAdviceRequired: boolean;
 }
 
 export class PrescriptionDtoListResultDto implements IPrescriptionDtoListResultDto {

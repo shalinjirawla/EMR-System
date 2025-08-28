@@ -1,5 +1,5 @@
 <form class="form-horizontal" autocomplete="off" #emergencyPrescriptionForm="ngForm" (ngSubmit)="save()">
-  <abp-modal-header title="Create New Emergency Prescription" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
+  <abp-modal-header title="Create Emergency Prescription" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
 
   <div class="modal-body scrollable-body">
 
@@ -57,12 +57,34 @@
 
     <!-- Issue Date & Follow-up -->
     <div class="row mt-3">
-      <div class="col-md-6 d-flex align-items-center mt-4">
+      <div class="col-md-6 d-flex">
         <p-checkbox [(ngModel)]="prescription.isFollowUpRequired" name="isFollowUpRequired" inputId="followup"
           [binary]="true" />
-        <label for="followup" class="ml-2"><b>Follow-up Required</b></label>
+        <label for="followup" class="ml-2"><b>Follow-up Required?</b></label>
+      </div>
+      <div class="col-md-6 d-flex">
+        <p-checkbox [(ngModel)]="prescription.isSpecialAdviceRequired" name="isSpecialAdviceRequired"
+          inputId="specialAdvice" [binary]="true" (onChange)="onChangeSpecialAdvice($event)" />
+        <label for="specialAdvice" class="ml-2"><b>Special Advice Required?</b></label>
       </div>
     </div>
+
+    <!-- Special Advice -->
+
+    <div class="row mt-3" *ngIf="_isSpecialAdviceRequired">
+      <div class="col-md-6">
+        <label for="doctorSelect">Select Department</label>
+        <p-select id="doctorSelect" [(ngModel)]="prescription.departmentId" [optionValue]="'id'" name="departmentId"
+          [options]="departmentList" optionLabel="departmentName" placeholder="Select doctor" class="w-100" required
+          (onChange)="OnSelectDepartMent($event)" />
+      </div>
+      <div class="col-md-6" *ngIf="_isSpecialDepartMentSelect">
+        <label for="doctorSelect">Select Specialize Doctor</label>
+        <p-select id="doctorSelect" [(ngModel)]="prescription.specialistDoctorId" [optionValue]="'id'" name="specialistDoctorId"
+          [options]="departmentWiseDoctor" optionLabel="fullName" placeholder="Select doctor" class="w-100" required />
+      </div>
+    </div>
+
 
     <!-- Prescription Items -->
     <div class="row mt-4">

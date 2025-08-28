@@ -115,6 +115,7 @@ export class LabOrdersComponent extends PagedListingComponentBase<PrescriptionLa
     }
   }
   CreateReport(record: LabRequestListDto): void {
+    debugger//1
     let createReportDialog: BsModalRef;
     if (record.id) {
       createReportDialog = this._modalService.show(GenerateLabReportComponent, {
@@ -122,7 +123,9 @@ export class LabOrdersComponent extends PagedListingComponentBase<PrescriptionLa
         initialState: {
           id: record.id,
           testName: record.labReportTypeName,
-          patientName: record.patientName
+          patientName: record.patientName,
+          isEmergencyCase:record.isEmergencyPrescription,
+          emergencyCaseId:record.emergencyCaseId,
         },
       });
     }

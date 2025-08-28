@@ -269,7 +269,10 @@ namespace EMRSystem.Prescriptions
                 existingPrescription.LabTests.Add(new EMRSystem.LabReports.PrescriptionLabTest
                 {
                     LabReportsTypeId = labTestId,
-                    PrescriptionId = input.Id
+                    PrescriptionId = input.Id,
+                    IsEmergencyPrescription = input.IsEmergencyPrescription,
+                    EmergencyCaseId = input.EmergencyCaseId,
+                    IsPaid= input.IsEmergencyPrescription,
                 });
             }
 

@@ -26,15 +26,17 @@ namespace EMRSystem.Doctors
         public string RegistrationNumber { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public long AbpUserId { get; set; }
-        public long DepartmentId { get; set; }
+        public long? DepartmentId { get; set; }
         public virtual User AbpUser { get; set; }
         public virtual Departments.Department Department { get; set; }
         //public ICollection<Patient> Patients { get; set; }
         public ICollection<Prescription> Prescriptions { get; set; }
+        public ICollection<Prescription> SpecialistPrescriptions { get; set; }
         public virtual ICollection<Appointment> Appointments { get; set; }
         public virtual ICollection<EMRSystem.Admission.Admission> Admissions { get; set; }
         public virtual ICollection<EmergencyCase> EmergencyCases { get; set; }
         public ICollection<Visit> Visits { get; set; }
+        public bool isEmergencyDoctor { get; set; }
 
     }
 }
