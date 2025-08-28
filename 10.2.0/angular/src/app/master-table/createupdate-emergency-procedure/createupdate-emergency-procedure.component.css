@@ -1,0 +1,15 @@
+.procedure-scroll {
+  max-height: 300px;   /* height apne modal ke hisaab se adjust kar sakte ho */
+  overflow-y: auto;
+  padding-right: 5px;  /* scrollbar overlap avoid */
+}
+.is-invalid {
+  border: 1px solid #dc3545 !important;
+}
+.invalid-feedback {
+  font-size: 12px;
+}
+.procedure-scroll {
+  max-height: 300px;
+  overflow-y: auto;
+}

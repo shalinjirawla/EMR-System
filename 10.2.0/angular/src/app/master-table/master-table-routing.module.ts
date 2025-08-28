@@ -14,6 +14,7 @@ import { HealthPackageComponent } from './health-package/health-package.componen
 import { BedsComponent } from './beds/beds.component';
 import { EmergencyChargesComponent } from './emergency-charges/emergency-charges.component';
 import {DepartmentComponent} from './department/department.component'
+import {EmergencyProcedureComponent} from './emergency-procedure/emergency-procedure.component'
 
 const routes: Routes = [
     {
@@ -72,6 +73,10 @@ const routes: Routes = [
     {
         path:'department',
         component:DepartmentComponent
+    },
+    {
+        path:'emergency-procedure',
+        component:EmergencyProcedureComponent
     }
 ];
 

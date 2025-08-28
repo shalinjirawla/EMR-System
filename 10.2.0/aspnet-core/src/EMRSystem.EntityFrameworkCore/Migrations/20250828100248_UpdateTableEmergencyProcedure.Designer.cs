@@ -4,6 +4,7 @@ using EMRSystem.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EMRSystem.Migrations
 {
     [DbContext(typeof(EMRSystemDbContext))]
-    partial class EMRSystemDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250828100248_UpdateTableEmergencyProcedure")]
+    partial class UpdateTableEmergencyProcedure
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1990,7 +1993,7 @@ namespace EMRSystem.Migrations
                     b.Property<DateTime?>("DateOfBirth")
                         .HasColumnType("datetime2");
 
-                    b.Property<long?>("DepartmentId")
+                    b.Property<long>("DepartmentId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("FullName")
@@ -2013,9 +2016,6 @@ namespace EMRSystem.Migrations
 
                     b.Property<int>("YearsOfExperience")
                         .HasColumnType("int");
-
-                    b.Property<bool>("isEmergencyDoctor")
-                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 
@@ -3103,9 +3103,6 @@ namespace EMRSystem.Migrations
                     b.Property<long?>("AppointmentId")
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("DepartmentId")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("Diagnosis")
                         .HasColumnType("nvarchar(max)");
 
@@ -3121,9 +3118,6 @@ namespace EMRSystem.Migrations
                     b.Property<bool>("IsFollowUpRequired")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsSpecialAdviceRequired")
-                        .HasColumnType("bit");
-
                     b.Property<DateTime>("IssueDate")
                         .HasColumnType("datetime2");
 
@@ -3133,9 +3127,6 @@ namespace EMRSystem.Migrations
                     b.Property<long?>("PatientId")
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("SpecialistDoctorId")
-                        .HasColumnType("bigint");
-
                     b.Property<int>("TenantId")
                         .HasColumnType("int");
 
@@ -3143,15 +3134,11 @@ namespace EMRSystem.Migrations
 
                     b.HasIndex("AppointmentId");
 
-                    b.HasIndex("DepartmentId");
-
                     b.HasIndex("DoctorId");
 
                     b.HasIndex("EmergencyCaseId");
 
                     b.HasIndex("PatientId");
-
-                    b.HasIndex("SpecialistDoctorId");
 
                     b.ToTable("Prescriptions");
                 });
@@ -3822,7 +3809,8 @@ namespace EMRSystem.Migrations
                     b.HasOne("EMRSystem.Departments.Department", "Department")
                         .WithMany("Doctors")
                         .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("AbpUser");
 
@@ -4192,11 +4180,6 @@ namespace EMRSystem.Migrations
                         .HasForeignKey("AppointmentId")
                         .OnDelete(DeleteBehavior.NoAction);
 
-                    b.HasOne("EMRSystem.Departments.Department", "Department")
-                        .WithMany("Prescriptions")
-                        .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
                     b.HasOne("EMRSystem.Doctors.Doctor", "Doctor")
                         .WithMany("Prescriptions")
                         .HasForeignKey("DoctorId")
@@ -4212,22 +4195,13 @@ namespace EMRSystem.Migrations
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.NoAction);
 
-                    b.HasOne("EMRSystem.Doctors.Doctor", "SpecialistDoctor")
-                        .WithMany("SpecialistPrescriptions")
-                        .HasForeignKey("SpecialistDoctorId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
                     b.Navigation("Appointment");
-
-                    b.Navigation("Department");
 
                     b.Navigation("Doctor");
 
                     b.Navigation("EmergencyCase");
 
                     b.Navigation("Patient");
-
-                    b.Navigation("SpecialistDoctor");
                 });
 
             modelBuilder.Entity("EMRSystem.Prescriptions.PrescriptionItem", b =>
@@ -4433,8 +4407,6 @@ namespace EMRSystem.Migrations
             modelBuilder.Entity("EMRSystem.Departments.Department", b =>
                 {
                     b.Navigation("Doctors");
-
-                    b.Navigation("Prescriptions");
                 });
 
             modelBuilder.Entity("EMRSystem.Deposit.PatientDeposit", b =>
@@ -4451,8 +4423,6 @@ namespace EMRSystem.Migrations
                     b.Navigation("EmergencyCases");
 
                     b.Navigation("Prescriptions");
-
-                    b.Navigation("SpecialistPrescriptions");
 
                     b.Navigation("Visits");
                 });

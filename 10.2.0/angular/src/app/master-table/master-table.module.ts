@@ -14,6 +14,7 @@ import { TestResultLimitComponent } from './test-result-limit/test-result-limit.
 import { HealthPackageComponent } from './health-package/health-package.component';
 import {BedsComponent} from './beds/beds.component'
 import { DepartmentComponent } from './department/department.component';
+import { EmergencyProcedureComponent } from './emergency-procedure/emergency-procedure.component';
 
 
 @NgModule({
@@ -32,7 +33,8 @@ import { DepartmentComponent } from './department/department.component';
         TestResultLimitComponent,
         HealthPackageComponent,
         BedsComponent,
-        DepartmentComponent
+        DepartmentComponent,
+        EmergencyProcedureComponent
     ],
 })
 export class MasterTableModule {}

@@ -36,7 +36,6 @@ namespace EMRSystem.LabReport
         private readonly IRepository<EMRSystem.LabReportsTypes.LabReportsType, long> _labReportsTypeRepository;
         private readonly IRepository<EMRSystem.IpdChargeEntry.IpdChargeEntry, long> _ipdChargeEntryRepository;
         private readonly TenantManager _tenantManager;
-        private readonly IRepository<EMRSystem.EmergencyChargeEntries.EmergencyChargeEntry, long> _emergencyChargeEntriesRepository;
         public LabReportResultItemAppService(IRepository<EMRSystem.LabReports.LabReportResultItem, long> repository
             , IPrescriptionLabTestAppService prescriptionLabTestsAppService,
              IRepository<EMRSystem.LabReports.PrescriptionLabTest, long> prescriptionLabTestRepository,
@@ -45,8 +44,7 @@ namespace EMRSystem.LabReport
              IRepository<EMRSystem.Admission.Admission, long> admissionRepository,
              IRepository<EMRSystem.LabReportsTypes.LabReportsType, long> labReportsTypeRepository,
              IRepository<EMRSystem.IpdChargeEntry.IpdChargeEntry, long> ipdChargeEntryRepository,
-            IRepository<EMRSystem.EmergencyChargeEntries.EmergencyChargeEntry, long> emergencyChargeEntriesRepository,
-        TenantManager tenantManager
+            TenantManager tenantManager
             ) : base(repository)
         {
             _prescriptionLabTestsAppService = prescriptionLabTestsAppService;
@@ -57,9 +55,9 @@ namespace EMRSystem.LabReport
             _patientRepository = patientRepository;
             _labReportsTypeRepository = labReportsTypeRepository;
             _ipdChargeEntryRepository = ipdChargeEntryRepository;
-            _emergencyChargeEntriesRepository = emergencyChargeEntriesRepository;
         }
         public async Task AddLabReportResultItem(List<CreateUpdateLabReportResultItemDto> reportResultItemDtos, [Optional] long? emergencyCaseId, bool isEmergencyCase = false)
+
         {
             try
             {
@@ -122,7 +120,7 @@ namespace EMRSystem.LabReport
                 throw; // Consider throwing a user-friendly exception instead
             }
         }
-        [HttpGet]
+            [HttpGet]
         public async Task<List<CreateUpdateLabReportResultItemDto>> GetLabReportResultItemsById(long prescriptionLabTestId)
         {
             var data = Repository.GetAll().Where(x => x.PrescriptionLabTestId == prescriptionLabTestId).ToList();
