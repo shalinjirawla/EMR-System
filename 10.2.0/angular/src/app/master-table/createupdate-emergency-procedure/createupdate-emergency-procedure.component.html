@@ -1,0 +1,71 @@
+<form class="form-horizontal" autocomplete="off" #procedureForm="ngForm" (ngSubmit)="save()">
+  <abp-modal-header [title]="id ? 'Edit Emergency Procedure' : 'Create Emergency Procedures'"
+    (onCloseClick)="modalRef.hide()"></abp-modal-header>
+  <div class="modal-body">
+
+    <!-- Category dropdown + Add button -->
+    <div class="form-group" *ngIf="!id">
+      <label>Procedure Category</label>
+      <div class="d-flex">
+        <p-dropdown 
+          [options]="procedureCategories" 
+          [(ngModel)]="selectedCategory" 
+          name="selectedCategory"
+          optionLabel="label" 
+          optionValue="value" 
+          placeholder="Select category"
+          class="flex-grow-1">
+        </p-dropdown>
+        <button type="button" class="btn btn-sm btn-primary ml-2" (click)="addProcedure()">
+          <i class="fa fa-plus"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="procedure-scroll mt-2">
+      <div *ngFor="let item of procedures; trackBy: trackByFn" class="mb-3 border rounded p-2">
+        <h6 class="text-primary font-weight-bold">{{ getCategoryLabel(item.category) }}</h6>
+        <div class="mt-2 text-right" *ngIf="!id">
+          <button type="button" class="btn btn-sm btn-danger" (click)="removeProcedure(item.id)">
+            <i class="fa fa-times"></i>
+          </button>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <label>Name</label>
+            <input type="text" class="form-control"
+                   [(ngModel)]="item.name"
+                   name="name{{item.id}}"
+                   required minlength="3"
+                   #nameRef="ngModel" />
+            <div *ngIf="nameRef.invalid && (nameRef.dirty || nameRef.touched)" class="text-danger">
+              <div *ngIf="nameRef.errors?.required">Name is required.</div>
+              <div *ngIf="nameRef.errors?.minlength">Name must be at least 3 characters.</div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label>Price</label>
+            <input type="number" class="form-control"
+                   [(ngModel)]="item.defaultCharge"
+                   name="price{{item.id}}"
+                   required min="0"
+                   #priceRef="ngModel" />
+            <div *ngIf="priceRef.invalid && (priceRef.dirty || priceRef.touched)" class="text-danger">
+              <div *ngIf="priceRef.errors?.required">Price is required.</div>
+              <div *ngIf="priceRef.errors?.min">Price must be a positive number.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="form-group mt-3">
+      <label class="mr-2">Is Active</label>
+      <p-inputSwitch [(ngModel)]="isActive" name="isActive"></p-inputSwitch>
+    </div>
+
+    <abp-modal-footer [cancelDisabled]="saving"
+      [saveDisabled]="!procedureForm.valid || !procedures.length || saving"
+      (onCancelClick)="modalRef.hide()"></abp-modal-footer>
+  </div>
+</form>

@@ -77,6 +77,7 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
     public DbSet<DepositTransaction> DepositTransactions { get; set; }
     public DbSet<EMRSystem.Emergency.EmergencyMaster.EmergencyMaster> EmergencyMaster { get; set; }
     public DbSet<EmergencyChargeEntry> EmergencyChargeEntry { get; set; }
+    public DbSet<EMRSystem.EmergencyProcedure.EmergencyProcedure> EmergencyProcedures { get; set; }
 
 
 
@@ -354,6 +355,15 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
             b.HasIndex(ice => ice.PatientId);
             b.HasIndex(ice => ice.EntryDate);
             b.HasIndex(ice => ice.ReferenceId);
+        });
+        modelBuilder.Entity<EMRSystem.EmergencyProcedure.EmergencyProcedure>(b =>
+        {
+            b.ToTable("EmergencyProcedures");
+
+            // Configure enum as string
+            b.Property(e => e.Category)
+                .HasConversion<string>()
+                .HasMaxLength(20);
         });
 
         modelBuilder.Entity<EMRSystem.LabTestReceipt.LabTestReceipt>(b =>
