@@ -78,8 +78,9 @@ export class LabOrdersComponent extends PagedListingComponentBase<PrescriptionLa
         this.primengTableHelper.hideLoadingIndicator();
       }))
       .subscribe((result) => {
-        this.primengTableHelper.records = result.items;
-        this.primengTableHelper.totalRecordsCount = result.totalCount;
+        const filterList=result.items
+        this.primengTableHelper.records = filterList.filter(x=>x.isEmergencyPrescription==false)
+        this.primengTableHelper.totalRecordsCount = filterList.length;
         this.cd.detectChanges();
       });
   }

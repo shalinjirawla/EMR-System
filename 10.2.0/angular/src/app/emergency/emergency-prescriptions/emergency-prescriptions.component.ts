@@ -17,7 +17,7 @@ import { OverlayPanel, OverlayPanelModule } from 'primeng/overlaypanel';
 import { MenuModule } from 'primeng/menu';
 import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
-import {ViewPrescriptionComponent} from '@app/doctors/view-prescription/view-prescription.component'
+import { ViewPrescriptionComponent } from '@app/doctors/view-prescription/view-prescription.component'
 import moment from 'moment';
 @Component({
   selector: 'app-emergency-prescriptions',
@@ -81,8 +81,9 @@ export class EmergencyPrescriptionsComponent extends PagedListingComponentBase<P
         this.primengTableHelper.hideLoadingIndicator();
       }))
       .subscribe((result: PrescriptionDtoPagedResultDto) => {
-        this.primengTableHelper.records = result.items;
-        this.primengTableHelper.totalRecordsCount = result.totalCount;
+        const filteredList = result.items;
+        this.primengTableHelper.records = filteredList.filter(x => x.isEmergencyPrescription == true);
+        this.primengTableHelper.totalRecordsCount = filteredList.length;
         this.cd.detectChanges();
       });
   }
@@ -105,7 +106,7 @@ export class EmergencyPrescriptionsComponent extends PagedListingComponentBase<P
   viewPrescription(dto: PrescriptionDto): void {
     this.showViewPrescriptionDialog(dto.id);
   }
-  
+
   private showViewPrescriptionDialog(id: number): void {
     const viewPrescriptionDialog: BsModalRef = this._modalService.show(
       ViewPrescriptionComponent,

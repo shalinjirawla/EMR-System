@@ -5,7 +5,7 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { AbpModalHeaderComponent } from '../../../shared/components/modal/abp-modal-header.component';
 import { AbpModalFooterComponent } from '../../../shared/components/modal/abp-modal-footer.component';
 import { CommonModule } from '@angular/common';
-import { AppointmentDto, AppointmentServiceProxy, CreateUpdatePrescriptionDto, CreateUpdatePrescriptionItemDto, DoctorServiceProxy, PatientDto, PatientServiceProxy, PrescriptionServiceProxy, PharmacistInventoryServiceProxy, PatientDropDownDto, LabReportsTypeServiceProxy } from '@shared/service-proxies/service-proxies';
+import { AppointmentDto, AppointmentServiceProxy, CreateUpdatePrescriptionDto, CreateUpdatePrescriptionItemDto, DoctorServiceProxy, PatientDto, PatientServiceProxy, PrescriptionServiceProxy, PharmacistInventoryServiceProxy, PatientDropDownDto, LabReportsTypeServiceProxy, DoctorDto } from '@shared/service-proxies/service-proxies';
 import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import moment from 'moment';
 import { TextareaModule } from 'primeng/textarea';
@@ -29,7 +29,7 @@ import { MultiSelectModule } from 'primeng/multiselect';
   ],
   templateUrl: './edit-prescriptions.component.html',
   styleUrls: ['./edit-prescriptions.component.css'],
-  providers: [PrescriptionServiceProxy, LabReportsTypeServiceProxy, PatientServiceProxy, AppointmentServiceProxy, PharmacistInventoryServiceProxy],
+  providers: [PrescriptionServiceProxy, DoctorServiceProxy, LabReportsTypeServiceProxy, PatientServiceProxy, AppointmentServiceProxy, PharmacistInventoryServiceProxy],
 })
 export class EditPrescriptionsComponent extends AppComponentBase implements OnInit {
   @Output() onSave = new EventEmitter<any>();
@@ -67,7 +67,8 @@ export class EditPrescriptionsComponent extends AppComponentBase implements OnIn
     { label: 'Weeks', value: 'Weeks' },
     { label: 'Months', value: 'Months' }
   ];
-
+  doctors!: DoctorDto[];
+  isAdmin = false;
   constructor(
     injector: Injector,
     public bsModalRef: BsModalRef,
@@ -76,21 +77,37 @@ export class EditPrescriptionsComponent extends AppComponentBase implements OnIn
     private _patientService: PatientServiceProxy,
     private _appointmentService: AppointmentServiceProxy,
     private _labService: LabReportsTypeServiceProxy,
-    private _pharmacistInventoryService: PharmacistInventoryServiceProxy
+    private _pharmacistInventoryService: PharmacistInventoryServiceProxy,
+    private _doctorService: DoctorServiceProxy,
   ) {
     super(injector);
   }
 
   ngOnInit(): void {
+    this.GetLoggedInUserRole();
     this.loadInitialData();
   }
-
   loadInitialData(): void {
     this.LoadPatients();
     this.loadMedicines();
     this.loadLabTestsAndPrescription();
+    this.FetchDoctorID();
+    this.loadDoctors();
   }
-
+  loadDoctors() {
+    this._doctorService.getAllDoctorsByTenantID(abp.session.tenantId).subscribe(res => {
+      this.doctors = res.items;
+      this.cd.detectChanges();
+    });
+  }
+  FetchDoctorID() {
+    this._doctorService.getDoctorDetailsByAbpUserID(abp.session.userId).subscribe({
+      next: (res) => {
+        this.doctorID = res.id;
+      }, error: (err) => {
+      }
+    });
+  }
   loadLabTestsAndPrescription(): void {
     // First load all available lab tests
     this._labService.getAllTestByTenantID(abp.session.tenantId).subscribe({
@@ -351,6 +368,9 @@ export class EditPrescriptionsComponent extends AppComponentBase implements OnIn
   }
 
   save(): void {
+    if (!this.prescription.doctorId && this.isAdmin) {
+      return;
+    }
     this.saving = true;
 
     const input = new CreateUpdatePrescriptionDto();
@@ -362,7 +382,7 @@ export class EditPrescriptionsComponent extends AppComponentBase implements OnIn
       issueDate: this.prescription.issueDate,
       isFollowUpRequired: this.prescription.isFollowUpRequired,
       appointmentId: this.prescription.appointmentId,
-      doctorId: this.prescription.doctorId,
+      doctorId: this.isAdmin ? this.prescription.doctorId : this.doctorID,
       patientId: this.prescription.patientId,
       labTestIds: this.selectedLabTests.map(test => test.id)
     });
@@ -392,6 +412,16 @@ export class EditPrescriptionsComponent extends AppComponentBase implements OnIn
         this.saving = false;
         this.notify.error('Could not update prescription');
       }
+    });
+  }
+  GetLoggedInUserRole() {
+    this._prescriptionService.getCurrentUserRoles().subscribe(res => {
+      if (res && Array.isArray(res)) {
+        if (res.includes('Admin')) {
+          this.isAdmin = true;
+        }
+      }
+      this.cd.detectChanges();
     });
   }
 }

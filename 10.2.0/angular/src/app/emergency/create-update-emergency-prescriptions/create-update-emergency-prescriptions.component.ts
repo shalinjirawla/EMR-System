@@ -75,6 +75,8 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
     isEmergencyPrescription: true,
     emergencyCaseId: 0,
   };
+  doctors!: DoctorDto[];
+  isAdmin = false;
   constructor(
     injector: Injector,
     public bsModalRef: BsModalRef,
@@ -93,13 +95,21 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
   }
   ngOnInit(): void {
     this.showAddPatientButton = this.permissionChecker.isGranted('Pages.Users');
+    this.GetLoggedInUserRole();
     this.FetchDoctorID();
+    this.loadDoctors();
     this.LoadLabReports();
     this.loadMedicines();
     this.LoadEmergencyCases();
     if (this.id > 0) {
       this.loadLabTestsAndPrescription();
     }
+  }
+  loadDoctors() {
+    this._doctorService.getAllDoctorsByTenantID(abp.session.tenantId).subscribe(res => {
+      this.doctors = res.items;
+      this.cd.detectChanges();
+    });
   }
   loadMedicines() {
     // Call getAll() with default parameters to get all available medicines
@@ -232,7 +242,7 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
   save(): void {
     if (this.id > 0) {
       this.Edit();
-    }else{
+    } else {
       this.Create();
     }
   }
@@ -297,6 +307,9 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
     });
   }
   Edit() {
+    if (!this.prescription.doctorId && this.isAdmin) {
+      return;
+    }
     this.saving = true;
 
     const input = new CreateUpdatePrescriptionDto();
@@ -308,11 +321,11 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
       issueDate: this.prescription.issueDate,
       isFollowUpRequired: this.prescription.isFollowUpRequired,
       appointmentId: null,
-      doctorId: this.doctorID ? this.doctorID : null,
+      doctorId: this.isAdmin ? this.prescription.doctorId : this.doctorID,
       patientId: this.prescription.patientId > 0 ? this.prescription.patientId : null,
       labTestIds: this.selectedLabTests.map(test => test.id),
       emergencyCaseId: this.prescription.emergencyCaseId,
-      isEmergencyPrescription:true
+      isEmergencyPrescription: true
     });
 
     input.items = this.prescription.items.map(item => {
@@ -343,6 +356,9 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
     });
   }
   Create() {
+    if (!this.prescription.doctorId && this.isAdmin) {
+      return;
+    }
     this.saving = true;
     const input = new CreateUpdatePrescriptionDto();
     input.init({
@@ -352,11 +368,11 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
       issueDate: this.prescription.issueDate,
       isFollowUpRequired: this.prescription.isFollowUpRequired,
       appointmentId: null,
-      doctorId: this.doctorID ? this.doctorID : null,
+      doctorId: this.isAdmin ? this.prescription.doctorId : this.doctorID,
       patientId: this.prescription.patientId > 0 ? this.prescription.patientId : null,
       labTestIds: this.selectedLabTests.map(test => test.id || test),
       emergencyCaseId: this.prescription.emergencyCaseId,
-      isEmergencyPrescription:true
+      isEmergencyPrescription: true
     });
     input.items = this.prescription.items.map(item => {
       const dtoItem = new CreateUpdatePrescriptionItemDto();
@@ -380,6 +396,16 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
       complete: () => {
         this.saving = false;
       }
+    });
+  }
+  GetLoggedInUserRole() {
+    this._prescriptionService.getCurrentUserRoles().subscribe(res => {
+      if (res && Array.isArray(res)) {
+        if (res.includes('Admin')) {
+          this.isAdmin = true;
+        }
+      }
+      this.cd.detectChanges();
     });
   }
 }

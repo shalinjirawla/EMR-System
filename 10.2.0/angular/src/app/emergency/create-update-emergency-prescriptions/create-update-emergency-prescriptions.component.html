@@ -15,10 +15,15 @@
 
     <!-- Diagnosis -->
     <div class="row mt-3">
-      <div class="col-md-12 d-flex flex-column">
+      <div class="col-md-6 d-flex flex-column">
         <label>Diagnosis</label>
         <input type="text" pInputText [(ngModel)]="prescription.diagnosis" name="diagnosis" required
           placeholder="Enter diagnosis" />
+      </div>
+      <div class="col-md-6" *ngIf="isAdmin">
+        <label for="doctorSelect">Select Doctor</label>
+        <p-select id="doctorSelect" [(ngModel)]="prescription.doctorId" [optionValue]="'id'" name="doctorId"
+          [options]="doctors" optionLabel="fullName" placeholder="Select doctor" class="w-100" required />
       </div>
     </div>
 
@@ -31,7 +36,6 @@
             <div class="flex align-items-center gap-2" *ngFor="let option of selectedLabTests">
               <div>{{option?.name || 'Loading...'}}</div>
             </div>
-            <div *ngIf="!selectedLabTests || selectedLabTests.length === 0">Select Lab Tests</div>
           </ng-template>
           <ng-template let-option pTemplate="item">
             <div class="flex align-items-center gap-2">

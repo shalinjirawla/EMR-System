@@ -35,6 +35,7 @@ namespace EMRSystem.LabReport
         private readonly IRepository<EMRSystem.LabReportsTypes.LabReportsType, long> _labReportsTypeRepository;
         private readonly IRepository<EMRSystem.IpdChargeEntry.IpdChargeEntry, long> _ipdChargeEntryRepository;
         private readonly TenantManager _tenantManager;
+        private readonly IRepository<EMRSystem.EmergencyChargeEntries.EmergencyChargeEntry, long> _emergencyChargeEntriesRepository;
         public LabReportResultItemAppService(IRepository<EMRSystem.LabReports.LabReportResultItem, long> repository
             , IPrescriptionLabTestAppService prescriptionLabTestsAppService,
              IRepository<EMRSystem.LabReports.PrescriptionLabTest, long> prescriptionLabTestRepository,
@@ -43,7 +44,8 @@ namespace EMRSystem.LabReport
              IRepository<EMRSystem.Admission.Admission, long> admissionRepository,
              IRepository<EMRSystem.LabReportsTypes.LabReportsType, long> labReportsTypeRepository,
              IRepository<EMRSystem.IpdChargeEntry.IpdChargeEntry, long> ipdChargeEntryRepository,
-            TenantManager tenantManager
+            IRepository<EMRSystem.EmergencyChargeEntries.EmergencyChargeEntry, long> emergencyChargeEntriesRepository,
+        TenantManager tenantManager
             ) : base(repository)
         {
             _prescriptionLabTestsAppService = prescriptionLabTestsAppService;
@@ -54,8 +56,9 @@ namespace EMRSystem.LabReport
             _patientRepository = patientRepository;
             _labReportsTypeRepository = labReportsTypeRepository;
             _ipdChargeEntryRepository = ipdChargeEntryRepository;
+            _emergencyChargeEntriesRepository = emergencyChargeEntriesRepository;
         }
-        public async Task AddLabReportResultItem(List<CreateUpdateLabReportResultItemDto> reportResultItemDtos)
+        public async Task AddLabReportResultItem(List<CreateUpdateLabReportResultItemDto> reportResultItemDtos, long? emergencyCaseId, bool isEmergencyCase = false)
         {
             try
             {
@@ -80,32 +83,49 @@ namespace EMRSystem.LabReport
 
                 var patient = await _patientRepository.GetAsync(prescription.PatientId.Value);
 
-                if (patient?.IsAdmitted != true)
+                if (patient?.IsAdmitted != true && !isEmergencyCase)
                     return;
 
                 var admission = await _admissionRepository.FirstOrDefaultAsync(a =>
                     a.PatientId == patient.Id && a.IsDischarged == false);
 
-                if (admission == null)
+                if (admission == null && !isEmergencyCase)
                     return;
 
                 var reportType = await _labReportsTypeRepository.GetAsync(prescriptionLabTest.LabReportsTypeId);
 
-                var chargeEntry = new EMRSystem.IpdChargeEntry.IpdChargeEntry
+                if (!isEmergencyCase)
                 {
-                    TenantId = prescriptionLabTest.TenantId,
-                    AdmissionId = admission.Id,
-                    PatientId = patient.Id,
-                    ChargeType = ChargeType.LabTest,
-                    Description = $"Lab Test - {reportType?.ReportType ?? "Unknown"}",
-                    Amount = reportType?.ReportPrice ?? 0,
-                    EntryDate = Clock.Now,
-                    IsProcessed = false,
-                    ReferenceId = prescriptionLabTest.Id
-                };
+                    var chargeEntry = new EMRSystem.IpdChargeEntry.IpdChargeEntry
+                    {
+                        TenantId = prescriptionLabTest.TenantId,
+                        AdmissionId = admission.Id,
+                        PatientId = patient.Id,
+                        ChargeType = ChargeType.LabTest,
+                        Description = $"Lab Test - {reportType?.ReportType ?? "Unknown"}",
+                        Amount = reportType?.ReportPrice ?? 0,
+                        EntryDate = Clock.Now,
+                        IsProcessed = false,
+                        ReferenceId = prescriptionLabTest.Id
+                    };
 
-                await _ipdChargeEntryRepository.InsertAsync(chargeEntry);
-                await CurrentUnitOfWork.SaveChangesAsync();
+                    await _ipdChargeEntryRepository.InsertAsync(chargeEntry);
+                    await CurrentUnitOfWork.SaveChangesAsync();
+                }
+                else if (isEmergencyCase)
+                {
+                    var chargeEntry = new EMRSystem.EmergencyChargeEntries.EmergencyChargeEntry
+                    {
+                        PatientId = patient.Id,
+                        ChargeType = ChargeType.LabTest,
+                        Description = $"Emergency Case Only",
+                        Amount = reportType?.ReportPrice ?? 0,
+                        EmergencyCaseId = emergencyCaseId,
+                    };
+
+                    await _emergencyChargeEntriesRepository.InsertAsync(chargeEntry);
+                    await CurrentUnitOfWork.SaveChangesAsync();
+                }
             }
             catch (Exception ex)
             {
@@ -113,7 +133,7 @@ namespace EMRSystem.LabReport
                 throw; // Consider throwing a user-friendly exception instead
             }
         }
-            [HttpGet]
+        [HttpGet]
         public async Task<List<CreateUpdateLabReportResultItemDto>> GetLabReportResultItemsById(long prescriptionLabTestId)
         {
             var data = Repository.GetAll().Where(x => x.PrescriptionLabTestId == prescriptionLabTestId).ToList();
