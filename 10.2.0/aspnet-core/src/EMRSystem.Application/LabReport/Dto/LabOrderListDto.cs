@@ -1,4 +1,5 @@
-﻿using Abp.Application.Services.Dto;
+﻿
+using Abp.Application.Services.Dto;
 using Abp.Domain.Entities;
 using EMRSystem.LabReports;
 using System;
@@ -17,5 +18,7 @@ namespace EMRSystem.LabReport.Dto
         public string DoctorName { get; set; }
         public string LabReportTypeName { get; set; }
         public LabTestStatus TestStatus { get; set; }
+        public bool IsEmergencyPrescription { get; set; }
+        public long? EmergencyCaseId { get; set; }
     }
 }

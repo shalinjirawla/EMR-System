@@ -45,7 +45,8 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
   medicineOptions: any[] = [];
   medicineDosageOptions: { [medicineName: string]: string[] } = {};
   selectedMedicineUnits: { [medicineName: string]: string } = {};
-
+  doctors!: DoctorDto[];
+  isAdmin = false;
   frequencyOptions = [
     { label: 'Once a day', value: 'Once a day' },
     { label: 'Twice a day', value: 'Twice a day' },
@@ -96,12 +97,19 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
 
   ngOnInit(): void {
     this.showAddPatientButton = this.permissionChecker.isGranted('Pages.Users');
+    this.GetLoggedInUserRole();
     this.FetchDoctorID();
+    this.loadDoctors();
     this.LoadPatients();
     this.LoadLabReports();
     this.loadMedicines();
   }
-
+  loadDoctors() {
+    this._doctorService.getAllDoctorsByTenantID(abp.session.tenantId).subscribe(res => {
+      this.doctors = res.items;
+      this.cd.detectChanges();
+    });
+  }
   loadMedicines() {
     // Call getAll() with default parameters to get all available medicines
     this._pharmacistInventoryService.getAll(
@@ -151,18 +159,18 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
   }
 
   onMedicineChange(item: any, index: number) {
-  const selected = this.medicineOptions.find(m => m.value === item.medicineId);
-  if (selected) {
-    item.medicineName = selected.name;
+    const selected = this.medicineOptions.find(m => m.value === item.medicineId);
+    if (selected) {
+      item.medicineName = selected.name;
 
-    // Set default dosage
-    if (this.medicineDosageOptions[selected.name]) {
-      item.dosage = this.selectedMedicineUnits[selected.name];
-    } else {
-      item.dosage = '';
+      // Set default dosage
+      if (this.medicineDosageOptions[selected.name]) {
+        item.dosage = this.selectedMedicineUnits[selected.name];
+      } else {
+        item.dosage = '';
+      }
     }
   }
-}
 
 
   LoadPatients() {
@@ -174,27 +182,27 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
     });
   }
 
- LoadAppoinments() {
-  const patientId = this.prescription.patientId;
-  const doctorId = this.doctorID;
+  LoadAppoinments() {
+    const patientId = this.prescription.patientId;
+    const doctorId = this.doctorID;
 
-  if (!patientId) return;
+    if (!patientId) return;
 
-  this._appointmentService.getPatientAppointment(patientId, doctorId).subscribe({
-    next: (res) => {
-      debugger
-      // Filter out completed (status == 2)
-      this.appointments = res.items.filter(app => app.status == 0 || app.status==1);
+    this._appointmentService.getPatientAppointment(patientId, doctorId).subscribe({
+      next: (res) => {
+        debugger
+        // Filter out completed (status == 2)
+        this.appointments = res.items.filter(app => app.status == 0 || app.status == 1);
 
-    },
-    error: (err) => {
-      // Handle error if needed
-    }
-  });
-}
+      },
+      error: (err) => {
+        // Handle error if needed
+      }
+    });
+  }
 
 
- 
+
 
 
   LoadLabReports() {
@@ -271,7 +279,9 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
   }
 
   save(): void {
-
+    if (!this.prescription.doctorId && this.isAdmin) {
+      return;
+    }
     this.saving = true;
 
     // Create a proper DTO instance for the prescription
@@ -283,22 +293,22 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
       issueDate: this.prescription.issueDate,
       isFollowUpRequired: this.prescription.isFollowUpRequired,
       appointmentId: this.prescription.appointmentId,
-      doctorId: this.doctorID,
+      doctorId: this.isAdmin ? this.prescription.doctorId : this.doctorID,
       patientId: this.prescription.patientId,
       labTestIds: this.selectedLabTests.map(test => test.id || test)
     });
 
     // Prepare items properly
     input.items = this.prescription.items.map(item => {
-  const dtoItem = new CreateUpdatePrescriptionItemDto();
-  dtoItem.init({
-    ...item,
-    duration: `${(item as any).durationValue} ${(item as any).durationUnit}`,
-    medicineId: item.medicineId // <-- Make sure this is included
-  });
-  return dtoItem;
-});
-debugger
+      const dtoItem = new CreateUpdatePrescriptionItemDto();
+      dtoItem.init({
+        ...item,
+        duration: `${(item as any).durationValue} ${(item as any).durationUnit}`,
+        medicineId: item.medicineId // <-- Make sure this is included
+      });
+      return dtoItem;
+    });
+    debugger
     this._prescriptionService.createPrescriptionWithItem(input).subscribe({
       next: (res) => {
         this.notify.info(this.l('SavedSuccessfully'));
@@ -325,6 +335,16 @@ debugger
     });
     createOrEditPatientDialog.content.onSave.subscribe(() => {
       this.LoadPatients();
+    });
+  }
+  GetLoggedInUserRole() {
+    this._prescriptionService.getCurrentUserRoles().subscribe(res => {
+      if (res && Array.isArray(res)) {
+        if (res.includes('Admin')) {
+          this.isAdmin = true;
+        }
+      }
+      this.cd.detectChanges();
     });
   }
 }

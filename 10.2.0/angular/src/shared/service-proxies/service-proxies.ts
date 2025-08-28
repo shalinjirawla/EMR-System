@@ -6332,11 +6332,21 @@ export class LabReportResultItemServiceProxy {
     }
 
     /**
+     * @param emergencyCaseId (optional) 
+     * @param isEmergencyCase (optional) 
      * @param body (optional) 
      * @return OK
      */
-    addLabReportResultItem(body: CreateUpdateLabReportResultItemDto[] | undefined): Observable<void> {
-        let url_ = this.baseUrl + "/api/services/app/LabReportResultItem/AddLabReportResultItem";
+    addLabReportResultItem(emergencyCaseId: number | undefined, isEmergencyCase: boolean | undefined, body: CreateUpdateLabReportResultItemDto[] | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/LabReportResultItem/AddLabReportResultItem?";
+        if (emergencyCaseId === null)
+            throw new Error("The parameter 'emergencyCaseId' cannot be null.");
+        else if (emergencyCaseId !== undefined)
+            url_ += "emergencyCaseId=" + encodeURIComponent("" + emergencyCaseId) + "&";
+        if (isEmergencyCase === null)
+            throw new Error("The parameter 'isEmergencyCase' cannot be null.");
+        else if (isEmergencyCase !== undefined)
+            url_ += "isEmergencyCase=" + encodeURIComponent("" + isEmergencyCase) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -26619,6 +26629,8 @@ export class LabOrderListDto implements ILabOrderListDto {
     doctorName: string | undefined;
     labReportTypeName: string | undefined;
     testStatus: LabTestStatus;
+    isEmergencyPrescription: boolean;
+    emergencyCaseId: number | undefined;
 
     constructor(data?: ILabOrderListDto) {
         if (data) {
@@ -26638,6 +26650,8 @@ export class LabOrderListDto implements ILabOrderListDto {
             this.doctorName = _data["doctorName"];
             this.labReportTypeName = _data["labReportTypeName"];
             this.testStatus = _data["testStatus"];
+            this.isEmergencyPrescription = _data["isEmergencyPrescription"];
+            this.emergencyCaseId = _data["emergencyCaseId"];
         }
     }
 
@@ -26657,6 +26671,8 @@ export class LabOrderListDto implements ILabOrderListDto {
         data["doctorName"] = this.doctorName;
         data["labReportTypeName"] = this.labReportTypeName;
         data["testStatus"] = this.testStatus;
+        data["isEmergencyPrescription"] = this.isEmergencyPrescription;
+        data["emergencyCaseId"] = this.emergencyCaseId;
         return data;
     }
 
@@ -26676,6 +26692,8 @@ export interface ILabOrderListDto {
     doctorName: string | undefined;
     labReportTypeName: string | undefined;
     testStatus: LabTestStatus;
+    isEmergencyPrescription: boolean;
+    emergencyCaseId: number | undefined;
 }
 
 export class LabOrderListDtoPagedResultDto implements ILabOrderListDtoPagedResultDto {
@@ -27801,6 +27819,8 @@ export class LabRequestListDto implements ILabRequestListDto {
     labReportsTypeId: number;
     labReportTypeName: string | undefined;
     testStatus: LabTestStatus;
+    isEmergencyPrescription: boolean;
+    emergencyCaseId: number | undefined;
 
     constructor(data?: ILabRequestListDto) {
         if (data) {
@@ -27824,6 +27844,8 @@ export class LabRequestListDto implements ILabRequestListDto {
             this.labReportsTypeId = _data["labReportsTypeId"];
             this.labReportTypeName = _data["labReportTypeName"];
             this.testStatus = _data["testStatus"];
+            this.isEmergencyPrescription = _data["isEmergencyPrescription"];
+            this.emergencyCaseId = _data["emergencyCaseId"];
         }
     }
 
@@ -27847,6 +27869,8 @@ export class LabRequestListDto implements ILabRequestListDto {
         data["labReportsTypeId"] = this.labReportsTypeId;
         data["labReportTypeName"] = this.labReportTypeName;
         data["testStatus"] = this.testStatus;
+        data["isEmergencyPrescription"] = this.isEmergencyPrescription;
+        data["emergencyCaseId"] = this.emergencyCaseId;
         return data;
     }
 
@@ -27870,6 +27894,8 @@ export interface ILabRequestListDto {
     labReportsTypeId: number;
     labReportTypeName: string | undefined;
     testStatus: LabTestStatus;
+    isEmergencyPrescription: boolean;
+    emergencyCaseId: number | undefined;
 }
 
 export class LabRequestListDtoPagedResultDto implements ILabRequestListDtoPagedResultDto {
@@ -32011,14 +32037,14 @@ export class PrescriptionDto implements IPrescriptionDto {
     notes: string | undefined;
     issueDate: moment.Moment;
     isFollowUpRequired: boolean;
+    isEmergencyPrescription: boolean;
+    emergencyCaseId: number | undefined;
     appointment: AppointmentDto;
     doctor: DoctorDto;
     patient: PatientDto;
     items: PrescriptionItemDto[] | undefined;
     labTestIds: number[] | undefined;
     labTests: PrescriptionLabTestDto[] | undefined;
-    isEmergencyPrescription: boolean;
-    emergencyCaseId: number | undefined;
 
     constructor(data?: IPrescriptionDto) {
         if (data) {
@@ -32037,6 +32063,8 @@ export class PrescriptionDto implements IPrescriptionDto {
             this.notes = _data["notes"];
             this.issueDate = _data["issueDate"] ? moment(_data["issueDate"].toString()) : <any>undefined;
             this.isFollowUpRequired = _data["isFollowUpRequired"];
+            this.isEmergencyPrescription = _data["isEmergencyPrescription"];
+            this.emergencyCaseId = _data["emergencyCaseId"];
             this.appointment = _data["appointment"] ? AppointmentDto.fromJS(_data["appointment"]) : <any>undefined;
             this.doctor = _data["doctor"] ? DoctorDto.fromJS(_data["doctor"]) : <any>undefined;
             this.patient = _data["patient"] ? PatientDto.fromJS(_data["patient"]) : <any>undefined;
@@ -32055,8 +32083,6 @@ export class PrescriptionDto implements IPrescriptionDto {
                 for (let item of _data["labTests"])
                     this.labTests.push(PrescriptionLabTestDto.fromJS(item));
             }
-            this.isEmergencyPrescription = _data["isEmergencyPrescription"];
-            this.emergencyCaseId = _data["emergencyCaseId"];
         }
     }
 
@@ -32075,6 +32101,8 @@ export class PrescriptionDto implements IPrescriptionDto {
         data["notes"] = this.notes;
         data["issueDate"] = this.issueDate ? this.issueDate.toISOString() : <any>undefined;
         data["isFollowUpRequired"] = this.isFollowUpRequired;
+        data["isEmergencyPrescription"] = this.isEmergencyPrescription;
+        data["emergencyCaseId"] = this.emergencyCaseId;
         data["appointment"] = this.appointment ? this.appointment.toJSON() : <any>undefined;
         data["doctor"] = this.doctor ? this.doctor.toJSON() : <any>undefined;
         data["patient"] = this.patient ? this.patient.toJSON() : <any>undefined;
@@ -32093,8 +32121,6 @@ export class PrescriptionDto implements IPrescriptionDto {
             for (let item of this.labTests)
                 data["labTests"].push(item.toJSON());
         }
-        data["isEmergencyPrescription"] = this.isEmergencyPrescription;
-        data["emergencyCaseId"] = this.emergencyCaseId;
         return data;
     }
 
@@ -32113,14 +32139,14 @@ export interface IPrescriptionDto {
     notes: string | undefined;
     issueDate: moment.Moment;
     isFollowUpRequired: boolean;
+    isEmergencyPrescription: boolean;
+    emergencyCaseId: number | undefined;
     appointment: AppointmentDto;
     doctor: DoctorDto;
     patient: PatientDto;
     items: PrescriptionItemDto[] | undefined;
     labTestIds: number[] | undefined;
     labTests: PrescriptionLabTestDto[] | undefined;
-    isEmergencyPrescription: boolean;
-    emergencyCaseId: number | undefined;
 }
 
 export class PrescriptionDtoListResultDto implements IPrescriptionDtoListResultDto {

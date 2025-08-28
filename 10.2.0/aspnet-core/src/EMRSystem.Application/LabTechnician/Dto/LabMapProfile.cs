@@ -19,7 +19,9 @@ namespace EMRSystem.LabTechnician.Dto
               .ForMember(dest => dest.LabReportsTypeId,opt => opt.MapFrom(src => src.LabReportsTypeId))
               .ForMember(dest => dest.LabReportTypeName,opt => opt.MapFrom(src => src.LabReportsType.ReportType))
               .ForMember(dest => dest.TestStatus,opt => opt.MapFrom(src => src.TestStatus))
-              .ForMember(dest => dest.IsPaid, opt => opt.MapFrom(src => src.IsPaid));
+              .ForMember(dest => dest.IsPaid, opt => opt.MapFrom(src => src.IsPaid))
+              .ForMember(dest => dest.IsEmergencyPrescription, opt => opt.MapFrom(src => src.IsEmergencyPrescription))
+              .ForMember(dest => dest.EmergencyCaseId, opt => opt.MapFrom(src => src.EmergencyCaseId));
 
 
 
@@ -41,7 +43,9 @@ namespace EMRSystem.LabTechnician.Dto
                 .ForMember(dest => dest.AppointmentDate, opt => opt.MapFrom(src => src.Prescription.Appointment.AppointmentDate))
                 .ForMember(dest => dest.DoctorName, opt => opt.MapFrom(src => src.Prescription.Doctor.FullName))
                 .ForMember(dest => dest.LabReportTypeName, opt => opt.MapFrom(src => src.LabReportsType.ReportType))
-                .ForMember(dest => dest.TestStatus, opt => opt.MapFrom(src => src.TestStatus));
+                .ForMember(dest => dest.TestStatus, opt => opt.MapFrom(src => src.TestStatus))
+                .ForMember(dest => dest.IsEmergencyPrescription, opt => opt.MapFrom(src => src.IsEmergencyPrescription))
+              .ForMember(dest => dest.EmergencyCaseId, opt => opt.MapFrom(src => src.EmergencyCaseId));
         }
     }
 }

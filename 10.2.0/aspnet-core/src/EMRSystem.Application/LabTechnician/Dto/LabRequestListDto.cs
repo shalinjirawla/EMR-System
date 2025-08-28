@@ -21,5 +21,7 @@ namespace EMRSystem.LabTechnician.Dto
         public long LabReportsTypeId { get; set; }
         public string LabReportTypeName { get; set; }
         public LabTestStatus TestStatus { get; set; }
+        public bool IsEmergencyPrescription { get; set; }
+        public long? EmergencyCaseId { get; set; }
     }
 }

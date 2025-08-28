@@ -98,7 +98,6 @@ namespace EMRSystem.Emergency.EmergencyCase
             }
             else
             {
-                var dat = input;
                 var chargeEntry = new EMRSystem.EmergencyChargeEntries.EmergencyChargeEntry
                 {
                     PatientId = input.PatientId,

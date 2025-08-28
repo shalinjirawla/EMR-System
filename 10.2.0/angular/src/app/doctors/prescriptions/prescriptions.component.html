@@ -124,6 +124,7 @@
                                         <div *ngFor="let itm of record.items">
                                             <span>{{ itm.medicineName}} {{itm.dosage}} ({{itm.frequency}})</span>
                                         </div>
+                                        <div *ngIf="record.items.length<=0">NA</div>
                                     </td>
                                     <td>
                                         <button type="button" pButton icon="pi pi-ellipsis-v" class="p-button-text"

@@ -82,8 +82,8 @@ namespace EMRSystem.Prescriptions
                         Notes = x.Notes,
                         IssueDate = x.IssueDate,
                         IsFollowUpRequired = x.IsFollowUpRequired,
-                        IsEmergencyPrescription=x.IsEmergencyPrescription,
-                        EmergencyCaseId=x.EmergencyCaseId,
+                        IsEmergencyPrescription = x.IsEmergencyPrescription,
+                        EmergencyCaseId = x.EmergencyCaseId,
                         Patient = x.Patient == null ? null : new Patient
                         {
                             Id = x.Patient.Id,
@@ -158,7 +158,8 @@ namespace EMRSystem.Prescriptions
 
             bool isAdmitted = false;
             // Fetch patient to check admission
-            if (input.PatientId.HasValue) {
+            if (input.PatientId.HasValue)
+            {
                 var patient = await _patientRepository.GetAsync(input.PatientId.Value);
                 isAdmitted = patient.IsAdmitted;
             }
@@ -178,7 +179,7 @@ namespace EMRSystem.Prescriptions
                         TestStatus = LabTestStatus.Pending,
                         IsPrescribed = true,
                         IsFromPackage = false,
-                        CreatedDate = DateTime.Now
+                        CreatedDate = DateTime.Now,
                     };
 
                     await _prescriptionLabTestRepository.InsertAsync(labTest);
@@ -194,11 +195,13 @@ namespace EMRSystem.Prescriptions
                         TenantId = input.TenantId,
                         PrescriptionId = prescription.Id,
                         LabReportsTypeId = labTestId,
-                        IsPaid = false,
+                        IsPaid = input.IsEmergencyPrescription,
                         IsPrescribed = true,
                         IsFromPackage = false,
                         TestStatus = LabTestStatus.Pending,
-                        CreatedDate = DateTime.Now
+                        CreatedDate = DateTime.Now,
+                        IsEmergencyPrescription = input.IsEmergencyPrescription,
+                        EmergencyCaseId=input.EmergencyCaseId
                     };
 
                     await _prescriptionLabTestRepository.InsertAsync(labTest);

@@ -9,7 +9,7 @@ import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { FormsModule } from '@node_modules/@angular/forms';
 import { CommonModule, NgIf } from '@node_modules/@angular/common';
 import { ChangeDetectorRef, Component, Injector, OnInit, ViewChild } from '@angular/core';
-import { LabRequestListDto, LabTestStatus, PrescriptionLabTestDto, PrescriptionLabTestServiceProxy } from '@shared/service-proxies/service-proxies';
+import { LabOrderListDtoPagedResultDto, LabRequestListDto, LabTestStatus, PrescriptionLabTestDto, PrescriptionLabTestServiceProxy } from '@shared/service-proxies/service-proxies';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
 import { ChipModule } from 'primeng/chip';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
@@ -77,9 +77,10 @@ export class EmergencyLabOrdersComponent extends PagedListingComponentBase<Presc
       .pipe(finalize(() => {
         this.primengTableHelper.hideLoadingIndicator();
       }))
-      .subscribe((result) => {
-        this.primengTableHelper.records = result.items;
-        this.primengTableHelper.totalRecordsCount = result.totalCount;
+      .subscribe((result:LabOrderListDtoPagedResultDto) => {
+        const filterList=result.items
+        this.primengTableHelper.records = filterList.filter(x=>x.isEmergencyPrescription==true)
+        this.primengTableHelper.totalRecordsCount = filterList.length;
         this.cd.detectChanges();
       });
   }
