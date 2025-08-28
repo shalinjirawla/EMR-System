@@ -46,7 +46,7 @@ namespace EMRSystem.Doctor
 
         public async Task<ListResultDto<DoctorDto>> GetAllDoctorsByTenantID(int tenantId)
         {
-            var doctorDto = await Repository.GetAllIncludingAsync(x => x.AbpUser);
+            var doctorDto = await Repository.GetAllIncludingAsync(x => x.AbpUser,x=>x.Department);
             var list = doctorDto.Where(x => x.TenantId == tenantId && !x.AbpUser.IsDeleted);
             var mapped = ObjectMapper.Map<List<DoctorDto>>(list);
             var resultList = new ListResultDto<DoctorDto>(mapped);

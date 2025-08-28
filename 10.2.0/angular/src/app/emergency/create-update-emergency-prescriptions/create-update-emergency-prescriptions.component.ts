@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
-import { AppointmentServiceProxy, CreateUpdatePrescriptionItemDto, LabReportsTypeServiceProxy, PharmacistInventoryDtoPagedResultDto, PharmacistInventoryServiceProxy, PrescriptionItemDto, PrescriptionServiceProxy, PatientDropDownDto, EmergencyServiceProxy, EmergencyCaseDto } from '@shared/service-proxies/service-proxies';
+import { AppointmentServiceProxy, CreateUpdatePrescriptionItemDto, LabReportsTypeServiceProxy, PharmacistInventoryDtoPagedResultDto, PharmacistInventoryServiceProxy, PrescriptionItemDto, PrescriptionServiceProxy, PatientDropDownDto, EmergencyServiceProxy, EmergencyCaseDto, DepartmentServiceProxy, DepartmentDto } from '@shared/service-proxies/service-proxies';
 import { AbpModalHeaderComponent } from '../../../shared/components/modal/abp-modal-header.component';
 import { AbpModalFooterComponent } from '../../../shared/components/modal/abp-modal-footer.component';
 import { AppComponentBase } from '../../../shared/app-component-base';
@@ -12,14 +12,13 @@ import { CommonModule } from '@angular/common';
 import { SelectModule } from 'primeng/select';
 import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
-import { AppointmentDto, CreateUpdatePrescriptionDto, DoctorDto, DoctorServiceProxy, PatientDto, PatientServiceProxy } from '@shared/service-proxies/service-proxies';
+import { CreateUpdatePrescriptionDto, DoctorDto, DoctorServiceProxy } from '@shared/service-proxies/service-proxies';
 import moment from 'moment';
 import { TextareaModule } from 'primeng/textarea';
 import { AppSessionService } from '@shared/session/app-session.service';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { PermissionCheckerService } from '@node_modules/abp-ng2-module';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
-import { CreateUserDialogComponent } from '@app/users/create-user/create-user-dialog.component';
 @Component({
   selector: 'app-create-update-emergency-prescriptions',
   standalone: true,
@@ -29,7 +28,7 @@ import { CreateUserDialogComponent } from '@app/users/create-user/create-user-di
   ],
   templateUrl: './create-update-emergency-prescriptions.component.html',
   styleUrl: './create-update-emergency-prescriptions.component.css',
-  providers: [DoctorServiceProxy, PatientServiceProxy, PharmacistInventoryServiceProxy, LabReportsTypeServiceProxy, AppointmentServiceProxy, AppSessionService, PrescriptionServiceProxy, EmergencyServiceProxy]
+  providers: [DoctorServiceProxy, DepartmentServiceProxy, PharmacistInventoryServiceProxy, LabReportsTypeServiceProxy, AppointmentServiceProxy, AppSessionService, PrescriptionServiceProxy, EmergencyServiceProxy]
 })
 export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBase implements OnInit {
   @ViewChild('emergencyPrescriptionForm', { static: true }) emergencyPrescriptionForm: NgForm;
@@ -74,15 +73,23 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
     labTestIds: [],
     isEmergencyPrescription: true,
     emergencyCaseId: 0,
+    specialistDoctorId: 0,
+    isSpecialAdviceRequired: false,
+    departmentId: 0,
   };
   doctors!: DoctorDto[];
-  isAdmin = false;
+  isAdmin!: boolean;
+  departmentList!: DepartmentDto[];
+  _isSpecialAdviceRequired = false;
+  _isSpecialDepartMentSelect = false;
+  totalDoctorList!: DoctorDto[];
+  departmentWiseDoctor!: DoctorDto[];
   constructor(
     injector: Injector,
     public bsModalRef: BsModalRef,
     private cd: ChangeDetectorRef,
     private _doctorService: DoctorServiceProxy,
-    private _patientService: PatientServiceProxy,
+    private _departmentService: DepartmentServiceProxy,
     private _sessionService: AppSessionService,
     private _prescriptionService: PrescriptionServiceProxy,
     private _labService: LabReportsTypeServiceProxy,
@@ -96,18 +103,21 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
   ngOnInit(): void {
     this.showAddPatientButton = this.permissionChecker.isGranted('Pages.Users');
     this.GetLoggedInUserRole();
-    this.FetchDoctorID();
     this.loadDoctors();
+    this.FetchDoctorID();
     this.LoadLabReports();
     this.loadMedicines();
     this.LoadEmergencyCases();
     if (this.id > 0) {
       this.loadLabTestsAndPrescription();
     }
+    this.loadDepartments();
   }
   loadDoctors() {
     this._doctorService.getAllDoctorsByTenantID(abp.session.tenantId).subscribe(res => {
-      this.doctors = res.items;
+      this.totalDoctorList = res.items;
+      const filterdDoctorList = res.items;
+      this.doctors = filterdDoctorList.filter(x => x.isEmergencyDoctor)
       this.cd.detectChanges();
     });
   }
@@ -372,31 +382,35 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
       patientId: this.prescription.patientId > 0 ? this.prescription.patientId : null,
       labTestIds: this.selectedLabTests.map(test => test.id || test),
       emergencyCaseId: this.prescription.emergencyCaseId,
-      isEmergencyPrescription: true
+      isEmergencyPrescription: true,
+      specialistDoctorId: this.prescription.specialistDoctorId,
+      isSpecialAdviceRequired: this.prescription.isSpecialAdviceRequired
     });
-    input.items = this.prescription.items.map(item => {
-      const dtoItem = new CreateUpdatePrescriptionItemDto();
-      dtoItem.init({
-        ...item,
-        duration: `${(item as any).durationValue} ${(item as any).durationUnit}`,
-        medicineId: item.medicineId // <-- Make sure this is included
-      });
-      return dtoItem;
-    });
-    this._prescriptionService.createPrescriptionWithItem(input).subscribe({
-      next: (res) => {
-        this.notify.info(this.l('SavedSuccessfully'));
-        this.bsModalRef.hide();
-        this.onSave.emit();
-      },
-      error: (err) => {
-        this.saving = false;
-        this.notify.error('Could not save prescription');
-      },
-      complete: () => {
-        this.saving = false;
-      }
-    });
+    debugger
+    const data = input;
+    // input.items = this.prescription.items.map(item => {
+    //   const dtoItem = new CreateUpdatePrescriptionItemDto();
+    //   dtoItem.init({
+    //     ...item,
+    //     duration: `${(item as any).durationValue} ${(item as any).durationUnit}`,
+    //     medicineId: item.medicineId // <-- Make sure this is included
+    //   });
+    //   return dtoItem;
+    // });
+    // this._prescriptionService.createPrescriptionWithItem(input).subscribe({
+    //   next: (res) => {
+    //     this.notify.info(this.l('SavedSuccessfully'));
+    //     this.bsModalRef.hide();
+    //     this.onSave.emit();
+    //   },
+    //   error: (err) => {
+    //     this.saving = false;
+    //     this.notify.error('Could not save prescription');
+    //   },
+    //   complete: () => {
+    //     this.saving = false;
+    //   }
+    // });
   }
   GetLoggedInUserRole() {
     this._prescriptionService.getCurrentUserRoles().subscribe(res => {
@@ -407,5 +421,33 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
       }
       this.cd.detectChanges();
     });
+  }
+  loadDepartments(): void {
+    this._departmentService.getAllDepartmentForDropdown().subscribe({
+      next: (res: any) => {
+        this.departmentList = res.items;
+        this.cd.detectChanges();
+      },
+      error: () => {
+
+      }
+    });
+  }
+  onChangeSpecialAdvice(event: any) {
+    this._isSpecialAdviceRequired = event.checked;
+    this._isSpecialDepartMentSelect = false;
+    this.prescription.departmentId = null;
+    this.prescription.specialistDoctorId = null;
+  }
+  OnSelectDepartMent(event: any) {
+    debugger
+    this._isSpecialDepartMentSelect = true;
+    this.prescription.specialistDoctorId=0;
+    const departmentId = event.value;
+    if (departmentId > 0) {
+      this.departmentWiseDoctor = this.totalDoctorList.filter(
+        x => x.department && x.department.id === departmentId
+      );
+    }
   }
 }

@@ -163,11 +163,23 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
               .HasForeignKey(s => s.EmergencyCaseId)
               .OnDelete(DeleteBehavior.NoAction); // or NoAction
 
+        modelBuilder.Entity<Prescription>()
+              .HasOne(s => s.Department)
+              .WithMany(e => e.Prescriptions)
+              .HasForeignKey(s => s.DepartmentId)
+              .OnDelete(DeleteBehavior.NoAction); // or NoAction
+
 
         modelBuilder.Entity<Prescription>()
               .HasOne(s => s.Doctor)
               .WithMany(e => e.Prescriptions)
               .HasForeignKey(s => s.DoctorId)
+              .OnDelete(DeleteBehavior.NoAction); // or NoAction
+
+        modelBuilder.Entity<Prescription>()
+              .HasOne(s => s.SpecialistDoctor)
+              .WithMany(e => e.SpecialistPrescriptions)
+              .HasForeignKey(s => s.SpecialistDoctorId)
               .OnDelete(DeleteBehavior.NoAction); // or NoAction
 
         modelBuilder.Entity<Prescription>()

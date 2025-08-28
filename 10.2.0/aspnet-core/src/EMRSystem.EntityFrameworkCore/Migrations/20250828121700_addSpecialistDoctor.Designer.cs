@@ -4,6 +4,7 @@ using EMRSystem.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EMRSystem.Migrations
 {
     [DbContext(typeof(EMRSystemDbContext))]
-    partial class EMRSystemDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250828121700_addSpecialistDoctor")]
+    partial class addSpecialistDoctor
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2201,36 +2204,6 @@ namespace EMRSystem.Migrations
                     b.HasIndex("PatientId");
 
                     b.ToTable("EmergencyChargeEntry", (string)null);
-                });
-
-            modelBuilder.Entity("EMRSystem.EmergencyProcedure.EmergencyProcedure", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Category")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<decimal>("DefaultCharge")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("EmergencyProcedures", (string)null);
                 });
 
             modelBuilder.Entity("EMRSystem.Invoices.Invoice", b =>

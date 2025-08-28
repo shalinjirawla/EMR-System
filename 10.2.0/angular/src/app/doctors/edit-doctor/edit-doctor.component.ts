@@ -3,15 +3,18 @@ import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, O
 import { ControlValueAccessor, FormsModule, NgForm } from '@angular/forms';
 import { AbpValidationSummaryComponent } from '@shared/components/validation/abp-validation.summary.component';
 import { DepartmentDto, DepartmentServiceProxy } from '@shared/service-proxies/service-proxies';
-
+import { InputTextModule } from 'primeng/inputtext';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { CheckboxModule } from 'primeng/checkbox';
 @Component({
   selector: 'app-edit-doctor',
-  imports: [FormsModule,CommonModule,AbpValidationSummaryComponent],
-  providers:[DepartmentServiceProxy],
+  imports: [FormsModule, CommonModule, AbpValidationSummaryComponent, InputTextModule, InputNumberModule, CheckboxModule],
+  providers: [DepartmentServiceProxy],
   templateUrl: './edit-doctor.component.html',
   styleUrl: './edit-doctor.component.css'
 })
-export class EditDoctorComponent implements OnInit,OnChanges {
+export class EditDoctorComponent implements OnInit, OnChanges {
+  isEmergencyDoctor = false;
   @Input() doctorData: {
     gender: string;
     specialization: string;
@@ -20,18 +23,19 @@ export class EditDoctorComponent implements OnInit,OnChanges {
     departmentId: number | null;
     registrationNumber: string;
     dateOfBirth: string | null;
+    isEmergencyDoctor: boolean | false;
   };
   @Output() doctorDataChange = new EventEmitter<any>();
   @ViewChild('doctorForm', { static: true }) doctorForm: NgForm;
 
   genders = ['Male', 'Female', 'Other'];
-departments: DepartmentDto[] = [];
+  departments: DepartmentDto[] = [];
   maxDate: string;
 
   constructor(private _departmentService: DepartmentServiceProxy,
-            private cd: ChangeDetectorRef
-    
-  ) {}
+    private cd: ChangeDetectorRef
+
+  ) { }
 
   ngOnInit(): void {
     this.loadDepartments();
@@ -39,6 +43,7 @@ departments: DepartmentDto[] = [];
     // today date in yyyy-MM-dd format
     const today = new Date();
     this.maxDate = today.toISOString().split('T')[0];
+    this.isEmergencyDoctor = this.doctorData.isEmergencyDoctor;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -49,17 +54,22 @@ departments: DepartmentDto[] = [];
   }
   loadDepartments(): void {
     this._departmentService.getAllDepartmentForDropdown().subscribe(res => {
-      debugger
       this.departments = res.items;
 
-       if (this.doctorData.departmentId) {
-      this.doctorData.departmentId = Number(this.doctorData.departmentId);
-    }
-    this.cd.detectChanges();
-  });
+      if (this.doctorData.departmentId) {
+        this.doctorData.departmentId = Number(this.doctorData.departmentId);
+      }
+      this.cd.detectChanges();
+    });
   }
 
   onInputChange() {
+    if (this.doctorData.isEmergencyDoctor) {
+      this.doctorData.departmentId = null
+    }
     this.doctorDataChange.emit(this.doctorData);
+  }
+  OnCheckIsEmergencyDoctor(event: any) {
+    this.isEmergencyDoctor = event.checked;
   }
 }
