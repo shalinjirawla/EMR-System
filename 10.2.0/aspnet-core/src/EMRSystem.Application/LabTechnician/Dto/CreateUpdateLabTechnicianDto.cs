@@ -16,7 +16,7 @@ namespace EMRSystem.LabTechnician.Dto
         public string Gender { get; set; }
         public string Qualification { get; set; }
         public int YearsOfExperience { get; set; }
-        public LabDepartment Department { get; set; }
+        public long DepartmentId { get; set; }
         public string CertificationNumber { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public long AbpUserId { get; set; }

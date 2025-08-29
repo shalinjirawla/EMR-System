@@ -171,12 +171,12 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
             new MenuItem(this.l('Masters'), '', 'fas fa-cogs', 'Pages.Users', [
 
                 new MenuItem(this.l('Laboratory Settings'), '', 'fas fa-flask', 'Pages.Users', [
-                    new MenuItem(this.l('Health Packages'), '/app/master/helth-package', 'fas fa-vial', 'Pages.Users'),
                     new MenuItem(this.l('Measurement Units'), '/app/master/measure-units', 'fas fa-ruler-combined', 'Pages.Users'),
-                    new MenuItem(this.l('Lab Report Types'), '/app/master/lab-report-type', 'fas fa-notes-medical', 'Pages.Users'),
                     new MenuItem(this.l('Lab Tests'), '/app/master/lab-test', 'fas fa-microscope', 'Pages.Users'),
-                    new MenuItem(this.l('Lab Test Items'), '/app/master/lab-test-items', 'fas fa-vials', 'Pages.Users'),
                     new MenuItem(this.l('Test Result Limits'), '/app/master/test-result-limit', 'fas fa-sliders-h', 'Pages.Users'),
+                    new MenuItem(this.l('Lab Report Types'), '/app/master/lab-report-type', 'fas fa-notes-medical', 'Pages.Users'),
+                    new MenuItem(this.l('Lab Test Items'), '/app/master/lab-test-items', 'fas fa-vials', 'Pages.Users'),
+                    new MenuItem(this.l('Health Packages'), '/app/master/helth-package', 'fas fa-vial', 'Pages.Users'),
                 ]),
 
                 new MenuItem(this.l('Room Management'), '', 'fas fa-hospital-alt', 'Pages.Users', [

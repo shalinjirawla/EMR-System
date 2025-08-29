@@ -53,7 +53,7 @@ export class SelectDoctorRoleComponent implements OnInit {
 
   loadDepartments(): void {
     // Adjust method name if your generated proxy has a different name (e.g., getAllForDropdownAsync)
-    this._departmentService.getAllDepartmentForDropdown().subscribe({
+    this._departmentService.getAllDepartmentForDoctor().subscribe({
       next: (res: any) => {
         // If proxy returns ListResultDto<DepartmentDto> with "items"
         const items = (res && res.items) ? res.items : res;

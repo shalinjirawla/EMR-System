@@ -6,6 +6,20 @@
 
   <div class="modal-body">
     <!-- Bulk Create -->
+     <div class="form-group">
+    <label for="departmentType"><b>Department Type *</b></label>
+    <p-dropdown
+      id="departmentType"
+      name="departmentType"
+      [options]="departmentTypes"
+      [(ngModel)]="department.departmentType"
+      placeholder="Select Department Type"
+      optionLabel="label"
+      optionValue="value"
+      class="w-100"
+      required
+    ></p-dropdown>
+  </div>
     <div class="form-group" *ngIf="!id">
       <label><b>Department Names *</b></label><br>
       <p-autoComplete

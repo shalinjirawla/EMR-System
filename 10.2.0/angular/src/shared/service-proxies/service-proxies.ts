@@ -3238,6 +3238,108 @@ export class DepartmentServiceProxy {
     }
 
     /**
+     * @return OK
+     */
+    getAllDepartmentForDoctor(): Observable<DepartmentDtoListResultDto> {
+        let url_ = this.baseUrl + "/api/services/app/Department/GetAllDepartmentForDoctor";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAllDepartmentForDoctor(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAllDepartmentForDoctor(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<DepartmentDtoListResultDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<DepartmentDtoListResultDto>;
+        }));
+    }
+
+    protected processGetAllDepartmentForDoctor(response: HttpResponseBase): Observable<DepartmentDtoListResultDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DepartmentDtoListResultDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    getAllDepartmentForLabTechnician(): Observable<DepartmentDtoListResultDto> {
+        let url_ = this.baseUrl + "/api/services/app/Department/GetAllDepartmentForLabTechnician";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAllDepartmentForLabTechnician(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAllDepartmentForLabTechnician(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<DepartmentDtoListResultDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<DepartmentDtoListResultDto>;
+        }));
+    }
+
+    protected processGetAllDepartmentForLabTechnician(response: HttpResponseBase): Observable<DepartmentDtoListResultDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DepartmentDtoListResultDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * @param id (optional) 
      * @return OK
      */
@@ -21901,6 +22003,7 @@ export class CreateUpdateDepartmentDto implements ICreateUpdateDepartmentDto {
     id: number;
     tenantId: number;
     departmentName: string | undefined;
+    departmentType: DepartmentType;
     isActive: boolean;
 
     constructor(data?: ICreateUpdateDepartmentDto) {
@@ -21917,6 +22020,7 @@ export class CreateUpdateDepartmentDto implements ICreateUpdateDepartmentDto {
             this.id = _data["id"];
             this.tenantId = _data["tenantId"];
             this.departmentName = _data["departmentName"];
+            this.departmentType = _data["departmentType"];
             this.isActive = _data["isActive"];
         }
     }
@@ -21933,6 +22037,7 @@ export class CreateUpdateDepartmentDto implements ICreateUpdateDepartmentDto {
         data["id"] = this.id;
         data["tenantId"] = this.tenantId;
         data["departmentName"] = this.departmentName;
+        data["departmentType"] = this.departmentType;
         data["isActive"] = this.isActive;
         return data;
     }
@@ -21949,6 +22054,7 @@ export interface ICreateUpdateDepartmentDto {
     id: number;
     tenantId: number;
     departmentName: string | undefined;
+    departmentType: DepartmentType;
     isActive: boolean;
 }
 
@@ -22968,7 +23074,7 @@ export class CreateUpdateLabTechnicianDto implements ICreateUpdateLabTechnicianD
     gender: string | undefined;
     qualification: string | undefined;
     yearsOfExperience: number;
-    department: LabDepartment;
+    departmentId: number;
     certificationNumber: string | undefined;
     dateOfBirth: moment.Moment | undefined;
     abpUserId: number;
@@ -22990,7 +23096,7 @@ export class CreateUpdateLabTechnicianDto implements ICreateUpdateLabTechnicianD
             this.gender = _data["gender"];
             this.qualification = _data["qualification"];
             this.yearsOfExperience = _data["yearsOfExperience"];
-            this.department = _data["department"];
+            this.departmentId = _data["departmentId"];
             this.certificationNumber = _data["certificationNumber"];
             this.dateOfBirth = _data["dateOfBirth"] ? moment(_data["dateOfBirth"].toString()) : <any>undefined;
             this.abpUserId = _data["abpUserId"];
@@ -23012,7 +23118,7 @@ export class CreateUpdateLabTechnicianDto implements ICreateUpdateLabTechnicianD
         data["gender"] = this.gender;
         data["qualification"] = this.qualification;
         data["yearsOfExperience"] = this.yearsOfExperience;
-        data["department"] = this.department;
+        data["departmentId"] = this.departmentId;
         data["certificationNumber"] = this.certificationNumber;
         data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
         data["abpUserId"] = this.abpUserId;
@@ -23034,7 +23140,7 @@ export interface ICreateUpdateLabTechnicianDto {
     gender: string | undefined;
     qualification: string | undefined;
     yearsOfExperience: number;
-    department: LabDepartment;
+    departmentId: number;
     certificationNumber: string | undefined;
     dateOfBirth: moment.Moment | undefined;
     abpUserId: number;
@@ -24595,9 +24701,11 @@ export class Department implements IDepartment {
     id: number;
     tenantId: number;
     departmentName: string | undefined;
+    departmentType: DepartmentType;
     isActive: boolean;
     doctors: Doctor[] | undefined;
     prescriptions: Prescription[] | undefined;
+    labTechnicians: LabTechnician[] | undefined;
 
     constructor(data?: IDepartment) {
         if (data) {
@@ -24613,6 +24721,7 @@ export class Department implements IDepartment {
             this.id = _data["id"];
             this.tenantId = _data["tenantId"];
             this.departmentName = _data["departmentName"];
+            this.departmentType = _data["departmentType"];
             this.isActive = _data["isActive"];
             if (Array.isArray(_data["doctors"])) {
                 this.doctors = [] as any;
@@ -24623,6 +24732,11 @@ export class Department implements IDepartment {
                 this.prescriptions = [] as any;
                 for (let item of _data["prescriptions"])
                     this.prescriptions.push(Prescription.fromJS(item));
+            }
+            if (Array.isArray(_data["labTechnicians"])) {
+                this.labTechnicians = [] as any;
+                for (let item of _data["labTechnicians"])
+                    this.labTechnicians.push(LabTechnician.fromJS(item));
             }
         }
     }
@@ -24639,6 +24753,7 @@ export class Department implements IDepartment {
         data["id"] = this.id;
         data["tenantId"] = this.tenantId;
         data["departmentName"] = this.departmentName;
+        data["departmentType"] = this.departmentType;
         data["isActive"] = this.isActive;
         if (Array.isArray(this.doctors)) {
             data["doctors"] = [];
@@ -24649,6 +24764,11 @@ export class Department implements IDepartment {
             data["prescriptions"] = [];
             for (let item of this.prescriptions)
                 data["prescriptions"].push(item.toJSON());
+        }
+        if (Array.isArray(this.labTechnicians)) {
+            data["labTechnicians"] = [];
+            for (let item of this.labTechnicians)
+                data["labTechnicians"].push(item.toJSON());
         }
         return data;
     }
@@ -24665,15 +24785,18 @@ export interface IDepartment {
     id: number;
     tenantId: number;
     departmentName: string | undefined;
+    departmentType: DepartmentType;
     isActive: boolean;
     doctors: Doctor[] | undefined;
     prescriptions: Prescription[] | undefined;
+    labTechnicians: LabTechnician[] | undefined;
 }
 
 export class DepartmentDto implements IDepartmentDto {
     id: number;
     tenantId: number;
     departmentName: string | undefined;
+    departmentType: DepartmentType;
     isActive: boolean;
 
     constructor(data?: IDepartmentDto) {
@@ -24690,6 +24813,7 @@ export class DepartmentDto implements IDepartmentDto {
             this.id = _data["id"];
             this.tenantId = _data["tenantId"];
             this.departmentName = _data["departmentName"];
+            this.departmentType = _data["departmentType"];
             this.isActive = _data["isActive"];
         }
     }
@@ -24706,6 +24830,7 @@ export class DepartmentDto implements IDepartmentDto {
         data["id"] = this.id;
         data["tenantId"] = this.tenantId;
         data["departmentName"] = this.departmentName;
+        data["departmentType"] = this.departmentType;
         data["isActive"] = this.isActive;
         return data;
     }
@@ -24722,6 +24847,7 @@ export interface IDepartmentDto {
     id: number;
     tenantId: number;
     departmentName: string | undefined;
+    departmentType: DepartmentType;
     isActive: boolean;
 }
 
@@ -24829,6 +24955,11 @@ export class DepartmentDtoPagedResultDto implements IDepartmentDtoPagedResultDto
 export interface IDepartmentDtoPagedResultDto {
     items: DepartmentDto[] | undefined;
     totalCount: number;
+}
+
+export enum DepartmentType {
+    _0 = 0,
+    _1 = 1,
 }
 
 export class DepositTransaction implements IDepositTransaction {
@@ -27479,14 +27610,6 @@ export interface IIsTenantAvailableOutput {
     tenantId: number | undefined;
 }
 
-export enum LabDepartment {
-    _0 = 0,
-    _1 = 1,
-    _2 = 2,
-    _3 = 3,
-    _4 = 4,
-}
-
 export class LabOrderListDto implements ILabOrderListDto {
     id: number;
     patientName: string | undefined;
@@ -28826,7 +28949,8 @@ export class LabTechnician implements ILabTechnician {
     gender: string | undefined;
     qualification: string | undefined;
     yearsOfExperience: number;
-    department: LabDepartment;
+    departmentId: number;
+    department: Department;
     certificationNumber: string | undefined;
     dateOfBirth: moment.Moment | undefined;
     abpUserId: number;
@@ -28849,7 +28973,8 @@ export class LabTechnician implements ILabTechnician {
             this.gender = _data["gender"];
             this.qualification = _data["qualification"];
             this.yearsOfExperience = _data["yearsOfExperience"];
-            this.department = _data["department"];
+            this.departmentId = _data["departmentId"];
+            this.department = _data["department"] ? Department.fromJS(_data["department"]) : <any>undefined;
             this.certificationNumber = _data["certificationNumber"];
             this.dateOfBirth = _data["dateOfBirth"] ? moment(_data["dateOfBirth"].toString()) : <any>undefined;
             this.abpUserId = _data["abpUserId"];
@@ -28872,7 +28997,8 @@ export class LabTechnician implements ILabTechnician {
         data["gender"] = this.gender;
         data["qualification"] = this.qualification;
         data["yearsOfExperience"] = this.yearsOfExperience;
-        data["department"] = this.department;
+        data["departmentId"] = this.departmentId;
+        data["department"] = this.department ? this.department.toJSON() : <any>undefined;
         data["certificationNumber"] = this.certificationNumber;
         data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
         data["abpUserId"] = this.abpUserId;
@@ -28895,7 +29021,8 @@ export interface ILabTechnician {
     gender: string | undefined;
     qualification: string | undefined;
     yearsOfExperience: number;
-    department: LabDepartment;
+    departmentId: number;
+    department: Department;
     certificationNumber: string | undefined;
     dateOfBirth: moment.Moment | undefined;
     abpUserId: number;
@@ -28909,7 +29036,8 @@ export class LabTechniciansDto implements ILabTechniciansDto {
     gender: string | undefined;
     qualification: string | undefined;
     yearsOfExperience: number;
-    department: LabDepartment;
+    departmentId: number;
+    department: DepartmentDto;
     certificationNumber: string | undefined;
     dateOfBirth: moment.Moment | undefined;
     abpUser: UserDto;
@@ -28931,7 +29059,8 @@ export class LabTechniciansDto implements ILabTechniciansDto {
             this.gender = _data["gender"];
             this.qualification = _data["qualification"];
             this.yearsOfExperience = _data["yearsOfExperience"];
-            this.department = _data["department"];
+            this.departmentId = _data["departmentId"];
+            this.department = _data["department"] ? DepartmentDto.fromJS(_data["department"]) : <any>undefined;
             this.certificationNumber = _data["certificationNumber"];
             this.dateOfBirth = _data["dateOfBirth"] ? moment(_data["dateOfBirth"].toString()) : <any>undefined;
             this.abpUser = _data["abpUser"] ? UserDto.fromJS(_data["abpUser"]) : <any>undefined;
@@ -28953,7 +29082,8 @@ export class LabTechniciansDto implements ILabTechniciansDto {
         data["gender"] = this.gender;
         data["qualification"] = this.qualification;
         data["yearsOfExperience"] = this.yearsOfExperience;
-        data["department"] = this.department;
+        data["departmentId"] = this.departmentId;
+        data["department"] = this.department ? this.department.toJSON() : <any>undefined;
         data["certificationNumber"] = this.certificationNumber;
         data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
         data["abpUser"] = this.abpUser ? this.abpUser.toJSON() : <any>undefined;
@@ -28975,7 +29105,8 @@ export interface ILabTechniciansDto {
     gender: string | undefined;
     qualification: string | undefined;
     yearsOfExperience: number;
-    department: LabDepartment;
+    departmentId: number;
+    department: DepartmentDto;
     certificationNumber: string | undefined;
     dateOfBirth: moment.Moment | undefined;
     abpUser: UserDto;
