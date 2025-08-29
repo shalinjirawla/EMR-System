@@ -4,6 +4,7 @@ using EMRSystem.Appointments;
 using EMRSystem.Departments;
 using EMRSystem.Doctors;
 using EMRSystem.Emergency.EmergencyCase;
+using EMRSystem.EmergencyProcedure;
 using EMRSystem.LabReports;
 using EMRSystem.Patients;
 using System;
@@ -37,5 +38,7 @@ namespace EMRSystem.Prescriptions
         public virtual Patient Patient { get; set; }
         public ICollection<PrescriptionItem> Items { get; set; }
         public virtual ICollection<PrescriptionLabTest> LabTests { get; set; }
+        public ICollection<SelectedEmergencyProcedures> SelectedEmergencyProcedureses { get; set; }
+        public virtual ICollection<EMRSystem.EmergencyChargeEntries.EmergencyChargeEntry> EmergencyChargeEntries { get; set; }
     }
 }

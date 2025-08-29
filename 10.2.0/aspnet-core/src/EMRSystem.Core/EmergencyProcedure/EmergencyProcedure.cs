@@ -19,6 +19,8 @@ namespace EMRSystem.EmergencyProcedure
         public decimal DefaultCharge { get; set; }
 
         public bool IsActive { get; set; }
+        public virtual ICollection<SelectedEmergencyProcedures> SelectedEmergencyProcedureses { get; set; }
+
     }
     public enum ProcedureCategory
     {

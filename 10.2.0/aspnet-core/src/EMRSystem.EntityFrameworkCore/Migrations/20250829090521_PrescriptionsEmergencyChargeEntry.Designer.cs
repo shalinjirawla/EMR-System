@@ -4,6 +4,7 @@ using EMRSystem.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EMRSystem.Migrations
 {
     [DbContext(typeof(EMRSystemDbContext))]
-    partial class EMRSystemDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250829090521_PrescriptionsEmergencyChargeEntry")]
+    partial class PrescriptionsEmergencyChargeEntry
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1860,9 +1863,6 @@ namespace EMRSystem.Migrations
                     b.Property<string>("DepartmentName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("DepartmentType")
-                        .HasColumnType("int");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
@@ -2651,8 +2651,8 @@ namespace EMRSystem.Migrations
                     b.Property<DateTime?>("DateOfBirth")
                         .HasColumnType("datetime2");
 
-                    b.Property<long>("DepartmentId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("Department")
+                        .HasColumnType("int");
 
                     b.Property<string>("FullName")
                         .HasColumnType("nvarchar(max)");
@@ -2672,8 +2672,6 @@ namespace EMRSystem.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AbpUserId");
-
-                    b.HasIndex("DepartmentId");
 
                     b.ToTable("LabTechnician");
                 });
@@ -4087,15 +4085,7 @@ namespace EMRSystem.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("EMRSystem.Departments.Department", "Department")
-                        .WithMany("LabTechnicians")
-                        .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.Navigation("AbpUser");
-
-                    b.Navigation("Department");
                 });
 
             modelBuilder.Entity("EMRSystem.LabReports.PrescriptionLabTest", b =>
@@ -4502,8 +4492,6 @@ namespace EMRSystem.Migrations
             modelBuilder.Entity("EMRSystem.Departments.Department", b =>
                 {
                     b.Navigation("Doctors");
-
-                    b.Navigation("LabTechnicians");
 
                     b.Navigation("Prescriptions");
                 });

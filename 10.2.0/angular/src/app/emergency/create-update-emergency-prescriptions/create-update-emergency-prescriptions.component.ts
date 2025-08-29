@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
-import { AppointmentServiceProxy, CreateUpdatePrescriptionItemDto, LabReportsTypeServiceProxy, PharmacistInventoryDtoPagedResultDto, PharmacistInventoryServiceProxy, PrescriptionItemDto, PrescriptionServiceProxy, PatientDropDownDto, EmergencyServiceProxy, EmergencyCaseDto, DepartmentServiceProxy, DepartmentDto } from '@shared/service-proxies/service-proxies';
+import { AppointmentServiceProxy, CreateUpdatePrescriptionItemDto, LabReportsTypeServiceProxy, PharmacistInventoryDtoPagedResultDto, PharmacistInventoryServiceProxy, PrescriptionItemDto, PrescriptionServiceProxy, PatientDropDownDto, EmergencyServiceProxy, EmergencyCaseDto, DepartmentServiceProxy, DepartmentDto, ProcedureCategory, EmergencyProcedureServiceProxy, EmergencyProcedureDto, CreateUpdateEmergencyProcedureDto, CreateUpdateSelectedEmergencyProceduresDto } from '@shared/service-proxies/service-proxies';
 import { AbpModalHeaderComponent } from '../../../shared/components/modal/abp-modal-header.component';
 import { AbpModalFooterComponent } from '../../../shared/components/modal/abp-modal-footer.component';
 import { AppComponentBase } from '../../../shared/app-component-base';
@@ -28,7 +28,7 @@ import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
   ],
   templateUrl: './create-update-emergency-prescriptions.component.html',
   styleUrl: './create-update-emergency-prescriptions.component.css',
-  providers: [DoctorServiceProxy, DepartmentServiceProxy, PharmacistInventoryServiceProxy, LabReportsTypeServiceProxy, AppointmentServiceProxy, AppSessionService, PrescriptionServiceProxy, EmergencyServiceProxy]
+  providers: [DoctorServiceProxy, DepartmentServiceProxy, PharmacistInventoryServiceProxy, LabReportsTypeServiceProxy, AppointmentServiceProxy, AppSessionService, PrescriptionServiceProxy, EmergencyServiceProxy, EmergencyProcedureServiceProxy]
 })
 export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBase implements OnInit {
   @ViewChild('emergencyPrescriptionForm', { static: true }) emergencyPrescriptionForm: NgForm;
@@ -76,6 +76,7 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
     specialistDoctorId: 0,
     isSpecialAdviceRequired: false,
     departmentId: 0,
+    emergencyProcedures: []
   };
   doctors!: DoctorDto[];
   isAdmin!: boolean;
@@ -84,6 +85,8 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
   _isSpecialDepartMentSelect = false;
   totalDoctorList!: DoctorDto[];
   departmentWiseDoctor!: DoctorDto[];
+  _procedures!: EmergencyProcedureDto[];
+  selectedProcedures: number[] = [];
   constructor(
     injector: Injector,
     public bsModalRef: BsModalRef,
@@ -97,6 +100,7 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
     private permissionChecker: PermissionCheckerService,
     private _modalService: BsModalService,
     private _emergencyService: EmergencyServiceProxy,
+    private _procedureService: EmergencyProcedureServiceProxy,
   ) {
     super(injector);
   }
@@ -112,6 +116,7 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
       this.loadLabTestsAndPrescription();
     }
     this.loadDepartments();
+    this.loadProcedures();
   }
   loadDoctors() {
     this._doctorService.getAllDoctorsByTenantID(abp.session.tenantId).subscribe(res => {
@@ -259,6 +264,7 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
   loadPrescription(): void {
     this._prescriptionService.getPrescriptionDetailsById(this.id).subscribe({
       next: (result) => {
+        debugger
         this.prescription = {
           id: result.id,
           tenantId: result.tenantId,
@@ -307,7 +313,9 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
           }
         }
         this.LoadEmergencyCases();
-        this.cd.detectChanges(); 
+        this.loadProcedures();
+        this.selectedProcedures = result.emergencyProcedures?.map(p => p.emergencyProcedureId) || [];
+        this.cd.detectChanges();
       },
       error: (err) => {
         this.notify.error('Could not load prescription details');
@@ -335,7 +343,7 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
       return;
     }
     this.saving = true;
-
+    var fetchPatientId = this.emergencyCase.find(x => x.id === this.prescription.emergencyCaseId)?.patientId;
     const input = new CreateUpdatePrescriptionDto();
     input.init({
       id: this.prescription.id,
@@ -346,13 +354,18 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
       isFollowUpRequired: this.prescription.isFollowUpRequired,
       appointmentId: null,
       doctorId: this.isAdmin ? this.prescription.doctorId : this.doctorID,
-      patientId: this.prescription.patientId > 0 ? this.prescription.patientId : null,
+      patientId: fetchPatientId,
       labTestIds: this.selectedLabTests.map(test => test.id),
       emergencyCaseId: this.prescription.emergencyCaseId,
       isEmergencyPrescription: true,
-      departmentId: this.prescription.departmentId,
-      specialistDoctorId: this.prescription.specialistDoctorId,
+      departmentId: this.prescription.departmentId > 0 ? this.prescription.departmentId : null,
+      specialistDoctorId: this.prescription.specialistDoctorId > 0 ? this.prescription.specialistDoctorId : null,
       isSpecialAdviceRequired: this.prescription.isSpecialAdviceRequired,
+      emergencyProcedures: this.selectedProcedures.map(id => ({
+        emergencyProcedureId: id,
+        prescriptionId: this.prescription.id, // only if needed
+        tenantId: this.prescription.tenantId
+      })),
     });
     input.items = this.prescription.items.map(item => {
       const dtoItem = new CreateUpdatePrescriptionItemDto();
@@ -386,6 +399,7 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
       return;
     }
     this.saving = true;
+    var fetchPatientId = this.emergencyCase.find(x => x.id === this.prescription.emergencyCaseId)?.patientId;
     const input = new CreateUpdatePrescriptionDto();
     input.init({
       tenantId: this.prescription.tenantId,
@@ -395,13 +409,18 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
       isFollowUpRequired: this.prescription.isFollowUpRequired,
       appointmentId: null,
       doctorId: this.isAdmin ? this.prescription.doctorId : this.doctorID,
-      patientId: this.prescription.patientId > 0 ? this.prescription.patientId : null,
+      patientId: fetchPatientId,
       labTestIds: this.selectedLabTests.map(test => test.id || test),
       emergencyCaseId: this.prescription.emergencyCaseId,
       isEmergencyPrescription: true,
-      specialistDoctorId: this.prescription.specialistDoctorId,
+      specialistDoctorId: this.prescription.specialistDoctorId > 0 ? this.prescription.specialistDoctorId : null,
       isSpecialAdviceRequired: this.prescription.isSpecialAdviceRequired,
-      departmentId: this.prescription.departmentId,
+      departmentId: this.prescription.departmentId > 0 ? this.prescription.departmentId : null,
+      emergencyProcedures: this.selectedProcedures.map(id => ({
+        emergencyProcedureId: id,
+        prescriptionId: this.prescription.id, // only if needed
+        tenantId: this.prescription.tenantId
+      })),
     });
     input.items = this.prescription.items.map(item => {
       const dtoItem = new CreateUpdatePrescriptionItemDto();
@@ -463,5 +482,15 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
         x => x.department && x.department.id === departmentId
       );
     }
+  }
+  loadProcedures() {
+    this._procedureService.getEmergencyProcedureList().subscribe({
+      next: (res) => {
+        this._procedures = res;
+      },
+      error: (err) => {
+
+      }
+    })
   }
 }

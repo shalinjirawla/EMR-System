@@ -5634,6 +5634,64 @@ export class EmergencyProcedureServiceProxy {
     }
 
     /**
+     * @return OK
+     */
+    getEmergencyProcedureList(): Observable<EmergencyProcedureDto[]> {
+        let url_ = this.baseUrl + "/api/services/app/EmergencyProcedure/GetEmergencyProcedureList";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetEmergencyProcedureList(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetEmergencyProcedureList(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<EmergencyProcedureDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<EmergencyProcedureDto[]>;
+        }));
+    }
+
+    protected processGetEmergencyProcedureList(response: HttpResponseBase): Observable<EmergencyProcedureDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200.push(EmergencyProcedureDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * @param id (optional) 
      * @return OK
      */
@@ -13511,6 +13569,68 @@ export class PrescriptionServiceProxy {
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = PrescriptionDtoListResultDto.fromJS(resultData200);
             return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param isAdmitted (optional) 
+     * @param isNewRecord (optional) 
+     * @param body (optional) 
+     * @return OK
+     */
+    createUpdateCharges(isAdmitted: boolean | undefined, isNewRecord: boolean | undefined, body: CreateUpdatePrescriptionDto | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/Prescription/CreateUpdateCharges?";
+        if (isAdmitted === null)
+            throw new Error("The parameter 'isAdmitted' cannot be null.");
+        else if (isAdmitted !== undefined)
+            url_ += "isAdmitted=" + encodeURIComponent("" + isAdmitted) + "&";
+        if (isNewRecord === null)
+            throw new Error("The parameter 'isNewRecord' cannot be null.");
+        else if (isNewRecord !== undefined)
+            url_ += "isNewRecord=" + encodeURIComponent("" + isNewRecord) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreateUpdateCharges(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreateUpdateCharges(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processCreateUpdateCharges(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -23661,6 +23781,7 @@ export class CreateUpdatePrescriptionDto implements ICreateUpdatePrescriptionDto
     patientId: number | undefined;
     labTestIds: number[] | undefined;
     items: CreateUpdatePrescriptionItemDto[] | undefined;
+    emergencyProcedures: CreateUpdateSelectedEmergencyProceduresDto[] | undefined;
     isEmergencyPrescription: boolean;
     emergencyCaseId: number | undefined;
     departmentId: number | undefined;
@@ -23696,6 +23817,11 @@ export class CreateUpdatePrescriptionDto implements ICreateUpdatePrescriptionDto
                 this.items = [] as any;
                 for (let item of _data["items"])
                     this.items.push(CreateUpdatePrescriptionItemDto.fromJS(item));
+            }
+            if (Array.isArray(_data["emergencyProcedures"])) {
+                this.emergencyProcedures = [] as any;
+                for (let item of _data["emergencyProcedures"])
+                    this.emergencyProcedures.push(CreateUpdateSelectedEmergencyProceduresDto.fromJS(item));
             }
             this.isEmergencyPrescription = _data["isEmergencyPrescription"];
             this.emergencyCaseId = _data["emergencyCaseId"];
@@ -23733,6 +23859,11 @@ export class CreateUpdatePrescriptionDto implements ICreateUpdatePrescriptionDto
             for (let item of this.items)
                 data["items"].push(item.toJSON());
         }
+        if (Array.isArray(this.emergencyProcedures)) {
+            data["emergencyProcedures"] = [];
+            for (let item of this.emergencyProcedures)
+                data["emergencyProcedures"].push(item.toJSON());
+        }
         data["isEmergencyPrescription"] = this.isEmergencyPrescription;
         data["emergencyCaseId"] = this.emergencyCaseId;
         data["departmentId"] = this.departmentId;
@@ -23761,6 +23892,7 @@ export interface ICreateUpdatePrescriptionDto {
     patientId: number | undefined;
     labTestIds: number[] | undefined;
     items: CreateUpdatePrescriptionItemDto[] | undefined;
+    emergencyProcedures: CreateUpdateSelectedEmergencyProceduresDto[] | undefined;
     isEmergencyPrescription: boolean;
     emergencyCaseId: number | undefined;
     departmentId: number | undefined;
@@ -24113,6 +24245,57 @@ export interface ICreateUpdateRoomTypeMasterDto {
     description: string | undefined;
     defaultPricePerDay: number;
     facilityIds: number[] | undefined;
+}
+
+export class CreateUpdateSelectedEmergencyProceduresDto implements ICreateUpdateSelectedEmergencyProceduresDto {
+    tenantId: number;
+    emergencyProcedureId: number;
+    prescriptionId: number;
+
+    constructor(data?: ICreateUpdateSelectedEmergencyProceduresDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.tenantId = _data["tenantId"];
+            this.emergencyProcedureId = _data["emergencyProcedureId"];
+            this.prescriptionId = _data["prescriptionId"];
+        }
+    }
+
+    static fromJS(data: any): CreateUpdateSelectedEmergencyProceduresDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateUpdateSelectedEmergencyProceduresDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["tenantId"] = this.tenantId;
+        data["emergencyProcedureId"] = this.emergencyProcedureId;
+        data["prescriptionId"] = this.prescriptionId;
+        return data;
+    }
+
+    clone(): CreateUpdateSelectedEmergencyProceduresDto {
+        const json = this.toJSON();
+        let result = new CreateUpdateSelectedEmergencyProceduresDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ICreateUpdateSelectedEmergencyProceduresDto {
+    tenantId: number;
+    emergencyProcedureId: number;
+    prescriptionId: number;
 }
 
 export class CreateUpdateTestResultLimitDto implements ICreateUpdateTestResultLimitDto {
@@ -25902,6 +26085,8 @@ export class EmergencyChargeEntry implements IEmergencyChargeEntry {
     referenceId: number | undefined;
     emergencyCaseId: number | undefined;
     emergencyCase: EmergencyCase;
+    prescriptionId: number | undefined;
+    prescriptions: Prescription;
 
     constructor(data?: IEmergencyChargeEntry) {
         if (data) {
@@ -25926,6 +26111,8 @@ export class EmergencyChargeEntry implements IEmergencyChargeEntry {
             this.referenceId = _data["referenceId"];
             this.emergencyCaseId = _data["emergencyCaseId"];
             this.emergencyCase = _data["emergencyCase"] ? EmergencyCase.fromJS(_data["emergencyCase"]) : <any>undefined;
+            this.prescriptionId = _data["prescriptionId"];
+            this.prescriptions = _data["prescriptions"] ? Prescription.fromJS(_data["prescriptions"]) : <any>undefined;
         }
     }
 
@@ -25950,6 +26137,8 @@ export class EmergencyChargeEntry implements IEmergencyChargeEntry {
         data["referenceId"] = this.referenceId;
         data["emergencyCaseId"] = this.emergencyCaseId;
         data["emergencyCase"] = this.emergencyCase ? this.emergencyCase.toJSON() : <any>undefined;
+        data["prescriptionId"] = this.prescriptionId;
+        data["prescriptions"] = this.prescriptions ? this.prescriptions.toJSON() : <any>undefined;
         return data;
     }
 
@@ -25974,6 +26163,8 @@ export interface IEmergencyChargeEntry {
     referenceId: number | undefined;
     emergencyCaseId: number | undefined;
     emergencyCase: EmergencyCase;
+    prescriptionId: number | undefined;
+    prescriptions: Prescription;
 }
 
 export class EmergencyMasterDto implements IEmergencyMasterDto {
@@ -26084,6 +26275,81 @@ export class EmergencyMasterDtoPagedResultDto implements IEmergencyMasterDtoPage
 export interface IEmergencyMasterDtoPagedResultDto {
     items: EmergencyMasterDto[] | undefined;
     totalCount: number;
+}
+
+export class EmergencyProcedure implements IEmergencyProcedure {
+    id: number;
+    tenantId: number;
+    name: string | undefined;
+    category: ProcedureCategory;
+    defaultCharge: number;
+    isActive: boolean;
+    selectedEmergencyProcedureses: SelectedEmergencyProcedures[] | undefined;
+
+    constructor(data?: IEmergencyProcedure) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.name = _data["name"];
+            this.category = _data["category"];
+            this.defaultCharge = _data["defaultCharge"];
+            this.isActive = _data["isActive"];
+            if (Array.isArray(_data["selectedEmergencyProcedureses"])) {
+                this.selectedEmergencyProcedureses = [] as any;
+                for (let item of _data["selectedEmergencyProcedureses"])
+                    this.selectedEmergencyProcedureses.push(SelectedEmergencyProcedures.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): EmergencyProcedure {
+        data = typeof data === 'object' ? data : {};
+        let result = new EmergencyProcedure();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["name"] = this.name;
+        data["category"] = this.category;
+        data["defaultCharge"] = this.defaultCharge;
+        data["isActive"] = this.isActive;
+        if (Array.isArray(this.selectedEmergencyProcedureses)) {
+            data["selectedEmergencyProcedureses"] = [];
+            for (let item of this.selectedEmergencyProcedureses)
+                data["selectedEmergencyProcedureses"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): EmergencyProcedure {
+        const json = this.toJSON();
+        let result = new EmergencyProcedure();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IEmergencyProcedure {
+    id: number;
+    tenantId: number;
+    name: string | undefined;
+    category: ProcedureCategory;
+    defaultCharge: number;
+    isActive: boolean;
+    selectedEmergencyProcedureses: SelectedEmergencyProcedures[] | undefined;
 }
 
 export class EmergencyProcedureDto implements IEmergencyProcedureDto {
@@ -32661,6 +32927,8 @@ export class Prescription implements IPrescription {
     patient: Patient;
     items: PrescriptionItem[] | undefined;
     labTests: PrescriptionLabTest[] | undefined;
+    selectedEmergencyProcedureses: SelectedEmergencyProcedures[] | undefined;
+    emergencyChargeEntries: EmergencyChargeEntry[] | undefined;
 
     constructor(data?: IPrescription) {
         if (data) {
@@ -32702,6 +32970,16 @@ export class Prescription implements IPrescription {
                 this.labTests = [] as any;
                 for (let item of _data["labTests"])
                     this.labTests.push(PrescriptionLabTest.fromJS(item));
+            }
+            if (Array.isArray(_data["selectedEmergencyProcedureses"])) {
+                this.selectedEmergencyProcedureses = [] as any;
+                for (let item of _data["selectedEmergencyProcedureses"])
+                    this.selectedEmergencyProcedureses.push(SelectedEmergencyProcedures.fromJS(item));
+            }
+            if (Array.isArray(_data["emergencyChargeEntries"])) {
+                this.emergencyChargeEntries = [] as any;
+                for (let item of _data["emergencyChargeEntries"])
+                    this.emergencyChargeEntries.push(EmergencyChargeEntry.fromJS(item));
             }
         }
     }
@@ -32745,6 +33023,16 @@ export class Prescription implements IPrescription {
             for (let item of this.labTests)
                 data["labTests"].push(item.toJSON());
         }
+        if (Array.isArray(this.selectedEmergencyProcedureses)) {
+            data["selectedEmergencyProcedureses"] = [];
+            for (let item of this.selectedEmergencyProcedureses)
+                data["selectedEmergencyProcedureses"].push(item.toJSON());
+        }
+        if (Array.isArray(this.emergencyChargeEntries)) {
+            data["emergencyChargeEntries"] = [];
+            for (let item of this.emergencyChargeEntries)
+                data["emergencyChargeEntries"].push(item.toJSON());
+        }
         return data;
     }
 
@@ -32779,6 +33067,8 @@ export interface IPrescription {
     patient: Patient;
     items: PrescriptionItem[] | undefined;
     labTests: PrescriptionLabTest[] | undefined;
+    selectedEmergencyProcedureses: SelectedEmergencyProcedures[] | undefined;
+    emergencyChargeEntries: EmergencyChargeEntry[] | undefined;
 }
 
 export class PrescriptionDto implements IPrescriptionDto {
@@ -35098,6 +35388,69 @@ export class RoomTypeMasterDtoPagedResultDto implements IRoomTypeMasterDtoPagedR
 export interface IRoomTypeMasterDtoPagedResultDto {
     items: RoomTypeMasterDto[] | undefined;
     totalCount: number;
+}
+
+export class SelectedEmergencyProcedures implements ISelectedEmergencyProcedures {
+    id: number;
+    tenantId: number;
+    emergencyProcedureId: number;
+    emergencyProcedures: EmergencyProcedure;
+    prescriptionId: number;
+    prescriptions: Prescription;
+
+    constructor(data?: ISelectedEmergencyProcedures) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.emergencyProcedureId = _data["emergencyProcedureId"];
+            this.emergencyProcedures = _data["emergencyProcedures"] ? EmergencyProcedure.fromJS(_data["emergencyProcedures"]) : <any>undefined;
+            this.prescriptionId = _data["prescriptionId"];
+            this.prescriptions = _data["prescriptions"] ? Prescription.fromJS(_data["prescriptions"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): SelectedEmergencyProcedures {
+        data = typeof data === 'object' ? data : {};
+        let result = new SelectedEmergencyProcedures();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["emergencyProcedureId"] = this.emergencyProcedureId;
+        data["emergencyProcedures"] = this.emergencyProcedures ? this.emergencyProcedures.toJSON() : <any>undefined;
+        data["prescriptionId"] = this.prescriptionId;
+        data["prescriptions"] = this.prescriptions ? this.prescriptions.toJSON() : <any>undefined;
+        return data;
+    }
+
+    clone(): SelectedEmergencyProcedures {
+        const json = this.toJSON();
+        let result = new SelectedEmergencyProcedures();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ISelectedEmergencyProcedures {
+    id: number;
+    tenantId: number;
+    emergencyProcedureId: number;
+    emergencyProcedures: EmergencyProcedure;
+    prescriptionId: number;
+    prescriptions: Prescription;
 }
 
 export class Setting implements ISetting {

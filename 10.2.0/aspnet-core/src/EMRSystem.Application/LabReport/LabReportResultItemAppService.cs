@@ -110,6 +110,7 @@ namespace EMRSystem.LabReport
                         Description = $"Emergency Case Only",
                         Amount = reportType?.ReportPrice ?? 0,
                         EmergencyCaseId = emergencyCaseId,
+                        PrescriptionId= prescription.Id,
                     };
 
                     await _emergencyChargeEntriesRepository.InsertAsync(chargeEntry);

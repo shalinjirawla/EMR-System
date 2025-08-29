@@ -1,4 +1,5 @@
 ﻿using Abp.Application.Services.Dto;
+using EMRSystem.EmergencyProcedure.Dto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,7 @@ namespace EMRSystem.Prescriptions.Dto
         public long? PatientId { get; set; }
         public List<int> LabTestIds { get; set; }
         public List<CreateUpdatePrescriptionItemDto> Items { get; set; }
+        public List<CreateUpdateSelectedEmergencyProceduresDto> EmergencyProcedures { get; set; }
         public bool IsEmergencyPrescription { get; set; }
         public long? EmergencyCaseId { get; set; }
         public long? DepartmentId { get; set; }
