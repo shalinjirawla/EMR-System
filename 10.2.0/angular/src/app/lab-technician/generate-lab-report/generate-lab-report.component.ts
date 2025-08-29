@@ -181,7 +181,6 @@ export class GenerateLabReportComponent extends AppComponentBase implements OnIn
     this.labReportItems.forEach(item => {
       item.prescriptionLabTestId = this.id;
     });
-    debugger
     if(this.emergencyCaseId==null){
       this.emergencyCaseId=undefined;
     }

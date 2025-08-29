@@ -13,6 +13,9 @@ namespace EMRSystem.EmergencyProcedure.Dto
         {
             CreateMap<EmergencyProcedure, EmergencyProcedureDto>();
             CreateMap<CreateUpdateEmergencyProcedureDto, EmergencyProcedure>();
+
+            CreateMap<CreateUpdateSelectedEmergencyProceduresDto, SelectedEmergencyProcedures>().ReverseMap();
+            CreateMap<SelectedEmergencyProceduresDto, SelectedEmergencyProcedures>().ReverseMap();
         }
     }
 }

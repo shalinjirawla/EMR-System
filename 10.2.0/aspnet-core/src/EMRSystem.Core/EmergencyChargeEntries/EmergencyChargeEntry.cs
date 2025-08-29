@@ -2,6 +2,7 @@
 using EMRSystem.Emergency.EmergencyCase;
 using EMRSystem.IpdChargeEntry;
 using EMRSystem.Patients;
+using EMRSystem.Prescriptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,5 +24,7 @@ namespace EMRSystem.EmergencyChargeEntries
         public long? ReferenceId { get; set; }
         public long? EmergencyCaseId { get; set; }
         public virtual EmergencyCase EmergencyCase { get; set; }
+        public long? PrescriptionId { get; set; }
+        public virtual Prescription Prescriptions { get; set; }
     }
 }

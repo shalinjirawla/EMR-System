@@ -8,6 +8,7 @@ using EMRSystem.Departments;
 using EMRSystem.Departments.Dto;
 using EMRSystem.EmergencyProcedure.Dto;
 using EMRSystem.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -56,6 +57,14 @@ namespace EMRSystem.EmergencyProcedure
             await dbContext.SaveChangesAsync();        // 👈 One DB call only
 
             return ObjectMapper.Map<List<EmergencyProcedureDto>>(entities);
+        }
+
+        [HttpGet]
+        public async Task<List<EmergencyProcedureDto>> GetEmergencyProcedureList()
+        {
+            var list = await Repository.GetAllListAsync();
+            var entities = ObjectMapper.Map<List<EmergencyProcedureDto>>(list);
+            return entities;
         }
     }
 }

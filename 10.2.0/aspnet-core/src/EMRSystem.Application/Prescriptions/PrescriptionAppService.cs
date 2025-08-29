@@ -27,6 +27,10 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
+using EMRSystem.EmergencyProcedure;
+using EMRSystem.IpdChargeEntry;
+using Stripe.V2;
+using Abp.EntityFrameworkCore.Repositories;
 
 
 namespace EMRSystem.Prescriptions
@@ -38,19 +42,24 @@ namespace EMRSystem.Prescriptions
         private readonly IRepository<Appointment, long> _appointmentRepository;
         private readonly IRepository<Patient, long> _patientRepository;
         private readonly IRepository<EMRSystem.LabReports.PrescriptionLabTest, long> _prescriptionLabTestRepository;
+        private readonly IRepository<EMRSystem.EmergencyChargeEntries.EmergencyChargeEntry, long> _emergencyChargeEntriesRepository;
+        private readonly IRepository<EMRSystem.DoctorMaster.DoctorMaster, long> _doctorMasterRepository;
+        private readonly IRepository<EMRSystem.EmergencyProcedure.EmergencyProcedure, long> _emergencyProcedureRepository;
 
         private readonly UserManager _userManager;
         public PrescriptionAppService(IRepository<Prescription, long> repository
             , IDoctorAppService doctorAppService, UserManager userManager, IRepository<Appointment, long> appointmentRepository,
             IRepository<Patient, long> patientRepository, IRepository<EMRSystem.LabReports.PrescriptionLabTest, long> prescriptionLabTestRepository
-
-            ) : base(repository)
+            , IRepository<EmergencyChargeEntries.EmergencyChargeEntry, long> emergencyChargeEntriesRepository, IRepository<DoctorMaster.DoctorMaster, long> doctorMasterRepository, IRepository<EmergencyProcedure.EmergencyProcedure, long> emergencyProcedureRepository) : base(repository)
         {
             _doctorAppService = doctorAppService;
             _userManager = userManager;
             _appointmentRepository = appointmentRepository;
             _patientRepository = patientRepository;
             _prescriptionLabTestRepository = prescriptionLabTestRepository;
+            _emergencyChargeEntriesRepository = emergencyChargeEntriesRepository;
+            _doctorMasterRepository = doctorMasterRepository;
+            _emergencyProcedureRepository = emergencyProcedureRepository;
         }
         protected override IQueryable<Prescription> CreateFilteredQuery(PagedPrescriptionResultRequestDto input)
         {
@@ -60,7 +69,7 @@ namespace EMRSystem.Prescriptions
                 var userId = AbpSession.UserId;
                 var doctor = _doctorAppService.GetDoctorDetailsByAbpUserID(userId.Value);
 
-                return Repository
+                var dataa = Repository
                     .GetAll()
                     .Include(x => x.Patient)
                     .Include(x => x.Doctor)
@@ -113,6 +122,7 @@ namespace EMRSystem.Prescriptions
                             CreatedDate = lt.CreatedDate
                         }).ToList()
                     });
+                return dataa;
             }
             catch (SqlException sqlEx)
             {
@@ -152,6 +162,12 @@ namespace EMRSystem.Prescriptions
                 .Select(item => ObjectMapper.Map<PrescriptionItem>(item))
                 .ToList();
 
+            if (input.EmergencyProcedures != null && input.EmergencyProcedures.Any())
+            {
+                prescription.SelectedEmergencyProcedureses = input.EmergencyProcedures
+                    .Select(itm => ObjectMapper.Map<SelectedEmergencyProcedures>(itm))
+                    .ToList();
+            }
             // Save prescription (to get Id)
             await Repository.InsertAsync(prescription);
             await CurrentUnitOfWork.SaveChangesAsync(); // Needed to get prescription.Id
@@ -166,7 +182,6 @@ namespace EMRSystem.Prescriptions
 
             if (isAdmitted)
             {
-
                 // Create and save each PrescriptionLabTest
                 foreach (var labTestId in input.LabTestIds)
                 {
@@ -180,6 +195,7 @@ namespace EMRSystem.Prescriptions
                         IsPrescribed = true,
                         IsFromPackage = false,
                         CreatedDate = DateTime.Now,
+                        PatientId = input.PatientId
                     };
 
                     await _prescriptionLabTestRepository.InsertAsync(labTest);
@@ -201,12 +217,15 @@ namespace EMRSystem.Prescriptions
                         TestStatus = LabTestStatus.Pending,
                         CreatedDate = DateTime.Now,
                         IsEmergencyPrescription = input.IsEmergencyPrescription,
-                        EmergencyCaseId=input.EmergencyCaseId
+                        EmergencyCaseId = input.EmergencyCaseId,
+                        PatientId = input.PatientId
                     };
 
                     await _prescriptionLabTestRepository.InsertAsync(labTest);
                 }
             }
+
+            await CreateUpdateCharges(input, prescription.Id, true);
 
             // Mark appointment as completed
             if (input.AppointmentId.HasValue)
@@ -224,7 +243,8 @@ namespace EMRSystem.Prescriptions
             // First get the existing prescription with its items
             var existingPrescription = await Repository.GetAllIncluding(
                 p => p.Items,
-                p => p.LabTests
+                p => p.LabTests,
+                p => p.SelectedEmergencyProcedureses
             ).FirstOrDefaultAsync(p => p.Id == input.Id);
 
             if (existingPrescription == null)
@@ -272,12 +292,43 @@ namespace EMRSystem.Prescriptions
                     PrescriptionId = input.Id,
                     IsEmergencyPrescription = input.IsEmergencyPrescription,
                     EmergencyCaseId = input.EmergencyCaseId,
-                    IsPaid= input.IsEmergencyPrescription,
+                    IsPaid = input.IsEmergencyPrescription,
+                    PatientId = input.PatientId,
                 });
+            }
+
+
+            // Handle procedure update
+            var existingProcedure = existingPrescription.SelectedEmergencyProcedureses.ToList();
+            // Update existing items or add new ones
+            if (input.EmergencyProcedures != null && input.EmergencyProcedures.Any())
+            {
+                foreach (var inputItem2 in input.EmergencyProcedures)
+                {
+                    var existingItem2 = existingProcedure.FirstOrDefault(i => i.Id == inputItem2.EmergencyProcedureId);
+                    if (existingItem2 != null)
+                    {
+                        ObjectMapper.Map(inputItem2, existingItem2);
+                    }
+                    else
+                    {
+                        var newItem2 = ObjectMapper.Map<EMRSystem.EmergencyProcedure.SelectedEmergencyProcedures>(inputItem2);
+                        existingPrescription.SelectedEmergencyProcedureses.Add(newItem2);
+                    }
+                }
+            }
+            // Remove items that are no longer in the input
+            var itemsToRemove2 = existingProcedure.Where(ei => !input.EmergencyProcedures.Any(ii => ii.EmergencyProcedureId == ei.Id)).ToList();
+            foreach (var item2 in itemsToRemove2)
+            {
+                existingPrescription.SelectedEmergencyProcedureses.Remove(item2);
             }
 
             await Repository.UpdateAsync(existingPrescription);
             await CurrentUnitOfWork.SaveChangesAsync();
+
+            await CreateUpdateCharges(input, input.Id, false);
+
         }
 
         public async Task<CreateUpdatePrescriptionDto> GetPrescriptionDetailsById(long id)
@@ -287,6 +338,7 @@ namespace EMRSystem.Prescriptions
                 x => x.Doctor,
                 x => x.Appointment,
                 x => x.LabTests,
+                x => x.SelectedEmergencyProcedureses,
                 x => x.Items); // Don't forget to include Items if needed
 
             var details = await query
@@ -301,9 +353,9 @@ namespace EMRSystem.Prescriptions
                     IsFollowUpRequired = x.IsFollowUpRequired,
                     IsEmergencyPrescription = x.IsEmergencyPrescription,
                     EmergencyCaseId = x.EmergencyCaseId,
-                    DepartmentId=x.DepartmentId,
-                    SpecialistDoctorId=x.SpecialistDoctorId,
-                    IsSpecialAdviceRequired=x.IsSpecialAdviceRequired,
+                    DepartmentId = x.DepartmentId,
+                    SpecialistDoctorId = x.SpecialistDoctorId,
+                    IsSpecialAdviceRequired = x.IsSpecialAdviceRequired,
                     Patient = x.Patient == null ? null : new Patient
                     {
                         Id = x.Patient.Id,
@@ -335,6 +387,12 @@ namespace EMRSystem.Prescriptions
                         LabReportsTypeId = lt.LabReportsTypeId,
                         TestStatus = lt.TestStatus,
                         CreatedDate = lt.CreatedDate
+                    }).ToList(),
+                    SelectedEmergencyProcedureses = x.SelectedEmergencyProcedureses.Select(lt => new EMRSystem.EmergencyProcedure.SelectedEmergencyProcedures
+                    {
+                        Id = lt.Id,
+                        EmergencyProcedureId = lt.EmergencyProcedureId,
+                        PrescriptionId = lt.PrescriptionId,
                     }).ToList()
                 })
                 .FirstOrDefaultAsync();
@@ -468,6 +526,74 @@ namespace EMRSystem.Prescriptions
             return new ListResultDto<PrescriptionDto>(prescriptions);
         }
 
+        public async Task CreateUpdateCharges(CreateUpdatePrescriptionDto input, long? prescriptionId, bool isNewRecord)
+        {
+            if (input.IsEmergencyPrescription)
+            {
+                if (!isNewRecord)
+                {
+                    var getList = await _emergencyChargeEntriesRepository.GetAll().Where(x => x.PrescriptionId == prescriptionId).ToListAsync();
+                    if (getList.Count > 0)
+                    {
+                        _emergencyChargeEntriesRepository.RemoveRange(getList);
+                    }
+                }
+                // takke charge for emergency doctor
+                {
+                    var emergencyDoctor = await _doctorMasterRepository
+                                    .FirstOrDefaultAsync(dm => dm.DoctorId == input.DoctorId);
+                    var chargeEntry = new EMRSystem.EmergencyChargeEntries.EmergencyChargeEntry
+                    {
+                        PatientId = input.PatientId,
+                        ChargeType = ChargeType.Other,
+                        Description = $"Emergency Doctor Charge",
+                        Amount = emergencyDoctor.Fee > 0 ? emergencyDoctor.Fee : 0,
+                        EmergencyCaseId = input.EmergencyCaseId,
+                        PrescriptionId = prescriptionId,
+                    };
+                    await _emergencyChargeEntriesRepository.InsertAsync(chargeEntry);
+                }
 
+                // take charge for procedure if selected
+                {
+                    if (input.EmergencyProcedures.Count > 0)
+                    {
+                        foreach (var itm in input.EmergencyProcedures)
+                        {
+                            var procedure = await _emergencyProcedureRepository.FirstOrDefaultAsync(dm => dm.Id == itm.EmergencyProcedureId);
+                            var chargeEntry = new EMRSystem.EmergencyChargeEntries.EmergencyChargeEntry
+                            {
+                                PatientId = input.PatientId,
+                                ChargeType = ChargeType.Procedure,
+                                Description = $"Emergency Procedure Charge",
+                                Amount = procedure.DefaultCharge > 0 ? procedure.DefaultCharge : 0,
+                                EmergencyCaseId = input.EmergencyCaseId,
+                                PrescriptionId = prescriptionId,
+                            };
+                            await _emergencyChargeEntriesRepository.InsertRangeAsync(chargeEntry);
+                        }
+
+                    }
+                }
+
+                // take charge for advice if selected
+                {
+                    if (input.IsSpecialAdviceRequired && input.SpecialistDoctorId != null)
+                    {
+                        var specialDoctor = await _doctorMasterRepository.FirstOrDefaultAsync(dm => dm.DoctorId == input.SpecialistDoctorId);
+                        var chargeEntry = new EMRSystem.EmergencyChargeEntries.EmergencyChargeEntry
+                        {
+                            PatientId = input.PatientId,
+                            ChargeType = ChargeType.Other,
+                            Description = $"Emergency Special Doctor Advice Charge",
+                            Amount = specialDoctor.Fee > 0 ? specialDoctor.Fee : 0,
+                            EmergencyCaseId = input.EmergencyCaseId,
+                            PrescriptionId = prescriptionId,
+                        };
+                        await _emergencyChargeEntriesRepository.InsertAsync(chargeEntry);
+                    }
+                }
+            }
+        }
     }
 }

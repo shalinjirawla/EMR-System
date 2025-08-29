@@ -28,9 +28,10 @@ namespace EMRSystem.Emergency.EmergencyCase
         private readonly IRepository<EMRSystem.IpdChargeEntry.IpdChargeEntry, long> _ipdChargeEntryRepository;
         private readonly IRepository<EMRSystem.EmergencyChargeEntries.EmergencyChargeEntry, long> _emergencyChargeEntriesRepository;
         private readonly IRepository<EMRSystem.Prescriptions.Prescription, long> _prescriptionRepository;
+        private readonly IRepository<EMRSystem.LabReports.PrescriptionLabTest, long> _prescriptionLabTestRepository;
         public EmergencyAppService(IRepository<EmergencyCase, long> repository, IRepository<Patient, long> patientRepository,
                 IRepository<EMRSystem.IpdChargeEntry.IpdChargeEntry, long> ipdChargeEntryRepository, IRepository<EMRSystem.Emergency.EmergencyMaster.EmergencyMaster, long> emergencyMasterRepository,
-                IRepository<EMRSystem.EmergencyChargeEntries.EmergencyChargeEntry, long> emergencyChargeEntriesRepository, IRepository<Prescriptions.Prescription, long> prescriptionRepository)
+                IRepository<EMRSystem.EmergencyChargeEntries.EmergencyChargeEntry, long> emergencyChargeEntriesRepository, IRepository<Prescriptions.Prescription, long> prescriptionRepository, IRepository<LabReports.PrescriptionLabTest, long> prescriptionLabTestRepository)
             : base(repository)
         {
             _patientRepository = patientRepository;
@@ -38,6 +39,7 @@ namespace EMRSystem.Emergency.EmergencyCase
             _emergencyMasterRepository = emergencyMasterRepository;
             _emergencyChargeEntriesRepository = emergencyChargeEntriesRepository;
             _prescriptionRepository = prescriptionRepository;
+            _prescriptionLabTestRepository = prescriptionLabTestRepository;
         }
 
         protected override IQueryable<EmergencyCase> CreateFilteredQuery(PagedEmergencyCaseResultRequestDto input)
@@ -143,9 +145,17 @@ namespace EMRSystem.Emergency.EmergencyCase
                     entry.PatientId = input.PatientId; // update patient
                     await _prescriptionRepository.UpdateAsync(entry);
                 }
-            }
-            if (input.PatientId.HasValue)
-            {
+
+                // ✅ PrescriptionLabTests update
+                var prescriptionLabTestsEntries = await _prescriptionLabTestRepository
+                    .GetAllListAsync(x => x.EmergencyCaseId == input.Id);
+
+                foreach (var entry in prescriptionLabTestsEntries)
+                {
+                    entry.PatientId = input.PatientId; // update patient
+                    await _prescriptionLabTestRepository.UpdateAsync(entry);
+                }
+
                 var patient = await _patientRepository.GetAsync(input.PatientId.Value);
                 if (patient != null)
                 {

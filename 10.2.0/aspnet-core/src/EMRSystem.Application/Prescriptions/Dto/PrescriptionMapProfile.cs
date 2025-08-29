@@ -46,7 +46,8 @@ namespace EMRSystem.Prescriptions.Dto
                 .ForMember(dest => dest.AppointmentId, opt => opt.MapFrom(src => src.Appointment.Id))
                 .ForMember(dest => dest.DoctorId, opt => opt.MapFrom(src => src.Doctor.Id))
                 .ForMember(dest => dest.PatientId, opt => opt.MapFrom(src => src.Patient.Id))
-                .ForMember(dest => dest.LabTestIds, opt => opt.MapFrom(src => src.LabTests.Select(lt => lt.LabReportsTypeId)));
+                .ForMember(dest => dest.LabTestIds, opt => opt.MapFrom(src => src.LabTests.Select(lt => lt.LabReportsTypeId)))
+                .ForMember(dest => dest.EmergencyProcedures, opt => opt.MapFrom(src => src.SelectedEmergencyProcedureses));
 
             // Prescription Items
             CreateMap<PrescriptionItem, PrescriptionItemDto>().ReverseMap();

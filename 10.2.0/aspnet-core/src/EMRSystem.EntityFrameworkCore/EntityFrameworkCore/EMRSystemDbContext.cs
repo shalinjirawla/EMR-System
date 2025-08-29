@@ -9,6 +9,7 @@ using EMRSystem.Doctors;
 using EMRSystem.Emergency.EmergencyCase;
 using EMRSystem.Emergency.Triage;
 using EMRSystem.EmergencyChargeEntries;
+using EMRSystem.EmergencyProcedure;
 using EMRSystem.Invoices;
 using EMRSystem.LabMasters;
 using EMRSystem.LabReports;
@@ -169,12 +170,24 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
               .HasForeignKey(s => s.DepartmentId)
               .OnDelete(DeleteBehavior.NoAction); // or NoAction
 
-
         modelBuilder.Entity<Prescription>()
-              .HasOne(s => s.Doctor)
+              .HasOne(s => s.Department)
               .WithMany(e => e.Prescriptions)
-              .HasForeignKey(s => s.DoctorId)
+              .HasForeignKey(s => s.DepartmentId)
               .OnDelete(DeleteBehavior.NoAction); // or NoAction
+
+
+        modelBuilder.Entity<SelectedEmergencyProcedures>()
+              .HasOne(s => s.EmergencyProcedures)
+              .WithMany(e => e.SelectedEmergencyProcedureses)
+              .HasForeignKey(s => s.EmergencyProcedureId)
+              .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<SelectedEmergencyProcedures>()
+              .HasOne(s => s.Prescriptions)
+              .WithMany(e => e.SelectedEmergencyProcedureses)
+              .HasForeignKey(s => s.PrescriptionId)
+              .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Prescription>()
               .HasOne(s => s.SpecialistDoctor)
@@ -725,6 +738,11 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
             b.HasOne(e => e.EmergencyCase)
             .WithMany(d => d.EmergencyChargeEntries)
             .HasForeignKey(e => e.EmergencyCaseId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(e => e.Prescriptions)
+            .WithMany(d => d.EmergencyChargeEntries)
+            .HasForeignKey(e => e.PrescriptionId)
             .OnDelete(DeleteBehavior.Restrict);
         });
 

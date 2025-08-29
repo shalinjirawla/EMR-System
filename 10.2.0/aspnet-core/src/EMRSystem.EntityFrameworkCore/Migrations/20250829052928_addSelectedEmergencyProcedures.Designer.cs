@@ -4,6 +4,7 @@ using EMRSystem.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EMRSystem.Migrations
 {
     [DbContext(typeof(EMRSystemDbContext))]
-    partial class EMRSystemDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250829052928_addSelectedEmergencyProcedures")]
+    partial class addSelectedEmergencyProcedures
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2188,9 +2191,6 @@ namespace EMRSystem.Migrations
                     b.Property<long?>("PatientId")
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("PrescriptionId")
-                        .HasColumnType("bigint");
-
                     b.Property<long?>("ReferenceId")
                         .HasColumnType("bigint");
 
@@ -2202,8 +2202,6 @@ namespace EMRSystem.Migrations
                     b.HasIndex("EmergencyCaseId");
 
                     b.HasIndex("PatientId");
-
-                    b.HasIndex("PrescriptionId");
 
                     b.ToTable("EmergencyChargeEntry", (string)null);
                 });
@@ -3921,16 +3919,9 @@ namespace EMRSystem.Migrations
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("EMRSystem.Prescriptions.Prescription", "Prescriptions")
-                        .WithMany("EmergencyChargeEntries")
-                        .HasForeignKey("PrescriptionId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.Navigation("EmergencyCase");
 
                     b.Navigation("Patient");
-
-                    b.Navigation("Prescriptions");
                 });
 
             modelBuilder.Entity("EMRSystem.EmergencyProcedure.SelectedEmergencyProcedures", b =>
@@ -3938,13 +3929,13 @@ namespace EMRSystem.Migrations
                     b.HasOne("EMRSystem.EmergencyProcedure.EmergencyProcedure", "EmergencyProcedures")
                         .WithMany("SelectedEmergencyProcedureses")
                         .HasForeignKey("EmergencyProcedureId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("EMRSystem.Prescriptions.Prescription", "Prescriptions")
                         .WithMany("SelectedEmergencyProcedureses")
                         .HasForeignKey("PrescriptionId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("EmergencyProcedures");
@@ -4623,8 +4614,6 @@ namespace EMRSystem.Migrations
 
             modelBuilder.Entity("EMRSystem.Prescriptions.Prescription", b =>
                 {
-                    b.Navigation("EmergencyChargeEntries");
-
                     b.Navigation("Items");
 
                     b.Navigation("LabTests");

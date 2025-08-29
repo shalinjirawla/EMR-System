@@ -3,7 +3,7 @@
 
   <div class="modal-body scrollable-body">
 
-    <!-- Appointment Selection -->
+    <!-- Emergency Selection -->
     <div class="row">
       <div class="col-md-12">
         <label><b>Emergency Cases</b></label>
@@ -46,6 +46,17 @@
       </div>
     </div>
 
+    <!-- Procedures Selection - NEW SECTION -->
+    <div class="row mt-3">
+      <div class="col-md-12">
+        <label><b>Select Procedures (if required)</b></label>
+        <p-multiSelect [(ngModel)]="selectedProcedures" [options]="_procedures" optionLabel="name" optionValue="id"
+          placeholder="Select Procedures" display="chip" class="w-100" name="procedures">
+        </p-multiSelect>
+      </div>
+    </div>
+
+
     <!-- Notes -->
     <div class="row mt-3">
       <div class="col-md-12 d-flex flex-column">
@@ -80,8 +91,9 @@
       </div>
       <div class="col-md-6" *ngIf="_isSpecialDepartMentSelect">
         <label for="doctorSelect">Select Specialize Doctor</label>
-        <p-select id="doctorSelect" [(ngModel)]="prescription.specialistDoctorId" [optionValue]="'id'" name="specialistDoctorId"
-          [options]="departmentWiseDoctor" optionLabel="fullName" placeholder="Select doctor" class="w-100" required />
+        <p-select id="doctorSelect" [(ngModel)]="prescription.specialistDoctorId" [optionValue]="'id'"
+          name="specialistDoctorId" [options]="departmentWiseDoctor" optionLabel="fullName" placeholder="Select doctor"
+          class="w-100" required />
       </div>
     </div>
 
