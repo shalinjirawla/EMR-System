@@ -58,6 +58,30 @@ namespace EMRSystem.Departments
                 ObjectMapper.Map<List<DepartmentDto>>(departments)
             );
         }
+        public async Task<ListResultDto<DepartmentDto>> GetAllDepartmentForDoctorAsync()
+        {
+            var departments = await Repository
+                .GetAll()
+                .Where(x => x.DepartmentType == DepartmentType.Doctor && x.IsActive)
+                .ToListAsync();
+
+            return new ListResultDto<DepartmentDto>(
+                ObjectMapper.Map<List<DepartmentDto>>(departments)
+            );
+        }
+
+        public async Task<ListResultDto<DepartmentDto>> GetAllDepartmentForLabTechnicianAsync()
+        {
+            var departments = await Repository
+                .GetAll()
+                .Where(x => x.DepartmentType == DepartmentType.LabTechnician && x.IsActive)
+                .ToListAsync();
+
+            return new ListResultDto<DepartmentDto>(
+                ObjectMapper.Map<List<DepartmentDto>>(departments)
+            );
+        }
+
 
     }
 }

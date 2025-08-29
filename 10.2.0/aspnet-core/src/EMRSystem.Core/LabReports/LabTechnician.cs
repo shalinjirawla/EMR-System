@@ -1,5 +1,6 @@
 ﻿using Abp.Domain.Entities;
 using EMRSystem.Authorization.Users;
+using EMRSystem.Departments;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,19 +16,13 @@ namespace EMRSystem.LabReports
         public string Gender { get; set; }
         public string Qualification { get; set; }
         public int YearsOfExperience { get; set; }
-        public LabDepartment Department { get; set; }
+        public long DepartmentId { get; set; }
+        public virtual Department Department { get; set; }
         public string CertificationNumber { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public long AbpUserId { get; set; }
         public virtual User AbpUser { get; set; }
     }
 
-    public enum LabDepartment
-    {
-        Pathology,
-        Radiology,
-        Biochemistry,
-        Microbiology,
-        Hematology
-    }
+   
 }

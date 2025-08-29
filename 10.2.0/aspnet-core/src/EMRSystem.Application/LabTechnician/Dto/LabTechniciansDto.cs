@@ -1,5 +1,6 @@
 ﻿using Abp.Application.Services.Dto;
 using EMRSystem.Authorization.Users;
+using EMRSystem.Departments.Dto;
 using EMRSystem.LabReports;
 using EMRSystem.Users.Dto;
 using System;
@@ -18,7 +19,8 @@ namespace EMRSystem.LabTechnician.Dto
         public string Gender { get; set; }
         public string Qualification { get; set; }
         public int YearsOfExperience { get; set; }
-        public LabDepartment Department { get; set; }
+        public long DepartmentId { get; set; }
+        public DepartmentDto Department { get; set; }
         public string CertificationNumber { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public UserDto AbpUser { get; set; }

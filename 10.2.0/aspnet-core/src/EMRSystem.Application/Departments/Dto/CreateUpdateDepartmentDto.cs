@@ -13,6 +13,7 @@ namespace EMRSystem.Departments.Dto
         public int TenantId { get; set; }
 
         public string DepartmentName { get; set; }
+        public DepartmentType? DepartmentType { get; set; }
 
         public bool IsActive { get; set; } = true;
     }
