@@ -270,6 +270,10 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
           doctorId: result.doctorId,
           patientId: result.patientId,
           labTestIds: result.labTestIds || [],
+          isEmergencyPrescription: result.isEmergencyPrescription,
+          departmentId: result.departmentId,
+          specialistDoctorId: result.specialistDoctorId,
+          isSpecialAdviceRequired: result.isSpecialAdviceRequired,
           items: result.items.map(i => {
             const durationParts = i.duration?.split(' ') || ['', ''];
             return {
@@ -288,12 +292,22 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
             };
           })
         };
-
         this.selectedLabTests = this.prescription.labTestIds
           .map(id => this.labTests.find(test => test.id === id))
           .filter(test => test !== undefined);
 
+        if (this.prescription.isSpecialAdviceRequired) {
+          this._isSpecialAdviceRequired = true;
+          if (this.prescription.departmentId) {
+            this._isSpecialDepartMentSelect = true;
+
+            this.departmentWiseDoctor = this.totalDoctorList.filter(
+              x => x.department && x.department.id === this.prescription.departmentId
+            );
+          }
+        }
         this.LoadEmergencyCases();
+        this.cd.detectChanges(); 
       },
       error: (err) => {
         this.notify.error('Could not load prescription details');
@@ -335,9 +349,11 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
       patientId: this.prescription.patientId > 0 ? this.prescription.patientId : null,
       labTestIds: this.selectedLabTests.map(test => test.id),
       emergencyCaseId: this.prescription.emergencyCaseId,
-      isEmergencyPrescription: true
+      isEmergencyPrescription: true,
+      departmentId: this.prescription.departmentId,
+      specialistDoctorId: this.prescription.specialistDoctorId,
+      isSpecialAdviceRequired: this.prescription.isSpecialAdviceRequired,
     });
-
     input.items = this.prescription.items.map(item => {
       const dtoItem = new CreateUpdatePrescriptionItemDto();
       dtoItem.init({
@@ -384,33 +400,32 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
       emergencyCaseId: this.prescription.emergencyCaseId,
       isEmergencyPrescription: true,
       specialistDoctorId: this.prescription.specialistDoctorId,
-      isSpecialAdviceRequired: this.prescription.isSpecialAdviceRequired
+      isSpecialAdviceRequired: this.prescription.isSpecialAdviceRequired,
+      departmentId: this.prescription.departmentId,
     });
-    debugger
-    const data = input;
-    // input.items = this.prescription.items.map(item => {
-    //   const dtoItem = new CreateUpdatePrescriptionItemDto();
-    //   dtoItem.init({
-    //     ...item,
-    //     duration: `${(item as any).durationValue} ${(item as any).durationUnit}`,
-    //     medicineId: item.medicineId // <-- Make sure this is included
-    //   });
-    //   return dtoItem;
-    // });
-    // this._prescriptionService.createPrescriptionWithItem(input).subscribe({
-    //   next: (res) => {
-    //     this.notify.info(this.l('SavedSuccessfully'));
-    //     this.bsModalRef.hide();
-    //     this.onSave.emit();
-    //   },
-    //   error: (err) => {
-    //     this.saving = false;
-    //     this.notify.error('Could not save prescription');
-    //   },
-    //   complete: () => {
-    //     this.saving = false;
-    //   }
-    // });
+    input.items = this.prescription.items.map(item => {
+      const dtoItem = new CreateUpdatePrescriptionItemDto();
+      dtoItem.init({
+        ...item,
+        duration: `${(item as any).durationValue} ${(item as any).durationUnit}`,
+        medicineId: item.medicineId // <-- Make sure this is included
+      });
+      return dtoItem;
+    });
+    this._prescriptionService.createPrescriptionWithItem(input).subscribe({
+      next: (res) => {
+        this.notify.info(this.l('SavedSuccessfully'));
+        this.bsModalRef.hide();
+        this.onSave.emit();
+      },
+      error: (err) => {
+        this.saving = false;
+        this.notify.error('Could not save prescription');
+      },
+      complete: () => {
+        this.saving = false;
+      }
+    });
   }
   GetLoggedInUserRole() {
     this._prescriptionService.getCurrentUserRoles().subscribe(res => {
@@ -440,9 +455,8 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
     this.prescription.specialistDoctorId = null;
   }
   OnSelectDepartMent(event: any) {
-    debugger
     this._isSpecialDepartMentSelect = true;
-    this.prescription.specialistDoctorId=0;
+    this.prescription.specialistDoctorId = 0;
     const departmentId = event.value;
     if (departmentId > 0) {
       this.departmentWiseDoctor = this.totalDoctorList.filter(

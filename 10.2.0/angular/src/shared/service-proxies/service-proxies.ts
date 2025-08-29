@@ -6703,11 +6703,21 @@ export class LabReportResultItemServiceProxy {
     }
 
     /**
+     * @param emergencyCaseId (optional) 
+     * @param isEmergencyCase (optional) 
      * @param body (optional) 
      * @return OK
      */
-    addLabReportResultItem(body: CreateUpdateLabReportResultItemDto[] | undefined): Observable<void> {
-        let url_ = this.baseUrl + "/api/services/app/LabReportResultItem/AddLabReportResultItem";
+    addLabReportResultItem(emergencyCaseId: number | undefined, isEmergencyCase: boolean | undefined, body: CreateUpdateLabReportResultItemDto[] | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/LabReportResultItem/AddLabReportResultItem?";
+        if (emergencyCaseId === null)
+            throw new Error("The parameter 'emergencyCaseId' cannot be null.");
+        else if (emergencyCaseId !== undefined)
+            url_ += "emergencyCaseId=" + encodeURIComponent("" + emergencyCaseId) + "&";
+        if (isEmergencyCase === null)
+            throw new Error("The parameter 'isEmergencyCase' cannot be null.");
+        else if (isEmergencyCase !== undefined)
+            url_ += "isEmergencyCase=" + encodeURIComponent("" + isEmergencyCase) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
