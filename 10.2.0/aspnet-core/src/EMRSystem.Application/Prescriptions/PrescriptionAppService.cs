@@ -301,6 +301,9 @@ namespace EMRSystem.Prescriptions
                     IsFollowUpRequired = x.IsFollowUpRequired,
                     IsEmergencyPrescription = x.IsEmergencyPrescription,
                     EmergencyCaseId = x.EmergencyCaseId,
+                    DepartmentId=x.DepartmentId,
+                    SpecialistDoctorId=x.SpecialistDoctorId,
+                    IsSpecialAdviceRequired=x.IsSpecialAdviceRequired,
                     Patient = x.Patient == null ? null : new Patient
                     {
                         Id = x.Patient.Id,
@@ -398,7 +401,6 @@ namespace EMRSystem.Prescriptions
                 DoctorFullName = prescription.Doctor?.FullName,
                 DoctorSpecialization = prescription.Doctor?.Specialization,
                 DoctorRegistrationNumber = prescription.Doctor?.RegistrationNumber,
-
                 // Medications
                 Items = prescription.Items.Select(i => new PrescriptionItemViewDto
                 {
