@@ -20,7 +20,9 @@ import {
   DepartmentServiceProxy,
   DepartmentDto,
   CreateUpdateDepartmentDto,
+  DepartmentType,
 } from '@shared/service-proxies/service-proxies';
+import { DropdownModule } from 'primeng/dropdown';
 
 @Component({
   selector: 'app-createupdate-department',
@@ -30,6 +32,7 @@ import {
     FormsModule,
     InputTextModule,
     AutoCompleteModule,
+    DropdownModule,
     InputSwitchModule,
     AbpModalHeaderComponent,
     AbpModalFooterComponent,
@@ -38,9 +41,7 @@ import {
   templateUrl: './createupdate-department.component.html',
   styleUrl: './createupdate-department.component.css',
 })
-export class CreateupdateDepartmentComponent
-  extends AppComponentBase
-  implements OnInit
+export class CreateupdateDepartmentComponent extends AppComponentBase implements OnInit
 {
   @ViewChild('departmentForm', { static: true }) departmentForm: NgForm;
   @Output() onSave = new EventEmitter<void>();
@@ -49,12 +50,14 @@ export class CreateupdateDepartmentComponent
   id?: number;
 
   // Update mode
-  department: Partial<DepartmentDto> = { departmentName: '', isActive: true };
-
-  // Bulk create mode
+  department: CreateUpdateDepartmentDto = new CreateUpdateDepartmentDto();
+  departmentNames: string[] = [];
   selectedDepartmentNames: string[] = [];
-  filteredDepartmentNames: string[] = [];
-  departmentNameMasterList: string[] = [];
+
+  departmentTypes = [
+    { label: 'Doctor', value: DepartmentType._0 },
+    { label: 'Lab Technician', value: DepartmentType._1},
+  ];
 
   isActive: boolean = true;
 
@@ -89,12 +92,7 @@ export class CreateupdateDepartmentComponent
     }
   }
 
-  filterDepartmentNames(event: { query: string }): void {
-    const q = event.query.toLowerCase();
-    this.filteredDepartmentNames = this.departmentNameMasterList.filter((name) =>
-      name.toLowerCase().includes(q)
-    );
-  }
+ 
 
   save(): void {
     if (!this.isFormValid) {
@@ -111,6 +109,7 @@ export class CreateupdateDepartmentComponent
       input.tenantId = this.appSession.tenantId;
       input.departmentName = this.department.departmentName!;
       input.isActive = this.isActive;
+      input.departmentType = this.department.departmentType!;
 debugger
       this._departmentService.update(input).subscribe({
         next: () => {
@@ -128,9 +127,10 @@ debugger
         dto.tenantId = this.appSession.tenantId;
         dto.departmentName = name;
         dto.isActive = this.isActive;
+        dto.departmentType = this.department.departmentType!;
         return dto;
       });
-
+debugger
       this._departmentService.createBulk(inputs).subscribe({
         next: () => {
           this.notify.success(this.l('SavedSuccessfully'));

@@ -114,6 +114,12 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
                 .WithMany(e => e.LabTechnicians)
                 .HasForeignKey(s => s.AbpUserId)
                 .OnDelete(DeleteBehavior.NoAction); // or NoAction
+        modelBuilder.Entity<LabTechnician>()
+                .HasOne(lt => lt.Department)
+                .WithMany(dep => dep.LabTechnicians) // agar Department entity me ICollection<LabTechnician> add kiya hai
+                .HasForeignKey(lt => lt.DepartmentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
 
         modelBuilder.Entity<Nurse>()
               .HasOne(s => s.AbpUser)
@@ -663,7 +669,8 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
             // Unique emergency number
             b.HasIndex(e => e.EmergencyNumber).IsUnique();
         });
-
+        
+        
         modelBuilder.Entity<Triage>(b =>
         {
             b.ToTable("Triages");

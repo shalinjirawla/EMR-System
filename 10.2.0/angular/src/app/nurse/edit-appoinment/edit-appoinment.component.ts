@@ -97,6 +97,7 @@ export class EditAppoinmentComponent extends AppComponentBase implements OnInit 
       this.appointment.appointmentDate = result.appointmentDate ? moment(result.appointmentDate).toDate() : null;
       this.appointment.reasonForVisit = result.reasonForVisit;
       this.appointment.appointmentTypeId = result.appointmentTypeId;
+      this.appointment.isPaid = result.isPaid;
       this.cd.detectChanges();
     });
   }
@@ -199,10 +200,10 @@ export class EditAppoinmentComponent extends AppComponentBase implements OnInit 
     const selectedDate = moment(this.appointment.appointmentDate).startOf('day');
     const today = moment().startOf('day');
 
-    if (!selectedDate.isAfter(today)) {
-      this.message.warn("Appointment date must be in the future (not today).");
-      return false;
-    }       
+    // if (!selectedDate.isAfter(today)) {
+    //   this.message.warn("Appointment date must be in the future (not today).");
+    //   return false;
+    // }       
     return true;
   }
   validateAppointmentDate(): boolean {

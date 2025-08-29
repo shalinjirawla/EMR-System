@@ -205,6 +205,7 @@ namespace EMRSystem.Appointments
                   //EndTime = x.EndTime,
                   ReasonForVisit = x.ReasonForVisit,
                   Status = x.Status,
+                  IsPaid = x.IsPaid,
                   IsFollowUp = x.IsFollowUp,
                   PatientId = x.PatientId,
                   DoctorId = x.DoctorId,
@@ -447,6 +448,7 @@ namespace EMRSystem.Appointments
         public async Task UpdateAppoinment(CreateUpdateAppointmentDto input)
         {
             var appointment = ObjectMapper.Map<Appointment>(input);
+            //appointment.IsPaid = input.IsPaid;
             await Repository.UpdateAsync(appointment);
             CurrentUnitOfWork.SaveChanges();
         }

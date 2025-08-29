@@ -1,5 +1,6 @@
 ﻿using Abp.Domain.Entities;
 using EMRSystem.Doctors;
+using EMRSystem.LabReports;
 using EMRSystem.Prescriptions;
 using EMRSystem.Visits;
 using System;
@@ -14,10 +15,16 @@ namespace EMRSystem.Departments
     {
         public int TenantId { get; set; }
         public string DepartmentName { get; set; }
-
+        public DepartmentType? DepartmentType { get; set; }
         public bool IsActive { get; set; } = true;
         public virtual ICollection<Doctor> Doctors { get; set; }
         public ICollection<Prescription> Prescriptions { get; set; }
+        public virtual ICollection<LabTechnician> LabTechnicians { get; set; }
 
+    }
+    public enum DepartmentType
+    {
+        Doctor,
+        LabTechnician
     }
 }

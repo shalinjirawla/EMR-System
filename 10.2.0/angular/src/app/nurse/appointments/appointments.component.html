@@ -137,49 +137,57 @@
                                         </p>
                                     </td>
                                     <td>
-                                        <p-tag 
-                                          [value]="getStatusLabel(record.status)" 
-                                          [severity]="getStatusSeverity(record.status)" [rounded]="true">
+                                        <p-tag [value]="getStatusLabel(record.status)"
+                                            [severity]="getStatusSeverity(record.status)" [rounded]="true">
                                         </p-tag>
-                                      </td>
-                                      
-                                      <td>
-                                        <p-tag 
-                                          *ngIf="record.isPaid; else unpaidTag" 
-                                          value="Paid" 
-                                          severity="success" [rounded]="true">
+                                    </td>
+
+                                    <td>
+                                        <p-tag *ngIf="record.isPaid; else unpaidTag" value="Paid" severity="success"
+                                            [rounded]="true">
                                         </p-tag>
                                         <ng-template #unpaidTag>
-                                          <p-tag value="Unpaid" severity="danger" [rounded]="true"></p-tag>
+                                            <p-tag value="Unpaid" severity="danger" [rounded]="true"></p-tag>
                                         </ng-template>
-                                      </td>
-                                      
-                                      
-                                    <td  *ngIf="record.status !== 3 || !record.patient.isAdmitted">
+                                    </td>
+
+
+                                    <td>
                                         <button type="button" pButton icon="pi pi-ellipsis-v" class="p-button-text"
                                             (click)="rowMenu.toggle($event); selectedRecord = record">
                                         </button>
-                                        <p-overlayPanel #rowMenu class="custom-overlay" [dismissable]="true">
+
+                                        <p-overlayPanel #rowMenu [dismissable]="true">
                                             <ul class="custom-overlay-menu">
-                                                <li *ngIf="record.status !== 3" (click)="editAppoinment(selectedRecord)">
+
+                                                <!-- Edit -->
+                                                <li *ngIf="canEdit(record)" (click)="editAppoinment(selectedRecord)">
                                                     <i class="pi pi-pencil"></i> Edit
                                                 </li>
-                                                <li *ngIf="!record.patient.isAdmitted" (click)="viewReceipt(selectedRecord)">
+
+                                                <!-- View Receipt -->
+                                                <li *ngIf="canViewReceipt(record)"
+                                                    (click)="viewReceipt(selectedRecord)">
                                                     <i class="pi pi-file"></i> View Receipt
                                                 </li>
-                                                <li *ngIf="!record.isPaid" (click)="makePayment(record)">
+
+                                                <!-- Pay Now -->
+                                                <li *ngIf="canPay(record)" (click)="makePayment(selectedRecord)">
                                                     <i class="pi pi-credit-card"></i> Pay Now
                                                 </li>
-                                                <!-- <li (click)="delete(selectedRecord)">
-                                                    <i class="pi pi-trash"></i> Delete
-                                                </li> -->
-                                                <li *ngIf="record.status !== 3" (click)="changeStatusofAppoinment(record.id,4)">
+
+                                                <!-- Cancel -->
+                                                <li *ngIf="canCancel(record)"
+                                                    (click)="changeStatusofAppoinment(record.id,4)">
                                                     <i class="pi pi-times"></i> Cancel
                                                 </li>
+
                                             </ul>
                                         </p-overlayPanel>
                                     </td>
-                                    <td *ngIf="record.status === 3"></td> 
+
+
+                                    <td *ngIf="record.status === 3"></td>
 
                                 </tr>
                             </ng-template>

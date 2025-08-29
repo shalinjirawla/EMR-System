@@ -53,7 +53,7 @@ export class EditDoctorComponent implements OnInit, OnChanges {
     }
   }
   loadDepartments(): void {
-    this._departmentService.getAllDepartmentForDropdown().subscribe(res => {
+    this._departmentService.getAllDepartmentForDoctor().subscribe(res => {
       this.departments = res.items;
 
       if (this.doctorData.departmentId) {

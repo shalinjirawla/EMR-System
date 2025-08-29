@@ -184,4 +184,24 @@ makePayment(appointment: AppointmentDto): void {
       this.cd.detectChanges();
     })
   }
+
+  canEdit(record: any): boolean {
+  return record.status === 0 || record.status === 1 || 
+         (record.status === 4) || 
+         (record.patient.isAdmitted && (record.status === 0 || record.status === 1 || record.status === 4));
+}
+
+canViewReceipt(record: any): boolean {
+  return record.isPaid && !record.patient.isAdmitted && 
+         ((record.status === 0 || record.status === 1) || record.status === 4 || record.status === 3);
+}
+
+canPay(record: any): boolean {
+  return !record.isPaid && (record.status === 0 || record.status === 1) && !record.patient.isAdmitted;
+}
+
+canCancel(record: any): boolean {
+  return (record.status === 0 || record.status === 1) && !record.patient.isAdmitted;
+}
+
 }
