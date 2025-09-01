@@ -4,6 +4,7 @@ using EMRSystem.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EMRSystem.Migrations
 {
     [DbContext(typeof(EMRSystemDbContext))]
-    partial class EMRSystemDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250901055301_addConsultationRequests")]
+    partial class addConsultationRequests
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1993,7 +1996,7 @@ namespace EMRSystem.Migrations
                     b.Property<string>("Notes")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long?>("PrescriptionId")
+                    b.Property<long?>("PatientId")
                         .HasColumnType("bigint");
 
                     b.Property<long?>("RequestedSpecialistId")
@@ -2010,9 +2013,7 @@ namespace EMRSystem.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PrescriptionId")
-                        .IsUnique()
-                        .HasFilter("[PrescriptionId] IS NOT NULL");
+                    b.HasIndex("PatientId");
 
                     b.HasIndex("RequestedSpecialistId");
 
@@ -3891,9 +3892,9 @@ namespace EMRSystem.Migrations
 
             modelBuilder.Entity("EMRSystem.Doctors.ConsultationRequests", b =>
                 {
-                    b.HasOne("EMRSystem.Prescriptions.Prescription", "Prescriptions")
-                        .WithOne("Consultation_Requests")
-                        .HasForeignKey("EMRSystem.Doctors.ConsultationRequests", "PrescriptionId")
+                    b.HasOne("EMRSystem.Patients.Patient", "Patients")
+                        .WithMany("Consultation_Requests")
+                        .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("EMRSystem.Doctors.Doctor", "RequestedSpecialist")
@@ -3906,7 +3907,7 @@ namespace EMRSystem.Migrations
                         .HasForeignKey("RequestingDoctorId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.Navigation("Prescriptions");
+                    b.Navigation("Patients");
 
                     b.Navigation("RequestedSpecialist");
 
@@ -4685,6 +4686,8 @@ namespace EMRSystem.Migrations
 
                     b.Navigation("Appointments");
 
+                    b.Navigation("Consultation_Requests");
+
                     b.Navigation("EmergencyCases");
 
                     b.Navigation("EmergencyChargeEntries");
@@ -4708,8 +4711,6 @@ namespace EMRSystem.Migrations
 
             modelBuilder.Entity("EMRSystem.Prescriptions.Prescription", b =>
                 {
-                    b.Navigation("Consultation_Requests");
-
                     b.Navigation("EmergencyChargeEntries");
 
                     b.Navigation("Items");

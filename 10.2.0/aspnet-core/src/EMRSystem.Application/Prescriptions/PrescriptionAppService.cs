@@ -45,12 +45,13 @@ namespace EMRSystem.Prescriptions
         private readonly IRepository<EMRSystem.EmergencyChargeEntries.EmergencyChargeEntry, long> _emergencyChargeEntriesRepository;
         private readonly IRepository<EMRSystem.DoctorMaster.DoctorMaster, long> _doctorMasterRepository;
         private readonly IRepository<EMRSystem.EmergencyProcedure.EmergencyProcedure, long> _emergencyProcedureRepository;
+        private readonly IRepository<EMRSystem.Doctors.ConsultationRequests, long> _consultationRequestsRepository;
 
         private readonly UserManager _userManager;
         public PrescriptionAppService(IRepository<Prescription, long> repository
             , IDoctorAppService doctorAppService, UserManager userManager, IRepository<Appointment, long> appointmentRepository,
             IRepository<Patient, long> patientRepository, IRepository<EMRSystem.LabReports.PrescriptionLabTest, long> prescriptionLabTestRepository
-            , IRepository<EmergencyChargeEntries.EmergencyChargeEntry, long> emergencyChargeEntriesRepository, IRepository<DoctorMaster.DoctorMaster, long> doctorMasterRepository, IRepository<EmergencyProcedure.EmergencyProcedure, long> emergencyProcedureRepository) : base(repository)
+            , IRepository<EmergencyChargeEntries.EmergencyChargeEntry, long> emergencyChargeEntriesRepository, IRepository<DoctorMaster.DoctorMaster, long> doctorMasterRepository, IRepository<EmergencyProcedure.EmergencyProcedure, long> emergencyProcedureRepository, IRepository<Doctors.ConsultationRequests, long> consultationRequestsRepository) : base(repository)
         {
             _doctorAppService = doctorAppService;
             _userManager = userManager;
@@ -60,6 +61,7 @@ namespace EMRSystem.Prescriptions
             _emergencyChargeEntriesRepository = emergencyChargeEntriesRepository;
             _doctorMasterRepository = doctorMasterRepository;
             _emergencyProcedureRepository = emergencyProcedureRepository;
+            _consultationRequestsRepository = consultationRequestsRepository;
         }
         protected override IQueryable<Prescription> CreateFilteredQuery(PagedPrescriptionResultRequestDto input)
         {
@@ -168,6 +170,7 @@ namespace EMRSystem.Prescriptions
                     .Select(itm => ObjectMapper.Map<SelectedEmergencyProcedures>(itm))
                     .ToList();
             }
+
             // Save prescription (to get Id)
             await Repository.InsertAsync(prescription);
             await CurrentUnitOfWork.SaveChangesAsync(); // Needed to get prescription.Id
@@ -235,6 +238,11 @@ namespace EMRSystem.Prescriptions
                 await _appointmentRepository.UpdateAsync(appointment);
             }
 
+            if (input.IsSpecialAdviceRequired)
+            {
+                input.CreateUpdateConsultationRequests.PrescriptionId = prescription.Id;
+                await CreateConsultationRequest(input.CreateUpdateConsultationRequests);
+            }
             await CurrentUnitOfWork.SaveChangesAsync();
         }
 
@@ -327,6 +335,12 @@ namespace EMRSystem.Prescriptions
             await Repository.UpdateAsync(existingPrescription);
             await CurrentUnitOfWork.SaveChangesAsync();
 
+            if (input.IsSpecialAdviceRequired)
+            {
+                input.CreateUpdateConsultationRequests.PrescriptionId = existingPrescription.Id;
+                await CreateConsultationRequest(input.CreateUpdateConsultationRequests);
+            }
+
             await CreateUpdateCharges(input, input.Id, false);
 
         }
@@ -338,6 +352,7 @@ namespace EMRSystem.Prescriptions
                 x => x.Doctor,
                 x => x.Appointment,
                 x => x.LabTests,
+                x => x.Consultation_Requests,
                 x => x.SelectedEmergencyProcedureses,
                 x => x.Items); // Don't forget to include Items if needed
 
@@ -393,16 +408,26 @@ namespace EMRSystem.Prescriptions
                         Id = lt.Id,
                         EmergencyProcedureId = lt.EmergencyProcedureId,
                         PrescriptionId = lt.PrescriptionId,
-                    }).ToList()
+                    }).ToList(),
+                    Consultation_Requests = x.Consultation_Requests == null ? null : new EMRSystem.Doctors.ConsultationRequests
+                    {
+                        Id = x.Consultation_Requests.Id,
+                        PrescriptionId = x.Id,
+                        RequestingDoctorId=x.Consultation_Requests.RequestingDoctor.Id,
+                        RequestedSpecialistId=x.Consultation_Requests.RequestedSpecialist.Id,
+                        Status = x.Consultation_Requests.Status,
+                        Notes = x.Consultation_Requests.Notes,
+                        AdviceResponse = x.Consultation_Requests.AdviceResponse,
+                    },
                 })
                 .FirstOrDefaultAsync();
-
             if (details == null)
             {
                 throw new EntityNotFoundException(typeof(Prescription), id);
             }
 
             var prescription = ObjectMapper.Map<CreateUpdatePrescriptionDto>(details);
+            prescription.CreateUpdateConsultationRequests= ObjectMapper.Map<CreateUpdateConsultationRequestsDto>(details.Consultation_Requests);
             prescription.LabTestIds = details.LabTests.Select(lt => (int)lt.LabReportsTypeId).ToList();
 
             return prescription;
@@ -593,6 +618,19 @@ namespace EMRSystem.Prescriptions
                         await _emergencyChargeEntriesRepository.InsertAsync(chargeEntry);
                     }
                 }
+            }
+        }
+
+        public async Task CreateConsultationRequest(CreateUpdateConsultationRequestsDto requestsDto)
+        {
+            var mappedEntity = ObjectMapper.Map<EMRSystem.Doctors.ConsultationRequests>(requestsDto);
+            if (requestsDto.Id > 0)
+            {
+                await _consultationRequestsRepository.UpdateAsync(mappedEntity);
+            }
+            else
+            {
+                await _consultationRequestsRepository.InsertAsync(mappedEntity);
             }
         }
     }

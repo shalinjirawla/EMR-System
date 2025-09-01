@@ -79,6 +79,7 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
     public DbSet<EMRSystem.Emergency.EmergencyMaster.EmergencyMaster> EmergencyMaster { get; set; }
     public DbSet<EmergencyChargeEntry> EmergencyChargeEntry { get; set; }
     public DbSet<EMRSystem.EmergencyProcedure.EmergencyProcedure> EmergencyProcedures { get; set; }
+    public DbSet<EMRSystem.Doctors.ConsultationRequests> ConsultationRequests { get; set; }
 
 
 
@@ -109,6 +110,24 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
                 .WithMany(dep => dep.Doctors)
                 .HasForeignKey(d => d.DepartmentId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Prescription>()
+               .HasOne(d => d.Consultation_Requests)
+               .WithOne(dep => dep.Prescriptions)
+               .HasForeignKey<ConsultationRequests>(c => c.PrescriptionId)
+               .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ConsultationRequests>()
+               .HasOne(d => d.RequestingDoctor)
+               .WithMany(dep => dep.RequestingDoctor_Consultation_Requests)
+               .HasForeignKey(d => d.RequestingDoctorId)
+               .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ConsultationRequests>()
+              .HasOne(d => d.RequestedSpecialist)
+              .WithMany(dep => dep.RequestedSpecialist_Consultation_Requests)
+              .HasForeignKey(d => d.RequestedSpecialistId)
+              .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<LabTechnician>()
                 .HasOne(s => s.AbpUser)

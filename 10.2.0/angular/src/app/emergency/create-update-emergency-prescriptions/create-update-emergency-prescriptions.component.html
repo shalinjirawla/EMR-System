@@ -1,5 +1,6 @@
 <form class="form-horizontal" autocomplete="off" #emergencyPrescriptionForm="ngForm" (ngSubmit)="save()">
-  <abp-modal-header title="Create Emergency Prescription" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
+  <abp-modal-header [title]="id>0?'Edit Emergency Prescription':'Create Emergency Prescription'"
+    (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
 
   <div class="modal-body scrollable-body">
 
@@ -96,7 +97,14 @@
           class="w-100" required />
       </div>
     </div>
-
+    <!-- notes for specialist Doctor -->
+    <div class="row mt-3" *ngIf="_isSpecialDepartMentSelect">
+      <div class="col-md-12 d-flex flex-column">
+        <label>Notes for Specialist Doctor</label>
+        <textarea pTextarea [(ngModel)]="prescription.createUpdateConsultationRequests.notes" name="notes" rows="2"
+          class="w-100" placeholder="Enter notes"></textarea>
+      </div>
+    </div>
 
     <!-- Prescription Items -->
     <div class="row mt-4">
