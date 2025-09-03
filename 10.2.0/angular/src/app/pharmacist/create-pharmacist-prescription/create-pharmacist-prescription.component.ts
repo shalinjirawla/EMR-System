@@ -92,43 +92,44 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
   }
 
   save() {
-    if (!this.createPharmacistPrescriptionForm.valid) {
-      return;
-    }
+    //   if (!this.createPharmacistPrescriptionForm.valid) {
+    //     return;
+    //   }
 
-    this.isSaving = true;
+    //   this.isSaving = true;
 
-    const input = new CreateLabTestReceiptDto({
-      tenantId: abp.session.tenantId,
-      patientId: this.selectedPatient,
-      labTestSource: this.labTestSource,
-      prescriptionId: this.labTestSource === LabTestSource._0 ? this.selectedPrescription : undefined,
-      paymentMethod: this.paymentMethod,
-      totalAmount: this.selectedTestsTotalPrice
-    });
+    //   const input = new CreateLabTestReceiptDto({
+    //     tenantId: abp.session.tenantId,
+    //     patientId: this.selectedPatient,
+    //     labTestSource: this.labTestSource,
+    //     prescriptionId: this.labTestSource === LabTestSource._0 ? this.selectedPrescription : undefined,
+    //     paymentMethod: this.paymentMethod,
+    //     totalAmount: this.selectedTestsTotalPrice
+    //   });
 
-    if (this.paymentMethod === PaymentMethod._0) {
-      // Cash -> direct create
-      this.labReceiptService.createLabTestReceipt(input).subscribe({
-        next: () => {
-          this.notify.success('Lab receipt created successfully!');
-          this.onSave.emit();
-          this.bsModalRef.hide();
-        },
-        error: () => this.isSaving = false
-      });
-    } else {
-      // Card -> create Stripe Checkout Session
-      this.labReceiptService.createStripeCheckoutSession(input).subscribe({
+    //   if (this.paymentMethod === PaymentMethod._0) {
+    //     // Cash -> direct create
+    //     this.labReceiptService.createLabTestReceipt(input).subscribe({
+    //       next: () => {
+    //         this.notify.success('Lab receipt created successfully!');
+    //         this.onSave.emit();
+    //         this.bsModalRef.hide();
+    //       },
+    //       error: () => this.isSaving = false
+    //     });
+    //   } else {
+    //     // Card -> create Stripe Checkout Session
+    //     this.labReceiptService.createStripeCheckoutSession(input).subscribe({
 
-        next: (sessionUrl) => {
-          debugger
-          window.location.href = sessionUrl; // redirect to Stripe
-        },
-        error: () => this.isSaving = false
-      });
-    }
+    //       next: (sessionUrl) => {
+    //         debugger
+    //         window.location.href = sessionUrl; // redirect to Stripe
+    //       },
+    //       error: () => this.isSaving = false
+    //     });
+    //   }
   }
+
   getPrescriptionTotal(): number {
     if (!this.selectedPrescriptionItem || !this.selectedPrescriptionItem.length) {
       return 0;
