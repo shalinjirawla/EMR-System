@@ -1,4 +1,5 @@
 ﻿using Abp.Application.Services.Dto;
+using EMRSystem.Departments.Dto;
 using EMRSystem.Doctor.Dto;
 using EMRSystem.Nurse.Dto;
 using EMRSystem.Patients.Dto;
@@ -24,6 +25,8 @@ namespace EMRSystem.Appointments.Dto
         public bool IsFollowUp { get; set; }
         public long AppointmentTypeId { get; set; }
         public bool IsPaid { get; set; }
+        public long DepartmentId { get; set; }
+        public DepartmentDto Department { get; set; }
 
         public virtual EMRSystem.AppointmentType.AppointmentType AppointmentType { get; set; }
         public PatientDto Patient { get; set; }

@@ -105,6 +105,7 @@ invoice = {
     this._patientService.get(patientId).subscribe(patient => {
       if (patient.isAdmitted) {
         this.showInvoiceTypeDropdown = true;
+        this.selectedInvoiceType=undefined;
         this.invoice.items = [];
       } else {
         this.showInvoiceTypeDropdown = false;
@@ -130,8 +131,10 @@ invoice = {
           item.unitPrice = c.amount;
           item.quantity = 1;
           (item as any).isRemovable = false;
+          (item as any).entryDate = c.entryDate;
           return item;
         });
+        this.cd.detectChanges();
       });
   }
 
@@ -147,6 +150,7 @@ invoice = {
     item.description = this.newItem.description;
     item.unitPrice = this.newItem.unitPrice;
     item.quantity = this.newItem.quantity;
+    item.entryDate = moment(); 
     (item as any).isRemovable = true;
     this.invoice.items.push(item);
 

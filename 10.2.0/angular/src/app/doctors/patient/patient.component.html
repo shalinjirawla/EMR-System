@@ -142,7 +142,7 @@
                                             {{calculateAge(record.dateOfBirth)}} • {{record.gender}}
                                         </span>
                                     </td>
-                                     <td *ngIf="showDoctorColumn">
+                                    <td *ngIf="showDoctorColumn">
                                         <span>
                                             {{ record.doctorName }}
                                         </span>
@@ -163,6 +163,9 @@
                                         </button>
                                         <p-overlayPanel #rowMenu class="custom-overlay" [dismissable]="true">
                                             <ul class="custom-overlay-menu">
+                                                <li (click)="showCreatePrescriptionDialog(selectedRecord)">
+                                                    <i class="pi pi-file-medical"></i> Create Prescription
+                                                </li>
                                                 <li (click)="showPatientDetailsDialog(selectedRecord.id)">
                                                     <i class="pi pi-eye"></i> View
                                                 </li>

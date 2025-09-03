@@ -1,10 +1,10 @@
-import { ChangeDetectorRef, Component, Injector, OnInit, Output, ViewChild, EventEmitter } from '@angular/core';
+import { ChangeDetectorRef, Component, Injector, OnInit, Output, ViewChild, EventEmitter, Input } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
-import { AppointmentServiceProxy, CreateUpdatePrescriptionItemDto, LabReportsTypeServiceProxy, PharmacistInventoryDtoPagedResultDto, PharmacistInventoryServiceProxy, PrescriptionItemDto, PrescriptionServiceProxy, PatientDropDownDto } from '@shared/service-proxies/service-proxies';
+import { AppointmentServiceProxy, CreateUpdatePrescriptionItemDto, LabReportsTypeServiceProxy, PharmacistInventoryDtoPagedResultDto, PharmacistInventoryServiceProxy, PrescriptionItemDto, PrescriptionServiceProxy, PatientDropDownDto, EmergencyProcedureServiceProxy, EmergencyProcedureDto, CreateUpdateSelectedEmergencyProceduresDto } from '@shared/service-proxies/service-proxies';
 import { AbpModalHeaderComponent } from '../../../shared/components/modal/abp-modal-header.component';
 import { AbpModalFooterComponent } from '../../../shared/components/modal/abp-modal-footer.component';
 import { AppComponentBase } from '../../../shared/app-component-base';
@@ -29,11 +29,15 @@ import { CreateUserDialogComponent } from '@app/users/create-user/create-user-di
   ],
   templateUrl: './create-prescriptions.component.html',
   styleUrls: ['./create-prescriptions.component.css'],
-  providers: [DoctorServiceProxy, PatientServiceProxy, PharmacistInventoryServiceProxy, LabReportsTypeServiceProxy, AppointmentServiceProxy, AppSessionService, PrescriptionServiceProxy]
+  providers: [DoctorServiceProxy, EmergencyProcedureServiceProxy, PatientServiceProxy, PharmacistInventoryServiceProxy, LabReportsTypeServiceProxy, AppointmentServiceProxy, AppSessionService, PrescriptionServiceProxy]
 })
 export class CreatePrescriptionsComponent extends AppComponentBase implements OnInit {
   @ViewChild('prescriptionForm', { static: true }) prescriptionForm: NgForm;
   @Output() onSave = new EventEmitter<void>();
+  @Input() selectedPatient: PatientDto | undefined;   // <-- patient preselect
+
+  procedures: any[] = [];
+  selectedProcedures: number[] = [];
   saving = false;
   patients!: PatientDropDownDto[];
   appointments!: AppointmentDto[];
@@ -83,6 +87,7 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
     public bsModalRef: BsModalRef,
     private cd: ChangeDetectorRef,
     private _doctorService: DoctorServiceProxy,
+    private _procedureService: EmergencyProcedureServiceProxy,
     private _patientService: PatientServiceProxy,
     private _appointmentService: AppointmentServiceProxy,
     private _sessionService: AppSessionService,
@@ -103,6 +108,24 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
     this.LoadPatients();
     this.LoadLabReports();
     this.loadMedicines();
+    this.loadProcedures();
+    if (this.selectedPatient) {
+      this.prescription.patientId = this.selectedPatient.id;
+
+      if (this.selectedPatient.isAdmitted) {
+        this.prescription.appointmentId = null;   // no appointment
+      } else {
+        this.LoadAppoinments();
+      }
+    }
+  }
+  loadProcedures() {
+    this._procedureService.getEmergencyProcedureList().subscribe(res => {
+      this.procedures = res.map(x => ({
+        label: x.name,
+        value: x.id
+      }));
+    });
   }
   loadDoctors() {
     this._doctorService.getAllDoctorsByTenantID(abp.session.tenantId).subscribe(res => {
@@ -180,6 +203,11 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
       }, error: (err) => {
       }
     });
+  }
+  isPatientAdmitted(): boolean {
+    if (!this.prescription.patientId) return false;
+    const patient = this.patients?.find(p => p.id === this.prescription.patientId);
+    return patient?.isAdmitted === true;
   }
 
   LoadAppoinments() {
@@ -284,7 +312,6 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
     }
     this.saving = true;
 
-    // Create a proper DTO instance for the prescription
     const input = new CreateUpdatePrescriptionDto();
     input.init({
       tenantId: this.prescription.tenantId,
@@ -292,23 +319,42 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
       notes: this.prescription.notes,
       issueDate: this.prescription.issueDate,
       isFollowUpRequired: this.prescription.isFollowUpRequired,
-      appointmentId: this.prescription.appointmentId,
-      doctorId: this.isAdmin ? this.prescription.doctorId : this.doctorID,
-      patientId: this.prescription.patientId,
-      labTestIds: this.selectedLabTests.map(test => test.id || test)
+      appointmentId: this.prescription.appointmentId > 0 ? this.prescription.appointmentId : undefined,
+      doctorId: this.isAdmin
+        ? (this.prescription.doctorId > 0 ? this.prescription.doctorId : undefined)
+        : this.doctorID,
+      patientId: this.prescription.patientId > 0 ? this.prescription.patientId : undefined,
+      labTestIds: this.selectedLabTests
+        .filter(test => (test.id || test) > 0) // sirf valid id bhej
+        .map(test => test.id || test)
     });
 
-    // Prepare items properly
-    input.items = this.prescription.items.map(item => {
-      const dtoItem = new CreateUpdatePrescriptionItemDto();
-      dtoItem.init({
-        ...item,
-        duration: `${(item as any).durationValue} ${(item as any).durationUnit}`,
-        medicineId: item.medicineId // <-- Make sure this is included
+    // Items mapping
+    input.items = this.prescription.items
+      .filter(item => item.medicineId > 0) // sirf medicineId > 0 hone wale bhej
+      .map(item => {
+        const dtoItem = new CreateUpdatePrescriptionItemDto();
+        dtoItem.init({
+          ...item,
+          duration: `${(item as any).durationValue} ${(item as any).durationUnit}`,
+          medicineId: item.medicineId
+        });
+        return dtoItem;
       });
-      return dtoItem;
-    });
-    debugger
+
+    // Emergency Procedures mapping
+    input.emergencyProcedures = this.selectedProcedures
+      .filter(procId => procId > 0) // sirf valid id bhej
+      .map(procId => {
+        const dto = new CreateUpdateSelectedEmergencyProceduresDto();
+        dto.init({
+          tenantId: this.prescription.tenantId,
+          prescriptionId: 0, // backend set karega
+          emergencyProcedureId: procId
+        });
+        return dto;
+      });
+      debugger
     this._prescriptionService.createPrescriptionWithItem(input).subscribe({
       next: (res) => {
         this.notify.info(this.l('SavedSuccessfully'));
@@ -324,6 +370,7 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
       }
     });
   }
+
   showCreatePatientDialog(id?: number): void {
     let createOrEditPatientDialog: BsModalRef;
     createOrEditPatientDialog = this._modalService.show(CreateUserDialogComponent, {

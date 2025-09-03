@@ -405,6 +405,26 @@
     background: #27ae60;
     color: white;
 }
+.procedures-section {
+  padding: 12px;
+}
+
+.procedures-list {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0 0;
+}
+
+.procedures-list li {
+  padding: 6px 0;
+  border-bottom: 1px dashed #ddd;
+  font-size: 13px;
+}
+
+.procedures-list i {
+  margin-right: 8px;
+  color: #e74c3c; /* red icon for emergency look */
+}
 
 /* Print Styles */
 @media print {

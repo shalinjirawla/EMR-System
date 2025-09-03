@@ -16,6 +16,7 @@ import { PatientProfileComponent } from '@app/patient/patient-profile/patient-pr
 import { OverlayPanel, OverlayPanelModule } from 'primeng/overlaypanel';
 import { MenuModule } from 'primeng/menu';
 import { ButtonModule } from 'primeng/button';
+import { CreatePrescriptionsComponent } from '../create-prescriptions/create-prescriptions.component';
 @Component({
     selector: 'app-patient',
     imports: [FormsModule, TableModule, ButtonModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, OverlayPanelModule, MenuModule],
@@ -91,6 +92,20 @@ export class PatientComponent extends PagedListingComponentBase<PatientDto> impl
             }
         });
     }
+    showCreatePrescriptionDialog(patient: PatientDto): void {
+  let createPrescriptionDialog: BsModalRef;
+debugger
+  createPrescriptionDialog = this._modalService.show(CreatePrescriptionsComponent, {
+    class: 'modal-xl',
+    initialState: {
+      selectedPatient: patient   // 👈 patient को pass कर रहे हैं
+    },
+  });
+
+  createPrescriptionDialog.content.onSave.subscribe(() => {
+    this.refresh();
+  });
+}
     showCreatePatientDialog(id?: number): void {
         let createOrEditPatientDialog: BsModalRef;
         if (!id) {
