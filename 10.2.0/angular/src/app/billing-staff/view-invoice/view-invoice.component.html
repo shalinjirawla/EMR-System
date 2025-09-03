@@ -40,6 +40,7 @@
                 <thead>
                     <tr>
                         <th width="60%">Description</th>
+                        <th width="60%">Date</th>
                         <th width="20%">Qty</th>
                         <th width="20%">Amount (₹)</th>
                     </tr>
@@ -47,6 +48,7 @@
                 <tbody>
                     <tr *ngFor="let item of invoice.items">
                         <td>{{ item.description }}</td>
+                        <td>{{ item.entryDate|date:'dd/MM/yyyy'}}</td>
                         <td>{{ item.quantity }}</td>
                         <td>{{ item.unitPrice | number:'1.2-2' }}</td>
                     </tr>

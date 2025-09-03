@@ -1,16 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Abp.Authorization.Users;
+﻿using Abp.Authorization.Users;
 using Abp.Domain.Entities;
 using Abp.Domain.Entities.Auditing;
 using EMRSystem.Authorization.Users;
+using EMRSystem.Departments;
 using EMRSystem.Doctors;
 using EMRSystem.Nurses;
 using EMRSystem.Patients;
 using EMRSystem.Prescriptions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace EMRSystem.Appointments
 {
@@ -29,6 +30,8 @@ namespace EMRSystem.Appointments
         public virtual Patient Patient { get; set; }
         public long DoctorId { get; set; }
         public virtual Doctor Doctor { get; set; }
+        public long DepartmentId { get; set; }
+        public virtual Department Department { get; set; }
         //public long? NurseId { get; set; }
         //public virtual Nurse Nurse { get; set; }
         public long? AppointmentTypeId { get; set; }

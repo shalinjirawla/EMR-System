@@ -1,4 +1,5 @@
 ﻿using Abp.Domain.Entities;
+using EMRSystem.Appointments;
 using EMRSystem.Doctors;
 using EMRSystem.LabReports;
 using EMRSystem.Prescriptions;
@@ -20,6 +21,8 @@ namespace EMRSystem.Departments
         public virtual ICollection<Doctor> Doctors { get; set; }
         public ICollection<Prescription> Prescriptions { get; set; }
         public virtual ICollection<LabTechnician> LabTechnicians { get; set; }
+        public virtual ICollection<Appointment> Appointments { get; set; }
+
 
     }
     public enum DepartmentType

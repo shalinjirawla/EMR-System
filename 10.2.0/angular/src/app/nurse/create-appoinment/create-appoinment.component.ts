@@ -12,7 +12,7 @@ import { AppComponentBase } from '@shared/app-component-base';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
-import { AppointmentDto, AppointmentServiceProxy, AppointmentStatus, CreateUpdateAppointmentDto, DoctorDto, DoctorServiceProxy, NurseDto, NurseServiceProxy, PatientDropDownDto, PatientDto, PatientServiceProxy, AppointmentTypeServiceProxy, AppointmentTypeDto } from '@shared/service-proxies/service-proxies';
+import { AppointmentDto, AppointmentServiceProxy, AppointmentStatus, CreateUpdateAppointmentDto, DoctorDto, DoctorServiceProxy, NurseDto, NurseServiceProxy, PatientDropDownDto, PatientDto, PatientServiceProxy, AppointmentTypeServiceProxy, AppointmentTypeDto, DepartmentDto, DepartmentServiceProxy } from '@shared/service-proxies/service-proxies';
 import { DatePickerModule } from 'primeng/datepicker';
 import { CheckboxModule } from 'primeng/checkbox';
 import { TextareaModule } from 'primeng/textarea';
@@ -29,7 +29,7 @@ import moment, { Moment } from 'moment';
     CommonModule, DatePickerModule, TextareaModule,
     SelectModule, ButtonModule, CheckboxModule
   ],
-  providers: [DoctorServiceProxy, AppointmentTypeServiceProxy, NurseServiceProxy, PatientServiceProxy, AppointmentServiceProxy, AppSessionService],
+  providers: [DoctorServiceProxy,DepartmentServiceProxy, AppointmentTypeServiceProxy, NurseServiceProxy, PatientServiceProxy, AppointmentServiceProxy, AppSessionService],
   standalone: true,
   templateUrl: './create-appoinment.component.html',
   styleUrl: './create-appoinment.component.css'
@@ -43,6 +43,8 @@ export class CreateAppoinmentComponent extends AppComponentBase implements OnIni
   patients: PatientDropDownDto[] = [];
   doctors: DoctorDto[] = [];
   appointmentTypes: AppointmentTypeDto[] = [];
+   departments: DepartmentDto[] = [];
+  departmentWiseDoctor: DoctorDto[] = [];
   statusOptions: any[] = [];
   showAddPatientButton = false;
   //tomorrow: Date = new Date();
@@ -55,6 +57,7 @@ export class CreateAppoinmentComponent extends AppComponentBase implements OnIni
     tenantId: 0,
     patientId: null,
     doctorId: null,
+    departmentId: null,
     appointmentTypeId: null,
     status: null,
     isFollowUp: false,
@@ -77,7 +80,8 @@ export class CreateAppoinmentComponent extends AppComponentBase implements OnIni
     private _appoinmentService: AppointmentServiceProxy,
     private _modalService: BsModalService,
     private permissionChecker: PermissionCheckerService,
-    private _appointmentTypeService: AppointmentTypeServiceProxy
+    private _appointmentTypeService: AppointmentTypeServiceProxy,
+    private _departmentService: DepartmentServiceProxy
   ) {
     super(injector);
   }
@@ -90,10 +94,11 @@ export class CreateAppoinmentComponent extends AppComponentBase implements OnIni
     this.LoadPatients();
     this.LoadDoctors();
     this.LoadAppointmentTypes();
+     this.LoadDepartments();
     this.LoadStatus();
   }
   LoadPatients() {
-    this._patientService.patientDropDown().subscribe({
+    this._patientService.getOpdPatients().subscribe({
       next: (res) => {
         this.patients = res;
       }, error: (err) => {
@@ -109,6 +114,11 @@ export class CreateAppoinmentComponent extends AppComponentBase implements OnIni
       }, error: (err) => {
       }
     })
+  }
+  LoadDepartments() {
+    this._departmentService.getAllDepartmentForDoctor().subscribe({
+      next: (res) => (this.departments = res.items)
+    });
   }
   LoadStatus() {
     this.statusOptions = [
@@ -146,6 +156,18 @@ export class CreateAppoinmentComponent extends AppComponentBase implements OnIni
       this.appointment.paymentMethod = null;
     }
   }
+  onSelectDepartment(event: any) {
+    const departmentId = event.value;
+    this.appointment.doctorId = null;
+
+    if (departmentId > 0) {
+      this.departmentWiseDoctor = this.doctors.filter(
+        x => x.department && x.department.id === departmentId
+      );
+    } else {
+      this.departmentWiseDoctor = [];
+    }
+  }
  
   showCreatePatientDialog(id?: number): void {
     let createOrEditPatientDialog: BsModalRef;
@@ -181,6 +203,7 @@ export class CreateAppoinmentComponent extends AppComponentBase implements OnIni
     input.paymentMethod = this.appointment.paymentMethod;
     input.patientId = this.appointment.patientId;
     input.doctorId = this.appointment.doctorId;
+    input.departmentId = this.appointment.departmentId;
     input.appointmentTypeId = this.appointment.appointmentTypeId;
     this._appoinmentService.createAppoinment(input).subscribe({
       next: (result) => {

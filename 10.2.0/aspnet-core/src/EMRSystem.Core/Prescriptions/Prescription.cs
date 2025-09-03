@@ -41,6 +41,7 @@ namespace EMRSystem.Prescriptions
         public virtual ICollection<PrescriptionLabTest> LabTests { get; set; }
         public ICollection<SelectedEmergencyProcedures> SelectedEmergencyProcedureses { get; set; }
         public virtual ICollection<EMRSystem.EmergencyChargeEntries.EmergencyChargeEntry> EmergencyChargeEntries { get; set; }
+        public virtual ICollection<EMRSystem.IpdChargeEntry.IpdChargeEntry> IpdChargeEntries { get; set; }
         public virtual PharmacistPrescriptions PharmacistPrescriptions { get; set; }
         public virtual EMRSystem.Doctors.ConsultationRequests Consultation_Requests { get; set; }
     }

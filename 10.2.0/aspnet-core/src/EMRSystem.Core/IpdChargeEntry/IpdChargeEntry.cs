@@ -1,5 +1,6 @@
 ﻿using Abp.Domain.Entities;
 using EMRSystem.Patients;
+using EMRSystem.Prescriptions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -22,6 +23,8 @@ namespace EMRSystem.IpdChargeEntry
         public long? ReferenceId { get; set; }
         public virtual Admission.Admission Admission { get; set; }
         public virtual Patient Patient { get; set; }
+        public long? PrescriptionId { get; set; }
+        public virtual Prescription Prescriptions { get; set; }
     }
 
     public enum ChargeType
@@ -29,6 +32,7 @@ namespace EMRSystem.IpdChargeEntry
         Appointment,
         LabTest,
         Medicine,
+        ConsultationFee,
         Procedure,
         Room,
         Other

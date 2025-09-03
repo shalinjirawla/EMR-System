@@ -2,6 +2,7 @@
 using Abp.Application.Services.Dto;
 using Abp.Domain.Entities;
 using Abp.Domain.Repositories;
+using Abp.EntityFrameworkCore.Repositories;
 using Abp.Extensions;
 using Abp.Linq.Extensions;
 using Abp.UI;
@@ -10,6 +11,9 @@ using EMRSystem.Appointments.Dto;
 using EMRSystem.Authorization.Users;
 using EMRSystem.Doctor;
 using EMRSystem.Doctor.Dto;
+using EMRSystem.Doctors;
+using EMRSystem.EmergencyProcedure;
+using EMRSystem.IpdChargeEntry;
 using EMRSystem.LabReports;
 using EMRSystem.Patients;
 using EMRSystem.Patients.Dto;
@@ -21,6 +25,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Stripe.V2;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,13 +52,16 @@ namespace EMRSystem.Prescriptions
         private readonly IRepository<EMRSystem.EmergencyChargeEntries.EmergencyChargeEntry, long> _emergencyChargeEntriesRepository;
         private readonly IRepository<EMRSystem.DoctorMaster.DoctorMaster, long> _doctorMasterRepository;
         private readonly IRepository<EMRSystem.EmergencyProcedure.EmergencyProcedure, long> _emergencyProcedureRepository;
+        private readonly IRepository<EMRSystem.IpdChargeEntry.IpdChargeEntry, long> _ipdChargeEntryRepository;
+        private readonly IRepository<EMRSystem.Admission.Admission, long> _admissionRepository;
         private readonly IRepository<EMRSystem.Doctors.ConsultationRequests, long> _consultationRequestsRepository;
         private readonly IRepository<EMRSystem.Pharmacists.PharmacistPrescriptions, long> _pharmacistPrescriptionsRepository;
         private readonly IRepository<EMRSystem.Pharmacists.PharmacistPrescriptionsItem, long> _pharmacistPrescriptionsItemRepository;
         private readonly IRepository<EMRSystem.Pharmacists.PharmacistInventory, long> _pharmacistInventoryRepository;
 
         private readonly UserManager _userManager;
-        public PrescriptionAppService(IRepository<Prescription, long> repository
+        public PrescriptionAppService(IRepository<Prescription, long> repository, IRepository<EMRSystem.Admission.Admission, long> admissionRepository, 
+            IRepository<EMRSystem.IpdChargeEntry.IpdChargeEntry, long> ipdChargeEntryRepository
             , IDoctorAppService doctorAppService, UserManager userManager, IRepository<Appointment, long> appointmentRepository,
             IRepository<Patient, long> patientRepository, IRepository<EMRSystem.LabReports.PrescriptionLabTest, long> prescriptionLabTestRepository
             , IRepository<EmergencyChargeEntries.EmergencyChargeEntry, long> emergencyChargeEntriesRepository,
@@ -72,6 +80,8 @@ namespace EMRSystem.Prescriptions
             _emergencyChargeEntriesRepository = emergencyChargeEntriesRepository;
             _doctorMasterRepository = doctorMasterRepository;
             _emergencyProcedureRepository = emergencyProcedureRepository;
+            _ipdChargeEntryRepository = ipdChargeEntryRepository;
+            _admissionRepository = admissionRepository;
             _consultationRequestsRepository = consultationRequestsRepository;
             _pharmacistPrescriptionsRepository = pharmacistPrescriptionsRepository;
             _pharmacistInventoryRepository = pharmacistInventoryRepository;
@@ -202,6 +212,13 @@ namespace EMRSystem.Prescriptions
 
             if (isAdmitted)
             {
+                var admission = await _admissionRepository.FirstOrDefaultAsync(a =>
+                    a.PatientId == input.PatientId && !a.IsDischarged);
+
+                if (admission == null)
+                {
+                    throw new UserFriendlyException("No active admission found for this patient.");
+                }
                 // Create and save each PrescriptionLabTest
                 foreach (var labTestId in input.LabTestIds)
                 {
@@ -220,8 +237,61 @@ namespace EMRSystem.Prescriptions
 
                     await _prescriptionLabTestRepository.InsertAsync(labTest);
                 }
-                // create Pharmacist Prescriptions
+                // Add Doctor Consultation Fee to IpdChargeEntry
+                if (input.DoctorId.HasValue)
                 {
+                    var doctor = await _doctorMasterRepository
+                        .GetAllIncluding(dm => dm.Doctor) // include related doctor entity
+                        .FirstOrDefaultAsync(dm => dm.DoctorId == input.DoctorId);
+
+                    if (doctor != null && doctor.Fee > 0)
+                    {
+                        var ipdDoctorCharge = new EMRSystem.IpdChargeEntry.IpdChargeEntry
+                        {
+                            TenantId = input.TenantId,
+                            AdmissionId = admission.Id,
+                            PatientId = input.PatientId.Value,
+                            ChargeType = ChargeType.ConsultationFee,
+                            Description = $"Consultation Fee - Dr. {doctor.Doctor.FullName}",
+                            Amount = doctor.Fee,
+                            ReferenceId = input.DoctorId,
+                            PrescriptionId = prescription.Id
+                        };
+
+                        await _ipdChargeEntryRepository.InsertAsync(ipdDoctorCharge);
+                    }
+                }
+
+
+                // Add Procedure Charges to IpdChargeEntry
+                if (input.EmergencyProcedures != null && input.EmergencyProcedures.Count > 0)
+                {
+                    foreach (var itm in input.EmergencyProcedures)
+                    {
+                        var procedure = await _emergencyProcedureRepository
+                            .FirstOrDefaultAsync(p => p.Id == itm.EmergencyProcedureId);
+
+                        if (procedure != null && procedure.DefaultCharge > 0)
+                        {
+                            var ipdProcedureCharge = new EMRSystem.IpdChargeEntry.IpdChargeEntry
+                            {
+                                TenantId = input.TenantId,
+                                AdmissionId = admission.Id,
+                                PatientId = input.PatientId.Value,
+                                ChargeType = ChargeType.Procedure,
+                                Description = $"Procedure Charge:- {procedure.Name}",
+                                Amount = procedure.DefaultCharge,
+                                ReferenceId = procedure.Id,
+                                PrescriptionId = prescription.Id
+                            };
+
+                            await _ipdChargeEntryRepository.InsertAsync(ipdProcedureCharge);
+                        }
+                    }
+                }
+
+
+                // create Pharmacist Prescriptions
                     var dto = new EMRSystem.Pharmacists.PharmacistPrescriptions();
                     dto.TenantId = input.TenantId;
                     dto.PrescriptionId = prescription.Id;
@@ -236,7 +306,6 @@ namespace EMRSystem.Prescriptions
                     dto2.GrandTotal = await GetGrandTotal(prescription.Id);
                     dto2.CreatedAt = DateTime.Now;
                     await _pharmacistPrescriptionsItemRepository.InsertAsync(dto2);
-                }
             }
             else
             {
@@ -293,6 +362,10 @@ namespace EMRSystem.Prescriptions
             {
                 throw new UserFriendlyException("Prescription not found");
             }
+            var admission = await _admissionRepository.FirstOrDefaultAsync(a =>
+    a.PatientId == input.PatientId && !a.IsDischarged);
+
+            bool isPatientAdmitted = admission != null;
 
             // Map the input to the existing prescription
             ObjectMapper.Map(input, existingPrescription);
@@ -326,19 +399,40 @@ namespace EMRSystem.Prescriptions
             }
 
             // Handle LabTests update
-            existingPrescription.LabTests.Clear();
+            // Handle LabTests update
+            var existingLabTests = existingPrescription.LabTests.ToList();
+
+            // remove those which are no longer in input
+            var labTestsToRemove = existingLabTests
+                .Where(ei => !input.LabTestIds.Contains(ei.LabReportsTypeId)) // ✅ no cast
+                .ToList();
+
+            if (labTestsToRemove.Any())
+            {
+                foreach (var lab in labTestsToRemove)
+                {
+                    await _prescriptionLabTestRepository.DeleteAsync(lab.Id); // ✅ direct delete
+                }
+            }
+
+            // add new ones
             foreach (var labTestId in input.LabTestIds)
             {
-                existingPrescription.LabTests.Add(new EMRSystem.LabReports.PrescriptionLabTest
+                if (!existingLabTests.Any(l => l.LabReportsTypeId == labTestId)) // ✅ no cast
                 {
-                    LabReportsTypeId = labTestId,
-                    PrescriptionId = input.Id,
-                    IsEmergencyPrescription = input.IsEmergencyPrescription,
-                    EmergencyCaseId = input.EmergencyCaseId,
-                    IsPaid = input.IsEmergencyPrescription,
-                    PatientId = input.PatientId,
-                });
+                    existingPrescription.LabTests.Add(new EMRSystem.LabReports.PrescriptionLabTest
+                    {
+                        LabReportsTypeId = labTestId, // ✅ no cast
+                        PrescriptionId = input.Id,
+                        IsEmergencyPrescription = input.IsEmergencyPrescription,
+                        EmergencyCaseId = input.EmergencyCaseId,
+                        IsPaid = isPatientAdmitted,
+                        PatientId = input.PatientId,
+                    });
+                }
             }
+
+
 
 
             // Handle procedure update
@@ -369,7 +463,56 @@ namespace EMRSystem.Prescriptions
 
             await Repository.UpdateAsync(existingPrescription);
             await CurrentUnitOfWork.SaveChangesAsync();
+            if (!input.IsEmergencyPrescription)
+            {
 
+
+                if (admission != null)
+                {
+                    // get old procedure charges for this prescription
+                    var existingIpdCharges = await _ipdChargeEntryRepository
+                        .GetAll()
+                        .Where(c => c.PrescriptionId == input.Id && c.ChargeType == ChargeType.Procedure)
+                        .ToListAsync();
+
+                    // remove those which are no longer in input
+                    var toRemove = existingIpdCharges
+                        .Where(c => !input.EmergencyProcedures.Any(p => p.EmergencyProcedureId == c.ReferenceId))
+                        .ToList();
+
+                    if (toRemove.Any())
+                    {
+                        _ipdChargeEntryRepository.RemoveRange(toRemove);
+                    }
+
+                    // add new charges if any
+                    foreach (var proc in input.EmergencyProcedures)
+                    {
+                        if (!existingIpdCharges.Any(c => c.ReferenceId == proc.EmergencyProcedureId))
+                        {
+                            var procedure = await _emergencyProcedureRepository
+                                .FirstOrDefaultAsync(p => p.Id == proc.EmergencyProcedureId);
+
+                            if (procedure != null && procedure.DefaultCharge > 0)
+                            {
+                                var ipdProcedureCharge = new EMRSystem.IpdChargeEntry.IpdChargeEntry
+                                {
+                                    TenantId = input.TenantId,
+                                    AdmissionId = admission.Id,
+                                    PatientId = input.PatientId.Value,
+                                    ChargeType = ChargeType.Procedure,
+                                    Description = $"Procedure Charge:- {procedure.Name}",
+                                    Amount = procedure.DefaultCharge,
+                                    ReferenceId = procedure.Id,
+                                    PrescriptionId = input.Id
+                                };
+
+                                await _ipdChargeEntryRepository.InsertAsync(ipdProcedureCharge);
+                            }
+                        }
+                    }
+                }
+            }
             if (input.IsSpecialAdviceRequired)
             {
                 input.CreateUpdateConsultationRequests.PrescriptionId = existingPrescription.Id;
@@ -462,8 +605,8 @@ namespace EMRSystem.Prescriptions
             }
 
             var prescription = ObjectMapper.Map<CreateUpdatePrescriptionDto>(details);
+            prescription.LabTestIds = details.LabTests.Select(lt => lt.LabReportsTypeId).ToList();
             prescription.CreateUpdateConsultationRequests = ObjectMapper.Map<CreateUpdateConsultationRequestsDto>(details.Consultation_Requests);
-            prescription.LabTestIds = details.LabTests.Select(lt => (int)lt.LabReportsTypeId).ToList();
 
             return prescription;
         }
@@ -478,6 +621,8 @@ namespace EMRSystem.Prescriptions
                 .Include(p => p.Items)
                 .Include(p => p.LabTests)
                     .ThenInclude(lt => lt.LabReportsType)
+                .Include(p => p.SelectedEmergencyProcedureses)
+                    .ThenInclude(sep => sep.EmergencyProcedures)
                 .Where(p => p.Id == id)
                 .Select(p => new
                 {
@@ -491,7 +636,8 @@ namespace EMRSystem.Prescriptions
                         lt.LabReportsType.ReportType,
                         lt.TestStatus,
                         lt.CreatedDate
-                    })
+                    }),
+                    Procedures = p.SelectedEmergencyProcedureses.Select(sep => sep.EmergencyProcedures.Name)
                 })
                 .FirstOrDefaultAsync();
 
@@ -534,7 +680,8 @@ namespace EMRSystem.Prescriptions
                 LabTests = prescription.LabTests.Select(lt => new PrescriptionLabTestViewDto
                 {
                     ReportTypeName = lt.ReportType
-                }).ToList()
+                }).ToList(),
+                ProcedureNames = prescription.Procedures.ToList()
             };
         }
 

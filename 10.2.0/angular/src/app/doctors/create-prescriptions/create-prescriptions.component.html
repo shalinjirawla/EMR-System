@@ -17,7 +17,7 @@
     </div>
 
     <!-- Appointment Selection -->
-    <div class="row mt-3">
+    <div class="row mt-3"  *ngIf="!isPatientAdmitted()">
       <div class="col-md-12">
         <label><b>Appointment</b></label>
         <p-select [(ngModel)]="prescription.appointmentId" name="appointmentId" [options]="appointments"
@@ -58,6 +58,15 @@
         </p-multiSelect>
       </div>
     </div>
+    <div class="row mt-3">
+      <div class="col-md-12">
+        <label><b>Select Procedures (if required)</b></label>
+        <p-multiSelect [(ngModel)]="selectedProcedures" [options]="procedures" placeholder="Select Procedures"
+          display="chip" class="w-100" name="procedureIds">
+        </p-multiSelect>
+      </div>
+    </div>
+
 
     <!-- Notes -->
     <div class="row mt-3">
@@ -99,7 +108,7 @@
           <div class="d-flex align-items-center">
             <!-- Medicine Dropdown -->
             <p-dropdown appendTo="self" [(ngModel)]="item.medicineId" [options]="medicineOptions" optionLabel="label"
-              optionValue="value" placeholder="Select Medicine" class="w-25 mr-2" name="itemMedicine{{i}}"
+              optionValue="value"  placeholder="Select Medicine" class="w-25 mr-2" name="itemMedicine{{i}}"
               (onChange)="onMedicineChange(item, i)">
             </p-dropdown>
             <!-- Dosage Dropdown -->

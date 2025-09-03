@@ -235,16 +235,22 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
            .OnDelete(DeleteBehavior.NoAction); // or NoAction
 
         modelBuilder.Entity<Vital>()
-          .HasOne(s => s.Nurse)
-          .WithMany(e => e.Vitals)
-          .HasForeignKey(s => s.NurseId)
-          .OnDelete(DeleteBehavior.NoAction); // or NoAction
+            .HasOne(s => s.Nurse)
+            .WithMany(e => e.Vitals)
+            .HasForeignKey(s => s.NurseId)
+            .OnDelete(DeleteBehavior.NoAction); // or NoAction
 
         modelBuilder.Entity<Appointment>()
-    .HasOne(a => a.Patient)
-    .WithMany(p => p.Appointments)
-    .HasForeignKey(a => a.PatientId)
-    .OnDelete(DeleteBehavior.NoAction); // OR Restrict
+            .HasOne(a => a.Patient)
+            .WithMany(p => p.Appointments)
+            .HasForeignKey(a => a.PatientId)
+            .OnDelete(DeleteBehavior.NoAction); // OR Restrict
+
+        modelBuilder.Entity<Appointment>()
+            .HasOne(a => a.Department)
+            .WithMany(p => p.Appointments)
+            .HasForeignKey(a => a.DepartmentId)
+            .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<Appointment>()
             .HasOne(a => a.Doctor)
@@ -395,6 +401,10 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
             b.HasOne(ice => ice.Admission)
                 .WithMany(a => a.IpdChargeEntries)
                 .HasForeignKey(ice => ice.AdmissionId)
+                .OnDelete(DeleteBehavior.Restrict);
+            b.HasOne(ice => ice.Prescriptions)
+                .WithMany(a => a.IpdChargeEntries)
+                .HasForeignKey(ice => ice.PrescriptionId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             b.HasOne(ice => ice.Patient)

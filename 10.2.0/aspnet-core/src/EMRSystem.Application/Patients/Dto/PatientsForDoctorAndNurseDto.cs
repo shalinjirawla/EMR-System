@@ -22,6 +22,7 @@ namespace EMRSystem.Patients.Dto
         public long? AssignedNurseId { get; set; }
         public string NurseName { get; set; }
         public long? AssignedDoctorId { get; set; }
+        public bool IsAdmitted { get; set; }
         public string DoctorName { get; set; }
         public long AbpUserId { get; set; }
         //public bool IsAdmitted { get; set; }

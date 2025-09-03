@@ -1,52 +1,48 @@
-<div class="lab-report-card shadow-lg p-4" *ngIf="report">
-  <!-- Header Section -->
-  <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
+<div class="lab-report-card" *ngIf="report">
+  <!-- Header -->
+  <div class="report-header d-flex justify-content-between align-items-center">
     <div>
-      <h5 class="mb-1 text-uppercase fw-bold text-muted">{{ report.tenantName }}</h5>
-      <small class="text-secondary">Diagnostic Center</small>
+      <h5 class="tenant-name">{{ report.tenantName }}</h5>
+      <small>Diagnostic Center</small>
     </div>
     <img src="/assets/img/download.jpg" alt="Logo" class="lab-logo" />
   </div>
 
-  <!-- Report Title -->
-  <h3 class="text-center text-primary fw-bold mb-4 border-bottom pb-2">Laboratory Report</h3>
+  <!-- Title -->
+  <h4 class="report-title text-center">Laboratory Report</h4>
 
-  <!-- Patient & Test Info -->
-  <div class="row mb-3">
+  <!-- Patient Info -->
+  <div class="patient-info row">
     <div class="col-md-6"><strong>Patient Name:</strong> {{ report.patientName }}</div>
     <div class="col-md-6 text-md-end"><strong>Patient ID:</strong> {{ report.patientId }}</div>
-  </div>
-  <div class="row mb-4">
-    <div class="col-md-6"><strong>Referring Doctor:</strong> {{ report.doctorName }}</div>
-    <div class="col-md-6 text-md-end"><strong>Report ID:</strong> {{ report.id }}</div>
-  </div>
-  <div class="row mb-3">
-    <div class="col-md-4"><strong>Date:</strong> {{ report.recordedDate | date: 'dd/MM/yyyy' }}</div>
-    <div class="col-md-4 text-center"><strong>Age:</strong> {{ calculateAgeDisplay(report.patientDateOfBirth) }}</div>
-    <div class="col-md-4 text-md-end"><strong>Gender:</strong> {{ report.gender }}</div>
+    <div class="col-md-6 mt-2"><strong>Referring Doctor:</strong> {{ report.doctorName }}</div>
+    <div class="col-md-6 mt-2 text-md-end"><strong>Report No:</strong> {{ report.id }}</div>
+    <div class="col-md-6 mt-2"><strong>Date:</strong> {{ report.recordedDate | date: 'dd/MM/yyyy' }}</div>
+    <div class="col-md-3 mt-2"><strong>Age:</strong> {{ calculateAgeDisplay(report.patientDateOfBirth) }}</div>
+    <div class="col-md-3 mt-2 text-md-end"><strong>Gender:</strong> {{ report.gender }}</div>
   </div>
 
-  <!-- Test Name -->
-  <h5 class="text-center text-success border rounded-pill py-2 px-3 bg-light d-inline-block mx-auto mb-4">
-    Report: {{ report.testName }}
-  </h5>
+  <!-- Test Title -->
+  <div class="test-title text-center my-3">
+    Report For: <span>{{ report.testName }}</span>
+  </div>
 
-  <!-- Table of Results -->
-  <div class="table-responsive">
-    <table class="table table-bordered table-striped align-middle text-center">
-      <thead class="table-dark">
+  <!-- Results Table -->
+  <div class="table-responsive mt-3">
+    <table class="table table-bordered align-middle text-center">
+      <thead>
         <tr>
-          <th>Test Name</th>
+          <th>Test</th>
           <th>Result</th>
           <th>Normal Range</th>
-          <th>Units</th>
+          <th>Unit</th>
           <th>Flag</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let item of report.labReportResultItem">
-          <td class="text-start ps-3">{{ item.test }}</td>
-          <td>{{ item.result }}</td>
+          <td class="text-start">{{ item.test }}</td>
+          <td class="fw-bold">{{ item.result }}</td>
           <td>
             <ng-container *ngIf="item.minValue != null && item.maxValue != null; else noRange">
               {{ item.minValue }} - {{ item.maxValue }}
@@ -65,10 +61,10 @@
     </table>
   </div>
 
-  <!-- Digital Signature -->
-  <div class="text-end mt-5">
-    <p class="fst-italic mb-0">Digitally Signed By</p>
-    <h6 class="fw-bold mb-0">{{ report.doctorName }}</h6>
-    <small class="text-secondary">Reg No: {{ report.doctorRegistrationNumber }}</small>
+  <!-- Signature -->
+  <div class="signature text-end mt-5">
+    <p class="mb-0">Authorized Signatory</p>
+    <h6 class="fw-bold">{{ report.doctorName }}</h6>
+    <small>Reg No: {{ report.doctorRegistrationNumber }}</small>
   </div>
 </div>

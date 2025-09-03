@@ -29,6 +29,7 @@ namespace EMRSystem.Patients.Dto
               .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName))
               .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => src.DateOfBirth))
               .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => src.Gender))
+              .ForMember(dest => dest.IsAdmitted, opt => opt.MapFrom(src => src.IsAdmitted))
               .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
               .ForMember(dest => dest.BloodGroup, opt => opt.MapFrom(src => src.BloodGroup))
               .ForMember(dest => dest.EmergencyContactName, opt => opt.MapFrom(src => src.EmergencyContactName))
