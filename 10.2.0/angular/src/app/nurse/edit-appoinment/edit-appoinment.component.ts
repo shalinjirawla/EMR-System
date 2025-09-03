@@ -8,7 +8,7 @@ import { AbpValidationSummaryComponent } from '../../../shared/components/valida
 import { AbpModalFooterComponent } from '../../../shared/components/modal/abp-modal-footer.component';
 import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { CommonModule } from '@node_modules/@angular/common';
-import { AppointmentDto, AppointmentServiceProxy, AppointmentStatus, CreateUpdateAppointmentDto, CreateUpdatePrescriptionDto, CreateUpdatePrescriptionItemDto, DoctorDto, DoctorServiceProxy, NurseDto, NurseServiceProxy, PatientDropDownDto, PatientDto, PatientServiceProxy, PrescriptionServiceProxy, AppointmentTypeServiceProxy, AppointmentTypeDto } from '@shared/service-proxies/service-proxies';
+import { AppointmentDto, AppointmentServiceProxy, AppointmentStatus, CreateUpdateAppointmentDto, CreateUpdatePrescriptionDto, CreateUpdatePrescriptionItemDto, DoctorDto, DoctorServiceProxy, NurseDto, NurseServiceProxy, PatientDropDownDto, PatientDto, PatientServiceProxy, PrescriptionServiceProxy, AppointmentTypeServiceProxy, AppointmentTypeDto, DepartmentDto, DepartmentServiceProxy } from '@shared/service-proxies/service-proxies';
 import moment from 'moment';
 import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
@@ -29,7 +29,7 @@ import { DatePickerModule } from 'primeng/datepicker';
   ],
   templateUrl: './edit-appoinment.component.html',
   styleUrl: './edit-appoinment.component.css',
-  providers: [NurseServiceProxy, PatientServiceProxy, AppointmentTypeServiceProxy, AppointmentServiceProxy, DoctorServiceProxy],
+  providers: [NurseServiceProxy,DepartmentServiceProxy, PatientServiceProxy, AppointmentTypeServiceProxy, AppointmentServiceProxy, DoctorServiceProxy],
 })
 export class EditAppoinmentComponent extends AppComponentBase implements OnInit {
   @Output() onSave = new EventEmitter<any>();
@@ -54,6 +54,8 @@ export class EditAppoinmentComponent extends AppComponentBase implements OnInit 
   patients!: PatientDropDownDto[];
   nurse!: NurseDto[];
   doctors!: DoctorDto[];
+   departments: DepartmentDto[] = [];
+  departmentWiseDoctors: DoctorDto[] = [];
   statusOptions!: any[];
   appointmentTypes!: AppointmentTypeDto[];
   patientTypeOptions!: any[];
@@ -62,6 +64,7 @@ export class EditAppoinmentComponent extends AppComponentBase implements OnInit 
     injector: Injector,
     public bsModalRef: BsModalRef,
     private cd: ChangeDetectorRef,
+    private _departmentService: DepartmentServiceProxy,
     private _patientService: PatientServiceProxy,
     private _appointmentService: AppointmentServiceProxy,
     private _doctorService: DoctorServiceProxy,
@@ -81,26 +84,47 @@ export class EditAppoinmentComponent extends AppComponentBase implements OnInit 
       this.appointment.status = this.status;
     }
     this.LoadDoctors();
+    this.loadDepartments();
     this.LoadPatients();
     this.LoadStatus();
     this.LoadAppointmentTypes();
     this.FillForm();
   }
   FillForm() {
-    this._appointmentService.getAppointmentDetailsById(this.id).subscribe((result) => {
-      this.appointment.id = result.id;
-      this.appointment.tenantId = result.tenantId;
-      this.appointment.patientId = result.patientId;
-      this.appointment.doctorId = result.doctorId;
-      this.appointment.status = result.status;
-      this.appointment.isFollowUp = result.isFollowUp;
-      this.appointment.appointmentDate = result.appointmentDate ? moment(result.appointmentDate).toDate() : null;
-      this.appointment.reasonForVisit = result.reasonForVisit;
-      this.appointment.appointmentTypeId = result.appointmentTypeId;
-      this.appointment.isPaid = result.isPaid;
-      this.cd.detectChanges();
-    });
-  }
+  this._appointmentService.getAppointmentDetailsById(this.id).subscribe((result) => {
+    this.appointment.id = result.id;
+    this.appointment.tenantId = result.tenantId;
+    this.appointment.patientId = result.patientId;
+    this.appointment.departmentId = result.departmentId;
+    this.appointment.status = result.status;
+    this.appointment.isFollowUp = result.isFollowUp;
+    this.appointment.appointmentDate = result.appointmentDate ? moment(result.appointmentDate).toDate() : null;
+    this.appointment.reasonForVisit = result.reasonForVisit;
+    this.appointment.appointmentTypeId = result.appointmentTypeId;
+    this.appointment.isPaid = result.isPaid;
+
+    // doctorId ko abhi direct set na karo
+    const doctorIdFromApi = result.doctorId;
+
+    if (this.appointment.departmentId) {
+      // jab doctor list load ho jaye tab assign karenge
+      this._doctorService.getAllDoctorsByTenantID(abp.session.tenantId).subscribe({
+        next: (res) => {
+          this.doctors = res.items;
+          this.onSelectDepartment(this.appointment.departmentId);
+
+          // abhi departmentWiseDoctors me doctors aa gaye
+          this.appointment.doctorId = doctorIdFromApi;
+
+          this.cd.detectChanges();
+        }
+      });
+    }
+
+    this.cd.detectChanges();
+  });
+}
+
   LoadPatients() {
     this._patientService.patientDropDown().subscribe({
       next: (res) => {
@@ -114,10 +138,31 @@ export class EditAppoinmentComponent extends AppComponentBase implements OnInit 
     this._doctorService.getAllDoctorsByTenantID(abp.session.tenantId).subscribe({
       next: (res) => {
         this.doctors = res.items;
+        if (this.appointment.departmentId) {
+          this.onSelectDepartment(this.appointment.departmentId);
+        }
         this.cd.detectChanges();
       }, error: (err) => {
       }
     })
+  }
+  loadDepartments() {
+    this._departmentService.getAllDepartmentForDoctor().subscribe({
+      next: (res) => {
+        this.departments = res.items;
+        this.cd.detectChanges();
+      }
+    });
+  }
+   onSelectDepartment(departmentId: number) {
+    this.appointment.doctorId = null;
+    if (departmentId > 0) {
+      this.departmentWiseDoctors = this.doctors.filter(
+        x => x.department && x.department.id === departmentId
+      );
+    } else {
+      this.departmentWiseDoctors = [];
+    }
   }
   LoadStatus() {
     this.statusOptions = [

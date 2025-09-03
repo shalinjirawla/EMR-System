@@ -115,7 +115,7 @@ export class PrescriptionsComponent extends PagedListingComponentBase<Prescripti
     const viewPrescriptionDialog: BsModalRef = this._modalService.show(
       ViewPrescriptionComponent,
       {
-        class: 'modal-lg',
+        class: 'modal-xl',
         initialState: {
           id: id
         }
@@ -126,12 +126,12 @@ export class PrescriptionsComponent extends PagedListingComponentBase<Prescripti
     let createOrEditUserDialog: BsModalRef;
     if (!id) {
       createOrEditUserDialog = this._modalService.show(CreatePrescriptionsComponent, {
-        class: 'modal-lg',
+        class: 'modal-xl',
       });
     }
     else {
       createOrEditUserDialog = this._modalService.show(EditPrescriptionsComponent, {
-        class: 'modal-lg',
+        class: 'modal-xl',
         initialState: {
           id: id,
         },

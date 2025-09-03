@@ -5,7 +5,7 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { AbpModalHeaderComponent } from '../../../shared/components/modal/abp-modal-header.component';
 import { AbpModalFooterComponent } from '../../../shared/components/modal/abp-modal-footer.component';
 import { CommonModule } from '@angular/common';
-import { AppointmentDto, AppointmentServiceProxy, CreateUpdatePrescriptionDto, CreateUpdatePrescriptionItemDto, DoctorServiceProxy, PatientDto, PatientServiceProxy, PrescriptionServiceProxy, PharmacistInventoryServiceProxy, PatientDropDownDto, LabReportsTypeServiceProxy, DoctorDto } from '@shared/service-proxies/service-proxies';
+import { AppointmentDto, AppointmentServiceProxy, CreateUpdatePrescriptionDto, CreateUpdatePrescriptionItemDto, DoctorServiceProxy, PatientDto, PatientServiceProxy, PrescriptionServiceProxy, PharmacistInventoryServiceProxy, PatientDropDownDto, LabReportsTypeServiceProxy, DoctorDto, EmergencyProcedureServiceProxy, CreateUpdateSelectedEmergencyProceduresDto } from '@shared/service-proxies/service-proxies';
 import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import moment from 'moment';
 import { TextareaModule } from 'primeng/textarea';
@@ -29,7 +29,7 @@ import { MultiSelectModule } from 'primeng/multiselect';
   ],
   templateUrl: './edit-prescriptions.component.html',
   styleUrls: ['./edit-prescriptions.component.css'],
-  providers: [PrescriptionServiceProxy, DoctorServiceProxy, LabReportsTypeServiceProxy, PatientServiceProxy, AppointmentServiceProxy, PharmacistInventoryServiceProxy],
+  providers: [PrescriptionServiceProxy, EmergencyProcedureServiceProxy,DoctorServiceProxy, LabReportsTypeServiceProxy, PatientServiceProxy, AppointmentServiceProxy, PharmacistInventoryServiceProxy],
 })
 export class EditPrescriptionsComponent extends AppComponentBase implements OnInit {
   @Output() onSave = new EventEmitter<any>();
@@ -50,6 +50,8 @@ export class EditPrescriptionsComponent extends AppComponentBase implements OnIn
   medicineOptions: any[] = [];
   medicineDosageOptions: { [medicineName: string]: string[] } = {};
   selectedMedicineUnits: { [medicineName: string]: string } = {};
+  selectedProcedures: number[] = [];
+  procedures: any[] = [];
 
   frequencyOptions = [
     { label: 'Once a day', value: 'Once a day' },
@@ -79,6 +81,7 @@ export class EditPrescriptionsComponent extends AppComponentBase implements OnIn
     private _labService: LabReportsTypeServiceProxy,
     private _pharmacistInventoryService: PharmacistInventoryServiceProxy,
     private _doctorService: DoctorServiceProxy,
+    private _procedureService: EmergencyProcedureServiceProxy,
   ) {
     super(injector);
   }
@@ -92,6 +95,7 @@ export class EditPrescriptionsComponent extends AppComponentBase implements OnIn
     this.loadMedicines();
     this.loadLabTestsAndPrescription();
     this.FetchDoctorID();
+    this.loadProcedures();
     this.loadDoctors();
   }
   loadDoctors() {
@@ -162,6 +166,7 @@ export class EditPrescriptionsComponent extends AppComponentBase implements OnIn
           })
         };
 
+          this.selectedProcedures = result.emergencyProcedures?.map(p => p.emergencyProcedureId) || [];
 
         this.selectedLabTests = this.prescription.labTestIds
           .map(id => this.labTests.find(test => test.id === id))
@@ -169,6 +174,7 @@ export class EditPrescriptionsComponent extends AppComponentBase implements OnIn
 
 
         this.loadAppointmentDetails();
+        this.cd.detectChanges();
       },
       error: (err) => {
         this.notify.error('Could not load prescription details');
@@ -191,7 +197,11 @@ export class EditPrescriptionsComponent extends AppComponentBase implements OnIn
       }
     });
   }
-
+ loadProcedures() {
+    this._procedureService.getEmergencyProcedureList().subscribe(res => {
+      this.procedures = res.map(p => ({ label: p.name, value: p.id }));
+    });
+  }
   LoadPatients(): void {
     this._patientService.patientDropDown().subscribe({
       next: (res) => {
@@ -355,9 +365,9 @@ export class EditPrescriptionsComponent extends AppComponentBase implements OnIn
     if (!this.editPrescriptionForm.valid || this.saving) {
       return true;
     }
-    if (!this.prescription.items || this.prescription.items.length === 0) {
-      return true;
-    }
+    // if (!this.prescription.items || this.prescription.items.length === 0) {
+    //   return true;
+    // }
 
     return this.prescription.items.some(item =>
       !item.medicineName?.trim() ||
@@ -366,7 +376,10 @@ export class EditPrescriptionsComponent extends AppComponentBase implements OnIn
       !item.instructions?.trim()
     );
   }
-
+   isPatientAdmitted(): boolean {
+    const patient = this.patients.find(p => p.id === this.prescription.patientId);
+    return !!patient?.isAdmitted;
+  }
   save(): void {
     if (!this.prescription.doctorId && this.isAdmin) {
       return;
@@ -381,7 +394,7 @@ export class EditPrescriptionsComponent extends AppComponentBase implements OnIn
       notes: this.prescription.notes,
       issueDate: this.prescription.issueDate,
       isFollowUpRequired: this.prescription.isFollowUpRequired,
-      appointmentId: this.prescription.appointmentId,
+      appointmentId: this.prescription.appointmentId > 0 ? this.prescription.appointmentId : undefined,
       doctorId: this.isAdmin ? this.prescription.doctorId : this.doctorID,
       patientId: this.prescription.patientId,
       labTestIds: this.selectedLabTests.map(test => test.id)
@@ -402,6 +415,17 @@ export class EditPrescriptionsComponent extends AppComponentBase implements OnIn
       });
       return dtoItem;
     });
+
+    input.emergencyProcedures = this.selectedProcedures.map(procId => {
+      const dto = new CreateUpdateSelectedEmergencyProceduresDto();
+      dto.init({
+        tenantId: this.prescription.tenantId,
+        prescriptionId: this.prescription.id,
+        emergencyProcedureId: procId
+      });
+      return dto;
+    });
+    debugger
     this._prescriptionService.updatePrescriptionWithItem(input).subscribe({
       next: () => {
         this.notify.info(this.l('SavedSuccessfully'));

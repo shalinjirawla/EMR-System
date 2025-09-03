@@ -209,6 +209,7 @@ namespace EMRSystem.Appointments
                   IsFollowUp = x.IsFollowUp,
                   PatientId = x.PatientId,
                   DoctorId = x.DoctorId,
+                  DepartmentId = x.DepartmentId,
                   //NurseId = x.NurseId,
                   AppointmentTypeId = x.AppointmentTypeId,
                   Patient = x.Patient == null ? null : new Patient
@@ -268,51 +269,51 @@ namespace EMRSystem.Appointments
             if (patient == null)
                 throw new UserFriendlyException("Patient not found");
 
-            if (patient.IsAdmitted)
-            {
-                // Verify admissions exist
-                if (!patient.Admissions.Any())
-                    throw new UserFriendlyException("Patient is marked as admitted but has no admission records");
+            //if (patient.IsAdmitted)
+            //{
+            //    // Verify admissions exist
+            //    if (!patient.Admissions.Any())
+            //        throw new UserFriendlyException("Patient is marked as admitted but has no admission records");
 
-                // Get most recent ACTIVE admission
-                var admission = patient.Admissions
-                    .Where(a => !a.IsDischarged)
-                    .OrderByDescending(a => a.AdmissionDateTime)
-                    .FirstOrDefault();
+            //    // Get most recent ACTIVE admission
+            //    var admission = patient.Admissions
+            //        .Where(a => !a.IsDischarged)
+            //        .OrderByDescending(a => a.AdmissionDateTime)
+            //        .FirstOrDefault();
 
-                if (admission == null)
-                    throw new UserFriendlyException("No active admission found for patient");
+            //    if (admission == null)
+            //        throw new UserFriendlyException("No active admission found for patient");
 
-                // Rest of your IPD logic...
-                var appointment = ObjectMapper.Map<Appointment>(dto);
-                appointment.IsPaid = true;
-                await Repository.InsertAsync(appointment);
+            //    // Rest of your IPD logic...
+            //    var appointment = ObjectMapper.Map<Appointment>(dto);
+            //    appointment.IsPaid = true;
+            //    await Repository.InsertAsync(appointment);
 
-                var doctorFee = await _doctorMasterRepository.FirstOrDefaultAsync(dm =>
-                    dm.DoctorId == appointment.DoctorId &&
-                    dm.TenantId == appointment.TenantId);
+            //    var doctorFee = await _doctorMasterRepository.FirstOrDefaultAsync(dm =>
+            //        dm.DoctorId == appointment.DoctorId &&
+            //        dm.TenantId == appointment.TenantId);
 
-                var chargeEntry = new EMRSystem.IpdChargeEntry.IpdChargeEntry
-                {
-                    AdmissionId = admission.Id,
-                    PatientId = patient.Id,
-                    ChargeType = ChargeType.Appointment,
-                    Description = $"Consultation - Dr. {doctor.FullName}",
-                    EntryDate = appointment.AppointmentDate,
-                    Amount = doctorFee?.Fee ?? 0,
-                    //ReferenceId = appointment.Id
-                };
+            //    var chargeEntry = new EMRSystem.IpdChargeEntry.IpdChargeEntry
+            //    {
+            //        AdmissionId = admission.Id,
+            //        PatientId = patient.Id,
+            //        ChargeType = ChargeType.Appointment,
+            //        Description = $"Consultation - Dr. {doctor.FullName}",
+            //        EntryDate = appointment.AppointmentDate,
+            //        Amount = doctorFee?.Fee ?? 0,
+            //        //ReferenceId = appointment.Id
+            //    };
 
-                await _ipdChargeEntryRepository.InsertAsync(chargeEntry);
+            //    await _ipdChargeEntryRepository.InsertAsync(chargeEntry);
 
-                return new AppointmentCreationResultDto
-                {
-                    IsStripeRedirect = false,
-                    Message = "IPD appointment created. Charge will be deducted from deposit."
-                };
-            }
-            else
-            {
+            //    return new AppointmentCreationResultDto
+            //    {
+            //        IsStripeRedirect = false,
+            //        Message = "IPD appointment created. Charge will be deducted from deposit."
+            //    };
+            //}
+            //else
+            //{
                 // OPD Patient - Handle payment
                 var appointment = ObjectMapper.Map<Appointment>(dto);
                 appointment.IsPaid = (dto.PaymentMethod != PaymentMethod.Card);
@@ -349,7 +350,7 @@ namespace EMRSystem.Appointments
                         Receipt = receipt
                     };
                 }
-            }
+            
         }
         public async Task<string> InitiatePaymentForAppointment(long appointmentId)
         {

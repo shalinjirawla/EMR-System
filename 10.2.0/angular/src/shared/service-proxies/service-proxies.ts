@@ -13579,17 +13579,17 @@ export class PrescriptionServiceProxy {
     }
 
     /**
-     * @param isAdmitted (optional) 
+     * @param prescriptionId (optional) 
      * @param isNewRecord (optional) 
      * @param body (optional) 
      * @return OK
      */
-    createUpdateCharges(isAdmitted: boolean | undefined, isNewRecord: boolean | undefined, body: CreateUpdatePrescriptionDto | undefined): Observable<void> {
+    createUpdateCharges(prescriptionId: number | undefined, isNewRecord: boolean | undefined, body: CreateUpdatePrescriptionDto | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/services/app/Prescription/CreateUpdateCharges?";
-        if (isAdmitted === null)
-            throw new Error("The parameter 'isAdmitted' cannot be null.");
-        else if (isAdmitted !== undefined)
-            url_ += "isAdmitted=" + encodeURIComponent("" + isAdmitted) + "&";
+        if (prescriptionId === null)
+            throw new Error("The parameter 'prescriptionId' cannot be null.");
+        else if (prescriptionId !== undefined)
+            url_ += "prescriptionId=" + encodeURIComponent("" + prescriptionId) + "&";
         if (isNewRecord === null)
             throw new Error("The parameter 'isNewRecord' cannot be null.");
         else if (isNewRecord !== undefined)
@@ -19842,6 +19842,8 @@ export class Appointment implements IAppointment {
     patient: Patient;
     doctorId: number;
     doctor: Doctor;
+    departmentId: number;
+    department: Department;
     appointmentTypeId: number | undefined;
     appointmentType: AppointmentType;
     prescriptions: Prescription[] | undefined;
@@ -19868,6 +19870,8 @@ export class Appointment implements IAppointment {
             this.patient = _data["patient"] ? Patient.fromJS(_data["patient"]) : <any>undefined;
             this.doctorId = _data["doctorId"];
             this.doctor = _data["doctor"] ? Doctor.fromJS(_data["doctor"]) : <any>undefined;
+            this.departmentId = _data["departmentId"];
+            this.department = _data["department"] ? Department.fromJS(_data["department"]) : <any>undefined;
             this.appointmentTypeId = _data["appointmentTypeId"];
             this.appointmentType = _data["appointmentType"] ? AppointmentType.fromJS(_data["appointmentType"]) : <any>undefined;
             if (Array.isArray(_data["prescriptions"])) {
@@ -19898,6 +19902,8 @@ export class Appointment implements IAppointment {
         data["patient"] = this.patient ? this.patient.toJSON() : <any>undefined;
         data["doctorId"] = this.doctorId;
         data["doctor"] = this.doctor ? this.doctor.toJSON() : <any>undefined;
+        data["departmentId"] = this.departmentId;
+        data["department"] = this.department ? this.department.toJSON() : <any>undefined;
         data["appointmentTypeId"] = this.appointmentTypeId;
         data["appointmentType"] = this.appointmentType ? this.appointmentType.toJSON() : <any>undefined;
         if (Array.isArray(this.prescriptions)) {
@@ -19928,6 +19934,8 @@ export interface IAppointment {
     patient: Patient;
     doctorId: number;
     doctor: Doctor;
+    departmentId: number;
+    department: Department;
     appointmentTypeId: number | undefined;
     appointmentType: AppointmentType;
     prescriptions: Prescription[] | undefined;
@@ -19997,6 +20005,8 @@ export class AppointmentDto implements IAppointmentDto {
     isFollowUp: boolean;
     appointmentTypeId: number;
     isPaid: boolean;
+    departmentId: number;
+    department: DepartmentDto;
     appointmentType: AppointmentType;
     patient: PatientDto;
     doctor: DoctorDto;
@@ -20021,6 +20031,8 @@ export class AppointmentDto implements IAppointmentDto {
             this.isFollowUp = _data["isFollowUp"];
             this.appointmentTypeId = _data["appointmentTypeId"];
             this.isPaid = _data["isPaid"];
+            this.departmentId = _data["departmentId"];
+            this.department = _data["department"] ? DepartmentDto.fromJS(_data["department"]) : <any>undefined;
             this.appointmentType = _data["appointmentType"] ? AppointmentType.fromJS(_data["appointmentType"]) : <any>undefined;
             this.patient = _data["patient"] ? PatientDto.fromJS(_data["patient"]) : <any>undefined;
             this.doctor = _data["doctor"] ? DoctorDto.fromJS(_data["doctor"]) : <any>undefined;
@@ -20049,6 +20061,8 @@ export class AppointmentDto implements IAppointmentDto {
         data["isFollowUp"] = this.isFollowUp;
         data["appointmentTypeId"] = this.appointmentTypeId;
         data["isPaid"] = this.isPaid;
+        data["departmentId"] = this.departmentId;
+        data["department"] = this.department ? this.department.toJSON() : <any>undefined;
         data["appointmentType"] = this.appointmentType ? this.appointmentType.toJSON() : <any>undefined;
         data["patient"] = this.patient ? this.patient.toJSON() : <any>undefined;
         data["doctor"] = this.doctor ? this.doctor.toJSON() : <any>undefined;
@@ -20077,6 +20091,8 @@ export interface IAppointmentDto {
     isFollowUp: boolean;
     appointmentTypeId: number;
     isPaid: boolean;
+    departmentId: number;
+    department: DepartmentDto;
     appointmentType: AppointmentType;
     patient: PatientDto;
     doctor: DoctorDto;
@@ -21410,6 +21426,7 @@ export enum ChargeType {
     _3 = 3,
     _4 = 4,
     _5 = 5,
+    _6 = 6,
 }
 
 export class CreateLabTestReceiptDto implements ICreateLabTestReceiptDto {
@@ -21712,6 +21729,7 @@ export class CreateUpdateAppointmentDto implements ICreateUpdateAppointmentDto {
     isFollowUp: boolean;
     isPaid: boolean;
     paymentMethod: PaymentMethod;
+    departmentId: number;
     patientId: number;
     doctorId: number;
     appointmentTypeId: number | undefined;
@@ -21735,6 +21753,7 @@ export class CreateUpdateAppointmentDto implements ICreateUpdateAppointmentDto {
             this.isFollowUp = _data["isFollowUp"];
             this.isPaid = _data["isPaid"];
             this.paymentMethod = _data["paymentMethod"];
+            this.departmentId = _data["departmentId"];
             this.patientId = _data["patientId"];
             this.doctorId = _data["doctorId"];
             this.appointmentTypeId = _data["appointmentTypeId"];
@@ -21758,6 +21777,7 @@ export class CreateUpdateAppointmentDto implements ICreateUpdateAppointmentDto {
         data["isFollowUp"] = this.isFollowUp;
         data["isPaid"] = this.isPaid;
         data["paymentMethod"] = this.paymentMethod;
+        data["departmentId"] = this.departmentId;
         data["patientId"] = this.patientId;
         data["doctorId"] = this.doctorId;
         data["appointmentTypeId"] = this.appointmentTypeId;
@@ -21781,6 +21801,7 @@ export interface ICreateUpdateAppointmentDto {
     isFollowUp: boolean;
     isPaid: boolean;
     paymentMethod: PaymentMethod;
+    departmentId: number;
     patientId: number;
     doctorId: number;
     appointmentTypeId: number | undefined;
@@ -22695,6 +22716,7 @@ export class CreateUpdateInvoiceItemDto implements ICreateUpdateInvoiceItemDto {
     description: string | undefined;
     quantity: number;
     unitPrice: number;
+    entryDate: moment.Moment;
 
     constructor(data?: ICreateUpdateInvoiceItemDto) {
         if (data) {
@@ -22712,6 +22734,7 @@ export class CreateUpdateInvoiceItemDto implements ICreateUpdateInvoiceItemDto {
             this.description = _data["description"];
             this.quantity = _data["quantity"];
             this.unitPrice = _data["unitPrice"];
+            this.entryDate = _data["entryDate"] ? moment(_data["entryDate"].toString()) : <any>undefined;
         }
     }
 
@@ -22729,6 +22752,7 @@ export class CreateUpdateInvoiceItemDto implements ICreateUpdateInvoiceItemDto {
         data["description"] = this.description;
         data["quantity"] = this.quantity;
         data["unitPrice"] = this.unitPrice;
+        data["entryDate"] = this.entryDate ? this.entryDate.toISOString() : <any>undefined;
         return data;
     }
 
@@ -22746,6 +22770,7 @@ export interface ICreateUpdateInvoiceItemDto {
     description: string | undefined;
     quantity: number;
     unitPrice: number;
+    entryDate: moment.Moment;
 }
 
 export class CreateUpdateLabReportResultItemDto implements ICreateUpdateLabReportResultItemDto {
@@ -24706,6 +24731,7 @@ export class Department implements IDepartment {
     doctors: Doctor[] | undefined;
     prescriptions: Prescription[] | undefined;
     labTechnicians: LabTechnician[] | undefined;
+    appointments: Appointment[] | undefined;
 
     constructor(data?: IDepartment) {
         if (data) {
@@ -24737,6 +24763,11 @@ export class Department implements IDepartment {
                 this.labTechnicians = [] as any;
                 for (let item of _data["labTechnicians"])
                     this.labTechnicians.push(LabTechnician.fromJS(item));
+            }
+            if (Array.isArray(_data["appointments"])) {
+                this.appointments = [] as any;
+                for (let item of _data["appointments"])
+                    this.appointments.push(Appointment.fromJS(item));
             }
         }
     }
@@ -24770,6 +24801,11 @@ export class Department implements IDepartment {
             for (let item of this.labTechnicians)
                 data["labTechnicians"].push(item.toJSON());
         }
+        if (Array.isArray(this.appointments)) {
+            data["appointments"] = [];
+            for (let item of this.appointments)
+                data["appointments"].push(item.toJSON());
+        }
         return data;
     }
 
@@ -24790,6 +24826,7 @@ export interface IDepartment {
     doctors: Doctor[] | undefined;
     prescriptions: Prescription[] | undefined;
     labTechnicians: LabTechnician[] | undefined;
+    appointments: Appointment[] | undefined;
 }
 
 export class DepartmentDto implements IDepartmentDto {
@@ -27291,6 +27328,7 @@ export class InvoiceItemDto implements IInvoiceItemDto {
     description: string | undefined;
     quantity: number;
     unitPrice: number;
+    entryDate: moment.Moment;
 
     constructor(data?: IInvoiceItemDto) {
         if (data) {
@@ -27308,6 +27346,7 @@ export class InvoiceItemDto implements IInvoiceItemDto {
             this.description = _data["description"];
             this.quantity = _data["quantity"];
             this.unitPrice = _data["unitPrice"];
+            this.entryDate = _data["entryDate"] ? moment(_data["entryDate"].toString()) : <any>undefined;
         }
     }
 
@@ -27325,6 +27364,7 @@ export class InvoiceItemDto implements IInvoiceItemDto {
         data["description"] = this.description;
         data["quantity"] = this.quantity;
         data["unitPrice"] = this.unitPrice;
+        data["entryDate"] = this.entryDate ? this.entryDate.toISOString() : <any>undefined;
         return data;
     }
 
@@ -27342,6 +27382,7 @@ export interface IInvoiceItemDto {
     description: string | undefined;
     quantity: number;
     unitPrice: number;
+    entryDate: moment.Moment;
 }
 
 export enum InvoiceStatus {
@@ -27367,6 +27408,8 @@ export class IpdChargeEntry implements IIpdChargeEntry {
     referenceId: number | undefined;
     admission: Admission;
     patient: Patient;
+    prescriptionId: number | undefined;
+    prescriptions: Prescription;
 
     constructor(data?: IIpdChargeEntry) {
         if (data) {
@@ -27391,6 +27434,8 @@ export class IpdChargeEntry implements IIpdChargeEntry {
             this.referenceId = _data["referenceId"];
             this.admission = _data["admission"] ? Admission.fromJS(_data["admission"]) : <any>undefined;
             this.patient = _data["patient"] ? Patient.fromJS(_data["patient"]) : <any>undefined;
+            this.prescriptionId = _data["prescriptionId"];
+            this.prescriptions = _data["prescriptions"] ? Prescription.fromJS(_data["prescriptions"]) : <any>undefined;
         }
     }
 
@@ -27415,6 +27460,8 @@ export class IpdChargeEntry implements IIpdChargeEntry {
         data["referenceId"] = this.referenceId;
         data["admission"] = this.admission ? this.admission.toJSON() : <any>undefined;
         data["patient"] = this.patient ? this.patient.toJSON() : <any>undefined;
+        data["prescriptionId"] = this.prescriptionId;
+        data["prescriptions"] = this.prescriptions ? this.prescriptions.toJSON() : <any>undefined;
         return data;
     }
 
@@ -27439,6 +27486,8 @@ export interface IIpdChargeEntry {
     referenceId: number | undefined;
     admission: Admission;
     patient: Patient;
+    prescriptionId: number | undefined;
+    prescriptions: Prescription;
 }
 
 export class IpdChargeEntryDto implements IIpdChargeEntryDto {
@@ -27451,6 +27500,7 @@ export class IpdChargeEntryDto implements IIpdChargeEntryDto {
     amount: number;
     entryDate: moment.Moment;
     isProcessed: boolean;
+    prescriptionId: number | undefined;
     referenceId: number | undefined;
 
     constructor(data?: IIpdChargeEntryDto) {
@@ -27473,6 +27523,7 @@ export class IpdChargeEntryDto implements IIpdChargeEntryDto {
             this.amount = _data["amount"];
             this.entryDate = _data["entryDate"] ? moment(_data["entryDate"].toString()) : <any>undefined;
             this.isProcessed = _data["isProcessed"];
+            this.prescriptionId = _data["prescriptionId"];
             this.referenceId = _data["referenceId"];
         }
     }
@@ -27495,6 +27546,7 @@ export class IpdChargeEntryDto implements IIpdChargeEntryDto {
         data["amount"] = this.amount;
         data["entryDate"] = this.entryDate ? this.entryDate.toISOString() : <any>undefined;
         data["isProcessed"] = this.isProcessed;
+        data["prescriptionId"] = this.prescriptionId;
         data["referenceId"] = this.referenceId;
         return data;
     }
@@ -27517,6 +27569,7 @@ export interface IIpdChargeEntryDto {
     amount: number;
     entryDate: moment.Moment;
     isProcessed: boolean;
+    prescriptionId: number | undefined;
     referenceId: number | undefined;
 }
 
@@ -32171,6 +32224,7 @@ export class PatientsForDoctorAndNurseDto implements IPatientsForDoctorAndNurseD
     assignedNurseId: number | undefined;
     nurseName: string | undefined;
     assignedDoctorId: number | undefined;
+    isAdmitted: boolean;
     doctorName: string | undefined;
     abpUserId: number;
     isActive: boolean;
@@ -32202,6 +32256,7 @@ export class PatientsForDoctorAndNurseDto implements IPatientsForDoctorAndNurseD
             this.assignedNurseId = _data["assignedNurseId"];
             this.nurseName = _data["nurseName"];
             this.assignedDoctorId = _data["assignedDoctorId"];
+            this.isAdmitted = _data["isAdmitted"];
             this.doctorName = _data["doctorName"];
             this.abpUserId = _data["abpUserId"];
             this.isActive = _data["isActive"];
@@ -32233,6 +32288,7 @@ export class PatientsForDoctorAndNurseDto implements IPatientsForDoctorAndNurseD
         data["assignedNurseId"] = this.assignedNurseId;
         data["nurseName"] = this.nurseName;
         data["assignedDoctorId"] = this.assignedDoctorId;
+        data["isAdmitted"] = this.isAdmitted;
         data["doctorName"] = this.doctorName;
         data["abpUserId"] = this.abpUserId;
         data["isActive"] = this.isActive;
@@ -32264,6 +32320,7 @@ export interface IPatientsForDoctorAndNurseDto {
     assignedNurseId: number | undefined;
     nurseName: string | undefined;
     assignedDoctorId: number | undefined;
+    isAdmitted: boolean;
     doctorName: string | undefined;
     abpUserId: number;
     isActive: boolean;
@@ -32929,6 +32986,7 @@ export class Prescription implements IPrescription {
     labTests: PrescriptionLabTest[] | undefined;
     selectedEmergencyProcedureses: SelectedEmergencyProcedures[] | undefined;
     emergencyChargeEntries: EmergencyChargeEntry[] | undefined;
+    ipdChargeEntries: IpdChargeEntry[] | undefined;
 
     constructor(data?: IPrescription) {
         if (data) {
@@ -32980,6 +33038,11 @@ export class Prescription implements IPrescription {
                 this.emergencyChargeEntries = [] as any;
                 for (let item of _data["emergencyChargeEntries"])
                     this.emergencyChargeEntries.push(EmergencyChargeEntry.fromJS(item));
+            }
+            if (Array.isArray(_data["ipdChargeEntries"])) {
+                this.ipdChargeEntries = [] as any;
+                for (let item of _data["ipdChargeEntries"])
+                    this.ipdChargeEntries.push(IpdChargeEntry.fromJS(item));
             }
         }
     }
@@ -33033,6 +33096,11 @@ export class Prescription implements IPrescription {
             for (let item of this.emergencyChargeEntries)
                 data["emergencyChargeEntries"].push(item.toJSON());
         }
+        if (Array.isArray(this.ipdChargeEntries)) {
+            data["ipdChargeEntries"] = [];
+            for (let item of this.ipdChargeEntries)
+                data["ipdChargeEntries"].push(item.toJSON());
+        }
         return data;
     }
 
@@ -33069,6 +33137,7 @@ export interface IPrescription {
     labTests: PrescriptionLabTest[] | undefined;
     selectedEmergencyProcedureses: SelectedEmergencyProcedures[] | undefined;
     emergencyChargeEntries: EmergencyChargeEntry[] | undefined;
+    ipdChargeEntries: IpdChargeEntry[] | undefined;
 }
 
 export class PrescriptionDto implements IPrescriptionDto {
@@ -33932,6 +34001,7 @@ export class PrescriptionViewDto implements IPrescriptionViewDto {
     doctorRegistrationNumber: string | undefined;
     items: PrescriptionItemViewDto[] | undefined;
     labTests: PrescriptionLabTestViewDto[] | undefined;
+    procedureNames: string[] | undefined;
 
     constructor(data?: IPrescriptionViewDto) {
         if (data) {
@@ -33966,6 +34036,11 @@ export class PrescriptionViewDto implements IPrescriptionViewDto {
                 this.labTests = [] as any;
                 for (let item of _data["labTests"])
                     this.labTests.push(PrescriptionLabTestViewDto.fromJS(item));
+            }
+            if (Array.isArray(_data["procedureNames"])) {
+                this.procedureNames = [] as any;
+                for (let item of _data["procedureNames"])
+                    this.procedureNames.push(item);
             }
         }
     }
@@ -34002,6 +34077,11 @@ export class PrescriptionViewDto implements IPrescriptionViewDto {
             for (let item of this.labTests)
                 data["labTests"].push(item.toJSON());
         }
+        if (Array.isArray(this.procedureNames)) {
+            data["procedureNames"] = [];
+            for (let item of this.procedureNames)
+                data["procedureNames"].push(item);
+        }
         return data;
     }
 
@@ -34029,6 +34109,7 @@ export interface IPrescriptionViewDto {
     doctorRegistrationNumber: string | undefined;
     items: PrescriptionItemViewDto[] | undefined;
     labTests: PrescriptionLabTestViewDto[] | undefined;
+    procedureNames: string[] | undefined;
 }
 
 export enum ProcedureCategory {

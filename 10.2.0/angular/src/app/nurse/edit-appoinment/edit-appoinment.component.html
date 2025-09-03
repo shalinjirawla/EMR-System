@@ -8,36 +8,57 @@
       <p-select 
         [options]="patients" 
         optionLabel="fullName" 
-        [optionValue]="'id'" 
+        optionValue="id"
         placeholder="Select a patient"
         [(ngModel)]="appointment.patientId" 
         name="patientId" 
         class="w-100" 
-        required>
+        required
+        [disabled]="true">
       </p-select>
     </div>
 
-    <!-- Doctor & Appointment Type -->
+    <!-- Department & Doctor -->
     <div class="row g-3 mb-3">
+      <div class="col-md-6">
+        <label>Department</label>
+        <p-select 
+          [options]="departments" 
+          optionLabel="departmentName" 
+          optionValue="id"
+          placeholder="Select department"
+          [(ngModel)]="appointment.departmentId" 
+          name="departmentId"
+          (onChange)="onSelectDepartment($event.value)"
+          class="w-100" 
+          required
+          [disabled]="true">
+        </p-select>
+      </div>
       <div class="col-md-6">
         <label>Select Doctor</label>
         <p-select 
-          [options]="doctors" 
+          [options]="departmentWiseDoctors" 
           optionLabel="fullName" 
-          [optionValue]="'id'" 
+          optionValue="id"
           placeholder="Select doctor"
           [(ngModel)]="appointment.doctorId" 
           name="doctorId" 
           class="w-100" 
-          required>
+          required
+          [disabled]="true">
         </p-select>
       </div>
+    </div>
+
+    <!-- Appointment Type & Status -->
+    <div class="row g-3 mb-3">
       <div class="col-md-6">
         <label>Appointment Type</label>
         <p-select 
           [options]="appointmentTypes" 
           optionLabel="name" 
-          [optionValue]="'id'" 
+          optionValue="id"
           placeholder="Select type"
           [(ngModel)]="appointment.appointmentTypeId" 
           name="appointmentTypeId" 
@@ -45,16 +66,12 @@
           required>
         </p-select>
       </div>
-    </div>
-
-    <!-- Status & Appointment Date -->
-    <div class="row g-3 mb-3">
       <div class="col-md-6">
         <label>Status</label>
         <p-select 
           [options]="statusOptions" 
           optionLabel="label" 
-          [optionValue]="'value'" 
+          optionValue="value"
           placeholder="Select status"
           [(ngModel)]="appointment.status" 
           name="status" 
@@ -62,20 +79,20 @@
           required>
         </p-select>
       </div>
-      <div class="col-md-6 d-flex flex-column">
-        <label>Appointment Date</label>
-        <div class="w-100">
-          <p-datepicker 
-            [(ngModel)]="appointment.appointmentDate" 
-            name="appointmentDate" 
-            [showIcon]="true"
-            placeholder="Select appointment date" 
-            [minDate]="today" 
-            class="w-100" 
-            required>
-          </p-datepicker>
-        </div>
-      </div>
+    </div>
+
+    <!-- Appointment Date -->
+    <div class="form-group mb-3">
+      <label>Appointment Date</label>
+      <p-datepicker 
+        [(ngModel)]="appointment.appointmentDate" 
+        name="appointmentDate" 
+        [showIcon]="true"
+        placeholder="Select appointment date" 
+        [minDate]="today" 
+        class="w-100" 
+        required>
+      </p-datepicker>
     </div>
 
     <!-- Is Follow-Up -->

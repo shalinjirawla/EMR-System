@@ -17,6 +17,8 @@ namespace EMRSystem.Invoice.Dto
         public string Description { get; set; }
         public int Quantity { get; set; }
         public decimal UnitPrice { get; set; }
+        public DateTime EntryDate { get; set; } = DateTime.Now;
+
         //public decimal TotalPrice { get; set; }
     }
 }

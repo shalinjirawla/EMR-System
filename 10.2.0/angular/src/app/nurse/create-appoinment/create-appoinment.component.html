@@ -2,39 +2,74 @@
   <abp-modal-header title="Create New Appointment" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
 
   <div class="modal-body">
-    <!-- Patient Selection -->
-    <div class="row">
-      <div class="col-md-12">
-        <div class="d-flex justify-content-between align-items-center">
-          <b>Select Patient</b>
-          <p-button label="Add New Patient" variant="text" severity="info" *ngIf="showAddPatientButton"
-            (onClick)="showCreatePatientDialog()">
-          </p-button>
-        </div>
-        <p-select [options]="patients" optionLabel="fullName" [optionValue]="'id'" placeholder="Select a patient"
-          [(ngModel)]="appointment.patientId" (onChange)="onPatientChange($event.value)" name="patientId" class="w-100"
-          required>
-        </p-select>
-      </div>
-    </div>
 
-    <!-- Doctor & Appointment Type -->
+    <!-- Top Bar with Add New Patient Button -->
+<div class="d-flex justify-content-end mb-3">
+  <p-button 
+    label="Add New Patient"
+    icon="pi pi-user-plus"
+    severity="info"
+    variant="outlined"
+    *ngIf="showAddPatientButton"
+    (onClick)="showCreatePatientDialog()">
+  </p-button>
+</div>
+
+<!-- Form Row -->
+<div class="row g-3">
+  <!-- Patient Select -->
+  <div class="col-md-6">
+    <label class="fw-bold mb-2">Select Patient</label>
+    <p-select 
+      [options]="patients"
+      optionLabel="fullName"
+      optionValue="id"
+      placeholder="Select a patient"
+      [(ngModel)]="appointment.patientId"
+      (onChange)="onPatientChange($event.value)"
+      name="patientId"
+      class="w-100"
+      required>
+    </p-select>
+  </div>
+
+  <!-- Appointment Type -->
+  <div class="col-md-6">
+    <label class="fw-bold mb-2">Appointment Type</label>
+    <p-select 
+      [options]="appointmentTypes"
+      optionLabel="name"
+      optionValue="id"
+      placeholder="Select type"
+      [(ngModel)]="appointment.appointmentTypeId"
+      name="appointmentTypeId"
+      class="w-100"
+      required>
+    </p-select>
+  </div>
+</div>
+
+
+    <!-- Department & Doctor -->
     <div class="row mt-3">
       <div class="col-md-6 d-flex flex-column">
-        <label>Select Doctor</label>
-        <p-select [options]="doctors" optionLabel="fullName" [optionValue]="'id'" placeholder="Select doctor"
-          [(ngModel)]="appointment.doctorId" name="doctorId" class="w-100" required>
+        <label>Select Department</label>
+        <p-select [options]="departments" optionLabel="departmentName" [optionValue]="'id'"
+          placeholder="Select department" [(ngModel)]="appointment.departmentId"
+          (onChange)="onSelectDepartment($event)" name="departmentId" class="w-100" required>
         </p-select>
       </div>
-      <div class="col-md-6 d-flex flex-column">
-        <label>Appointment Type</label>
-        <p-select [options]="appointmentTypes" optionLabel="name" [optionValue]="'id'" placeholder="Select type"
-          [(ngModel)]="appointment.appointmentTypeId" name="appointmentTypeId" class="w-100" required>
+
+      <div class="col-md-6 d-flex flex-column" >
+        <label>Select Doctor</label>
+        <p-select [options]="departmentWiseDoctor" optionLabel="fullName" [optionValue]="'id'"
+          placeholder="Select doctor" [(ngModel)]="appointment.doctorId"
+          name="doctorId" class="w-100" required>
         </p-select>
       </div>
     </div>
 
-    <!-- Status & Follow-Up -->
+    <!-- Status & Appointment Date -->
     <div class="row mt-3">
       <div class="col-md-6 d-flex flex-column">
         <label>Status</label>
@@ -67,8 +102,7 @@
       </div>
     </div>
 
-
-    <!-- Date -->
+    <!-- Follow-up -->
     <div class="row mt-3">
       <div class="col-md-12 d-flex align-items-center">
         <p-checkbox [(ngModel)]="appointment.isFollowUp" name="isFollowUp" binary="true">

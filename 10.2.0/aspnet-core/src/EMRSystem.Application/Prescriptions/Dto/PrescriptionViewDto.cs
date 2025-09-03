@@ -31,5 +31,6 @@ namespace EMRSystem.Prescriptions.Dto
 
         // Lab Tests
         public List<PrescriptionLabTestViewDto> LabTests { get; set; }
+        public List<string> ProcedureNames { get; set; }
     }
 }
