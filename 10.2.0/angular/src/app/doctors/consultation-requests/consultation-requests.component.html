@@ -3,13 +3,7 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-6">
-                    <h1>Prescription</h1>
-                </div>
-                <div class="col-6 text-right">
-                    <a href="javascript:;" class="btn bg-blue" (click)="createNew()">
-                        <i class="fa fa-plus-square"></i>
-                        {{ 'Create' | localize }}
-                    </a>
+                    <h1>Consultation Requests</h1>
                 </div>
             </div>
         </div>
@@ -17,7 +11,7 @@
     <section class="content px-2 pb-3">
         <div class="container-fluid">
             <div class="card table-wrapper">
-                <div class="card-header">
+                <!-- <div class="card-header">
                     <div class="row">
                         <div class="col-md-6">&emsp;</div>
                         <div class="col-md-6">
@@ -40,22 +34,40 @@
                             </div>
                         </div>
                     </div>
-
                     @if (advancedFiltersVisible) {
                     <div class="card mb-0 mt-1">
                         <div class="card-body">
                             <form class="form-horizontal">
                                 <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group row">
-                                            <label class="col-md-2 col-form-label">
-                                                {{ 'DateRange' | localize }}
+                                    <div class="col-md-6">
+                                        <div class="form-group row mb-0">
+                                            <label class="col-md-3 col-form-label">
+                                                {{ 'IsActive' | localize }}
                                             </label>
-                                            <div class="col-md-10">
-                                                <p-calendar [(ngModel)]="dateRange" name="dateRange"
-                                                    selectionMode="range" dateFormat="yy-mm-dd" class="w-100"
-                                                    [showIcon]="true" placeholder="Select date range">
-                                                </p-calendar>
+                                            <div class="col-md-9 pt-2">
+                                                <div class="custom-control custom-radio d-inline">
+                                                    <input type="radio" class="custom-control-input" id="isActiveAll"
+                                                        name="isActive" [(ngModel)]="isActive" [value]="undefined"
+                                                        checked />
+                                                    <label class="custom-control-label" for="isActiveAll">
+                                                        {{ 'All' | localize }}
+                                                    </label>
+                                                </div>
+                                                <div class="custom-control custom-radio d-inline mx-3">
+                                                    <input type="radio" class="custom-control-input" id="isActiveActive"
+                                                        name="isActive" [(ngModel)]="isActive" [value]="true" />
+                                                    <label class="custom-control-label" for="isActiveActive">
+                                                        {{ 'Yes' | localize }}
+                                                    </label>
+                                                </div>
+                                                <div class="custom-control custom-radio d-inline">
+                                                    <input type="radio" class="custom-control-input"
+                                                        id="isActivePassive" name="isActive" [(ngModel)]="isActive"
+                                                        [value]="false" />
+                                                    <label class="custom-control-label" for="isActivePassive">
+                                                        {{ 'No' | localize }}
+                                                    </label>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -63,7 +75,7 @@
                             </form>
                         </div>
                         <div class="card-footer">
-                            <button type="button" class="btn bg-blue" (click)="list()">
+                            <button type="button" class="btn bg-blue">
                                 {{ 'Search' | localize }}
                             </button>
                             <button type="button" class="btn btn-default float-right" (click)="clearFilters()">
@@ -72,32 +84,27 @@
                         </div>
                     </div>
                     }
-                </div>
+                </div> -->
                 <div class="card-body table-responsive table-striped table-bordered">
-                    <!--<Primeng-TurboTable-Start>-->
                     <div class="primeng-datatable-container">
-                        <p-table #dataTable sortMode="multiple" (onLazyLoad)="list($event)"
-                            [value]="primengTableHelper.records"
+                        <p-table #dataTable sortMode="multiple" [value]="primengTableHelper.records"
                             rows="{{ primengTableHelper.defaultRecordsCountPerPage }}" [paginator]="false" [lazy]="true"
-                            [tableStyle]="{ 'min-width': '50rem' }">
+                            [tableStyle]="{ 'min-width': '50rem' }" (onLazyLoad)="list($event)">
                             <ng-template pTemplate="header">
                                 <tr>
-                                    <th style="min-width: 150px" pSortableColumn="patientName">
+                                    <th style="min-width: 100px" pSortableColumn="patientName">
                                         Patient Name
-                                        <p-sortIcon field="patientName"></p-sortIcon>
                                     </th>
-                                    <th style="min-width: 150px" pSortableColumn="nurseName">
-                                        Prescribed By
-                                        <p-sortIcon field="nurseName"></p-sortIcon>
+                                    <th style="min-width: 100px" pSortableColumn="doctorName">
+                                        Requesting Doctor
+                                    </th>
+                                    <th style="min-width: 100px" pSortableColumn="doctorName" *ngIf="showDoctorColumn">
+                                        Requested Specialist
+                                    </th>
+                                    <th style="min-width: 100px" pSortableColumn="status">
+                                        {{ 'Status' | localize }}
                                     </th>
                                     <th style="min-width: 150px">
-                                        Issue Date
-                                        <!-- <p-sortIcon field="name"></p-sortIcon> pSortableColumn="name" -->
-                                    </th>
-                                    <th style="min-width: 150px">
-                                        Collection Status
-                                    </th>
-                                    <th style="min-width: 130px">
                                         {{ 'Actions' | localize }}
                                     </th>
                                 </tr>
@@ -110,25 +117,25 @@
                                             {{ record.patientName }}
                                         </span>
                                     </td>
-                                    <td>
+                                    <td *ngIf="showDoctorColumn">
                                         <span>
-                                            {{ record.doctorName }}
+                                            Dr. {{ record.requestingDoctorName }}
                                         </span>
                                     </td>
                                     <td>
                                         <span>
-                                            {{ record.issueDate| date: 'dd/MM/yyyy' }}
+                                            Dr. {{ record.requestedSpecialistName }}
                                         </span>
                                     </td>
                                     <td>
-                                         <p-tag [value]="getStatusLabel(record.collectionStatus)"
-                                            [severity]="getStatusSeverity(record.collectionStatus)" [rounded]="true">
+                                        <p-tag [value]="getStatusLabel(record.status)"
+                                            [severity]="getStatusSeverity(record.status)" [rounded]="true">
                                         </p-tag>
                                     </td>
                                     <td>
-                                        <a (click)="View(record)">
-                                            <i class="pi pi-eye mr-2"></i>
-                                        </a>
+                                        <button type="button" pButton icon="pi pi-eye" class="p-button-text"
+                                            (click)="showDialog(record)">
+                                        </button>
                                     </td>
                                 </tr>
                             </ng-template>
@@ -138,8 +145,9 @@
                         </div>
                         <div class="ui-table-footer"></div>
                     </div>
-                    <!--<Primeng-TurboTable-End>-->
                 </div>
+
+
                 <div class="card-footer table-card-footer bg-white border-top">
                     <div class="row">
                         <div class="col-sm-4 col-12 text-sm-left text-center">
@@ -166,14 +174,40 @@
         </div>
     </section>
 </div>
+<p-dialog [header]="selectedRecords?.patientName" [(visible)]="visible" [modal]="true"
+    [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [style]="{ width: '40rem' }" [draggable]="false"
+    [resizable]="false" (onHide)="OnDialogBoxHide()">
 
-<p-dialog [header]="selectedRecordForView?.patientName" [(visible)]="visible" [modal]="true" [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
-    [style]="{ width: '40vw' }" [draggable]="false" [resizable]="false">
-    <p>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-        magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-        consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-        pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est
-        laborum.
-    </p>
+    <p>{{selectedRecords?.notes}}</p>
+
+    <div *ngIf="isInPending(selectedRecords?.status)">
+        <div class="d-flex justify-content-end">
+            <button pButton severity="info" (click)="UpdateStatus(selectedRecords,1)">
+                <span pButtonLabel>Review Request</span>
+            </button>
+        </div>
+    </div>
+    <div *ngIf="isInReview(selectedRecords?.status)">
+        <div class="row mt-3">
+            <div class="col-md-12 d-flex flex-column">
+                <label>Advice</label>
+                <textarea rows="5" pTextarea [(ngModel)]="_adviceResponse"></textarea>
+            </div>
+        </div>
+        <div class="d-flex justify-content-end gap-2 mt-3">
+            <button pButton severity="success" (click)="UpdateStatus(selectedRecords,2)">
+                <i class="pi pi-check" pButtonIcon></i>
+                <span pButtonLabel>Complete</span>
+            </button>
+        </div>
+    </div>
+    <div *ngIf="isCompleted(selectedRecords?.status)">
+        <div class="row mt-3">
+            <div class="col-md-12 d-flex flex-column">
+                <label>Advice Response</label>
+                <p>{{selectedRecords?.adviceResponse}}</p>
+            </div>
+        </div>
+        <p class="text-success mt-3 text-right"><i class="pi pi-check-circle"></i> Request Completed</p>
+    </div>
 </p-dialog>

@@ -32,6 +32,12 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
+using EMRSystem.EmergencyProcedure;
+using EMRSystem.IpdChargeEntry;
+using Stripe.V2;
+using Abp.EntityFrameworkCore.Repositories;
+using EMRSystem.Pharmacist.Dto;
+using EMRSystem.MedicineOrder;
 
 
 namespace EMRSystem.Prescriptions
@@ -48,13 +54,23 @@ namespace EMRSystem.Prescriptions
         private readonly IRepository<EMRSystem.EmergencyProcedure.EmergencyProcedure, long> _emergencyProcedureRepository;
         private readonly IRepository<EMRSystem.IpdChargeEntry.IpdChargeEntry, long> _ipdChargeEntryRepository;
         private readonly IRepository<EMRSystem.Admission.Admission, long> _admissionRepository;
+        private readonly IRepository<EMRSystem.Doctors.ConsultationRequests, long> _consultationRequestsRepository;
+        private readonly IRepository<EMRSystem.Pharmacists.PharmacistPrescriptions, long> _pharmacistPrescriptionsRepository;
+        private readonly IRepository<EMRSystem.Pharmacists.PharmacistPrescriptionsItem, long> _pharmacistPrescriptionsItemRepository;
+        private readonly IRepository<EMRSystem.Pharmacists.PharmacistInventory, long> _pharmacistInventoryRepository;
 
         private readonly UserManager _userManager;
         public PrescriptionAppService(IRepository<Prescription, long> repository, IRepository<EMRSystem.Admission.Admission, long> admissionRepository, 
             IRepository<EMRSystem.IpdChargeEntry.IpdChargeEntry, long> ipdChargeEntryRepository
             , IDoctorAppService doctorAppService, UserManager userManager, IRepository<Appointment, long> appointmentRepository,
             IRepository<Patient, long> patientRepository, IRepository<EMRSystem.LabReports.PrescriptionLabTest, long> prescriptionLabTestRepository
-            , IRepository<EmergencyChargeEntries.EmergencyChargeEntry, long> emergencyChargeEntriesRepository, IRepository<DoctorMaster.DoctorMaster, long> doctorMasterRepository, IRepository<EmergencyProcedure.EmergencyProcedure, long> emergencyProcedureRepository) : base(repository)
+            , IRepository<EmergencyChargeEntries.EmergencyChargeEntry, long> emergencyChargeEntriesRepository,
+            IRepository<DoctorMaster.DoctorMaster, long> doctorMasterRepository,
+            IRepository<EmergencyProcedure.EmergencyProcedure, long> emergencyProcedureRepository,
+            IRepository<Doctors.ConsultationRequests, long> consultationRequestsRepository,
+            IRepository<EMRSystem.Pharmacists.PharmacistPrescriptions, long> pharmacistPrescriptionsRepository,
+            IRepository<Pharmacists.PharmacistInventory, long> pharmacistInventoryRepository,
+            IRepository<EMRSystem.Pharmacists.PharmacistPrescriptionsItem, long> pharmacistPrescriptionsItemRepository) : base(repository)
         {
             _doctorAppService = doctorAppService;
             _userManager = userManager;
@@ -66,6 +82,10 @@ namespace EMRSystem.Prescriptions
             _emergencyProcedureRepository = emergencyProcedureRepository;
             _ipdChargeEntryRepository = ipdChargeEntryRepository;
             _admissionRepository = admissionRepository;
+            _consultationRequestsRepository = consultationRequestsRepository;
+            _pharmacistPrescriptionsRepository = pharmacistPrescriptionsRepository;
+            _pharmacistInventoryRepository = pharmacistInventoryRepository;
+            _pharmacistPrescriptionsItemRepository = pharmacistPrescriptionsItemRepository;
         }
         protected override IQueryable<Prescription> CreateFilteredQuery(PagedPrescriptionResultRequestDto input)
         {
@@ -165,8 +185,11 @@ namespace EMRSystem.Prescriptions
 
             // Map Items
             prescription.Items = input.Items
-                .Select(item => ObjectMapper.Map<PrescriptionItem>(item))
-                .ToList();
+                .Select(item =>
+                {
+                    item.Qty = CalculateQty(item.Frequency, item.Duration);
+                    return ObjectMapper.Map<PrescriptionItem>(item);
+                }).ToList();
 
             if (input.EmergencyProcedures != null && input.EmergencyProcedures.Any())
             {
@@ -174,6 +197,7 @@ namespace EMRSystem.Prescriptions
                     .Select(itm => ObjectMapper.Map<SelectedEmergencyProcedures>(itm))
                     .ToList();
             }
+
             // Save prescription (to get Id)
             await Repository.InsertAsync(prescription);
             await CurrentUnitOfWork.SaveChangesAsync(); // Needed to get prescription.Id
@@ -266,6 +290,22 @@ namespace EMRSystem.Prescriptions
                     }
                 }
 
+
+                // create Pharmacist Prescriptions
+                    var dto = new EMRSystem.Pharmacists.PharmacistPrescriptions();
+                    dto.TenantId = input.TenantId;
+                    dto.PrescriptionId = prescription.Id;
+                    dto.IssueDate = DateTime.Now;
+                    dto.Order_Status = OrderStatus.Pending;
+                    var res = await _pharmacistPrescriptionsRepository.InsertAndGetIdAsync(dto);
+
+                    // create Pharmacist Prescriptions Item
+                    var dto2 = new EMRSystem.Pharmacists.PharmacistPrescriptionsItem();
+                    dto2.TenantId = input.TenantId;
+                    dto2.PharmacistPrescriptionId = res;
+                    dto2.GrandTotal = await GetGrandTotal(prescription.Id);
+                    dto2.CreatedAt = DateTime.Now;
+                    await _pharmacistPrescriptionsItemRepository.InsertAsync(dto2);
             }
             else
             {
@@ -301,6 +341,11 @@ namespace EMRSystem.Prescriptions
                 await _appointmentRepository.UpdateAsync(appointment);
             }
 
+            if (input.IsSpecialAdviceRequired)
+            {
+                input.CreateUpdateConsultationRequests.PrescriptionId = prescription.Id;
+                await CreateConsultationRequest(input.CreateUpdateConsultationRequests);
+            }
             await CurrentUnitOfWork.SaveChangesAsync();
         }
 
@@ -331,6 +376,7 @@ namespace EMRSystem.Prescriptions
             // Update existing items or add new ones
             foreach (var inputItem in input.Items)
             {
+                inputItem.Qty = CalculateQty(inputItem.Frequency, inputItem.Duration);
                 var existingItem = existingItems.FirstOrDefault(i => i.Id == inputItem.Id);
                 if (existingItem != null)
                 {
@@ -467,6 +513,12 @@ namespace EMRSystem.Prescriptions
                     }
                 }
             }
+            if (input.IsSpecialAdviceRequired)
+            {
+                input.CreateUpdateConsultationRequests.PrescriptionId = existingPrescription.Id;
+                await CreateConsultationRequest(input.CreateUpdateConsultationRequests);
+            }
+
             await CreateUpdateCharges(input, input.Id, false);
 
         }
@@ -478,6 +530,7 @@ namespace EMRSystem.Prescriptions
                 x => x.Doctor,
                 x => x.Appointment,
                 x => x.LabTests,
+                x => x.Consultation_Requests,
                 x => x.SelectedEmergencyProcedureses,
                 x => x.Items); // Don't forget to include Items if needed
 
@@ -533,10 +586,19 @@ namespace EMRSystem.Prescriptions
                         Id = lt.Id,
                         EmergencyProcedureId = lt.EmergencyProcedureId,
                         PrescriptionId = lt.PrescriptionId,
-                    }).ToList()
+                    }).ToList(),
+                    Consultation_Requests = x.Consultation_Requests == null ? null : new EMRSystem.Doctors.ConsultationRequests
+                    {
+                        Id = x.Consultation_Requests.Id,
+                        PrescriptionId = x.Id,
+                        RequestingDoctorId = x.Consultation_Requests.RequestingDoctor.Id,
+                        RequestedSpecialistId = x.Consultation_Requests.RequestedSpecialist.Id,
+                        Status = x.Consultation_Requests.Status,
+                        Notes = x.Consultation_Requests.Notes,
+                        AdviceResponse = x.Consultation_Requests.AdviceResponse,
+                    },
                 })
                 .FirstOrDefaultAsync();
-
             if (details == null)
             {
                 throw new EntityNotFoundException(typeof(Prescription), id);
@@ -544,6 +606,7 @@ namespace EMRSystem.Prescriptions
 
             var prescription = ObjectMapper.Map<CreateUpdatePrescriptionDto>(details);
             prescription.LabTestIds = details.LabTests.Select(lt => lt.LabReportsTypeId).ToList();
+            prescription.CreateUpdateConsultationRequests = ObjectMapper.Map<CreateUpdateConsultationRequestsDto>(details.Consultation_Requests);
 
             return prescription;
         }
@@ -638,6 +701,7 @@ namespace EMRSystem.Prescriptions
                 .Include(p => p.Patient)
                 .Include(p => p.Doctor)
                 .Include(p => p.LabTests)
+                .Include(p => p.Items)
                 .Where(p => p.Patient.Id == patientId)
                 .OrderByDescending(p => p.IssueDate);
 
@@ -663,6 +727,19 @@ namespace EMRSystem.Prescriptions
                         // Add other needed DoctorDto properties here
                     },
                     LabTestIds = p.LabTests.Select(lt => lt.LabReportsTypeId).ToList(),
+                    PharmacistPrescription = p.Items.Select(x => new PharmacistPrescriptionItemWithUnitPriceDto
+                    {
+                        PrescriptionId = x.PrescriptionId,
+                        MedicineId = x.MedicineId,
+                        MedicineName = x.MedicineName,
+                        Dosage = x.Dosage,
+                        Frequency = x.Frequency,
+                        Duration = x.Duration,
+                        Instructions = x.Instructions,
+                        Qty = x.Qty,
+                        UnitPrice = _pharmacistInventoryRepository.Get(x.MedicineId).SellingPrice,
+                        TotalPayableAmount = 0
+                    }).ToList()
 
                     // Add other properties if needed
                 }).ToListAsync();
@@ -737,6 +814,74 @@ namespace EMRSystem.Prescriptions
                         await _emergencyChargeEntriesRepository.InsertAsync(chargeEntry);
                     }
                 }
+            }
+        }
+
+        public async Task CreateConsultationRequest(CreateUpdateConsultationRequestsDto requestsDto)
+        {
+            var mappedEntity = ObjectMapper.Map<EMRSystem.Doctors.ConsultationRequests>(requestsDto);
+            if (requestsDto.Id > 0)
+            {
+                await _consultationRequestsRepository.UpdateAsync(mappedEntity);
+            }
+            else
+            {
+                await _consultationRequestsRepository.InsertAsync(mappedEntity);
+            }
+        }
+
+        private (int value, string unit) ParseDuration(string duration)
+        {
+            if (string.IsNullOrWhiteSpace(duration))
+                return (0, "Days");
+
+            var parts = duration.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length < 2) return (0, "Days");
+
+            return (int.TryParse(parts[0], out int val) ? val : 0, parts[1]);
+        }
+
+        private int CalculateQty(string frequency, string duration)
+        {
+            var (value, unit) = ParseDuration(duration);
+
+            // Convert duration to days
+            int totalDays = unit switch
+            {
+                "Days" => value,
+                "Weeks" => value * 7,
+                "Months" => value * 30,
+                _ => value
+            };
+
+            // Map frequency to times per day
+            int timesPerDay = frequency switch
+            {
+                "Once a day" => 1,
+                "Twice a day" => 2,
+                "Three times a day" => 3,
+                "Four times a day" => 4,
+                "Every 6 hours" => 4,
+                "Every 8 hours" => 3,
+                "Every 12 hours" => 2,
+                "As needed" => 0, // PRN can't be predicted
+                _ => 0
+            };
+
+            var res = totalDays * timesPerDay;
+            return res;
+        }
+
+        public async Task<decimal> GetGrandTotal(long _id)
+        {
+            var list = Repository.GetAllIncluding(x => x.Items).FirstOrDefault(x => x.Id == _id);
+            if (list != null && list.Items != null)
+            {
+                return list.Items.Sum(x => x.Qty * (_pharmacistInventoryRepository.Get(x.MedicineId).SellingPrice));
+            }
+            else
+            {
+                return 0;
             }
         }
     }

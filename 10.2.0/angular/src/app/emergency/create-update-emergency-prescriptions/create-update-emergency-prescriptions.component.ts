@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
-import { AppointmentServiceProxy, CreateUpdatePrescriptionItemDto, LabReportsTypeServiceProxy, PharmacistInventoryDtoPagedResultDto, PharmacistInventoryServiceProxy, PrescriptionItemDto, PrescriptionServiceProxy, PatientDropDownDto, EmergencyServiceProxy, EmergencyCaseDto, DepartmentServiceProxy, DepartmentDto, ProcedureCategory, EmergencyProcedureServiceProxy, EmergencyProcedureDto, CreateUpdateEmergencyProcedureDto, CreateUpdateSelectedEmergencyProceduresDto } from '@shared/service-proxies/service-proxies';
+import { AppointmentServiceProxy, CreateUpdatePrescriptionItemDto, LabReportsTypeServiceProxy, PharmacistInventoryDtoPagedResultDto, PharmacistInventoryServiceProxy, PrescriptionItemDto, PrescriptionServiceProxy, PatientDropDownDto, EmergencyServiceProxy, EmergencyCaseDto, DepartmentServiceProxy, DepartmentDto, ProcedureCategory, EmergencyProcedureServiceProxy, EmergencyProcedureDto, CreateUpdateEmergencyProcedureDto, CreateUpdateSelectedEmergencyProceduresDto, CreateUpdateConsultationRequestsDto, Status } from '@shared/service-proxies/service-proxies';
 import { AbpModalHeaderComponent } from '../../../shared/components/modal/abp-modal-header.component';
 import { AbpModalFooterComponent } from '../../../shared/components/modal/abp-modal-footer.component';
 import { AppComponentBase } from '../../../shared/app-component-base';
@@ -76,7 +76,17 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
     specialistDoctorId: 0,
     isSpecialAdviceRequired: false,
     departmentId: 0,
-    emergencyProcedures: []
+    emergencyProcedures: [],
+    createUpdateConsultationRequests: {
+    id: 0,
+    tenantId: abp.session.tenantId,
+    patientId: 0,
+    requestingDoctorId: 0,
+    requestedSpecialistId: 0,
+    status: 0,
+    notes: '',
+    adviceResponse: ''
+  }
   };
   doctors!: DoctorDto[];
   isAdmin!: boolean;
@@ -264,7 +274,6 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
   loadPrescription(): void {
     this._prescriptionService.getPrescriptionDetailsById(this.id).subscribe({
       next: (result) => {
-        debugger
         this.prescription = {
           id: result.id,
           tenantId: result.tenantId,
@@ -280,6 +289,7 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
           departmentId: result.departmentId,
           specialistDoctorId: result.specialistDoctorId,
           isSpecialAdviceRequired: result.isSpecialAdviceRequired,
+          createUpdateConsultationRequests:result.createUpdateConsultationRequests?result.createUpdateConsultationRequests:new CreateUpdateConsultationRequestsDto(),
           items: result.items.map(i => {
             const durationParts = i.duration?.split(' ') || ['', ''];
             return {
@@ -367,6 +377,19 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
         tenantId: this.prescription.tenantId
       })),
     });
+    if (this.prescription.isSpecialAdviceRequired && this.prescription.specialistDoctorId > 0) {
+      const consultationRequests = new CreateUpdateConsultationRequestsDto();
+      consultationRequests.id = this.prescription.createUpdateConsultationRequests.id;
+      consultationRequests.tenantId = abp.session.tenantId;
+      consultationRequests.prescriptionId = this.prescription.id;
+      consultationRequests.requestingDoctorId = this.isAdmin ? this.prescription.doctorId : this.doctorID;
+      consultationRequests.requestedSpecialistId = this.prescription.specialistDoctorId > 0 ? this.prescription.specialistDoctorId : null;
+      consultationRequests.status = Status._0;
+      consultationRequests.notes = this.prescription.createUpdateConsultationRequests.notes;
+      consultationRequests.adviceResponse = this.prescription.createUpdateConsultationRequests.adviceResponse;
+
+      input.createUpdateConsultationRequests = consultationRequests;
+    }
     input.items = this.prescription.items.map(item => {
       const dtoItem = new CreateUpdatePrescriptionItemDto();
       dtoItem.init({
@@ -422,6 +445,20 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
         tenantId: this.prescription.tenantId
       })),
     });
+    if (this.prescription.isSpecialAdviceRequired && this.prescription.specialistDoctorId > 0) {
+      const consultationRequests = new CreateUpdateConsultationRequestsDto();
+      consultationRequests.id = 0;
+      consultationRequests.tenantId = abp.session.tenantId;
+      consultationRequests.prescriptionId = this.prescription.id;
+      consultationRequests.requestingDoctorId = this.isAdmin ? this.prescription.doctorId : this.doctorID;
+      consultationRequests.requestedSpecialistId = this.prescription.specialistDoctorId > 0 ? this.prescription.specialistDoctorId : null;
+      consultationRequests.status = Status._0;
+      consultationRequests.notes = this.prescription.createUpdateConsultationRequests.notes;
+      consultationRequests.adviceResponse = this.prescription.createUpdateConsultationRequests.adviceResponse;
+
+      input.createUpdateConsultationRequests = consultationRequests;
+    }
+
     input.items = this.prescription.items.map(item => {
       const dtoItem = new CreateUpdatePrescriptionItemDto();
       dtoItem.init({

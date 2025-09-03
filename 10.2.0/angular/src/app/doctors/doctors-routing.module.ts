@@ -7,6 +7,7 @@ import { VisitsComponent } from './visits/visits.component';
 import { AppRouteGuard } from '@shared/auth/auth-route-guard';
 import { LabOrdersComponent } from './lab-orders/lab-orders.component';
 import { ViewAppoinmentComponent } from './view-appoinment/view-appoinment.component';
+import { ConsultationRequestsComponent } from './consultation-requests/consultation-requests.component';
 
 
 const routes: Routes = [
@@ -34,6 +35,10 @@ const routes: Routes = [
             {
                 path: 'visits',
                 component: VisitsComponent,
+            },
+            {
+                path: 'consultation-requests',
+                component: ConsultationRequestsComponent,
             },
             {
                 path: '',

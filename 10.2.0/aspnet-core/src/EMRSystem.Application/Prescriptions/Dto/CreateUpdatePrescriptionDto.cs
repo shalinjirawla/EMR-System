@@ -1,4 +1,5 @@
 ﻿using Abp.Application.Services.Dto;
+using EMRSystem.Doctor.Dto;
 using EMRSystem.EmergencyProcedure.Dto;
 using System;
 using System.Collections.Generic;
@@ -26,5 +27,6 @@ namespace EMRSystem.Prescriptions.Dto
         public long? DepartmentId { get; set; }
         public long? SpecialistDoctorId { get; set; }
         public bool IsSpecialAdviceRequired { get; set; }
+        public CreateUpdateConsultationRequestsDto CreateUpdateConsultationRequests { get; set; }
     }
 }

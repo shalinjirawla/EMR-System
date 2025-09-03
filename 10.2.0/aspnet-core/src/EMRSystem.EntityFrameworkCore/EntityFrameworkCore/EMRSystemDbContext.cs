@@ -79,6 +79,9 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
     public DbSet<EMRSystem.Emergency.EmergencyMaster.EmergencyMaster> EmergencyMaster { get; set; }
     public DbSet<EmergencyChargeEntry> EmergencyChargeEntry { get; set; }
     public DbSet<EMRSystem.EmergencyProcedure.EmergencyProcedure> EmergencyProcedures { get; set; }
+    public DbSet<EMRSystem.Doctors.ConsultationRequests> ConsultationRequests { get; set; }
+    public DbSet<PharmacistPrescriptions> PharmacistPrescriptions { get; set; }
+    public DbSet<PharmacistPrescriptionsItem> PharmacistPrescriptionsItem { get; set; }
 
 
 
@@ -109,6 +112,24 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
                 .WithMany(dep => dep.Doctors)
                 .HasForeignKey(d => d.DepartmentId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Prescription>()
+               .HasOne(d => d.Consultation_Requests)
+               .WithOne(dep => dep.Prescriptions)
+               .HasForeignKey<ConsultationRequests>(c => c.PrescriptionId)
+               .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ConsultationRequests>()
+               .HasOne(d => d.RequestingDoctor)
+               .WithMany(dep => dep.RequestingDoctor_Consultation_Requests)
+               .HasForeignKey(d => d.RequestingDoctorId)
+               .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ConsultationRequests>()
+              .HasOne(d => d.RequestedSpecialist)
+              .WithMany(dep => dep.RequestedSpecialist_Consultation_Requests)
+              .HasForeignKey(d => d.RequestedSpecialistId)
+              .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<LabTechnician>()
                 .HasOne(s => s.AbpUser)
@@ -692,8 +713,8 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
             // Unique emergency number
             b.HasIndex(e => e.EmergencyNumber).IsUnique();
         });
-        
-        
+
+
         modelBuilder.Entity<Triage>(b =>
         {
             b.ToTable("Triages");
@@ -763,5 +784,29 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
             .OnDelete(DeleteBehavior.Restrict);
         });
 
+        modelBuilder.Entity<PharmacistPrescriptions>(b =>
+        {
+            b.ToTable("PharmacistPrescriptions");
+
+            b.HasOne(e => e.Prescriptions)
+             .WithOne(d => d.PharmacistPrescriptions)
+              .HasForeignKey<PharmacistPrescriptions>(c => c.PrescriptionId)
+             .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(e => e.Nurse)
+            .WithMany(d => d.PharmacistPrescriptions)
+            .HasForeignKey(e => e.PickedUpBy)
+            .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<PharmacistPrescriptionsItem>(b =>
+        {
+            b.ToTable("PharmacistPrescriptionsItem");
+
+            b.HasOne(e => e.PharmacistPrescription)
+            .WithMany(d => d.PharmacistPrescriptionsItem)
+            .HasForeignKey(e => e.PharmacistPrescriptionId)
+            .OnDelete(DeleteBehavior.Restrict);
+        });
     }
 }

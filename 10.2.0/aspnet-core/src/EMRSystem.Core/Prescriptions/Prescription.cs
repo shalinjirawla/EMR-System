@@ -7,6 +7,7 @@ using EMRSystem.Emergency.EmergencyCase;
 using EMRSystem.EmergencyProcedure;
 using EMRSystem.LabReports;
 using EMRSystem.Patients;
+using EMRSystem.Pharmacists;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,6 +42,7 @@ namespace EMRSystem.Prescriptions
         public ICollection<SelectedEmergencyProcedures> SelectedEmergencyProcedureses { get; set; }
         public virtual ICollection<EMRSystem.EmergencyChargeEntries.EmergencyChargeEntry> EmergencyChargeEntries { get; set; }
         public virtual ICollection<EMRSystem.IpdChargeEntry.IpdChargeEntry> IpdChargeEntries { get; set; }
-
+        public virtual PharmacistPrescriptions PharmacistPrescriptions { get; set; }
+        public virtual EMRSystem.Doctors.ConsultationRequests Consultation_Requests { get; set; }
     }
 }
