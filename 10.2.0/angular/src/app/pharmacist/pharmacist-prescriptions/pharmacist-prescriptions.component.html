@@ -5,12 +5,12 @@
                 <div class="col-6">
                     <h1>Prescription</h1>
                 </div>
-                <!-- <div class="col-6 text-right">
-                    <a href="javascript:;" class="btn bg-blue" (click)="createPrescription()">
+                <div class="col-6 text-right">
+                    <a href="javascript:;" class="btn bg-blue" (click)="createNew()">
                         <i class="fa fa-plus-square"></i>
                         {{ 'Create' | localize }}
                     </a>
-                </div> -->
+                </div>
             </div>
         </div>
     </section>
@@ -83,19 +83,19 @@
                             <ng-template pTemplate="header">
                                 <tr>
                                     <th style="min-width: 150px" pSortableColumn="patientName">
-                                        Patient
+                                        Patient Name
                                         <p-sortIcon field="patientName"></p-sortIcon>
                                     </th>
                                     <th style="min-width: 150px" pSortableColumn="nurseName">
-                                        Nurse
+                                        Prescribed By
                                         <p-sortIcon field="nurseName"></p-sortIcon>
                                     </th>
                                     <th style="min-width: 150px">
-                                        Date
+                                        Issue Date
                                         <!-- <p-sortIcon field="name"></p-sortIcon> pSortableColumn="name" -->
                                     </th>
                                     <th style="min-width: 150px">
-                                        Medications
+                                        Collection Status
                                     </th>
                                     <th style="min-width: 130px">
                                         {{ 'Actions' | localize }}
@@ -107,42 +107,28 @@
                                 <tr>
                                     <td>
                                         <span>
-                                            {{ record.patient.fullName }}
+                                            {{ record.patientName }}
                                         </span>
                                     </td>
                                     <td>
                                         <span>
-                                        {{ record.nurse.fullName }}
+                                            {{ record.doctorName }}
                                         </span>
                                     </td>
                                     <td>
                                         <span>
-                                            {{ record.orderDate| date: 'dd/MM/yyyy' }}
+                                            {{ record.issueDate| date: 'dd/MM/yyyy' }}
                                         </span>
                                     </td>
                                     <td>
-                                        <div *ngFor="let itm of record.items">
-                                            <span>{{ itm.medicineName}} {{itm.dosage}} ({{itm.quantity}})</span>
-                                        </div>
+                                         <p-tag [value]="getStatusLabel(record.collectionStatus)"
+                                            [severity]="getStatusSeverity(record.collectionStatus)" [rounded]="true">
+                                        </p-tag>
                                     </td>
                                     <td>
-                                        <button type="button" pButton icon="pi pi-ellipsis-v" class="p-button-text"
-                                            (click)="rowMenu.toggle($event); selectedRecord = record">
-                                        </button>
-                                        <p-overlayPanel #rowMenu class="custom-overlay" [dismissable]="true">
-                                            <ul class="custom-overlay-menu">
-                                                <li (click)="ViewDispense(selectedRecord)">
-                                                    <i class="pi pi-eye mr-2"></i>
-                                                    View & Dispense
-                                                </li>
-                                                <!-- <li (click)="editPrescription(selectedRecord)">
-                                                    <i class="pi pi-pencil"></i> Edit
-                                                </li>
-                                                <li (click)="delete(selectedRecord)">
-                                                    <i class="pi pi-trash"></i> Delete
-                                                </li> -->
-                                            </ul>
-                                        </p-overlayPanel>
+                                        <a (click)="View(record)">
+                                            <i class="pi pi-eye mr-2"></i>
+                                        </a>
                                     </td>
                                 </tr>
                             </ng-template>
@@ -180,3 +166,14 @@
         </div>
     </section>
 </div>
+
+<p-dialog [header]="selectedRecordForView?.patientName" [(visible)]="visible" [modal]="true" [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+    [style]="{ width: '40vw' }" [draggable]="false" [resizable]="false">
+    <p>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
+        magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+        consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+        pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est
+        laborum.
+    </p>
+</p-dialog>

@@ -31,5 +31,6 @@ namespace EMRSystem.Prescriptions.Dto
         public List<PrescriptionLabTestDto> LabTests { get; set; }
         public DepartmentDto Departments { get; set; }
         public bool IsSpecialAdviceRequired { get; set; }
+        public List<PharmacistPrescriptionItemWithUnitPriceDto> PharmacistPrescription { get; set; }
     }
 }

@@ -80,6 +80,8 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
     public DbSet<EmergencyChargeEntry> EmergencyChargeEntry { get; set; }
     public DbSet<EMRSystem.EmergencyProcedure.EmergencyProcedure> EmergencyProcedures { get; set; }
     public DbSet<EMRSystem.Doctors.ConsultationRequests> ConsultationRequests { get; set; }
+    public DbSet<PharmacistPrescriptions> PharmacistPrescriptions { get; set; }
+    public DbSet<PharmacistPrescriptionsItem> PharmacistPrescriptionsItem { get; set; }
 
 
 
@@ -701,8 +703,8 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
             // Unique emergency number
             b.HasIndex(e => e.EmergencyNumber).IsUnique();
         });
-        
-        
+
+
         modelBuilder.Entity<Triage>(b =>
         {
             b.ToTable("Triages");
@@ -772,5 +774,29 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
             .OnDelete(DeleteBehavior.Restrict);
         });
 
+        modelBuilder.Entity<PharmacistPrescriptions>(b =>
+        {
+            b.ToTable("PharmacistPrescriptions");
+
+            b.HasOne(e => e.Prescriptions)
+             .WithOne(d => d.PharmacistPrescriptions)
+              .HasForeignKey<PharmacistPrescriptions>(c => c.PrescriptionId)
+             .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(e => e.Nurse)
+            .WithMany(d => d.PharmacistPrescriptions)
+            .HasForeignKey(e => e.PickedUpBy)
+            .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<PharmacistPrescriptionsItem>(b =>
+        {
+            b.ToTable("PharmacistPrescriptionsItem");
+
+            b.HasOne(e => e.PharmacistPrescription)
+            .WithMany(d => d.PharmacistPrescriptionsItem)
+            .HasForeignKey(e => e.PharmacistPrescriptionId)
+            .OnDelete(DeleteBehavior.Restrict);
+        });
     }
 }

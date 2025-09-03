@@ -1,0 +1,95 @@
+<div class="form-container" style="position: relative;">
+    <div class="overlay" *ngIf="isSaving">
+        <p-progressSpinner></p-progressSpinner>
+    </div>
+    <form class="form-horizontal" autocomplete="off" #createPharmacistPrescriptionForm="ngForm" (ngSubmit)="save()">
+        <abp-modal-header title="Create Pharmacist Prescription" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
+
+        <div class="modal-body">
+
+            <!-- Patient Selection -->
+            <div class="row">
+                <div class="col-md-12">
+                    <label><b>Select Patient</b></label>
+                    <p-select [options]="patients" optionLabel="fullName" [optionValue]="'id'"
+                        placeholder="Select Patient" [(ngModel)]="selectedPatient" name="patientId"
+                        (onChange)="onPatientChange()" class="w-100" required>
+                    </p-select>
+                </div>
+            </div>
+
+            <!-- Prescription (Only if OPD) -->
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    <label>Select Prescription</label>
+                    <p-select [options]="prescriptions" optionLabel="prescriptionName" optionValue="id"
+                        placeholder="Select Prescription" [(ngModel)]="selectedPrescription" name="prescriptionId"
+                        (onChange)="onPrescriptionChange($event.value)" class="w-100" required>
+                    </p-select>
+                </div>
+            </div>
+
+            <!-- Selected Tests -->
+            <div class="row mt-3" *ngIf="selectedPrescriptionItem?.length">
+                <div class="col-md-12">
+                    <h5>Selected Prescription Items</h5>
+                    <ul class="list-group">
+                        <li *ngFor="let itm of selectedPrescriptionItem" class="list-group-item">
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <span><b> {{ itm.medicineName }} </b><small>({{ itm.dosage}})</small></span>
+                                </div>
+                                <div class="col-md-1">
+                                    <span>₹{{ itm.unitPrice }}</span>
+                                </div>
+                                <div class="col-md-4">
+                                    <span class="small text-muted">{{ itm.frequency }} | {{ itm.duration }}</span>
+                                </div>
+                                <div class="col-md-2 text-right">
+                                    <span>Qty : {{ itm.qty }}</span>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="mt-2 text-right">
+                        <strong>Total: ₹{{ getPrescriptionTotal() }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-2">
+                <div class="col-md-12">
+                    <label>Notes</label>
+                    <textarea pTextarea [(ngModel)]="pharmacyNotes" name="pharmacyNotes"
+                        placeholder="Notes" rows="3" class="w-100" required></textarea>
+                </div>
+
+            </div>
+            <!-- Payment Method -->
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    <label>Payment Method</label>
+                    <div class="d-flex">
+                        <div class="payment-option" [class.active]="paymentMethod === PaymentMethod._1"
+                            (click)="setPaymentMethod(PaymentMethod._1)">
+                            💳 Card
+                        </div>
+                        <div class="payment-option ml-2" [class.active]="paymentMethod === PaymentMethod._0"
+                            (click)="setPaymentMethod(PaymentMethod._0)">
+                            💵 Cash
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <abp-modal-footer [cancelDisabled]="isSaving"
+            [saveDisabled]="!createPharmacistPrescriptionForm.form.valid  || isSaving"
+            (onCancelClick)="bsModalRef.hide()">
+            <ng-container *ngIf="isSaving">
+                <i class="pi pi-spin pi-spinner" style="margin-right: 8px;"></i> Saving...
+            </ng-container>
+        </abp-modal-footer>
+    </form>
+</div>
