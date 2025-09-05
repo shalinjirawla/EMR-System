@@ -18,5 +18,7 @@ namespace EMRSystem.Deposit.Dto
         public DateTime TransactionDate { get; set; }
         public string Description { get; set; }
         public bool IsPaid { get; set; }
+        public string? PaymentIntentId { get; set; }
+
     }
 }

@@ -2,6 +2,7 @@
 using EMRSystem.Appointments.Dto;
 using EMRSystem.Departments.Dto;
 using EMRSystem.Doctor.Dto;
+using EMRSystem.EmergencyProcedure.Dto;
 using EMRSystem.Patients;
 using EMRSystem.Patients.Dto;
 using EMRSystem.PrescriptionLabTest.Dto;
@@ -32,5 +33,6 @@ namespace EMRSystem.Prescriptions.Dto
         public DepartmentDto Departments { get; set; }
         public bool IsSpecialAdviceRequired { get; set; }
         public List<PharmacistPrescriptionItemWithUnitPriceDto> PharmacistPrescription { get; set; }
+        public List<SelectedEmergencyProceduresDto> Procedures { get; set; }
     }
 }

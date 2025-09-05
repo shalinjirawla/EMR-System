@@ -54,7 +54,7 @@
           <div class="row-item">
             <strong>{{ it.packageName }}</strong>
             <ul class="package-items mt-1">
-              <li *ngFor="let p of it.packageTests">- {{ p }}</li>
+              <li *ngFor="let p of it.packageTests"> {{ p }}</li>
             </ul>
           </div>
           <div class="row-item amount">{{ it.packagePrice | currency:'INR' }}</div>

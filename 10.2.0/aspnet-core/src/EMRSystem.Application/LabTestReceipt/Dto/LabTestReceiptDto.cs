@@ -16,6 +16,7 @@ namespace EMRSystem.LabTestReceipt.Dto
         public long PatientId { get; set; }
         public PatientDto Patient { get; set; }
         public decimal TotalFee { get; set; }
+        public string? PaymentIntentId { get; set; }
         public string ReceiptNumber { get; set; }
         public DateTime PaymentDate { get; set; }
         public PaymentMethod PaymentMethod { get; set; }

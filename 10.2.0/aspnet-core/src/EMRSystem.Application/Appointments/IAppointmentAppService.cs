@@ -15,6 +15,6 @@ namespace EMRSystem.Appointments
     public interface IAppointmentAppService : IAsyncCrudAppService<
    AppointmentDto, long, PagedAppoinmentResultRequestDto, CreateUpdateAppointmentDto, CreateUpdateAppointmentDto>
     {
-        Task<AppointmentReceiptDto> GenerateAppointmentReceipt(long appointmentId, string paymentMethod);
+        Task<AppointmentReceiptDto> GenerateAppointmentReceipt(long appointmentId, string paymentMethod, string paymentIntentId);
     }
 }

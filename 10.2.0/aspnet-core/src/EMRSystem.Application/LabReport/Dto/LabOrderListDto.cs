@@ -14,7 +14,7 @@ namespace EMRSystem.LabReport.Dto
     {
         public string PatientName { get; set; }
         public string Gender { get; set; }
-        public DateTime AppointmentDate { get; set; }
+        public DateTime Date { get; set; }
         public string DoctorName { get; set; }
         public string LabReportTypeName { get; set; }
         public LabTestStatus TestStatus { get; set; }
