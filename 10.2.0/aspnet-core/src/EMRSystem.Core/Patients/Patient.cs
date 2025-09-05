@@ -8,6 +8,7 @@ using EMRSystem.Emergency.EmergencyCase;
 using EMRSystem.Invoices;
 using EMRSystem.LabReports;
 using EMRSystem.Nurses;
+using EMRSystem.Pharmacists;
 using EMRSystem.Prescriptions;
 using EMRSystem.ProcedureReceipts;
 using EMRSystem.Visits;
@@ -50,6 +51,7 @@ namespace EMRSystem.Patients
         public virtual ICollection<ProcedureReceipt> ProcedureReceipts { get; set; }
         public virtual ICollection<EmergencyCase> EmergencyCases { get; set; }
         public virtual ICollection<EMRSystem.EmergencyChargeEntries.EmergencyChargeEntry> EmergencyChargeEntries { get; set; }
+        public virtual ICollection<PharmacistPrescriptions> PharmacistPrescriptions { get; set; }
 
 
         //public DateTime? AdmissionDate { get; set; }

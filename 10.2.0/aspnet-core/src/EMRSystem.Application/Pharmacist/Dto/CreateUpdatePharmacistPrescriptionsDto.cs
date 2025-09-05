@@ -1,5 +1,6 @@
 ﻿using Abp.Application.Services.Dto;
 using EMRSystem.MedicineOrder;
+using EMRSystem.Pharmacists;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,11 @@ namespace EMRSystem.Pharmacist.Dto
     {
         public int TenantId { get; set; }
         public long? PrescriptionId { get; set; }
+        public long? PickedUpByNurse { get; set; }
+        public long? PickedUpByPatient { get; set; }
         public DateTime? IssueDate { get; set; }
-        public OrderStatus Order_Status { get; set; }
+        public string PharmacyNotes { get; set; }
+        public CollectionStatus CollectionStatus { get; set; }
+        public decimal GrandTotal { get; set; }
     }
 }

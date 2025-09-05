@@ -47,7 +47,7 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
     public DbSet<Patient> Patients { get; set; }
     public DbSet<Prescription> Prescriptions { get; set; }
     public DbSet<Vital> Vitals { get; set; }
-    //public DbSet<PrescriptionItem> PrescriptionItems { get; set; }
+    public DbSet<PrescriptionItem> PrescriptionItem { get; set; }
     public DbSet<PrescriptionLabTest> PrescriptionLabTests { get; set; }
     public DbSet<Invoice> Invoices { get; set; }
     public DbSet<InvoiceItem> InvoiceItems { get; set; }
@@ -82,10 +82,11 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
     public DbSet<EMRSystem.EmergencyProcedure.EmergencyProcedure> EmergencyProcedures { get; set; }
     public DbSet<EMRSystem.Doctors.ConsultationRequests> ConsultationRequests { get; set; }
     public DbSet<PharmacistPrescriptions> PharmacistPrescriptions { get; set; }
-    public DbSet<PharmacistPrescriptionsItem> PharmacistPrescriptionsItem { get; set; }
+
     public DbSet<SelectedEmergencyProcedures> SelectedEmergencyProcedures { get; set; }
 
     public DbSet<ProcedureReceipt> ProcedureReceipts { get; set; }
+
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -837,18 +838,14 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
 
             b.HasOne(e => e.Nurse)
             .WithMany(d => d.PharmacistPrescriptions)
-            .HasForeignKey(e => e.PickedUpBy)
+            .HasForeignKey(e => e.PickedUpByNurse)
             .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(e => e.Patient)
+           .WithMany(d => d.PharmacistPrescriptions)
+           .HasForeignKey(e => e.PickedUpByPatient)
+           .OnDelete(DeleteBehavior.Restrict);
         });
 
-        modelBuilder.Entity<PharmacistPrescriptionsItem>(b =>
-        {
-            b.ToTable("PharmacistPrescriptionsItem");
-
-            b.HasOne(e => e.PharmacistPrescription)
-            .WithMany(d => d.PharmacistPrescriptionsItem)
-            .HasForeignKey(e => e.PharmacistPrescriptionId)
-            .OnDelete(DeleteBehavior.Restrict);
-        });
     }
 }

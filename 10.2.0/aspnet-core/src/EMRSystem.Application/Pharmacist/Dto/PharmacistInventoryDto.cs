@@ -23,4 +23,10 @@ namespace EMRSystem.Pharmacist.Dto
         public string StockStatus { get; set; }
         public string ExpiryStatus { get; set; }
     }
+    public class MedicineStatusResult
+    {
+        public bool IsAvailable { get; set; }
+        public string Message { get; set; }
+        public int AvailableStock { get; set; }
+    }
 }

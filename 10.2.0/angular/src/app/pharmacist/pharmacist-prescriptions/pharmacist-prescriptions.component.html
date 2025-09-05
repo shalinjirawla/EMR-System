@@ -3,10 +3,10 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-6">
-                    <h1>Prescription</h1>
+                    <h1>Pharmacist Prescriptions</h1>
                 </div>
                 <div class="col-6 text-right">
-                    <a href="javascript:;" class="btn bg-blue" (click)="createNew()">
+                    <a href="javascript:;" class="btn bg-blue" (click)="createUpdate()">
                         <i class="fa fa-plus-square"></i>
                         {{ 'Create' | localize }}
                     </a>
@@ -121,14 +121,29 @@
                                         </span>
                                     </td>
                                     <td>
-                                         <p-tag [value]="getStatusLabel(record.collectionStatus)"
+                                        <p-tag [value]="getStatusLabel(record.collectionStatus)"
                                             [severity]="getStatusSeverity(record.collectionStatus)" [rounded]="true">
                                         </p-tag>
                                     </td>
                                     <td>
-                                        <a (click)="View(record)">
-                                            <i class="pi pi-eye mr-2"></i>
-                                        </a>
+                                        <button type="button" pButton icon="pi pi-ellipsis-v" class="p-button-text"
+                                            (click)="rowMenu.toggle($event); selectedRecord = record">
+                                        </button>
+                                        <p-overlayPanel #rowMenu class="custom-overlay" [dismissable]="true">
+                                            <ul class="custom-overlay-menu">
+                                                <li (click)="createUpdate(selectedRecord?.id)"
+                                                    *ngIf="record.collectionStatus===0">
+                                                    <i class="pi pi-pencil"></i> Edit
+                                                </li>
+                                                <li (click)="ViewPharmacistPrescriptions(record.prescriptionId)">
+                                                    <i class="pi pi-eye"></i> View
+                                                </li>
+                                                <li (click)="openPickupDialog(record.id)"
+                                                    *ngIf="record.collectionStatus===0">
+                                                    <i class="pi pi-check"></i> Mark as PickedUp
+                                                </li>
+                                            </ul>
+                                        </p-overlayPanel>
                                     </td>
                                 </tr>
                             </ng-template>
@@ -166,14 +181,21 @@
         </div>
     </section>
 </div>
-
-<p-dialog [header]="selectedRecordForView?.patientName" [(visible)]="visible" [modal]="true" [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
-    [style]="{ width: '40vw' }" [draggable]="false" [resizable]="false">
-    <p>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-        magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-        consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-        pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est
-        laborum.
-    </p>
+<p-dialog header="Mark Prescription as Picked Up" [modal]="true" [(visible)]="pickupDialog"
+    [style]="{ width: '30rem',height:'20rem' }" (onHide)="closePickupDialog()">
+    <div class="row">
+        <div class="col-md-12" *ngIf="!isPickedpByPatient">
+            <label><b>Select Nurse</b></label>
+            <p-select [(ngModel)]="selectedNurseId" name="nurseId" [options]="nurseOptions" optionLabel="fullName"
+                optionValue="id" placeholder="Select nurse" class="w-100" />
+        </div>
+        <div class="col-md-12 mt-3">
+            <b>PickedUp By Patient :</b> &nbsp;
+            <p-checkbox [binary]="true" [(ngModel)]="isPickedpByPatient" (onChange)="changeToPatient($event.checked)" />
+        </div>
+    </div>
+    <ng-template #footer>
+        <p-button label="Confirm PickUp" variant="outlined" severity="success" icon="pi pi-check"
+            (click)="markPickedUp()"></p-button>
+    </ng-template>
 </p-dialog>

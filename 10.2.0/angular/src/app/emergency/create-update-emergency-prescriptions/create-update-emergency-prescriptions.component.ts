@@ -401,7 +401,8 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
         frequency: item.frequency,
         duration: `${item.durationValue} ${item.durationUnit}`,
         instructions: item.instructions,
-        prescriptionId: this.prescription.id
+        prescriptionId: this.prescription.id,
+        isPrescribe:true
       });
       return dtoItem;
     });
@@ -464,7 +465,8 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
       dtoItem.init({
         ...item,
         duration: `${(item as any).durationValue} ${(item as any).durationUnit}`,
-        medicineId: item.medicineId // <-- Make sure this is included
+        medicineId: item.medicineId, // <-- Make sure this is included
+        isPrescribe:true
       });
       return dtoItem;
     });

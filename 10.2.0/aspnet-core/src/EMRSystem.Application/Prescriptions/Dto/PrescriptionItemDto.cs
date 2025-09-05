@@ -17,5 +17,7 @@ namespace EMRSystem.Prescriptions.Dto
         public long PrescriptionId { get; set; }
         public int MedicineId { get; set; }
         public int Qty { get; set; }
+        public decimal UnitPrice { get; set; }
+        public bool IsPrescribe { get; set; }
     }
 }

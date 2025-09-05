@@ -40,6 +40,15 @@ using System.Linq.Dynamic.Core;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 
+using EMRSystem.EmergencyProcedure;
+using EMRSystem.IpdChargeEntry;
+using Stripe.V2;
+using Abp.EntityFrameworkCore.Repositories;
+using EMRSystem.Pharmacist.Dto;
+using EMRSystem.MedicineOrder;
+using EMRSystem.Pharmacists;
+
+
 
 namespace EMRSystem.Prescriptions
 {
@@ -57,11 +66,10 @@ namespace EMRSystem.Prescriptions
         private readonly IRepository<EMRSystem.Admission.Admission, long> _admissionRepository;
         private readonly IRepository<EMRSystem.Doctors.ConsultationRequests, long> _consultationRequestsRepository;
         private readonly IRepository<EMRSystem.Pharmacists.PharmacistPrescriptions, long> _pharmacistPrescriptionsRepository;
-        private readonly IRepository<EMRSystem.Pharmacists.PharmacistPrescriptionsItem, long> _pharmacistPrescriptionsItemRepository;
         private readonly IRepository<EMRSystem.Pharmacists.PharmacistInventory, long> _pharmacistInventoryRepository;
 
         private readonly UserManager _userManager;
-        public PrescriptionAppService(IRepository<Prescription, long> repository, IRepository<EMRSystem.Admission.Admission, long> admissionRepository, 
+        public PrescriptionAppService(IRepository<Prescription, long> repository, IRepository<EMRSystem.Admission.Admission, long> admissionRepository,
             IRepository<EMRSystem.IpdChargeEntry.IpdChargeEntry, long> ipdChargeEntryRepository
             , IDoctorAppService doctorAppService, UserManager userManager, IRepository<Appointment, long> appointmentRepository,
             IRepository<Patient, long> patientRepository, IRepository<EMRSystem.LabReports.PrescriptionLabTest, long> prescriptionLabTestRepository
@@ -70,8 +78,8 @@ namespace EMRSystem.Prescriptions
             IRepository<EmergencyProcedure.EmergencyProcedure, long> emergencyProcedureRepository,
             IRepository<Doctors.ConsultationRequests, long> consultationRequestsRepository,
             IRepository<EMRSystem.Pharmacists.PharmacistPrescriptions, long> pharmacistPrescriptionsRepository,
-            IRepository<Pharmacists.PharmacistInventory, long> pharmacistInventoryRepository,
-            IRepository<EMRSystem.Pharmacists.PharmacistPrescriptionsItem, long> pharmacistPrescriptionsItemRepository) : base(repository)
+            IRepository<Pharmacists.PharmacistInventory, long> pharmacistInventoryRepository
+            ) : base(repository)
         {
             _doctorAppService = doctorAppService;
             _userManager = userManager;
@@ -86,7 +94,6 @@ namespace EMRSystem.Prescriptions
             _consultationRequestsRepository = consultationRequestsRepository;
             _pharmacistPrescriptionsRepository = pharmacistPrescriptionsRepository;
             _pharmacistInventoryRepository = pharmacistInventoryRepository;
-            _pharmacistPrescriptionsItemRepository = pharmacistPrescriptionsItemRepository;
         }
         protected override IQueryable<Prescription> CreateFilteredQuery(PagedPrescriptionResultRequestDto input)
         {
@@ -195,7 +202,7 @@ namespace EMRSystem.Prescriptions
             prescription.Items = input.Items
                 .Select(item =>
                 {
-                    item.Qty = CalculateQty(item.Frequency, item.Duration);
+                    item.UnitPrice = _pharmacistInventoryRepository.Get(item.MedicineId).SellingPrice;
                     return ObjectMapper.Map<PrescriptionItem>(item);
                 }).ToList();
 
@@ -301,22 +308,6 @@ namespace EMRSystem.Prescriptions
                     }
                 }
 
-
-                // create Pharmacist Prescriptions
-                    var dto = new EMRSystem.Pharmacists.PharmacistPrescriptions();
-                    dto.TenantId = input.TenantId;
-                    dto.PrescriptionId = prescription.Id;
-                    dto.IssueDate = DateTime.Now;
-                    dto.Order_Status = OrderStatus.Pending;
-                    var res = await _pharmacistPrescriptionsRepository.InsertAndGetIdAsync(dto);
-
-                    // create Pharmacist Prescriptions Item
-                    var dto2 = new EMRSystem.Pharmacists.PharmacistPrescriptionsItem();
-                    dto2.TenantId = input.TenantId;
-                    dto2.PharmacistPrescriptionId = res;
-                    dto2.GrandTotal = await GetGrandTotal(prescription.Id);
-                    dto2.CreatedAt = DateTime.Now;
-                    await _pharmacistPrescriptionsItemRepository.InsertAsync(dto2);
             }
             else
             {
@@ -357,6 +348,30 @@ namespace EMRSystem.Prescriptions
                 input.CreateUpdateConsultationRequests.PrescriptionId = prescription.Id;
                 await CreateConsultationRequest(input.CreateUpdateConsultationRequests);
             }
+
+
+
+            // create Pharmacist Prescriptions
+            var pharmacistPrescriptionsdto = new EMRSystem.Pharmacists.PharmacistPrescriptions();
+            pharmacistPrescriptionsdto.TenantId = input.TenantId;
+            pharmacistPrescriptionsdto.PrescriptionId = prescription.Id;
+            pharmacistPrescriptionsdto.IssueDate = DateTime.Now;
+            pharmacistPrescriptionsdto.CollectionStatus = CollectionStatus.NotPickedUp;
+            if (isAdmitted)
+            {
+                pharmacistPrescriptionsdto.IsPaid = true;
+            }
+            else if (input.IsEmergencyPrescription)
+            {
+                pharmacistPrescriptionsdto.IsPaid = true;
+            }
+            else
+            {
+                pharmacistPrescriptionsdto.IsPaid = false;
+            }
+            pharmacistPrescriptionsdto.GrandTotal = 0;//await GetGrandTotal(prescription.Id);
+            var res = await _pharmacistPrescriptionsRepository.InsertAndGetIdAsync(pharmacistPrescriptionsdto);
+
             await CurrentUnitOfWork.SaveChangesAsync();
         }
 
@@ -389,7 +404,8 @@ namespace EMRSystem.Prescriptions
             // Update existing items or add new ones
             foreach (var inputItem in input.Items)
             {
-                inputItem.Qty = CalculateQty(inputItem.Frequency, inputItem.Duration);
+                // inputItem.Qty = CalculateQty(inputItem.Frequency, inputItem.Duration);
+                inputItem.UnitPrice = _pharmacistInventoryRepository.Get(inputItem.MedicineId).SellingPrice;
                 var existingItem = existingItems.FirstOrDefault(i => i.Id == inputItem.Id);
                 if (existingItem != null)
                 {
@@ -754,6 +770,7 @@ namespace EMRSystem.Prescriptions
                         Instructions = x.Instructions,
                         Qty = x.Qty,
                         UnitPrice = _pharmacistInventoryRepository.Get(x.MedicineId).SellingPrice,
+                        IsPrescribe = x.IsPrescribe,
                         TotalPayableAmount = 0
                     }).ToList(),
                     Procedures = p.SelectedEmergencyProcedureses.Select(sep => new SelectedEmergencyProceduresDto
@@ -863,7 +880,6 @@ namespace EMRSystem.Prescriptions
                 await _consultationRequestsRepository.InsertAsync(mappedEntity);
             }
         }
-
         private (int value, string unit) ParseDuration(string duration)
         {
             if (string.IsNullOrWhiteSpace(duration))
