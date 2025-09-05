@@ -27,6 +27,12 @@ import { AppComponent } from './app.component';
                         canActivate: [AppRouteGuard],
                     },
                     {
+                        path: 'procedure',
+                        loadChildren: () => import('./procedure/procedure.module').then((m) => m.ProcedureModule),
+                        data: { permission: 'Pages.Users' },
+                        canActivate: [AppRouteGuard],
+                    },
+                    {
                         path: 'master',
                         loadChildren: () => import('./master-table/master-table.module').then((m) => m.MasterTableModule),
                         data: { permission: 'Pages.Users' },

@@ -24,6 +24,8 @@ namespace EMRSystem.AppointmentReceipt
         public DateTime PaymentDate { get; set; } = DateTime.Now;
         public PaymentMethod PaymentMethod { get; set; }
         public InvoiceStatus Status { get; set; }
+        public string? PaymentIntentId { get; set; }
+
         public virtual Appointment Appointment { get; set; }
         public virtual Patient Patient { get; set; }
         public virtual Doctor Doctor { get; set; }

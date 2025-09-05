@@ -40,7 +40,7 @@ namespace EMRSystem.LabTechnician.Dto
             CreateMap<LabReports.PrescriptionLabTest, LabOrderListDto>()
                 .ForMember(dest => dest.PatientName, opt => opt.MapFrom(src => src.Prescription.Patient.FullName))
                 .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => src.Prescription.Patient.Gender))
-                .ForMember(dest => dest.AppointmentDate, opt => opt.MapFrom(src => src.Prescription.Appointment.AppointmentDate))
+                 .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.CreatedDate.Value))
                 .ForMember(dest => dest.DoctorName, opt => opt.MapFrom(src => src.Prescription.Doctor.FullName))
                 .ForMember(dest => dest.LabReportTypeName, opt => opt.MapFrom(src => src.LabReportsType.ReportType))
                 .ForMember(dest => dest.TestStatus, opt => opt.MapFrom(src => src.TestStatus))

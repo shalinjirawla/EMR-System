@@ -201,7 +201,7 @@ namespace EMRSystem.PrescriptionLabTest
                 PriceData = new SessionLineItemPriceDataOptions
                 {
                     UnitAmount = (long)(amount * 100),
-                    Currency = "usd",
+                    Currency = "inr",
                     ProductData = new SessionLineItemPriceDataProductDataOptions
                     {
                         Name = $"Lab Test - {labTestType.ReportType}",

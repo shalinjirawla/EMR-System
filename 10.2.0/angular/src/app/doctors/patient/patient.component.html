@@ -164,16 +164,16 @@
                                         <p-overlayPanel #rowMenu class="custom-overlay" [dismissable]="true">
                                             <ul class="custom-overlay-menu">
                                                 <li (click)="showCreatePrescriptionDialog(selectedRecord)">
-                                                    <i class="pi pi-file-medical"></i> Create Prescription
+                                                    <i class="fa-solid fa-file-medical"></i> Create Prescription
                                                 </li>
                                                 <li (click)="showPatientDetailsDialog(selectedRecord.id)">
-                                                    <i class="pi pi-eye"></i> View
+                                                    <i class="fa-solid fa-eye"></i> View
                                                 </li>
                                                 <li (click)="showCreatePatientDialog(selectedRecord.id)">
-                                                    <i class="pi pi-pencil"></i> Edit
+                                                    <i class="fa-solid fa-pencil"></i> Edit
                                                 </li>
                                                 <li (click)="delete(selectedRecord)">
-                                                    <i class="pi pi-trash"></i> Delete
+                                                    <i class="fa-solid fa-trash"></i> Delete
                                                 </li>
                                             </ul>
                                         </p-overlayPanel>

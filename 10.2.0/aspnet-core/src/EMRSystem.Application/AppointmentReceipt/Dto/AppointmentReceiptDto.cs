@@ -23,5 +23,7 @@ namespace EMRSystem.AppointmentReceipt.Dto
         public string DoctorName { get; set; }
         public string Status { get; set; }
         public string AppointmentDate { get; set; }
+        public string? PaymentIntentId { get; set; }
+
     }
 }

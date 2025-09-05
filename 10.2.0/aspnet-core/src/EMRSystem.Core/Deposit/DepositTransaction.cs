@@ -19,6 +19,8 @@ namespace EMRSystem.Deposit
         public string Description { get; set; }
         public string? ReceiptNo { get; set; }
         public bool IsPaid { get; set; }
+        public string? PaymentIntentId { get; set; }
+
 
         // Navigation
         public virtual PatientDeposit PatientDeposit { get; set; }

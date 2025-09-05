@@ -125,7 +125,7 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
             new MenuItem(this.l('Role Management'), '/app/roles', 'fas fa-user-shield', 'Pages.Roles'),
             new MenuItem(this.l('Tenant Management'), '/app/tenants', 'fas fa-city', 'Pages.Tenants'),
             new MenuItem(this.l('Patient Admission'), '/app/admission', 'fas fa-procedures', 'Pages.Users'),
-            
+
             new MenuItem(this.l('Emergency Portal'), '', 'fas fa-ambulance', 'Pages.Users', [
                 new MenuItem(this.l('Emergency Cases'), '/app/emergency/cases', 'fas fa-notes-medical', 'Pages.Users'),
                 new MenuItem(this.l('Triage'), '/app/emergency/triage', 'fas fa-heartbeat', 'Pages.Users'),
@@ -155,6 +155,11 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
                 new MenuItem(this.l('Invoices'), '/app/billing-staff/invoices', 'fas fa-receipt', 'Pages.BillingStaff.Invoices.View'),
                 new MenuItem(this.l('Patient Deposits'), '/app/deposit', 'fas fa-hand-holding-usd', 'Pages.BillingStaff'),
             ]),
+            new MenuItem(this.l('Procedure Portal'), '', 'fas fa-vial', 'Pages.Users', [
+                new MenuItem(this.l('Procedure Requests'), '/app/procedure/procedure-requests', 'fas fa-microscope', 'Pages.Users'),
+                new MenuItem(this.l('Procedure Receipts'), '/app/procedure/procedure-receipts', 'fas fa-file-medical', 'Pages.Users'),
+            ]),
+
 
             // Lab Technician Section
             new MenuItem(this.l('Lab Technician Portal'), '', 'fas fa-vial', 'Pages.LabTechnician', [

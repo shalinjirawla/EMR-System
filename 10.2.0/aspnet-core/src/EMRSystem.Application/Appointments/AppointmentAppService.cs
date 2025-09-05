@@ -14,6 +14,7 @@ using EMRSystem.Doctors;
 using EMRSystem.Invoices;
 using EMRSystem.IpdChargeEntry;
 using EMRSystem.LabReports;
+using EMRSystem.NumberingService;
 using EMRSystem.Nurse;
 using EMRSystem.Patients;
 using EMRSystem.Prescriptions;
@@ -43,6 +44,7 @@ namespace EMRSystem.Appointments
     public class AppointmentAppService : AsyncCrudAppService<EMRSystem.Appointments.Appointment, AppointmentDto, long, PagedAppoinmentResultRequestDto, CreateUpdateAppointmentDto, CreateUpdateAppointmentDto>,
   IAppointmentAppService
     {
+        private readonly INumberingService _numberingService;
         private readonly IDoctorAppService _doctorAppService;
         private readonly IRepository<EMRSystem.Doctors.Doctor, long> _doctorRepository;
         private readonly IConfiguration _configuration;
@@ -53,6 +55,7 @@ namespace EMRSystem.Appointments
         private readonly IRepository<Patient, long> _patientRepository;
         private readonly IRepository<EMRSystem.IpdChargeEntry.IpdChargeEntry, long> _ipdChargeEntryRepository;
         public AppointmentAppService(
+                INumberingService numberingService,
                 IRepository<Appointment, long> repository,
                 IConfiguration configuration,
                 IDoctorAppService doctorAppService,
@@ -65,6 +68,7 @@ namespace EMRSystem.Appointments
                 IRepository<EMRSystem.IpdChargeEntry.IpdChargeEntry, long> ipdChargeEntryRepository)
     : base(repository)
         {
+            _numberingService = numberingService;
             _doctorAppService = doctorAppService;
             _configuration = configuration;
             _nurseAppService = nurseAppService;
@@ -343,7 +347,7 @@ namespace EMRSystem.Appointments
                 }
                 else // Cash payment
                 {
-                    var receipt = await GenerateAppointmentReceipt(appointment.Id, dto.PaymentMethod.ToString());
+                    var receipt = await GenerateAppointmentReceipt(appointment.Id, dto.PaymentMethod.ToString(),null);
                     return new AppointmentCreationResultDto
                     {
                         IsStripeRedirect = false,
@@ -413,7 +417,7 @@ namespace EMRSystem.Appointments
                 PriceData = new SessionLineItemPriceDataOptions
                 {
                     UnitAmount = (long)(amount * 100),
-                    Currency = "usd",
+                    Currency = "inr",
                     ProductData = new SessionLineItemPriceDataProductDataOptions
                     {
                         Name = $"Consultation Fee - Dr. {doctorName}",
@@ -470,7 +474,7 @@ namespace EMRSystem.Appointments
             CurrentUnitOfWork.SaveChanges();
         }
 
-        public async Task<AppointmentReceiptDto> GenerateAppointmentReceipt(long appointmentId, string paymentMethod)
+        public async Task<AppointmentReceiptDto> GenerateAppointmentReceipt(long appointmentId, string paymentMethod, string paymentIntentId)
         {
             var appointment = await Repository.GetAll()
                 .Include(a => a.Patient)
@@ -487,6 +491,12 @@ namespace EMRSystem.Appointments
 
             if (doctorFee == null)
                 throw new UserFriendlyException("Doctor fee configuration not found");
+            var receiptNumber = await _numberingService.GenerateReceiptNumberAsync(
+                                   _receiptRepository,
+                                   "APP-REC",
+                                   appointment.TenantId,
+                                   "ReceiptNumber"
+   );
 
             var receipt = new EMRSystem.AppointmentReceipt.AppointmentReceipt
             {
@@ -496,8 +506,9 @@ namespace EMRSystem.Appointments
                 DoctorId = appointment.DoctorId,
                 ConsultationFee = doctorFee.Fee,
                 PaymentMethod = (PaymentMethod)Enum.Parse(typeof(PaymentMethod), paymentMethod),
-                ReceiptNumber = await GenerateReceiptNumberAsync(),
+                ReceiptNumber = receiptNumber,
                 Status = InvoiceStatus.Paid,
+                PaymentIntentId = paymentIntentId,
                 PaymentDate = DateTime.Now
             };
 
@@ -507,26 +518,26 @@ namespace EMRSystem.Appointments
             return ObjectMapper.Map<AppointmentReceiptDto>(receipt);
         }
 
-        private async Task<string> GenerateReceiptNumberAsync()
-        {
-            var today = DateTime.Today.ToString("yyyyMMdd");
-            var lastReceipt = await _receiptRepository.GetAll()
-                .Where(r => r.ReceiptNumber.StartsWith($"REC-{today}"))
-                .OrderByDescending(r => r.ReceiptNumber)
-                .FirstOrDefaultAsync();
+        //private async Task<string> GenerateReceiptNumberAsync()
+        //{
+        //    var today = DateTime.Today.ToString("yyyyMMdd");
+        //    var lastReceipt = await _receiptRepository.GetAll()
+        //        .Where(r => r.ReceiptNumber.StartsWith($"REC-{today}"))
+        //        .OrderByDescending(r => r.ReceiptNumber)
+        //        .FirstOrDefaultAsync();
 
-            int sequence = 1;
-            if (lastReceipt != null)
-            {
-                var parts = lastReceipt.ReceiptNumber.Split('-');
-                if (parts.Length == 3 && int.TryParse(parts[2], out int lastSeq))
-                {
-                    sequence = lastSeq + 1;
-                }
-            }
+        //    int sequence = 1;
+        //    if (lastReceipt != null)
+        //    {
+        //        var parts = lastReceipt.ReceiptNumber.Split('-');
+        //        if (parts.Length == 3 && int.TryParse(parts[2], out int lastSeq))
+        //        {
+        //            sequence = lastSeq + 1;
+        //        }
+        //    }
 
-            return $"REC-{today}-{sequence.ToString().PadLeft(3, '0')}";
-        }
+        //    return $"REC-{today}-{sequence.ToString().PadLeft(3, '0')}";
+        //}
 
         public async Task<AppointmentReceiptDto> GetReceiptForAppointment(long appointmentId)
         {

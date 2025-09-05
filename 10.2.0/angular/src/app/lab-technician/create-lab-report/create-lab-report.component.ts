@@ -196,7 +196,8 @@ save() {
     selectedTestIds: this.getNonPackageTestIds(),
     selectedPackageIds: this.getPackageIds(),
     paymentMethod: this.paymentMethod,
-    totalAmount: this.selectedTestsTotalPrice
+    totalAmount: this.selectedTestsTotalPrice,
+    paymentIntentId:null
   });
 
   if (this.paymentMethod === PaymentMethod._0) {

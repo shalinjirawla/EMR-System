@@ -100,7 +100,7 @@
                                         Gender
                                     </th>
                                     <th style="min-width: 100px">
-                                        Appointment Date
+                                        Date
                                     </th>
                                     <th style="min-width: 100px" pSortableColumn="doctorName" *ngIf="showDoctorColumn">
                                         Referred By
@@ -132,7 +132,7 @@
                                     </td>
                                     <td>
                                         <span>
-                                            {{ record.appointmentDate | date: 'dd/MM/yyyy' }}
+                                            {{ record.date | date: 'dd/MM/yyyy' }}
                                         </span>
                                     </td>
                                     <td *ngIf="showDoctorColumn">

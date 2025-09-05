@@ -12,6 +12,7 @@ using EMRSystem.Invoices;
 using EMRSystem.LabMasters;
 using EMRSystem.LabReports;
 using EMRSystem.LabTestReceipt.Dto;
+using EMRSystem.NumberingService;
 using EMRSystem.Patients;
 using EMRSystem.Patients.Dto;
 using EMRSystem.PrescriptionLabTest.Dto;
@@ -43,10 +44,13 @@ namespace EMRSystem.LabTestReceipt
         private readonly IRepository<Prescription, long> _prescriptionRepository;
         private readonly IRepository<HealthPackageLabReportsType, long> _packageTestRepository;
         private readonly IConfiguration _configuration;
+        private readonly INumberingService _numberingService;
+
 
         public LabTestReceiptAppService(
             IRepository<LabTestReceipt, long> repository,
             IRepository<EMRSystem.LabReports.PrescriptionLabTest, long> prescriptionLabTestRepository,
+            INumberingService numberingService,
             IRepository<EMRSystem.LabReportsTypes.LabReportsType, long> labReportsTypeRepository,
             IRepository<Prescription, long> prescriptionRepository,
              IConfiguration configuration,
@@ -57,6 +61,7 @@ namespace EMRSystem.LabTestReceipt
             _labReportsTypeRepository = labReportsTypeRepository;
             _prescriptionRepository = prescriptionRepository;
             _packageTestRepository = packageTestRepository;
+            _numberingService = numberingService;
             _configuration = configuration;
         }
 
@@ -135,6 +140,7 @@ namespace EMRSystem.LabTestReceipt
                 {
                     input.TenantId = AbpSession.TenantId.Value;
                 }
+                var receiptNo = await GenerateReceiptNumberAsync(input.TenantId);
 
                 // Create receipt
                 var receipt = new LabTestReceipt
@@ -145,7 +151,8 @@ namespace EMRSystem.LabTestReceipt
                     TotalFee = input.TotalAmount,
                     PaymentMethod = input.PaymentMethod,
                     Status = InvoiceStatus.Paid,
-                    ReceiptNumber = GenerateReceiptNumber(),
+                    ReceiptNumber = receiptNo,
+                    PaymentIntentId = input.PaymentIntentId,
                     PaymentDate = Clock.Now
                 };
 
@@ -326,10 +333,16 @@ namespace EMRSystem.LabTestReceipt
             return dto;
         }
 
-        private string GenerateReceiptNumber()
+        private async Task<string> GenerateReceiptNumberAsync(int tenantId)
         {
-            return $"LT-{Clock.Now:yyyyMMdd}-{new Random().Next(1000, 9999)}";
+            return await _numberingService.GenerateReceiptNumberAsync(
+                Repository,         
+                "LT-REC",           
+                tenantId,
+                "ReceiptNumber"     
+            );
         }
+
 
         public override async Task DeleteAsync(EntityDto<long> input)
         {

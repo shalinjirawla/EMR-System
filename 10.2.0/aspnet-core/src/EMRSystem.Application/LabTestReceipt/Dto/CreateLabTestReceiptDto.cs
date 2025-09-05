@@ -29,5 +29,7 @@ namespace EMRSystem.LabTestReceipt.Dto
 
         [Required]
         public decimal TotalAmount { get; set; }
+        public string? PaymentIntentId { get; set; }
+
     }
 }

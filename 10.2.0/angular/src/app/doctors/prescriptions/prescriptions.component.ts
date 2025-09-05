@@ -115,7 +115,7 @@ export class PrescriptionsComponent extends PagedListingComponentBase<Prescripti
     const viewPrescriptionDialog: BsModalRef = this._modalService.show(
       ViewPrescriptionComponent,
       {
-        class: 'modal-xl',
+        class: 'modal-lg',
         initialState: {
           id: id
         }
