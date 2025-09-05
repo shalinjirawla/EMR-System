@@ -10,6 +10,7 @@ using EMRSystem.LabReports;
 using EMRSystem.Nurses;
 using EMRSystem.Pharmacists;
 using EMRSystem.Prescriptions;
+using EMRSystem.ProcedureReceipts;
 using EMRSystem.Visits;
 using EMRSystem.Vitals;
 using System;
@@ -47,6 +48,7 @@ namespace EMRSystem.Patients
         public virtual ICollection<PrescriptionLabTest> PrescriptionLabTests { get; set; }
         public virtual ICollection<EMRSystem.IpdChargeEntry.IpdChargeEntry> IpdChargeEntries { get; set; }
         public virtual ICollection<EMRSystem.LabTestReceipt.LabTestReceipt> LabTestReceipts { get; set; }
+        public virtual ICollection<ProcedureReceipt> ProcedureReceipts { get; set; }
         public virtual ICollection<EmergencyCase> EmergencyCases { get; set; }
         public virtual ICollection<EMRSystem.EmergencyChargeEntries.EmergencyChargeEntry> EmergencyChargeEntries { get; set; }
         public virtual ICollection<PharmacistPrescriptions> PharmacistPrescriptions { get; set; }

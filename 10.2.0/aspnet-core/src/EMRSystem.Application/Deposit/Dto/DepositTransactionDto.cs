@@ -19,5 +19,7 @@ namespace EMRSystem.Deposit.Dto
         public string Description { get; set; }
         public string ReceiptNo { get; set; }
         public bool IsPaid { get; set; }
+        public string? PaymentIntentId { get; set; }
+
     }
 }

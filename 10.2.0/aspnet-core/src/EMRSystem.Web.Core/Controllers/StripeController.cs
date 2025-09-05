@@ -4,14 +4,18 @@ using Abp.Domain.Uow;
 using EMRSystem.AppointmentReceipt.Dto;
 using EMRSystem.Appointments;
 using EMRSystem.Deposit;
+using EMRSystem.EmergencyProcedure;
 using EMRSystem.Invoices;
 using EMRSystem.LabTestReceipt;
 using EMRSystem.LabTestReceipt.Dto;
 using EMRSystem.Patients;
 using EMRSystem.PrescriptionLabTest;
+using EMRSystem.ProcedureReceipts;
+using EMRSystem.ProcedureReceipts.Dto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Stripe;
@@ -34,12 +38,14 @@ namespace EMRSystem.Controllers
         //private readonly IRepository<EMRSystem.Deposit.Deposit, long> _depositRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
         private readonly IAppointmentAppService _appointmentAppService;
+        private readonly IProcedureReceiptAppService _procedureReceiptAppService;
         private readonly IRepository<Appointment, long> _appointmentRepository;
         private readonly IRepository<EMRSystem.LabReports.PrescriptionLabTest, long> _prescriptionLabTestRepository;
         private readonly ILabTestReceiptAppService _labTestReceiptAppService;
         private readonly IDepositTransactionAppService _depositetansactionAppService;
         private readonly IRepository<DepositTransaction, long> _depositTransactionRepository;
         private readonly IRepository<PatientDeposit, long> _patientDepositRepository;
+        private readonly IRepository<SelectedEmergencyProcedures, long> _selectedProcedureRepository;
 
 
 
@@ -48,8 +54,10 @@ namespace EMRSystem.Controllers
             //IRepository<EMRSystem.Deposit.Deposit, long> depositRepository,
             IUnitOfWorkManager unitOfWorkManager,
             IAppointmentAppService appointmentAppService,
+            IProcedureReceiptAppService procedureReceiptAppService,
             ILabTestReceiptAppService labTestReceiptAppService,
             IRepository<DepositTransaction,long> depositTransactionRepository,
+            IRepository<SelectedEmergencyProcedures, long> selectedProcedureRepository,
             IRepository<PatientDeposit, long> patientDepositRepository,
             IDepositTransactionAppService depositetansactionAppService,
             IRepository<Appointment, long> appointmentRepository,
@@ -60,11 +68,13 @@ namespace EMRSystem.Controllers
             _unitOfWorkManager = unitOfWorkManager;
             _labTestReceiptAppService = labTestReceiptAppService;
             _appointmentAppService = appointmentAppService;
+            _selectedProcedureRepository = selectedProcedureRepository;
             _prescriptionLabTestRepository = prescriptionLabTestRepository;
             _depositTransactionRepository = depositTransactionRepository;
             _patientDepositRepository = patientDepositRepository;
             _appointmentRepository = appointmentRepository;
             _depositetansactionAppService = depositetansactionAppService;
+            _procedureReceiptAppService = procedureReceiptAppService;
         }
 
         [HttpPost]
@@ -92,9 +102,6 @@ namespace EMRSystem.Controllers
 
                     if (session.Metadata == null)
                         return Ok();
-
-                   
-                    // Handle appointment payments
                     else if (session.Metadata.TryGetValue("purpose", out var appointmentPurpose) && appointmentPurpose == "appointment")
                     {
                         if (!session.Metadata.TryGetValue("appointmentId", out var appointmentIdStr))
@@ -106,7 +113,7 @@ namespace EMRSystem.Controllers
                             var appointment = await _appointmentRepository.GetAsync(appointmentId);
                             appointment.IsPaid = true;
                             await _appointmentRepository.UpdateAsync(appointment);
-                            await _appointmentAppService.GenerateAppointmentReceipt(appointmentId, PaymentMethod.Card.ToString());
+                            await _appointmentAppService.GenerateAppointmentReceipt(appointmentId, PaymentMethod.Card.ToString(), session.PaymentIntentId);
                             await uow.CompleteAsync();
                         }
                     }
@@ -125,8 +132,59 @@ namespace EMRSystem.Controllers
 
                         using (var uow = _unitOfWorkManager.Begin())
                         {
+                            dto.PaymentIntentId = session.PaymentIntentId;
                             await _labTestReceiptAppService.CreateLabTestReceipt(dto);
                             await uow.CompleteAsync(); // 🔹 DB commit confirm karega
+                        }
+                    }
+                    else if (session.Metadata.TryGetValue("purpose", out var procedurePurpose) && procedurePurpose == "procedure")
+                    {
+                        try
+                        {
+                            Logger.Info("Starting procedure receipt creation from webhook...");
+
+                            if (!session.Metadata.TryGetValue("patientId", out var patientIdStr) ||
+                                !session.Metadata.TryGetValue("totalFee", out var totalFeeStr) ||
+                                !session.Metadata.TryGetValue("selectedProcedureIds", out var idsJson))
+                            {
+                                Logger.Warn("Procedure webhook metadata missing");
+                                return Ok();
+                            }
+
+                            var patientId = long.Parse(patientIdStr);
+                            var totalFee = decimal.Parse(totalFeeStr);
+                            var selectedProcedureIds = JsonConvert.DeserializeObject<long[]>(idsJson);
+
+                            int tenantId = 0;
+                            if (session.Metadata.TryGetValue("tenantId", out var tenantIdStr) && int.TryParse(tenantIdStr, out var tId))
+                            {
+                                tenantId = tId;
+                            }
+
+                            Logger.Info($"Metadata parsed: PatientId={patientId}, TenantId={tenantId}, TotalFee={totalFee}, Procedures={string.Join(",", selectedProcedureIds)}");
+
+                            var dto = new CreateUpdateProcedureReceiptDto
+                            {
+                                TenantId = tenantId,
+                                PatientId = patientId,
+                                TotalFee = totalFee,
+                                PaymentMethod = PaymentMethod.Card,
+                                Status = InvoiceStatus.Paid,
+                                PaymentDate = DateTime.Now
+                            };
+
+                            using (var uow = _unitOfWorkManager.Begin())
+                            {
+                                await _procedureReceiptAppService.CreateProcedureReceiptFromStripeAsync(dto, selectedProcedureIds, session.PaymentIntentId);
+                                await uow.CompleteAsync();
+                            }
+
+                            Logger.Info("Procedure receipt created successfully!");
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Error("Procedure webhook failed", ex);
+                            return StatusCode(500);
                         }
                     }
                     else if (session.Metadata.TryGetValue("purpose", out var depositPurpose) && depositPurpose == "deposit")
@@ -138,7 +196,6 @@ namespace EMRSystem.Controllers
                         var patientDepositId = long.Parse(depositIdStr);
                         var amount = decimal.Parse(amountStr);
 
-                        // Tenant ensure kar le (multi-tenant ke liye)
                         int? tenantId = null;
                         if (session.Metadata.TryGetValue("tenantId", out var tenantIdStr) && int.TryParse(tenantIdStr, out var tId))
                         {
@@ -147,31 +204,30 @@ namespace EMRSystem.Controllers
 
                         using (var uow = _unitOfWorkManager.Begin())
                         {
-                            // 🔹 DepositTransaction create karo
                             var transaction = new DepositTransaction
                             {
                                 PatientDepositId = patientDepositId,
-                                TenantId = tenantId ?? 0, // fallback agar tenant null ho
+                                TenantId = tenantId ?? 0,
                                 Amount = amount,
-                                PaymentMethod = PaymentMethod.Card,   // Card payment
+                                PaymentMethod = PaymentMethod.Card,
                                 IsPaid = true,
                                 Description = "Credit Deposit.",
                                 TransactionDate = DateTime.Now,
-                                TransactionType = TransactionType.Credit
+                                TransactionType = TransactionType.Credit,
+                                PaymentIntentId = session.PaymentIntentId
 
                             };
                             transaction.ReceiptNo = await _depositetansactionAppService.GenerateReceiptNoAsync(tenantId ?? 0);
 
                             await _depositTransactionRepository.InsertAsync(transaction);
 
-                            // 🔹 PatientDeposit summary update karo
                             var patientDeposit = await _patientDepositRepository.GetAsync(patientDepositId);
                             patientDeposit.TotalCreditAmount += amount;
                             patientDeposit.TotalBalance = patientDeposit.TotalCreditAmount - patientDeposit.TotalDebitAmount;
 
                             await _patientDepositRepository.UpdateAsync(patientDeposit);
 
-                            await uow.CompleteAsync(); // commit transaction
+                            await uow.CompleteAsync();
                         }
                     }
 

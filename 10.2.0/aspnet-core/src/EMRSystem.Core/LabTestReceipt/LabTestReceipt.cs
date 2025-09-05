@@ -30,6 +30,8 @@ namespace EMRSystem.LabTestReceipt
         public InvoiceStatus Status { get; set; }
 
         public LabTestSource Source { get; set; } // OPD / Direct
+        public string? PaymentIntentId { get; set; }
+
 
         public virtual ICollection<PrescriptionLabTest> PrescriptionLabTests { get; set; }
     }

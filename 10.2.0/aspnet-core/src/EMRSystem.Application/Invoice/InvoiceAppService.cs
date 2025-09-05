@@ -10,6 +10,7 @@ using EMRSystem.Invoice.Dto;
 using EMRSystem.Invoices;
 using EMRSystem.IpdChargeEntry;
 using EMRSystem.IpdChargeEntry.Dto;
+using EMRSystem.NumberingService;
 using EMRSystem.Patients;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -33,6 +34,7 @@ namespace EMRSystem.Invoice
      IInvoiceAppService
     {
         private readonly IConfiguration _configuration;
+        private readonly INumberingService _numberingService;
         private readonly IRepository<PatientDeposit, long> _patientDepositRepository;
         private readonly IRepository<Patient, long> _patientRepository;
         private readonly IRepository<DepositTransaction, long> _depositTransactionRepository;
@@ -40,6 +42,7 @@ namespace EMRSystem.Invoice
         private readonly IRepository<EMRSystem.EmergencyChargeEntries.EmergencyChargeEntry, long> _emergencyChargeEntriesRepository;
         public InvoiceAppService(
             IRepository<EMRSystem.Invoices.Invoice, long> repository,
+            INumberingService numberingService,
             IRepository<Patient, long> patientRepository,
             IRepository<PatientDeposit, long> patientDepositRepository,
             IRepository<DepositTransaction, long> depositTransactionRepository,
@@ -48,6 +51,7 @@ namespace EMRSystem.Invoice
             IRepository<EMRSystem.IpdChargeEntry.IpdChargeEntry, long> ipdChargeEntryRepository) : base(repository)
         {
             _configuration = configuration;
+            _numberingService = numberingService;
             _patientRepository = patientRepository;
             _patientDepositRepository = patientDepositRepository;
             _depositTransactionRepository = depositTransactionRepository;
@@ -258,12 +262,22 @@ namespace EMRSystem.Invoice
                 dto.TotalAmount = 0;
             }
         }
+        private async Task<string> GenerateInvoiceNoAsync(int tenantId)
+        {
+            return await _numberingService.GenerateReceiptNumberAsync(
+                Repository,         // Invoice repository
+                "INV",              // prefix
+                tenantId,
+                "InvoiceNo"         // property name from Invoice entity
+            );
+        }
+
         public override async Task<InvoiceDto> CreateAsync(CreateUpdateInvoiceDto input)
         {
             var invoice = ObjectMapper.Map<Invoices.Invoice>(input);
 
             // Generate invoice no
-            invoice.InvoiceNo = $"INV-{DateTime.Now:yyyyMMddHHmmss}";
+            invoice.InvoiceNo = await GenerateInvoiceNoAsync(input.TenantId);
 
             // Save Invoice
             invoice.Status = InvoiceStatus.Paid;
@@ -512,7 +526,7 @@ namespace EMRSystem.Invoice
                     PriceData = new SessionLineItemPriceDataOptions
                     {
                         UnitAmount = (long)(amount * 100),
-                        Currency = "usd",
+                        Currency = "inr",
                         ProductData = new SessionLineItemPriceDataProductDataOptions
                         {
                             Name = $"Invoice #{invoiceId}",

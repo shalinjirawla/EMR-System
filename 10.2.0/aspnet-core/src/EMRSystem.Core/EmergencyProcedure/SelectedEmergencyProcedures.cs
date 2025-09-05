@@ -1,5 +1,6 @@
 ﻿using Abp.Domain.Entities;
 using EMRSystem.Prescriptions;
+using EMRSystem.ProcedureReceipts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,5 +16,14 @@ namespace EMRSystem.EmergencyProcedure
         public EmergencyProcedure EmergencyProcedures { get; set; }
         public long PrescriptionId { get; set; }
         public virtual Prescription Prescriptions { get; set; }
+        public bool IsPaid { get; set; } = false;
+        public EmergencyProcedureStatus Status { get; set; } = EmergencyProcedureStatus.Pending;
+        public long? ProcedureReceiptId { get; set; }
+        public virtual ProcedureReceipt ProcedureReceipt { get; set; }
+    }
+    public enum EmergencyProcedureStatus
+    {
+        Pending,
+        Completed
     }
 }

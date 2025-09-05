@@ -19,6 +19,7 @@ using EMRSystem.Nurses;
 using EMRSystem.Patients;
 using EMRSystem.Pharmacists;
 using EMRSystem.Prescriptions;
+using EMRSystem.ProcedureReceipts;
 using EMRSystem.Room;
 using EMRSystem.RoomMaster;
 using EMRSystem.Visits;
@@ -81,6 +82,11 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
     public DbSet<EMRSystem.EmergencyProcedure.EmergencyProcedure> EmergencyProcedures { get; set; }
     public DbSet<EMRSystem.Doctors.ConsultationRequests> ConsultationRequests { get; set; }
     public DbSet<PharmacistPrescriptions> PharmacistPrescriptions { get; set; }
+
+    public DbSet<SelectedEmergencyProcedures> SelectedEmergencyProcedures { get; set; }
+
+    public DbSet<ProcedureReceipt> ProcedureReceipts { get; set; }
+
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -213,6 +219,45 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
               .WithMany(e => e.SelectedEmergencyProcedureses)
               .HasForeignKey(s => s.PrescriptionId)
               .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<SelectedEmergencyProcedures>(b =>
+        {
+            b.ToTable("SelectedEmergencyProcedures");
+
+            b.HasOne(sep => sep.ProcedureReceipt)
+             .WithMany(pr => pr.SelectedEmergencyProcedures)
+             .HasForeignKey(sep => sep.ProcedureReceiptId)
+             .OnDelete(DeleteBehavior.Restrict); // restrict delete so receipt delete won't auto-delete procedures
+
+            b.Property(sep => sep.Status)
+             .HasConversion<string>()
+             .HasMaxLength(20);
+        });
+        modelBuilder.Entity<ProcedureReceipt>(b =>
+        {
+            b.ToTable("ProcedureReceipts");
+
+            // Decimal precision
+            b.Property(x => x.TotalFee).HasColumnType("decimal(18,2)");
+
+            // Enums as string
+            b.Property(x => x.Status)
+             .HasConversion<string>()
+             .HasMaxLength(20);
+
+            b.Property(x => x.PaymentMethod)
+             .HasConversion<string>()
+             .HasMaxLength(20);
+
+            // Relationships
+            b.HasOne(pr => pr.Patient)
+             .WithMany(p => p.ProcedureReceipts)
+             .HasForeignKey(pr => pr.PatientId)
+             .OnDelete(DeleteBehavior.Restrict);
+
+            // Unique index on receipt number
+            b.HasIndex(pr => pr.ReceiptNumber)
+             .IsUnique();
+        });
 
         modelBuilder.Entity<Prescription>()
               .HasOne(s => s.SpecialistDoctor)

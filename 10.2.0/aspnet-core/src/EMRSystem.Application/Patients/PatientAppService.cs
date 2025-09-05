@@ -361,7 +361,7 @@ namespace EMRSystem.Patients
                 PriceData = new SessionLineItemPriceDataOptions
                 {
                     UnitAmount = (long)(amount * 100),
-                    Currency = "usd",
+                    Currency = "inr",
                     ProductData = new SessionLineItemPriceDataProductDataOptions
                     {
                         Name = $"Patient Deposit #{patientId}",

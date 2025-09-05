@@ -3,6 +3,7 @@ using Abp.Application.Services.Dto;
 using Abp.Domain.Entities;
 using Abp.Domain.Repositories;
 using Abp.EntityFrameworkCore.Repositories;
+using Abp.EntityFrameworkCore.Repositories;
 using Abp.Extensions;
 using Abp.Linq.Extensions;
 using Abp.UI;
@@ -13,10 +14,15 @@ using EMRSystem.Doctor;
 using EMRSystem.Doctor.Dto;
 using EMRSystem.Doctors;
 using EMRSystem.EmergencyProcedure;
+using EMRSystem.EmergencyProcedure;
+using EMRSystem.EmergencyProcedure.Dto;
+using EMRSystem.IpdChargeEntry;
 using EMRSystem.IpdChargeEntry;
 using EMRSystem.LabReports;
+using EMRSystem.MedicineOrder;
 using EMRSystem.Patients;
 using EMRSystem.Patients.Dto;
+using EMRSystem.Pharmacist.Dto;
 using EMRSystem.PrescriptionLabTest.Dto;
 using EMRSystem.Prescriptions.Dto;
 using EMRSystem.Users.Dto;
@@ -26,12 +32,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Stripe.V2;
+using Stripe.V2;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
+
 using EMRSystem.EmergencyProcedure;
 using EMRSystem.IpdChargeEntry;
 using Stripe.V2;
@@ -39,6 +47,7 @@ using Abp.EntityFrameworkCore.Repositories;
 using EMRSystem.Pharmacist.Dto;
 using EMRSystem.MedicineOrder;
 using EMRSystem.Pharmacists;
+
 
 
 namespace EMRSystem.Prescriptions
@@ -181,6 +190,13 @@ namespace EMRSystem.Prescriptions
         {
             // Map Prescription
             var prescription = ObjectMapper.Map<Prescription>(input);
+            bool isAdmitted = false;
+            // Fetch patient to check admission
+            if (input.PatientId.HasValue)
+            {
+                var patient = await _patientRepository.GetAsync(input.PatientId.Value);
+                isAdmitted = patient.IsAdmitted;
+            }
 
             // Map Items
             prescription.Items = input.Items
@@ -193,21 +209,24 @@ namespace EMRSystem.Prescriptions
             if (input.EmergencyProcedures != null && input.EmergencyProcedures.Any())
             {
                 prescription.SelectedEmergencyProcedureses = input.EmergencyProcedures
-                    .Select(itm => ObjectMapper.Map<SelectedEmergencyProcedures>(itm))
-                    .ToList();
+                    .Select(itm =>
+                    {
+                        var mapped = ObjectMapper.Map<SelectedEmergencyProcedures>(itm);
+
+                        mapped.IsPaid = (isAdmitted || input.IsEmergencyPrescription);
+                        mapped.Status = EmergencyProcedureStatus.Pending;
+
+                        return mapped;
+                    }).ToList();
             }
+
+
 
             // Save prescription (to get Id)
             await Repository.InsertAsync(prescription);
             await CurrentUnitOfWork.SaveChangesAsync(); // Needed to get prescription.Id
 
-            bool isAdmitted = false;
-            // Fetch patient to check admission
-            if (input.PatientId.HasValue)
-            {
-                var patient = await _patientRepository.GetAsync(input.PatientId.Value);
-                isAdmitted = patient.IsAdmitted;
-            }
+            
 
             if (isAdmitted)
             {
@@ -373,6 +392,8 @@ namespace EMRSystem.Prescriptions
     a.PatientId == input.PatientId && !a.IsDischarged);
 
             bool isPatientAdmitted = admission != null;
+            bool isPaid = input.IsEmergencyPrescription || isPatientAdmitted;
+            bool isPrescribed = !input.IsEmergencyPrescription;
 
             // Map the input to the existing prescription
             ObjectMapper.Map(input, existingPrescription);
@@ -434,7 +455,8 @@ namespace EMRSystem.Prescriptions
                         PrescriptionId = input.Id,
                         IsEmergencyPrescription = input.IsEmergencyPrescription,
                         EmergencyCaseId = input.EmergencyCaseId,
-                        IsPaid = isPatientAdmitted,
+                        IsPrescribed= isPrescribed,
+                        IsPaid = isPaid,
                         PatientId = input.PatientId,
                     });
                 }
@@ -710,6 +732,8 @@ namespace EMRSystem.Prescriptions
                 .Include(p => p.Doctor)
                 .Include(p => p.LabTests)
                 .Include(p => p.Items)
+                .Include(p => p.SelectedEmergencyProcedureses) // 👈 include procedure relation
+                        .ThenInclude(sep => sep.EmergencyProcedures)
                 .Where(p => p.Patient.Id == patientId)
                 .OrderByDescending(p => p.IssueDate);
 
@@ -748,6 +772,24 @@ namespace EMRSystem.Prescriptions
                         UnitPrice = _pharmacistInventoryRepository.Get(x.MedicineId).SellingPrice,
                         IsPrescribe = x.IsPrescribe,
                         TotalPayableAmount = 0
+                    }).ToList(),
+                    Procedures = p.SelectedEmergencyProcedureses.Select(sep => new SelectedEmergencyProceduresDto
+                    {
+                        Id = sep.Id,
+                        TenantId = sep.TenantId,
+                        IsPaid = sep.IsPaid,
+                        Status = sep.Status,
+                        EmergencyProcedures = new EmergencyProcedureDto
+                        {
+                            Id = sep.EmergencyProcedures.Id,
+                            TenantId = sep.EmergencyProcedures.TenantId,
+                            Name = sep.EmergencyProcedures.Name,
+                            Category = sep.EmergencyProcedures.Category,
+                            DefaultCharge = sep.EmergencyProcedures.DefaultCharge,
+                            IsActive = sep.EmergencyProcedures.IsActive
+                        },
+                        ProcedureName = sep.EmergencyProcedures.Name,
+                        PatientName = p.Patient.FullName
                     }).ToList()
 
                     // Add other properties if needed
