@@ -4,6 +4,7 @@ using EMRSystem.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EMRSystem.Migrations
 {
     [DbContext(typeof(EMRSystemDbContext))]
-    partial class EMRSystemDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250904130704_removeorder_Status")]
+    partial class removeorder_Status
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3206,10 +3209,7 @@ namespace EMRSystem.Migrations
                     b.Property<string>("PharmacyNotes")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long?>("PickedUpByNurse")
-                        .HasColumnType("bigint");
-
-                    b.Property<long?>("PickedUpByPatient")
+                    b.Property<long?>("PickedUpBy")
                         .HasColumnType("bigint");
 
                     b.Property<long?>("PrescriptionId")
@@ -3220,9 +3220,7 @@ namespace EMRSystem.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PickedUpByNurse");
-
-                    b.HasIndex("PickedUpByPatient");
+                    b.HasIndex("PickedUpBy");
 
                     b.HasIndex("PrescriptionId")
                         .IsUnique()
@@ -4410,12 +4408,7 @@ namespace EMRSystem.Migrations
                 {
                     b.HasOne("EMRSystem.Nurses.Nurse", "Nurse")
                         .WithMany("PharmacistPrescriptions")
-                        .HasForeignKey("PickedUpByNurse")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("EMRSystem.Patients.Patient", "Patient")
-                        .WithMany("PharmacistPrescriptions")
-                        .HasForeignKey("PickedUpByPatient")
+                        .HasForeignKey("PickedUpBy")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("EMRSystem.Prescriptions.Prescription", "Prescriptions")
@@ -4424,8 +4417,6 @@ namespace EMRSystem.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Nurse");
-
-                    b.Navigation("Patient");
 
                     b.Navigation("Prescriptions");
                 });
@@ -4809,8 +4800,6 @@ namespace EMRSystem.Migrations
                     b.Navigation("MedicineOrders");
 
                     b.Navigation("PatientDeposits");
-
-                    b.Navigation("PharmacistPrescriptions");
 
                     b.Navigation("PrescriptionLabTests");
 

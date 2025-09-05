@@ -337,7 +337,8 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
         dtoItem.init({
           ...item,
           duration: `${(item as any).durationValue} ${(item as any).durationUnit}`,
-          medicineId: item.medicineId
+          medicineId: item.medicineId,
+          isPrescribe:true
         });
         return dtoItem;
       });

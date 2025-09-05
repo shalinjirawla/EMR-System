@@ -11,34 +11,34 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { CheckboxModule } from 'primeng/checkbox';
 import { TextareaModule } from 'primeng/textarea';
 import { CommonModule } from '@angular/common';
-import { PharmacistInventoryServiceProxy, CreateUpdatePharmacistInventoryDto } from '@shared/service-proxies/service-proxies';
+import { PharmacistInventoryServiceProxy, CreateUpdatePharmacistInventoryDto, PharmacistInventoryDto } from '@shared/service-proxies/service-proxies';
 import moment from 'moment';
 
 @Component({
   selector: 'app-add-medicine',
-   imports: [
+  imports: [
     FormsModule,
     AbpModalHeaderComponent,
     AbpModalFooterComponent,
-    CommonModule, 
-    DatePickerModule, 
+    CommonModule,
+    DatePickerModule,
     TextareaModule,
     InputNumberModule,
     DropdownModule,
     InputTextModule,
     CheckboxModule
   ],
-  providers:[PharmacistInventoryServiceProxy],
+  providers: [PharmacistInventoryServiceProxy],
   templateUrl: './add-medicine.component.html',
   styleUrl: './add-medicine.component.css'
 })
 export class AddMedicineComponent extends AppComponentBase implements OnInit {
- @ViewChild('createInventoryModal', { static: true }) createInventoryModal: NgForm;
+  @ViewChild('createInventoryModal', { static: true }) createInventoryModal: NgForm;
   @Output() onSave = new EventEmitter<void>();
-  
+
   saving = false;
   tomorrow!: Date;
-  
+
   unitTypeOptions = [
     { label: 'mg', value: 'mg' },
     { label: 'ml', value: 'ml' },
@@ -49,7 +49,7 @@ export class AddMedicineComponent extends AppComponentBase implements OnInit {
     // { label: 'tablet', value: 'tablet' },
     // { label: 'capsule', value: 'capsule' }
   ];
-  
+  _listOfMedicine: PharmacistInventoryDto[];
   inventory: any = {
     id: 0,
     tenantId: 0,
@@ -84,9 +84,23 @@ export class AddMedicineComponent extends AppComponentBase implements OnInit {
   ngOnInit(): void {
     this.tomorrow = moment().add(1, 'day').toDate();
     this.inventory.tenantId = abp.session.tenantId;
+    this.GetAllListOfMedicine();
   }
 
+  GetAllListOfMedicine() {
+    this._inventoryService.getAllListOfMedicine().subscribe({
+      next: (res) => {
+        this._listOfMedicine = res;
+      }, error: (err) => {
+
+      }
+    })
+  }
   save(): void {
+    if (this.CheckExistingMedicine()) {
+      this.message.warn("Medicine already added.");
+      return;
+    }
     if (!this.isFormValid) {
       this.message.warn("Please complete the form properly.");
       return;
@@ -137,5 +151,12 @@ export class AddMedicineComponent extends AppComponentBase implements OnInit {
     }
 
     return true;
+  }
+  CheckExistingMedicine(): boolean {
+    const unitString = `${this.inventory.unitValue} ${this.inventory.unitType}`;
+    const duplicate = this._listOfMedicine.find(
+      x => x.medicineName === this.inventory.medicineName.trim() &&
+        x.unit === unitString.trim());
+    return !!duplicate;
   }
 }

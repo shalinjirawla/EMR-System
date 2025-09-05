@@ -16,6 +16,7 @@
   color: white;
   border-color: #0d6efd;
 }
+
 .overlay {
   position: absolute;
   top: 0;
@@ -32,4 +33,3 @@
 ::ng-deep .p-inputtext {
   width: 100px !important;
 }
-

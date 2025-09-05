@@ -18,14 +18,15 @@ namespace EMRSystem.Pharmacists
         public long? PrescriptionId { get; set; }
         public virtual Prescription Prescriptions { get; set; }
         public DateTime? IssueDate { get; set; }
-        public OrderStatus Order_Status { get; set; }
-
+        public bool IsPaid { get; set; }
         //for OPD Patient
         public string PharmacyNotes { get; set; }
         public CollectionStatus CollectionStatus { get; set; }
-        public long? PickedUpBy { get; set; }
+        public long? PickedUpByNurse { get; set; }
         public Nurse Nurse { get; set; }
-        public virtual ICollection<PharmacistPrescriptionsItem> PharmacistPrescriptionsItem { get; set; }
+        public long? PickedUpByPatient { get; set; }
+        public Patient Patient { get; set; }
+        public decimal GrandTotal { get; set; }
     }
 
     public enum CollectionStatus

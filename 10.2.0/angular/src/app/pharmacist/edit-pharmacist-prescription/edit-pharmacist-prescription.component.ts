@@ -1,20 +1,12 @@
-import { Component, OnInit, ViewChild, EventEmitter, Output, Injector } from '@angular/core';
+import { Component, OnInit, ViewChild, EventEmitter, Output, Injector, ChangeDetectorRef } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { AbpModalHeaderComponent } from "../../../shared/components/modal/abp-modal-header.component";
 import { AbpModalFooterComponent } from "../../../shared/components/modal/abp-modal-footer.component";
 import {
   CollectionStatus,
-  CreateUpdatePharmacistPrescriptionsDto,
-  OrderStatus,
-  PatientServiceProxy,
-  PaymentMethod,
-  PharmacistInventoryServiceProxy,
-  PharmacistPrescriptionItemWithUnitPriceDto,
-  PharmacistPrescriptionsServiceProxy,
-  PrescriptionItemDto,
-  PrescriptionItemsServiceProxy,
-  PrescriptionServiceProxy,
+  CreateUpdatePharmacistPrescriptionsDto, PatientServiceProxy, PaymentMethod, PharmacistInventoryServiceProxy, PharmacistPrescriptionItemWithUnitPriceDto,
+  PharmacistPrescriptionsServiceProxy, PrescriptionItemsServiceProxy, PrescriptionServiceProxy,
 } from '@shared/service-proxies/service-proxies';
 import { MessageService } from 'primeng/api';
 import { AppComponentBase } from '@shared/app-component-base';
@@ -29,36 +21,33 @@ import { TableModule } from 'primeng/table';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 @Component({
-  selector: 'app-create-pharmacist-prescription',
+  selector: 'app-edit-pharmacist-prescription',
   standalone: true,
   imports: [
-    AbpModalHeaderComponent, AbpModalFooterComponent, MultiSelectModule, FormsModule, SelectModule,
-    CommonModule, ButtonModule, TextareaModule, InputNumberModule, TableModule, DropdownModule, InputTextModule
+    AbpModalHeaderComponent, AbpModalFooterComponent, InputTextModule, MultiSelectModule, FormsModule, SelectModule,
+    CommonModule, ButtonModule, TextareaModule, InputNumberModule, TableModule, DropdownModule
   ],
-  templateUrl: './create-pharmacist-prescription.component.html',
-  styleUrl: './create-pharmacist-prescription.component.css',
-  providers: [PatientServiceProxy, PrescriptionItemsServiceProxy, PharmacistInventoryServiceProxy, MessageService, PrescriptionServiceProxy, PharmacistPrescriptionsServiceProxy]
+  templateUrl: './edit-pharmacist-prescription.component.html',
+  styleUrl: './edit-pharmacist-prescription.component.css',
+  providers: [PrescriptionItemsServiceProxy, PharmacistInventoryServiceProxy, MessageService, PrescriptionServiceProxy, PharmacistPrescriptionsServiceProxy]
 })
-export class CreatePharmacistPrescriptionComponent extends AppComponentBase implements OnInit {
+export class EditPharmacistPrescriptionComponent extends AppComponentBase implements OnInit {
   @ViewChild('createPharmacistPrescriptionForm', { static: true }) createPharmacistPrescriptionForm: NgForm;
   @Output() onSave = new EventEmitter<void>();
-  patients: any[] = [];
-  prescriptions: any[] = [];
+  id!: number
   selectedPrescription: any = null;
   paymentMethod: PaymentMethod = PaymentMethod._0;
   isSaving = false;
-  selectedPatient: any;
   PaymentMethod = PaymentMethod;
   selectedPrescriptionItem!: PharmacistPrescriptionItemWithUnitPriceDto[];
   newPrescriptionItem!: PharmacistPrescriptionItemWithUnitPriceDto;
   selectedPrescriptionID!: number;
   _pharmacyNotes!: string;
+  selectedPrescriptionName!: string;
   total: number = 0;
-  newUnitPrice!: any;
   medicineOptions: any[] = [];
   medicineDosageOptions: { [medicineName: string]: string[] } = {};
   selectedMedicineUnits: { [medicineName: string]: string } = {};
-  _medicinePrice!: any;
   frequencyOptions = [
     { label: 'Once a day', value: 'Once a day' },
     { label: 'Twice a day', value: 'Twice a day' },
@@ -77,78 +66,67 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
   constructor(
     injector: Injector,
     public bsModalRef: BsModalRef,
-    private patientService: PatientServiceProxy,
-    private prescriptionService: PrescriptionServiceProxy,
+    private cdRef: ChangeDetectorRef,
     private PrescriptionItemsService: PrescriptionItemsServiceProxy,
+    private _pharmacistInventoryService: PharmacistInventoryServiceProxy,
+    private prescriptionService: PrescriptionServiceProxy,
     private pharmacistPrescriptionService: PharmacistPrescriptionsServiceProxy,
     private messageService: MessageService,
-    private _pharmacistInventoryService: PharmacistInventoryServiceProxy,
   ) {
     super(injector);
   }
+
   ngOnInit() {
-    this.loadPatients();
+    if (this.id) {
+      this.GetDetailsByID();
+    }
     this.loadMedicines();
   }
-  loadPatients() {
-    this.patientService.getOpdPatients().subscribe({
+  GetDetailsByID() {
+    this.pharmacistPrescriptionService.getPharmacistPrescriptionsById(this.id).subscribe({
       next: (res) => {
-        this.patients = res
+        setTimeout(() => {
+          if (res.prescriptionId) {
+            this.selectedPrescriptionID = res.prescriptionId;
+            this._pharmacyNotes = res.pharmacyNotes;
+            this.selectedPrescriptionItem = res.prescriptionItem;
+            this.selectedPrescriptionName = `${res.patientName || ''} - ${res.issueDate.toDate().toLocaleDateString()} - ${res.prescriptionId}`
+            this.selectedPrescriptionItem.forEach(itm => {
+              if (!itm.qty || itm.qty < 1) {
+                itm.qty = 1;
+              }
+            });
+            // calculate total immediately on load
+            this.total = this.getPrescriptionTotal();
+          }
+          this.cdRef.detectChanges();
+        });
       }, error: (err) => {
 
       }
-    });
-  }
-  onPatientChange() {
-    if (this.selectedPatient) {
-      this.selectedPrescriptionItem = [];
-      this.loadPrescriptions(this.selectedPatient);
-    } else {
-      this.prescriptions = [];
-      this.selectedPrescription = null;
-    }
-  }
-  loadPrescriptions(patientId: number) {
-    this.prescriptionService.getPrescriptionsByPatient(patientId).subscribe(res => {
-      debugger
-      this.prescriptions = res.items.map(p => ({
-        ...p,
-        prescriptionName: `${p.patient?.fullName || ''} - ${p.issueDate.toDate().toLocaleDateString()} - ${p.id}`
-      }));
-    });
-  }
-  onPrescriptionChange(prescriptionId: number) {
-    if (!prescriptionId) {
-      this.selectedPrescriptionItem = [];
-      return;
-    }
-    this.selectedPrescriptionID = prescriptionId;
-    this.selectedPrescriptionItem = this.prescriptions.find(x => x.id === prescriptionId)?.pharmacistPrescription;
-    // this.selectedPrescriptionItem.forEach(itm => {
-    //   if (!itm.qty || itm.qty < 1) {
-    //     itm.qty = 1;
-    //   }
-    // });
-    // calculate total immediately on load
-    this.total = this.getPrescriptionTotal();
+    })
   }
   setPaymentMethod(method: PaymentMethod) {
     this.paymentMethod = method;
   }
-
   save() {
     if (!this.createPharmacistPrescriptionForm.valid) {
       return;
     }
+
     this.isSaving = true;
     const input = new CreateUpdatePharmacistPrescriptionsDto();
+    input.id = this.id;
     input.tenantId = abp.session.tenantId;
     input.prescriptionId = this.selectedPrescriptionID;
     input.issueDate = moment();
     input.pharmacyNotes = this._pharmacyNotes;
-    input.collectionStatus = CollectionStatus._1;
+    input.collectionStatus = CollectionStatus._0;
     input.grandTotal = this.getPrescriptionTotal();
+
     if (this.paymentMethod === PaymentMethod._0) {
+
+      // Cash -> direct create
       this.pharmacistPrescriptionService.createPharmacistPrescriptionsWithItem(input).subscribe({
         next: () => {
           this.notify.success('Created successfully!');
@@ -168,22 +146,21 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
       // });
     }
   }
+  getPrescriptionTotal(): number {
+    if (!this.selectedPrescriptionItem || !this.selectedPrescriptionItem.length) {
+      return 0;
+    }
+    return this.selectedPrescriptionItem
+      .map(itm => itm.unitPrice * itm.qty)
+      .reduce((sum, val) => sum + val, 0);
+  }
+
+  /// add new
   onQtyChange(itm: any) {
-    const request = {
-      items: [{ medicineId: itm.medicineId, requestedQty: itm.qty }]
-    };
     if (itm.qty < 1) {
       itm.qty = 1; // enforce minimum
     }
     this.total = this.getPrescriptionTotal(); // recalc every time qty changes
-  }
-  getPrescriptionTotal(): number {
-    if (!this.selectedPrescriptionItem?.length) {
-      return 0;
-    }
-    return this.selectedPrescriptionItem
-      .map(itm => (itm.unitPrice || 0) * (itm.qty || 1))
-      .reduce((sum, val) => sum + val, 0);
   }
   loadMedicines() {
     // Call getAll() with default parameters to get all available medicines
@@ -292,19 +269,7 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
       next: (res) => {
         this.save();
       }, error: (err) => {
-        debugger
       }
     })
-  }
-
-  checkForMedicine(medicineId: any, qty: any) {
-    this._pharmacistInventoryService.getMedicineStatus(medicineId, qty)
-      .subscribe({
-        next: (res) => {
-          alert(res)
-        }, error: (err) => {
-
-        }
-      })
   }
 }

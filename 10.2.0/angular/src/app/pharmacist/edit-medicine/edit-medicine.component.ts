@@ -20,8 +20,8 @@ import moment from 'moment';
     FormsModule,
     AbpModalHeaderComponent,
     AbpModalFooterComponent,
-    CommonModule, 
-    DatePickerModule, 
+    CommonModule,
+    DatePickerModule,
     TextareaModule,
     InputNumberModule,
     DropdownModule,
@@ -36,11 +36,11 @@ import moment from 'moment';
 export class EditMedicineComponent extends AppComponentBase implements OnInit {
   @ViewChild('editInventoryModal', { static: true }) editInventoryModal: NgForm;
   @Output() onSave = new EventEmitter<void>();
-  
+
   saving = false;
   tomorrow!: Date;
   inventoryId!: number;
-  
+
   unitTypeOptions = [
     { label: 'mg', value: 'mg' },
     { label: 'ml', value: 'ml' },
@@ -51,7 +51,7 @@ export class EditMedicineComponent extends AppComponentBase implements OnInit {
     { label: 'tablet', value: 'tablet' },
     { label: 'capsule', value: 'capsule' }
   ];
-  
+  _listOfMedicine: PharmacistInventoryDto[];
   inventory: any = {
     id: 0,
     tenantId: 0,
@@ -78,7 +78,7 @@ export class EditMedicineComponent extends AppComponentBase implements OnInit {
   constructor(
     injector: Injector,
     public bsModalRef: BsModalRef,
-        private cd: ChangeDetectorRef,
+    private cd: ChangeDetectorRef,
     private _inventoryService: PharmacistInventoryServiceProxy
   ) {
     super(injector);
@@ -87,12 +87,21 @@ export class EditMedicineComponent extends AppComponentBase implements OnInit {
   ngOnInit(): void {
     this.tomorrow = moment().add(1, 'day').toDate();
     this.loadInventory();
+    this.GetAllListOfMedicine();
   }
+  GetAllListOfMedicine() {
+    this._inventoryService.getAllListOfMedicine().subscribe({
+      next: (res) => {
+        this._listOfMedicine = res;
+      }, error: (err) => {
 
+      }
+    })
+  }
   loadInventory(): void {
-    
+
     this._inventoryService.get(this.inventoryId).subscribe({
-      
+
       next: (result: PharmacistInventoryDto) => {
         this.inventory.id = result.id;
         this.inventory.tenantId = result.tenantId;
@@ -101,12 +110,12 @@ export class EditMedicineComponent extends AppComponentBase implements OnInit {
         this.inventory.sellingPrice = result.sellingPrice;
         this.inventory.expiryDate = result.expiryDate.toDate();
         this.inventory.purchaseDate = result.purchaseDate.toDate();
-        
+
         // Split unit into value and type
         const unitParts = result.unit.split(' ');
         this.inventory.unitValue = parseFloat(unitParts[0]);
         this.inventory.unitType = unitParts[1];
-        
+
         this.inventory.stock = result.stock;
         this.inventory.minStock = result.minStock;
         this.inventory.description = result.description;
@@ -121,6 +130,10 @@ export class EditMedicineComponent extends AppComponentBase implements OnInit {
   }
 
   save(): void {
+    if (this.CheckExistingMedicine()) {
+      this.message.warn("Medicine already added.");
+      return;
+    }
     if (!this.isFormValid) {
       this.message.warn("Please complete the form properly.");
       return;
@@ -171,5 +184,12 @@ export class EditMedicineComponent extends AppComponentBase implements OnInit {
     }
 
     return true;
+  }
+  CheckExistingMedicine(): boolean {
+    const unitString = `${this.inventory.unitValue} ${this.inventory.unitType}`;
+    const duplicate = this._listOfMedicine.find(
+      x => x.medicineName === this.inventory.medicineName.trim() &&
+        x.unit === unitString.trim());
+    return !!duplicate;
   }
 }

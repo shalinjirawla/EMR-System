@@ -152,7 +152,7 @@ export class EditPrescriptionsComponent extends AppComponentBase implements OnIn
             return {
               ...new CreateUpdatePrescriptionItemDto(),
               id: i.id,
-              tenantId: i.tenantId,
+               tenantId: i.tenantId,
               medicineName: i.medicineName,
               medicineId: i.medicineId,
               dosage: i.dosage,
@@ -411,7 +411,8 @@ export class EditPrescriptionsComponent extends AppComponentBase implements OnIn
         frequency: item.frequency,
         duration: `${item.durationValue} ${item.durationUnit}`,
         instructions: item.instructions,
-        prescriptionId: this.prescription.id
+        prescriptionId: this.prescription.id,
+        isPrescribe:true
       });
       return dtoItem;
     });
@@ -425,7 +426,6 @@ export class EditPrescriptionsComponent extends AppComponentBase implements OnIn
       });
       return dto;
     });
-    debugger
     this._prescriptionService.updatePrescriptionWithItem(input).subscribe({
       next: () => {
         this.notify.info(this.l('SavedSuccessfully'));

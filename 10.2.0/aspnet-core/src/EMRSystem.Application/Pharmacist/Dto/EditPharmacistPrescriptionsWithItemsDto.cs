@@ -1,6 +1,4 @@
 ﻿using Abp.Application.Services.Dto;
-using EMRSystem.MedicineOrder;
-using EMRSystem.Nurse.Dto;
 using EMRSystem.Pharmacists;
 using EMRSystem.Prescriptions.Dto;
 using System;
@@ -11,19 +9,16 @@ using System.Threading.Tasks;
 
 namespace EMRSystem.Pharmacist.Dto
 {
-    public class PharmacistPrescriptionsDto : EntityDto<long>
+    public class EditPharmacistPrescriptionsWithItemsDto
     {
-        public int TenantId { get; set; }
         public long? PrescriptionId { get; set; }
+        public long? PatientId { get; set; }
         public string PatientName { get; set; }
-        public string DoctorName { get; set; }
-        public DateTime? IssueDate { get; set; }
         public string PharmacyNotes { get; set; }
+        public DateTime? IssueDate { get; set; }
         public CollectionStatus CollectionStatus { get; set; }
         public long? PickedUpByNurse { get; set; }
         public long? PickedUpByPatient { get; set; }
-        public bool IsPaid { get; set; }
-        public decimal GrandTotal { get; set; }
-        public List<PharmacistPrescriptionItemWithUnitPriceDto> prescriptionItems { get; set; }
+        public List<PharmacistPrescriptionItemWithUnitPriceDto> PrescriptionItem { get; set; }
     }
 }

@@ -13282,6 +13282,177 @@ export class PharmacistInventoryServiceProxy {
     }
 
     /**
+     * @param body (optional) 
+     * @return OK
+     */
+    medicineStockDispense(body: PharmacistPrescriptionItemWithUnitPriceDto[] | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/PharmacistInventory/MedicineStockDispense";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processMedicineStockDispense(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processMedicineStockDispense(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processMedicineStockDispense(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    getAllListOfMedicine(): Observable<PharmacistInventoryDto[]> {
+        let url_ = this.baseUrl + "/api/services/app/PharmacistInventory/GetAllListOfMedicine";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAllListOfMedicine(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAllListOfMedicine(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PharmacistInventoryDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PharmacistInventoryDto[]>;
+        }));
+    }
+
+    protected processGetAllListOfMedicine(response: HttpResponseBase): Observable<PharmacistInventoryDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200.push(PharmacistInventoryDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param medicineId (optional) 
+     * @param qunatity (optional) 
+     * @return OK
+     */
+    getMedicineStatus(medicineId: number | undefined, qunatity: number | undefined): Observable<MedicineStatusResult> {
+        let url_ = this.baseUrl + "/api/services/app/PharmacistInventory/GetMedicineStatus?";
+        if (medicineId === null)
+            throw new Error("The parameter 'medicineId' cannot be null.");
+        else if (medicineId !== undefined)
+            url_ += "medicineId=" + encodeURIComponent("" + medicineId) + "&";
+        if (qunatity === null)
+            throw new Error("The parameter 'qunatity' cannot be null.");
+        else if (qunatity !== undefined)
+            url_ += "qunatity=" + encodeURIComponent("" + qunatity) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetMedicineStatus(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetMedicineStatus(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<MedicineStatusResult>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<MedicineStatusResult>;
+        }));
+    }
+
+    protected processGetMedicineStatus(response: HttpResponseBase): Observable<MedicineStatusResult> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = MedicineStatusResult.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * @param id (optional) 
      * @return OK
      */
@@ -13704,6 +13875,180 @@ export class PharmacistPrescriptionsServiceProxy {
     }
 
     protected processCreatePharmacistPrescriptionsWithItem(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param _id (optional) 
+     * @return OK
+     */
+    getPharmacistPrescriptionsById(_id: number | undefined): Observable<EditPharmacistPrescriptionsWithItemsDto> {
+        let url_ = this.baseUrl + "/api/services/app/PharmacistPrescriptions/GetPharmacistPrescriptionsById?";
+        if (_id === null)
+            throw new Error("The parameter '_id' cannot be null.");
+        else if (_id !== undefined)
+            url_ += "_id=" + encodeURIComponent("" + _id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetPharmacistPrescriptionsById(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetPharmacistPrescriptionsById(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<EditPharmacistPrescriptionsWithItemsDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<EditPharmacistPrescriptionsWithItemsDto>;
+        }));
+    }
+
+    protected processGetPharmacistPrescriptionsById(response: HttpResponseBase): Observable<EditPharmacistPrescriptionsWithItemsDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = EditPharmacistPrescriptionsWithItemsDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param prescriptionId (optional) 
+     * @return OK
+     */
+    viewPharmacistPrescriptionsReceipt(prescriptionId: number | undefined): Observable<ViewPharmacistPrescriptionsDto> {
+        let url_ = this.baseUrl + "/api/services/app/PharmacistPrescriptions/ViewPharmacistPrescriptionsReceipt?";
+        if (prescriptionId === null)
+            throw new Error("The parameter 'prescriptionId' cannot be null.");
+        else if (prescriptionId !== undefined)
+            url_ += "prescriptionId=" + encodeURIComponent("" + prescriptionId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processViewPharmacistPrescriptionsReceipt(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processViewPharmacistPrescriptionsReceipt(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ViewPharmacistPrescriptionsDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ViewPharmacistPrescriptionsDto>;
+        }));
+    }
+
+    protected processViewPharmacistPrescriptionsReceipt(response: HttpResponseBase): Observable<ViewPharmacistPrescriptionsDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ViewPharmacistPrescriptionsDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param pharmacistPrescriptionId (optional) 
+     * @param pickedUpById (optional) 
+     * @param isPickedUpByNurse (optional) 
+     * @return OK
+     */
+    markAsPickedUp(pharmacistPrescriptionId: number | undefined, pickedUpById: number | undefined, isPickedUpByNurse: boolean | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/PharmacistPrescriptions/MarkAsPickedUp?";
+        if (pharmacistPrescriptionId === null)
+            throw new Error("The parameter 'pharmacistPrescriptionId' cannot be null.");
+        else if (pharmacistPrescriptionId !== undefined)
+            url_ += "pharmacistPrescriptionId=" + encodeURIComponent("" + pharmacistPrescriptionId) + "&";
+        if (pickedUpById === null)
+            throw new Error("The parameter 'pickedUpById' cannot be null.");
+        else if (pickedUpById !== undefined)
+            url_ += "pickedUpById=" + encodeURIComponent("" + pickedUpById) + "&";
+        if (isPickedUpByNurse === null)
+            throw new Error("The parameter 'isPickedUpByNurse' cannot be null.");
+        else if (isPickedUpByNurse !== undefined)
+            url_ += "isPickedUpByNurse=" + encodeURIComponent("" + isPickedUpByNurse) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processMarkAsPickedUp(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processMarkAsPickedUp(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processMarkAsPickedUp(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -14832,6 +15177,58 @@ export class PrescriptionItemsServiceProxy {
     constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
         this.http = http;
         this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    createPrescriptionItemList(body: PharmacistPrescriptionItemWithUnitPriceDto[] | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/PrescriptionItems/CreatePrescriptionItemList";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreatePrescriptionItemList(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreatePrescriptionItemList(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processCreatePrescriptionItemList(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
     }
 
     /**
@@ -24976,8 +25373,12 @@ export class CreateUpdatePharmacistPrescriptionsDto implements ICreateUpdatePhar
     id: number;
     tenantId: number;
     prescriptionId: number | undefined;
+    pickedUpByNurse: number | undefined;
+    pickedUpByPatient: number | undefined;
     issueDate: moment.Moment | undefined;
-    order_Status: OrderStatus;
+    pharmacyNotes: string | undefined;
+    collectionStatus: CollectionStatus;
+    grandTotal: number;
 
     constructor(data?: ICreateUpdatePharmacistPrescriptionsDto) {
         if (data) {
@@ -24993,8 +25394,12 @@ export class CreateUpdatePharmacistPrescriptionsDto implements ICreateUpdatePhar
             this.id = _data["id"];
             this.tenantId = _data["tenantId"];
             this.prescriptionId = _data["prescriptionId"];
+            this.pickedUpByNurse = _data["pickedUpByNurse"];
+            this.pickedUpByPatient = _data["pickedUpByPatient"];
             this.issueDate = _data["issueDate"] ? moment(_data["issueDate"].toString()) : <any>undefined;
-            this.order_Status = _data["order_Status"];
+            this.pharmacyNotes = _data["pharmacyNotes"];
+            this.collectionStatus = _data["collectionStatus"];
+            this.grandTotal = _data["grandTotal"];
         }
     }
 
@@ -25010,8 +25415,12 @@ export class CreateUpdatePharmacistPrescriptionsDto implements ICreateUpdatePhar
         data["id"] = this.id;
         data["tenantId"] = this.tenantId;
         data["prescriptionId"] = this.prescriptionId;
+        data["pickedUpByNurse"] = this.pickedUpByNurse;
+        data["pickedUpByPatient"] = this.pickedUpByPatient;
         data["issueDate"] = this.issueDate ? this.issueDate.toISOString() : <any>undefined;
-        data["order_Status"] = this.order_Status;
+        data["pharmacyNotes"] = this.pharmacyNotes;
+        data["collectionStatus"] = this.collectionStatus;
+        data["grandTotal"] = this.grandTotal;
         return data;
     }
 
@@ -25027,8 +25436,12 @@ export interface ICreateUpdatePharmacistPrescriptionsDto {
     id: number;
     tenantId: number;
     prescriptionId: number | undefined;
+    pickedUpByNurse: number | undefined;
+    pickedUpByPatient: number | undefined;
     issueDate: moment.Moment | undefined;
-    order_Status: OrderStatus;
+    pharmacyNotes: string | undefined;
+    collectionStatus: CollectionStatus;
+    grandTotal: number;
 }
 
 export class CreateUpdatePrescriptionDto implements ICreateUpdatePrescriptionDto {
@@ -25177,6 +25590,8 @@ export class CreateUpdatePrescriptionItemDto implements ICreateUpdatePrescriptio
     prescriptionId: number;
     medicineId: number;
     qty: number;
+    unitPrice: number;
+    isPrescribe: boolean;
 
     constructor(data?: ICreateUpdatePrescriptionItemDto) {
         if (data) {
@@ -25199,6 +25614,8 @@ export class CreateUpdatePrescriptionItemDto implements ICreateUpdatePrescriptio
             this.prescriptionId = _data["prescriptionId"];
             this.medicineId = _data["medicineId"];
             this.qty = _data["qty"];
+            this.unitPrice = _data["unitPrice"];
+            this.isPrescribe = _data["isPrescribe"];
         }
     }
 
@@ -25221,6 +25638,8 @@ export class CreateUpdatePrescriptionItemDto implements ICreateUpdatePrescriptio
         data["prescriptionId"] = this.prescriptionId;
         data["medicineId"] = this.medicineId;
         data["qty"] = this.qty;
+        data["unitPrice"] = this.unitPrice;
+        data["isPrescribe"] = this.isPrescribe;
         return data;
     }
 
@@ -25243,6 +25662,8 @@ export interface ICreateUpdatePrescriptionItemDto {
     prescriptionId: number;
     medicineId: number;
     qty: number;
+    unitPrice: number;
+    isPrescribe: boolean;
 }
 
 export class CreateUpdatePrescriptionLabTestDto implements ICreateUpdatePrescriptionLabTestDto {
@@ -27071,6 +27492,89 @@ export class DoctorMasterDtoPagedResultDto implements IDoctorMasterDtoPagedResul
 export interface IDoctorMasterDtoPagedResultDto {
     items: DoctorMasterDto[] | undefined;
     totalCount: number;
+}
+
+export class EditPharmacistPrescriptionsWithItemsDto implements IEditPharmacistPrescriptionsWithItemsDto {
+    prescriptionId: number | undefined;
+    patientId: number | undefined;
+    patientName: string | undefined;
+    pharmacyNotes: string | undefined;
+    issueDate: moment.Moment | undefined;
+    collectionStatus: CollectionStatus;
+    pickedUpByNurse: number | undefined;
+    pickedUpByPatient: number | undefined;
+    prescriptionItem: PharmacistPrescriptionItemWithUnitPriceDto[] | undefined;
+
+    constructor(data?: IEditPharmacistPrescriptionsWithItemsDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.prescriptionId = _data["prescriptionId"];
+            this.patientId = _data["patientId"];
+            this.patientName = _data["patientName"];
+            this.pharmacyNotes = _data["pharmacyNotes"];
+            this.issueDate = _data["issueDate"] ? moment(_data["issueDate"].toString()) : <any>undefined;
+            this.collectionStatus = _data["collectionStatus"];
+            this.pickedUpByNurse = _data["pickedUpByNurse"];
+            this.pickedUpByPatient = _data["pickedUpByPatient"];
+            if (Array.isArray(_data["prescriptionItem"])) {
+                this.prescriptionItem = [] as any;
+                for (let item of _data["prescriptionItem"])
+                    this.prescriptionItem.push(PharmacistPrescriptionItemWithUnitPriceDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): EditPharmacistPrescriptionsWithItemsDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new EditPharmacistPrescriptionsWithItemsDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["prescriptionId"] = this.prescriptionId;
+        data["patientId"] = this.patientId;
+        data["patientName"] = this.patientName;
+        data["pharmacyNotes"] = this.pharmacyNotes;
+        data["issueDate"] = this.issueDate ? this.issueDate.toISOString() : <any>undefined;
+        data["collectionStatus"] = this.collectionStatus;
+        data["pickedUpByNurse"] = this.pickedUpByNurse;
+        data["pickedUpByPatient"] = this.pickedUpByPatient;
+        if (Array.isArray(this.prescriptionItem)) {
+            data["prescriptionItem"] = [];
+            for (let item of this.prescriptionItem)
+                data["prescriptionItem"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): EditPharmacistPrescriptionsWithItemsDto {
+        const json = this.toJSON();
+        let result = new EditPharmacistPrescriptionsWithItemsDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IEditPharmacistPrescriptionsWithItemsDto {
+    prescriptionId: number | undefined;
+    patientId: number | undefined;
+    patientName: string | undefined;
+    pharmacyNotes: string | undefined;
+    issueDate: moment.Moment | undefined;
+    collectionStatus: CollectionStatus;
+    pickedUpByNurse: number | undefined;
+    pickedUpByPatient: number | undefined;
+    prescriptionItem: PharmacistPrescriptionItemWithUnitPriceDto[] | undefined;
 }
 
 export class EmergencyCase implements IEmergencyCase {
@@ -31962,6 +32466,57 @@ export interface IMedicineOrderItemDto {
     dosage: string | undefined;
 }
 
+export class MedicineStatusResult implements IMedicineStatusResult {
+    isAvailable: boolean;
+    message: string | undefined;
+    availableStock: number;
+
+    constructor(data?: IMedicineStatusResult) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.isAvailable = _data["isAvailable"];
+            this.message = _data["message"];
+            this.availableStock = _data["availableStock"];
+        }
+    }
+
+    static fromJS(data: any): MedicineStatusResult {
+        data = typeof data === 'object' ? data : {};
+        let result = new MedicineStatusResult();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["isAvailable"] = this.isAvailable;
+        data["message"] = this.message;
+        data["availableStock"] = this.availableStock;
+        return data;
+    }
+
+    clone(): MedicineStatusResult {
+        const json = this.toJSON();
+        let result = new MedicineStatusResult();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IMedicineStatusResult {
+    isAvailable: boolean;
+    message: string | undefined;
+    availableStock: number;
+}
+
 export enum ModeOfArrival {
     _0 = 0,
     _1 = 1,
@@ -32455,6 +33010,7 @@ export class Patient implements IPatient {
     labTestReceipts: LabTestReceipt[] | undefined;
     emergencyCases: EmergencyCase[] | undefined;
     emergencyChargeEntries: EmergencyChargeEntry[] | undefined;
+    pharmacistPrescriptions: PharmacistPrescriptions[] | undefined;
 
     constructor(data?: IPatient) {
         if (data) {
@@ -32541,6 +33097,11 @@ export class Patient implements IPatient {
                 this.emergencyChargeEntries = [] as any;
                 for (let item of _data["emergencyChargeEntries"])
                     this.emergencyChargeEntries.push(EmergencyChargeEntry.fromJS(item));
+            }
+            if (Array.isArray(_data["pharmacistPrescriptions"])) {
+                this.pharmacistPrescriptions = [] as any;
+                for (let item of _data["pharmacistPrescriptions"])
+                    this.pharmacistPrescriptions.push(PharmacistPrescriptions.fromJS(item));
             }
         }
     }
@@ -32629,6 +33190,11 @@ export class Patient implements IPatient {
             for (let item of this.emergencyChargeEntries)
                 data["emergencyChargeEntries"].push(item.toJSON());
         }
+        if (Array.isArray(this.pharmacistPrescriptions)) {
+            data["pharmacistPrescriptions"] = [];
+            for (let item of this.pharmacistPrescriptions)
+                data["pharmacistPrescriptions"].push(item.toJSON());
+        }
         return data;
     }
 
@@ -32668,6 +33234,7 @@ export interface IPatient {
     labTestReceipts: LabTestReceipt[] | undefined;
     emergencyCases: EmergencyCase[] | undefined;
     emergencyChargeEntries: EmergencyChargeEntry[] | undefined;
+    pharmacistPrescriptions: PharmacistPrescriptions[] | undefined;
 }
 
 export class PatientAppointmentHistoryDto implements IPatientAppointmentHistoryDto {
@@ -34253,6 +34820,7 @@ export class PharmacistPrescriptionItemWithUnitPriceDto implements IPharmacistPr
     qty: number;
     unitPrice: number;
     totalPayableAmount: number;
+    isPrescribe: boolean;
 
     constructor(data?: IPharmacistPrescriptionItemWithUnitPriceDto) {
         if (data) {
@@ -34275,6 +34843,7 @@ export class PharmacistPrescriptionItemWithUnitPriceDto implements IPharmacistPr
             this.qty = _data["qty"];
             this.unitPrice = _data["unitPrice"];
             this.totalPayableAmount = _data["totalPayableAmount"];
+            this.isPrescribe = _data["isPrescribe"];
         }
     }
 
@@ -34297,6 +34866,7 @@ export class PharmacistPrescriptionItemWithUnitPriceDto implements IPharmacistPr
         data["qty"] = this.qty;
         data["unitPrice"] = this.unitPrice;
         data["totalPayableAmount"] = this.totalPayableAmount;
+        data["isPrescribe"] = this.isPrescribe;
         return data;
     }
 
@@ -34319,6 +34889,7 @@ export interface IPharmacistPrescriptionItemWithUnitPriceDto {
     qty: number;
     unitPrice: number;
     totalPayableAmount: number;
+    isPrescribe: boolean;
 }
 
 export class PharmacistPrescriptions implements IPharmacistPrescriptions {
@@ -34327,12 +34898,14 @@ export class PharmacistPrescriptions implements IPharmacistPrescriptions {
     prescriptionId: number | undefined;
     prescriptions: Prescription;
     issueDate: moment.Moment | undefined;
-    order_Status: OrderStatus;
+    isPaid: boolean;
     pharmacyNotes: string | undefined;
     collectionStatus: CollectionStatus;
-    pickedUpBy: number | undefined;
+    pickedUpByNurse: number | undefined;
     nurse: Nurse;
-    pharmacistPrescriptionsItem: PharmacistPrescriptionsItem[] | undefined;
+    pickedUpByPatient: number | undefined;
+    patient: Patient;
+    grandTotal: number;
 
     constructor(data?: IPharmacistPrescriptions) {
         if (data) {
@@ -34350,16 +34923,14 @@ export class PharmacistPrescriptions implements IPharmacistPrescriptions {
             this.prescriptionId = _data["prescriptionId"];
             this.prescriptions = _data["prescriptions"] ? Prescription.fromJS(_data["prescriptions"]) : <any>undefined;
             this.issueDate = _data["issueDate"] ? moment(_data["issueDate"].toString()) : <any>undefined;
-            this.order_Status = _data["order_Status"];
+            this.isPaid = _data["isPaid"];
             this.pharmacyNotes = _data["pharmacyNotes"];
             this.collectionStatus = _data["collectionStatus"];
-            this.pickedUpBy = _data["pickedUpBy"];
+            this.pickedUpByNurse = _data["pickedUpByNurse"];
             this.nurse = _data["nurse"] ? Nurse.fromJS(_data["nurse"]) : <any>undefined;
-            if (Array.isArray(_data["pharmacistPrescriptionsItem"])) {
-                this.pharmacistPrescriptionsItem = [] as any;
-                for (let item of _data["pharmacistPrescriptionsItem"])
-                    this.pharmacistPrescriptionsItem.push(PharmacistPrescriptionsItem.fromJS(item));
-            }
+            this.pickedUpByPatient = _data["pickedUpByPatient"];
+            this.patient = _data["patient"] ? Patient.fromJS(_data["patient"]) : <any>undefined;
+            this.grandTotal = _data["grandTotal"];
         }
     }
 
@@ -34377,16 +34948,14 @@ export class PharmacistPrescriptions implements IPharmacistPrescriptions {
         data["prescriptionId"] = this.prescriptionId;
         data["prescriptions"] = this.prescriptions ? this.prescriptions.toJSON() : <any>undefined;
         data["issueDate"] = this.issueDate ? this.issueDate.toISOString() : <any>undefined;
-        data["order_Status"] = this.order_Status;
+        data["isPaid"] = this.isPaid;
         data["pharmacyNotes"] = this.pharmacyNotes;
         data["collectionStatus"] = this.collectionStatus;
-        data["pickedUpBy"] = this.pickedUpBy;
+        data["pickedUpByNurse"] = this.pickedUpByNurse;
         data["nurse"] = this.nurse ? this.nurse.toJSON() : <any>undefined;
-        if (Array.isArray(this.pharmacistPrescriptionsItem)) {
-            data["pharmacistPrescriptionsItem"] = [];
-            for (let item of this.pharmacistPrescriptionsItem)
-                data["pharmacistPrescriptionsItem"].push(item.toJSON());
-        }
+        data["pickedUpByPatient"] = this.pickedUpByPatient;
+        data["patient"] = this.patient ? this.patient.toJSON() : <any>undefined;
+        data["grandTotal"] = this.grandTotal;
         return data;
     }
 
@@ -34404,12 +34973,14 @@ export interface IPharmacistPrescriptions {
     prescriptionId: number | undefined;
     prescriptions: Prescription;
     issueDate: moment.Moment | undefined;
-    order_Status: OrderStatus;
+    isPaid: boolean;
     pharmacyNotes: string | undefined;
     collectionStatus: CollectionStatus;
-    pickedUpBy: number | undefined;
+    pickedUpByNurse: number | undefined;
     nurse: Nurse;
-    pharmacistPrescriptionsItem: PharmacistPrescriptionsItem[] | undefined;
+    pickedUpByPatient: number | undefined;
+    patient: Patient;
+    grandTotal: number;
 }
 
 export class PharmacistPrescriptionsDto implements IPharmacistPrescriptionsDto {
@@ -34419,10 +34990,13 @@ export class PharmacistPrescriptionsDto implements IPharmacistPrescriptionsDto {
     patientName: string | undefined;
     doctorName: string | undefined;
     issueDate: moment.Moment | undefined;
-    order_Status: OrderStatus;
     pharmacyNotes: string | undefined;
     collectionStatus: CollectionStatus;
-    pickedUpBy: number | undefined;
+    pickedUpByNurse: number | undefined;
+    pickedUpByPatient: number | undefined;
+    isPaid: boolean;
+    grandTotal: number;
+    prescriptionItems: PharmacistPrescriptionItemWithUnitPriceDto[] | undefined;
 
     constructor(data?: IPharmacistPrescriptionsDto) {
         if (data) {
@@ -34441,10 +35015,17 @@ export class PharmacistPrescriptionsDto implements IPharmacistPrescriptionsDto {
             this.patientName = _data["patientName"];
             this.doctorName = _data["doctorName"];
             this.issueDate = _data["issueDate"] ? moment(_data["issueDate"].toString()) : <any>undefined;
-            this.order_Status = _data["order_Status"];
             this.pharmacyNotes = _data["pharmacyNotes"];
             this.collectionStatus = _data["collectionStatus"];
-            this.pickedUpBy = _data["pickedUpBy"];
+            this.pickedUpByNurse = _data["pickedUpByNurse"];
+            this.pickedUpByPatient = _data["pickedUpByPatient"];
+            this.isPaid = _data["isPaid"];
+            this.grandTotal = _data["grandTotal"];
+            if (Array.isArray(_data["prescriptionItems"])) {
+                this.prescriptionItems = [] as any;
+                for (let item of _data["prescriptionItems"])
+                    this.prescriptionItems.push(PharmacistPrescriptionItemWithUnitPriceDto.fromJS(item));
+            }
         }
     }
 
@@ -34463,10 +35044,17 @@ export class PharmacistPrescriptionsDto implements IPharmacistPrescriptionsDto {
         data["patientName"] = this.patientName;
         data["doctorName"] = this.doctorName;
         data["issueDate"] = this.issueDate ? this.issueDate.toISOString() : <any>undefined;
-        data["order_Status"] = this.order_Status;
         data["pharmacyNotes"] = this.pharmacyNotes;
         data["collectionStatus"] = this.collectionStatus;
-        data["pickedUpBy"] = this.pickedUpBy;
+        data["pickedUpByNurse"] = this.pickedUpByNurse;
+        data["pickedUpByPatient"] = this.pickedUpByPatient;
+        data["isPaid"] = this.isPaid;
+        data["grandTotal"] = this.grandTotal;
+        if (Array.isArray(this.prescriptionItems)) {
+            data["prescriptionItems"] = [];
+            for (let item of this.prescriptionItems)
+                data["prescriptionItems"].push(item.toJSON());
+        }
         return data;
     }
 
@@ -34485,10 +35073,13 @@ export interface IPharmacistPrescriptionsDto {
     patientName: string | undefined;
     doctorName: string | undefined;
     issueDate: moment.Moment | undefined;
-    order_Status: OrderStatus;
     pharmacyNotes: string | undefined;
     collectionStatus: CollectionStatus;
-    pickedUpBy: number | undefined;
+    pickedUpByNurse: number | undefined;
+    pickedUpByPatient: number | undefined;
+    isPaid: boolean;
+    grandTotal: number;
+    prescriptionItems: PharmacistPrescriptionItemWithUnitPriceDto[] | undefined;
 }
 
 export class PharmacistPrescriptionsDtoPagedResultDto implements IPharmacistPrescriptionsDtoPagedResultDto {
@@ -34544,69 +35135,6 @@ export class PharmacistPrescriptionsDtoPagedResultDto implements IPharmacistPres
 export interface IPharmacistPrescriptionsDtoPagedResultDto {
     items: PharmacistPrescriptionsDto[] | undefined;
     totalCount: number;
-}
-
-export class PharmacistPrescriptionsItem implements IPharmacistPrescriptionsItem {
-    id: number;
-    tenantId: number;
-    pharmacistPrescriptionId: number;
-    pharmacistPrescription: PharmacistPrescriptions;
-    grandTotal: number;
-    createdAt: moment.Moment | undefined;
-
-    constructor(data?: IPharmacistPrescriptionsItem) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.tenantId = _data["tenantId"];
-            this.pharmacistPrescriptionId = _data["pharmacistPrescriptionId"];
-            this.pharmacistPrescription = _data["pharmacistPrescription"] ? PharmacistPrescriptions.fromJS(_data["pharmacistPrescription"]) : <any>undefined;
-            this.grandTotal = _data["grandTotal"];
-            this.createdAt = _data["createdAt"] ? moment(_data["createdAt"].toString()) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): PharmacistPrescriptionsItem {
-        data = typeof data === 'object' ? data : {};
-        let result = new PharmacistPrescriptionsItem();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["tenantId"] = this.tenantId;
-        data["pharmacistPrescriptionId"] = this.pharmacistPrescriptionId;
-        data["pharmacistPrescription"] = this.pharmacistPrescription ? this.pharmacistPrescription.toJSON() : <any>undefined;
-        data["grandTotal"] = this.grandTotal;
-        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
-        return data;
-    }
-
-    clone(): PharmacistPrescriptionsItem {
-        const json = this.toJSON();
-        let result = new PharmacistPrescriptionsItem();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface IPharmacistPrescriptionsItem {
-    id: number;
-    tenantId: number;
-    pharmacistPrescriptionId: number;
-    pharmacistPrescription: PharmacistPrescriptions;
-    grandTotal: number;
-    createdAt: moment.Moment | undefined;
 }
 
 export class Prescription implements IPrescription {
@@ -35056,6 +35584,8 @@ export class PrescriptionItem implements IPrescriptionItem {
     medicineId: number;
     qty: number;
     prescription: Prescription;
+    unitPrice: number;
+    isPrescribe: boolean;
 
     constructor(data?: IPrescriptionItem) {
         if (data) {
@@ -35078,6 +35608,8 @@ export class PrescriptionItem implements IPrescriptionItem {
             this.medicineId = _data["medicineId"];
             this.qty = _data["qty"];
             this.prescription = _data["prescription"] ? Prescription.fromJS(_data["prescription"]) : <any>undefined;
+            this.unitPrice = _data["unitPrice"];
+            this.isPrescribe = _data["isPrescribe"];
         }
     }
 
@@ -35100,6 +35632,8 @@ export class PrescriptionItem implements IPrescriptionItem {
         data["medicineId"] = this.medicineId;
         data["qty"] = this.qty;
         data["prescription"] = this.prescription ? this.prescription.toJSON() : <any>undefined;
+        data["unitPrice"] = this.unitPrice;
+        data["isPrescribe"] = this.isPrescribe;
         return data;
     }
 
@@ -35122,6 +35656,8 @@ export interface IPrescriptionItem {
     medicineId: number;
     qty: number;
     prescription: Prescription;
+    unitPrice: number;
+    isPrescribe: boolean;
 }
 
 export class PrescriptionItemDto implements IPrescriptionItemDto {
@@ -35134,6 +35670,8 @@ export class PrescriptionItemDto implements IPrescriptionItemDto {
     prescriptionId: number;
     medicineId: number;
     qty: number;
+    unitPrice: number;
+    isPrescribe: boolean;
 
     constructor(data?: IPrescriptionItemDto) {
         if (data) {
@@ -35155,6 +35693,8 @@ export class PrescriptionItemDto implements IPrescriptionItemDto {
             this.prescriptionId = _data["prescriptionId"];
             this.medicineId = _data["medicineId"];
             this.qty = _data["qty"];
+            this.unitPrice = _data["unitPrice"];
+            this.isPrescribe = _data["isPrescribe"];
         }
     }
 
@@ -35176,6 +35716,8 @@ export class PrescriptionItemDto implements IPrescriptionItemDto {
         data["prescriptionId"] = this.prescriptionId;
         data["medicineId"] = this.medicineId;
         data["qty"] = this.qty;
+        data["unitPrice"] = this.unitPrice;
+        data["isPrescribe"] = this.isPrescribe;
         return data;
     }
 
@@ -35197,6 +35739,8 @@ export interface IPrescriptionItemDto {
     prescriptionId: number;
     medicineId: number;
     qty: number;
+    unitPrice: number;
+    isPrescribe: boolean;
 }
 
 export class PrescriptionItemDtoPagedResultDto implements IPrescriptionItemDtoPagedResultDto {
@@ -38987,6 +39531,121 @@ export interface IViewLabTestReceiptDto {
     patientPhone: string | undefined;
     paymentMethodDisplay: string | undefined;
     statusDisplay: string | undefined;
+}
+
+export class ViewPharmacistPrescriptionsDto implements IViewPharmacistPrescriptionsDto {
+    tenantName: string | undefined;
+    prescriptionId: number;
+    patientId: number;
+    patientName: string | undefined;
+    patientDateOfBirth: moment.Moment | undefined;
+    gender: string | undefined;
+    doctorName: string | undefined;
+    issueDate: moment.Moment;
+    doctorRegistrationNumber: string | undefined;
+    collectionStatus: CollectionStatus;
+    isPaid: boolean;
+    pharmacyNotes: string | undefined;
+    pickedUpByNurseId: number | undefined;
+    pickedUpByPatientId: number | undefined;
+    pickedUpByNurse: string | undefined;
+    grandTotal: number;
+    prescriptionItems: PrescriptionItemDto[] | undefined;
+
+    constructor(data?: IViewPharmacistPrescriptionsDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.tenantName = _data["tenantName"];
+            this.prescriptionId = _data["prescriptionId"];
+            this.patientId = _data["patientId"];
+            this.patientName = _data["patientName"];
+            this.patientDateOfBirth = _data["patientDateOfBirth"] ? moment(_data["patientDateOfBirth"].toString()) : <any>undefined;
+            this.gender = _data["gender"];
+            this.doctorName = _data["doctorName"];
+            this.issueDate = _data["issueDate"] ? moment(_data["issueDate"].toString()) : <any>undefined;
+            this.doctorRegistrationNumber = _data["doctorRegistrationNumber"];
+            this.collectionStatus = _data["collectionStatus"];
+            this.isPaid = _data["isPaid"];
+            this.pharmacyNotes = _data["pharmacyNotes"];
+            this.pickedUpByNurseId = _data["pickedUpByNurseId"];
+            this.pickedUpByPatientId = _data["pickedUpByPatientId"];
+            this.pickedUpByNurse = _data["pickedUpByNurse"];
+            this.grandTotal = _data["grandTotal"];
+            if (Array.isArray(_data["prescriptionItems"])) {
+                this.prescriptionItems = [] as any;
+                for (let item of _data["prescriptionItems"])
+                    this.prescriptionItems.push(PrescriptionItemDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ViewPharmacistPrescriptionsDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ViewPharmacistPrescriptionsDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["tenantName"] = this.tenantName;
+        data["prescriptionId"] = this.prescriptionId;
+        data["patientId"] = this.patientId;
+        data["patientName"] = this.patientName;
+        data["patientDateOfBirth"] = this.patientDateOfBirth ? this.patientDateOfBirth.toISOString() : <any>undefined;
+        data["gender"] = this.gender;
+        data["doctorName"] = this.doctorName;
+        data["issueDate"] = this.issueDate ? this.issueDate.toISOString() : <any>undefined;
+        data["doctorRegistrationNumber"] = this.doctorRegistrationNumber;
+        data["collectionStatus"] = this.collectionStatus;
+        data["isPaid"] = this.isPaid;
+        data["pharmacyNotes"] = this.pharmacyNotes;
+        data["pickedUpByNurseId"] = this.pickedUpByNurseId;
+        data["pickedUpByPatientId"] = this.pickedUpByPatientId;
+        data["pickedUpByNurse"] = this.pickedUpByNurse;
+        data["grandTotal"] = this.grandTotal;
+        if (Array.isArray(this.prescriptionItems)) {
+            data["prescriptionItems"] = [];
+            for (let item of this.prescriptionItems)
+                data["prescriptionItems"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): ViewPharmacistPrescriptionsDto {
+        const json = this.toJSON();
+        let result = new ViewPharmacistPrescriptionsDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IViewPharmacistPrescriptionsDto {
+    tenantName: string | undefined;
+    prescriptionId: number;
+    patientId: number;
+    patientName: string | undefined;
+    patientDateOfBirth: moment.Moment | undefined;
+    gender: string | undefined;
+    doctorName: string | undefined;
+    issueDate: moment.Moment;
+    doctorRegistrationNumber: string | undefined;
+    collectionStatus: CollectionStatus;
+    isPaid: boolean;
+    pharmacyNotes: string | undefined;
+    pickedUpByNurseId: number | undefined;
+    pickedUpByPatientId: number | undefined;
+    pickedUpByNurse: string | undefined;
+    grandTotal: number;
+    prescriptionItems: PrescriptionItemDto[] | undefined;
 }
 
 export class Visit implements IVisit {

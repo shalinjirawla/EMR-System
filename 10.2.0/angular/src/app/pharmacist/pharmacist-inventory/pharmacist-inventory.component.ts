@@ -25,7 +25,7 @@ import { CalendarModule } from 'primeng/calendar';
 @Component({
   selector: 'app-pharmacist-inventory',
   animations: [appModuleAnimation()],
-  imports: [LocalizePipe, FormsModule, TableModule,CalendarModule, PrimeTemplate, NgIf, PaginatorModule, DatePipe, ButtonModule, OverlayPanelModule, MenuModule],
+  imports: [LocalizePipe, FormsModule, TableModule, CalendarModule, PrimeTemplate, NgIf, PaginatorModule, DatePipe, ButtonModule, OverlayPanelModule, MenuModule],
   providers: [PharmacistInventoryServiceProxy],
   templateUrl: './pharmacist-inventory.component.html',
   styleUrl: './pharmacist-inventory.component.css'
@@ -58,14 +58,14 @@ export class PharmacistInventoryComponent extends PagedListingComponentBase<Phar
     this.isAvailable = undefined;
     this.maxStock = undefined;
     this.list();
-}
+  }
 
-list(event?: LazyLoadEvent): void {
+  list(event?: LazyLoadEvent): void {
     if (this.primengTableHelper.shouldResetPaging(event)) {
-        this.paginator.changePage(0);
-        if (this.primengTableHelper.records && this.primengTableHelper.records.length > 0) {
-            return;
-        }
+      this.paginator.changePage(0);
+      if (this.primengTableHelper.records && this.primengTableHelper.records.length > 0) {
+        return;
+      }
     }
 
     this.primengTableHelper.showLoadingIndicator();
@@ -75,25 +75,25 @@ list(event?: LazyLoadEvent): void {
     const toExpiryDate = this.dateRange?.[1] ? moment(this.dateRange[1]) : undefined;
 
     this._pharmacistInventoryService
-        .getAll(
-            this.keyword,
-            this.primengTableHelper.getSorting(this.dataTable),
-            this.maxStock,
-            fromExpiryDate,
-            toExpiryDate,
-            this.isAvailable,
-            this.primengTableHelper.getSkipCount(this.paginator, event),
-            this.primengTableHelper.getMaxResultCount(this.paginator, event)
-        )
-        .pipe(finalize(() => {
-            this.primengTableHelper.hideLoadingIndicator();
-        }))
-        .subscribe((result: PharmacistInventoryDtoPagedResultDto) => {
-            this.primengTableHelper.records = result.items;
-            this.primengTableHelper.totalRecordsCount = result.totalCount;
-            this.cd.detectChanges();
-        });
-}
+      .getAll(
+        this.keyword,
+        this.primengTableHelper.getSorting(this.dataTable),
+        this.maxStock,
+        fromExpiryDate,
+        toExpiryDate,
+        this.isAvailable,
+        this.primengTableHelper.getSkipCount(this.paginator, event),
+        this.primengTableHelper.getMaxResultCount(this.paginator, event)
+      )
+      .pipe(finalize(() => {
+        this.primengTableHelper.hideLoadingIndicator();
+      }))
+      .subscribe((result: PharmacistInventoryDtoPagedResultDto) => {
+        this.primengTableHelper.records = result.items;
+        this.primengTableHelper.totalRecordsCount = result.totalCount;
+        this.cd.detectChanges();
+      });
+  }
 
   protected delete(entity: PharmacistInventoryDto): void {
     abp.message.confirm("Are you sure u want to delete this", undefined, (result: boolean) => {
@@ -113,6 +113,7 @@ list(event?: LazyLoadEvent): void {
     this.showCreateOrEditMedicine(dto.id);
   }
   showCreateOrEditMedicine(id?: number): void {
+    debugger
     let createOrEditUserDialog: BsModalRef;
     if (!id) {
       createOrEditUserDialog = this._modalService.show(AddMedicineComponent, {
@@ -127,7 +128,9 @@ list(event?: LazyLoadEvent): void {
         },
       });
     }
-
+    createOrEditUserDialog.onHide.subscribe(() => {
+       this.refresh();
+    });
     createOrEditUserDialog.content.onSave.subscribe(() => {
       this.refresh();
     });

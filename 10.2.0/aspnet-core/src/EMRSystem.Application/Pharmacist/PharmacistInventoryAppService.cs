@@ -13,7 +13,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Linq.Dynamic.Core; 
+using System.Linq.Dynamic.Core;
+using Microsoft.AspNetCore.Mvc;
 
 namespace EMRSystem.Pharmacist
 {
@@ -99,6 +100,56 @@ namespace EMRSystem.Pharmacist
             var itemDtos = ObjectMapper.Map<List<PharmacistInventoryDto>>(items);
 
             return new PagedResultDto<PharmacistInventoryDto>(totalCount, itemDtos);
+        }
+
+        public async Task MedicineStockDispense(List<EMRSystem.Prescriptions.Dto.PharmacistPrescriptionItemWithUnitPriceDto> pharmacistPrescriptions)
+        {
+            if (pharmacistPrescriptions.Count > 0)
+            {
+                pharmacistPrescriptions.ForEach(async x =>
+                {
+                    var getDetails = await Repository.FirstOrDefaultAsync(x.MedicineId);
+                    //getDetails.
+                    //await Repository.UpdateAsync();
+                });
+            }
+        }
+
+        [HttpGet]
+        public async Task<List<PharmacistInventoryDto>> GetAllListOfMedicine()
+        {
+            var list = await Repository.GetAll().Where(x => x.TenantId == AbpSession.TenantId).ToListAsync();
+            var itemDtos = ObjectMapper.Map<List<PharmacistInventoryDto>>(list);
+            return itemDtos;
+        }
+
+        public async Task<MedicineStatusResult>  GetMedicineStatus(long medicineId,int qunatity)
+        {
+            var medicine = await Repository.FirstOrDefaultAsync(medicineId);
+            if (medicine == null)
+                return new MedicineStatusResult { IsAvailable = false, Message = "Medicine not found" };
+
+            if (medicine.ExpiryDate <= DateTime.UtcNow)
+                return new MedicineStatusResult { IsAvailable = false, Message = $"{medicine.MedicineName} is expired" };
+
+            if (medicine.Stock <= 0)
+                return new MedicineStatusResult { IsAvailable = false, Message = $"{medicine.MedicineName} is out of stock" };
+
+            if (medicine.Stock < qunatity)
+                return new MedicineStatusResult
+                {
+                    IsAvailable = false,
+                    Message = $"Only {medicine.Stock} units available",
+                    AvailableStock = medicine.Stock
+                };
+
+            return new MedicineStatusResult
+            {
+                IsAvailable = true,
+                Message = $"{medicine.MedicineName} is available",
+                AvailableStock = medicine.Stock
+            };
+
         }
     }
 }
