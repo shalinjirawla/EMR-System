@@ -140,7 +140,7 @@
                                                     <i class="pi pi-eye"></i> View
                                                 </li>
                                                 <li (click)="openPickupDialog(record.id)"
-                                                    *ngIf="record.collectionStatus===0">
+                                                    *ngIf="record.collectionStatus===0 && record.grandTotal>0">
                                                     <i class="pi pi-check"></i> Mark as PickedUp
                                                 </li>
                                             </ul>

@@ -104,7 +104,7 @@
 
                         <textarea pInputText [(ngModel)]="item.instructions" name="itemInstructions" class="mr-2"
                             style="min-width:150px; max-width:100px; flex:1" placeholder="Instructions"
-                            rows="1"></textarea>
+                            rows="1" required></textarea>
 
                         <p-inputNumber name="medicinePrice" inputId="integeronly" [(ngModel)]="item.unitPrice"
                             class="w-25 mr-2" placeholder="Price" [disabled]="true"></p-inputNumber>

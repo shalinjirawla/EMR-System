@@ -57,18 +57,24 @@
     <!-- Pharmacy Notes and Payment Info -->
     <div class="mt-3">
         <p><strong>Pharmacy Notes:</strong> {{ prescription.pharmacyNotes || '-' }}</p>
-        <p-tag [value]="getStatusLabel(prescription.collectionStatus)" *ngIf="prescription.collectionStatus!=1"
-            [severity]="getStatusSeverity(prescription.collectionStatus)" [rounded]="true">
-        </p-tag>
-        <p *ngIf="prescription.collectionStatus !=0">
-            <strong>PickedUp By:</strong>
-            <span *ngIf="prescription.pickedUpByNurse">{{prescription.pickedUpByNurse}}</span>
-            <span *ngIf="!prescription.pickedUpByNurse"> {{prescription.patientName}} (Patient)</span>
+        <div *ngIf="prescription.pickedUpByNurseId">
+            <p>
+                <strong>PickedUp By Nurse:</strong>
+                <span> &nbsp; {{prescription.pickedUpByNurse}} (Nurse)</span>
+            </p>
+        </div>
+        <div *ngIf="prescription.pickedUpByPatientId">
+            <p>
+                <strong>PickedUp By Patient:</strong>
+                <span> &nbsp; {{prescription.pickedUpByPatient}} (Patient)</span>
+            </p>
+        </div>
+
+        <p>
+            <strong>Paid:</strong>  &nbsp;<span [class.text-success]="prescription.isPaid"
+                [class.text-danger]="!prescription.isPaid">{{ prescription.isPaid ? 'Yes' : 'No' }}</span>
         </p>
-        <p><strong>Paid:</strong> <span [class.text-success]="prescription.isPaid"
-                [class.text-danger]="!prescription.isPaid">{{ prescription.isPaid ? 'Yes' : 'No' }}</span></p>
-        <p *ngIf="prescription.pickedUpByNurse"><strong>Picked Up By:</strong> {{ prescription.pickedUpByNurse }}</p>
-        <p><strong>Grand Total:</strong> {{ prescription.grandTotal | currency }}</p>
+        <p><strong>Grand Total:</strong>  &nbsp;{{ prescription.grandTotal | currency }}</p>
     </div>
 
     <!-- Doctor Signature -->

@@ -95,6 +95,7 @@ export class EditPharmacistPrescriptionComponent extends AppComponentBase implem
           if (res.prescriptionId) {
             this.selectedPrescriptionID = res.prescriptionId;
             this._pharmacyNotes = res.pharmacyNotes;
+            // const filterdList=res.prescriptionItem.filter(x=>x.pharmacistPrescriptionId==res.)
             this.selectedPrescriptionItem = (res.prescriptionItem || []).map((it: any) => {
               // ensure qty and stable row id
               if (!it.qty || it.qty < 1) it.qty = 1;
@@ -246,11 +247,13 @@ export class EditPharmacistPrescriptionComponent extends AppComponentBase implem
     ).subscribe({
       next: (res) => {
         if (res.items && res.items.length > 0) {
+          const selectedIds = this.selectedPrescriptionItem?.map(itm => itm.medicineId) || [];
           this.medicineOptions = res.items.map(item => ({
             label: item.medicineName,
             value: item.id,
-            name: item.medicineName
-          }));
+            name: item.medicineName,
+            disabled: selectedIds.includes(item.id)
+          })); 
 
           res.items.forEach(medicine => {
             const units = medicine.unit ? medicine.unit.split(',').map((u: string) => u.trim()) : [];
