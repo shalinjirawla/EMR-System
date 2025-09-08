@@ -100,11 +100,20 @@ namespace EMRSystem.Pharmacist
                     var entity = ObjectMapper.Map<List<PrescriptionItem>>(withItemDto.pharmacistPrescriptionsListOfItem);
                     if (entity.Count > 0)
                     {
-                        entity.ForEach(x =>
+                        foreach (var x in entity)
                         {
                             x.PharmacistPrescriptionId = pharmacistPrescriptionId;
                             x.IsPrescribe = false;
-                        });
+                            var inventoryItem = await _pharmacistInventoryRepository.FirstOrDefaultAsync(t => t.Id == x.Id);
+                            if (inventoryItem != null)
+                            {
+                                if (inventoryItem.Stock >= x.Qty)
+                                {
+                                    inventoryItem.Stock -= x.Qty;
+                                    await _pharmacistInventoryRepository.UpdateAsync(inventoryItem);
+                                }
+                            }
+                        }
                         await _prescriptionItemRepository.InsertRangeAsync(entity);
                     }
                 }
@@ -117,17 +126,40 @@ namespace EMRSystem.Pharmacist
                     var getExistingListOfItems = await _prescriptionItemRepository.GetAll()
                                                 .Where(x => x.PharmacistPrescriptionId == pharmacistPrescriptionId)
                                                 .ToListAsync();
+
+
+                    // Step 2: Restore stock for existing items
+                    foreach (var oldItem in getExistingListOfItems)
+                    {
+                        var inventoryItem = await _pharmacistInventoryRepository.FirstOrDefaultAsync(x => x.Id == oldItem.MedicineId);
+                        if (inventoryItem != null)
+                        {
+                            inventoryItem.Stock += oldItem.Qty; // restore stock
+                            await _pharmacistInventoryRepository.UpdateAsync(inventoryItem);
+                        }
+                    }
+
+
                     if (getExistingListOfItems.Count > 0)
                         _prescriptionItemRepository.RemoveRange(getExistingListOfItems);
 
                     var entity = ObjectMapper.Map<List<PrescriptionItem>>(withItemDto.pharmacistPrescriptionsListOfItem);
                     if (entity.Count > 0)
                     {
-                        entity.ForEach(x =>
+                        foreach (var x in entity)
                         {
                             x.PharmacistPrescriptionId = pharmacistPrescriptionId;
                             x.IsPrescribe = false;
-                        });
+                            var inventoryItem = await _pharmacistInventoryRepository.FirstOrDefaultAsync(x => x.Id == x.Id);
+                            if (inventoryItem != null)
+                            {
+                                if (inventoryItem.Stock >= x.Qty)
+                                {
+                                    inventoryItem.Stock -= x.Qty;
+                                    await _pharmacistInventoryRepository.UpdateAsync(inventoryItem);
+                                }
+                            }
+                        }
                         await _prescriptionItemRepository.InsertRangeAsync(entity);
                     }
                 }
@@ -163,58 +195,49 @@ namespace EMRSystem.Pharmacist
         [HttpGet]
         public async Task<ViewPharmacistPrescriptionsDto> ViewPharmacistPrescriptionsReceipt(long prescriptionId, long? pharmacistPrescriptionId)
         {
-            var query = await Repository.GetAllIncludingAsync(
+            var pharmacistPrescriptionsEntity = await Repository.GetAllIncluding(
                 x => x.Prescriptions,
-                x => x.Prescriptions.PharmacistPrescriptions,
                 x => x.Prescriptions.Patient,
                 x => x.Prescriptions.Doctor,
-                x => x.Prescriptions,
-                x => x.Prescriptions.Consultation_Requests,
-                x => x.Prescriptions.SelectedEmergencyProcedureses,
-                x => x.Prescriptions.Items.Where(x => x.PharmacistPrescriptionId == pharmacistPrescriptionId)
-                );
+                x => x.Nurse,
+                x => x.Patient,
+                x => x.PrescriptionItems
+                ).FirstOrDefaultAsync(x => x.Id == pharmacistPrescriptionId);
 
-            var entity = await query
-                    .Where(x => x.PrescriptionId == prescriptionId)
-                    .Select(x => x.Prescriptions)
-                    .FirstOrDefaultAsync();
-
-            if (entity == null)
+            if (pharmacistPrescriptionsEntity == null)
                 return null;
             var tenant = await _tenantManager.GetByIdAsync(AbpSession.TenantId.Value);
-            var dto = new ViewPharmacistPrescriptionsDto
+            var dto = new ViewPharmacistPrescriptionsDto();
+            dto.TenantName = tenant?.Name;
+            dto.PharmacistPrescriptionId = pharmacistPrescriptionsEntity.Id;
+            dto.PrescriptionId = pharmacistPrescriptionsEntity.PrescriptionId.Value;
+            dto.PatientId = pharmacistPrescriptionsEntity.Prescriptions?.Patient?.Id ?? 0;
+            dto.PatientName = pharmacistPrescriptionsEntity.Prescriptions?.Patient?.FullName;
+            dto.PatientDateOfBirth = pharmacistPrescriptionsEntity.Prescriptions?.Patient?.DateOfBirth;
+            dto.Gender = pharmacistPrescriptionsEntity.Prescriptions?.Patient?.Gender;
+            dto.DoctorName = pharmacistPrescriptionsEntity?.Prescriptions?.Doctor?.FullName;
+            dto.DoctorRegistrationNumber = pharmacistPrescriptionsEntity.Prescriptions.Doctor?.RegistrationNumber;
+            dto.PharmacyNotes = pharmacistPrescriptionsEntity.PharmacyNotes;
+            dto.IsPaid = pharmacistPrescriptionsEntity.IsPaid;
+            dto.CollectionStatus = pharmacistPrescriptionsEntity.CollectionStatus;
+            dto.IssueDate = pharmacistPrescriptionsEntity.IssueDate.Value;
+            dto.PickedUpByNurseId = pharmacistPrescriptionsEntity.PickedUpByNurse;
+            dto.PickedUpByNurse = pharmacistPrescriptionsEntity.Nurse?.FullName;
+            dto.PickedUpByPatientId = pharmacistPrescriptionsEntity.PickedUpByPatient;
+            dto.PickedUpByPatient = pharmacistPrescriptionsEntity.Patient?.FullName;
+            dto.GrandTotal = pharmacistPrescriptionsEntity.GrandTotal;
+            dto.PrescriptionItems = pharmacistPrescriptionsEntity.PrescriptionItems?.Select(i => new PrescriptionItemDto
             {
-                TenantName = tenant?.Name,
-                PharmacistPrescriptionId = entity.PharmacistPrescriptions.ToList()[0].Id,
-                PrescriptionId = entity.Id,
-                PatientId = entity.Patient?.Id ?? 0,
-                PatientName = entity.Patient?.FullName,
-                PatientDateOfBirth = entity.Patient?.DateOfBirth,
-                Gender = entity.Patient?.Gender,
-                DoctorName = entity.Doctor?.FullName,
-                DoctorRegistrationNumber = entity.Doctor?.RegistrationNumber,
-                PharmacyNotes = entity.PharmacistPrescriptions.ToList()[0].PharmacyNotes,
-                IsPaid = entity.PharmacistPrescriptions.ToList()[0].IsPaid,
-                CollectionStatus = entity.PharmacistPrescriptions.ToList()[0].CollectionStatus,
-                IssueDate = entity.PharmacistPrescriptions.ToList()[0].IssueDate.Value,
-                PickedUpByNurseId = entity.PharmacistPrescriptions?.ToList()[0].Nurse?.Id,
-                PickedUpByNurse = entity.PharmacistPrescriptions?.ToList()[0].Nurse?.FullName,
-                PickedUpByPatientId = entity.PharmacistPrescriptions?.ToList()[0].Patient?.Id,
-                PickedUpByPatient = entity.PharmacistPrescriptions?.ToList()[0].Patient?.FullName,
-                GrandTotal = entity.PharmacistPrescriptions.ToList()[0].GrandTotal,
-                PrescriptionItems = entity.Items?.Select(i => new PrescriptionItemDto
-                {
-                    MedicineName = i.MedicineName,
-                    Dosage = i.Dosage,
-                    Frequency = i.Frequency,
-                    Duration = i.Duration,
-                    Instructions = i.Instructions,
-                    IsPrescribe = i.IsPrescribe,
-                    Qty = i.Qty,
-                    UnitPrice = i.UnitPrice,
-                    PharmacistPrescriptionId = i.PharmacistPrescriptionId
-                }).ToList()
-            };
+                MedicineName = i.MedicineName,
+                Dosage = i.Dosage,
+                Frequency = i.Frequency,
+                Duration = i.Duration,
+                Instructions = i.Instructions,
+                IsPrescribe = i.IsPrescribe,
+                Qty = i.Qty,
+                UnitPrice = i.UnitPrice,
+                PharmacistPrescriptionId = i.PharmacistPrescriptionId
+            }).ToList();
 
             return dto;
         }

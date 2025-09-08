@@ -130,10 +130,10 @@ export class EditMedicineComponent extends AppComponentBase implements OnInit {
   }
 
   save(): void {
-    if (this.CheckExistingMedicine()) {
-      this.message.warn("Medicine already added.");
-      return;
-    }
+    // if (this.CheckExistingMedicine()) {
+    //   this.message.warn("Medicine already added.");
+    //   return;
+    // }
     if (!this.isFormValid) {
       this.message.warn("Please complete the form properly.");
       return;
