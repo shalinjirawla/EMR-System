@@ -20,11 +20,12 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { TableModule } from 'primeng/table';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
+import { ToastModule } from 'primeng/toast';
 @Component({
   selector: 'app-edit-pharmacist-prescription',
   standalone: true,
   imports: [
-    AbpModalHeaderComponent, AbpModalFooterComponent, InputTextModule, MultiSelectModule, FormsModule, SelectModule,
+    AbpModalHeaderComponent, ToastModule, AbpModalFooterComponent, InputTextModule, FormsModule,
     CommonModule, ButtonModule, TextareaModule, InputNumberModule, TableModule, DropdownModule
   ],
   templateUrl: './edit-pharmacist-prescription.component.html',
@@ -39,7 +40,8 @@ export class EditPharmacistPrescriptionComponent extends AppComponentBase implem
   paymentMethod: PaymentMethod = PaymentMethod._0;
   isSaving = false;
   PaymentMethod = PaymentMethod;
-  selectedPrescriptionItem!: PharmacistPrescriptionItemWithUnitPriceDto[];
+  // arrays / models
+  selectedPrescriptionItem: PharmacistPrescriptionItemWithUnitPriceDto[] = [];
   newPrescriptionItem!: PharmacistPrescriptionItemWithUnitPriceDto;
   selectedPrescriptionID!: number;
   _pharmacyNotes!: string;
@@ -48,6 +50,7 @@ export class EditPharmacistPrescriptionComponent extends AppComponentBase implem
   medicineOptions: any[] = [];
   medicineDosageOptions: { [medicineName: string]: string[] } = {};
   selectedMedicineUnits: { [medicineName: string]: string } = {};
+  medicineStocks: { [medicineId: number]: number } = {};
   frequencyOptions = [
     { label: 'Once a day', value: 'Once a day' },
     { label: 'Twice a day', value: 'Twice a day' },
@@ -63,6 +66,10 @@ export class EditPharmacistPrescriptionComponent extends AppComponentBase implem
     { label: 'Weeks', value: 'Weeks' },
     { label: 'Months', value: 'Months' }
   ];
+  // row id generator for stable dataKey
+  private _rowCounter = 1;
+  private nextRowId(): number { return this._rowCounter++; }
+
   constructor(
     injector: Injector,
     public bsModalRef: BsModalRef,
@@ -88,30 +95,46 @@ export class EditPharmacistPrescriptionComponent extends AppComponentBase implem
           if (res.prescriptionId) {
             this.selectedPrescriptionID = res.prescriptionId;
             this._pharmacyNotes = res.pharmacyNotes;
-            this.selectedPrescriptionItem = res.prescriptionItem;
-            this.selectedPrescriptionName = `${res.patientName || ''} - ${res.issueDate.toDate().toLocaleDateString()} - ${res.prescriptionId}`
+            this.selectedPrescriptionItem = (res.prescriptionItem || []).map((it: any) => {
+              // ensure qty and stable row id
+              if (!it.qty || it.qty < 1) it.qty = 1;
+              it._rowId = this.nextRowId();
+              return it;
+            });
+
+            this.selectedPrescriptionName = `${res.patientName || ''} - ${res.issueDate.toDate().toLocaleDateString()} - ${res.prescriptionId}`;
+
+            // clamp quantities immediately if we know stock
             this.selectedPrescriptionItem.forEach(itm => {
-              if (!itm.qty || itm.qty < 1) {
-                itm.qty = 1;
+              const mid = itm.medicineId || (itm as any).id;
+              const stock = (mid ? this.medicineStocks[mid] : undefined);
+              if (stock !== undefined && itm.qty > stock) {
+                itm.qty = stock;
+                this.messageService.add({
+                  severity: 'warn',
+                  summary: 'Stock Adjusted',
+                  detail: `${itm.medicineName} qty adjusted to available stock (${stock})`
+                });
               }
             });
-            // calculate total immediately on load
+            // replace array reference to force table render
+            this.selectedPrescriptionItem = [...this.selectedPrescriptionItem];
             this.total = this.getPrescriptionTotal();
           }
           this.cdRef.detectChanges();
         });
-      }, error: (err) => {
-
+      },
+      error: (err) => {
+        // handle error optionally
       }
-    })
+    });
   }
+
   setPaymentMethod(method: PaymentMethod) {
     this.paymentMethod = method;
   }
   save() {
-    if (!this.createPharmacistPrescriptionForm.valid) {
-      return;
-    }
+    if (!this.createPharmacistPrescriptionForm.valid) return;
 
     this.isSaving = true;
     const input = new CreateUpdatePharmacistPrescriptionsDto();
@@ -138,87 +161,122 @@ export class EditPharmacistPrescriptionComponent extends AppComponentBase implem
         error: () => this.isSaving = false
       });
     } else {
-      // // Card -> create Stripe Checkout Session
-      // this.labReceiptService.createStripeCheckoutSession(input).subscribe({
-
-      //   next: (sessionUrl) => {
-      //     window.location.href = sessionUrl; // redirect to Stripe
-      //   },
-      //   error: () => this.isSaving = false
-      // });
+      // card flow (if implemented)
+      this.isSaving = false;
     }
   }
+
   getPrescriptionTotal(): number {
-    if (!this.selectedPrescriptionItem || !this.selectedPrescriptionItem.length) {
-      return 0;
-    }
+    if (!this.selectedPrescriptionItem || !this.selectedPrescriptionItem.length) return 0;
     return this.selectedPrescriptionItem
-      .map(itm => itm.unitPrice * itm.qty)
+      .map(itm => (itm.unitPrice || 0) * (itm.qty || 0))
       .reduce((sum, val) => sum + val, 0);
   }
 
-  /// add new
-  onQtyChange(itm: any) {
-    if (itm.qty < 1) {
-      itm.qty = 1; // enforce minimum
+  /**
+   * onQtyChange: receives the newQty from ngModelChange.
+   * clamps qty to available stock and forces table re-render reliably.
+   */
+  onQtyChange(itm: any, newQty: number) {
+    // assign requested value first
+    itm.qty = Number(newQty) || 0;
+    if (itm.qty < 1) itm.qty = 1;
+
+    const medicineId = itm.medicineId || itm.id;
+    const availableStock = (medicineId ? this.medicineStocks[medicineId] : undefined);
+
+    if (availableStock !== undefined && availableStock >= 0 && itm.qty > availableStock) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Stock Limit',
+        detail: `Only ${availableStock} units available for ${itm.medicineName}`
+      });
+
+      // update after current event loop so p-inputNumber internal state finishes
+      setTimeout(() => {
+        itm.qty = availableStock;
+        // replace array to force p-table re-render of the row (dataKey uses _rowId)
+        this.selectedPrescriptionItem = [...this.selectedPrescriptionItem];
+        this.cdRef.detectChanges();
+        this.total = this.getPrescriptionTotal();
+      }, 0);
+
+      return;
     }
-    this.total = this.getPrescriptionTotal(); // recalc every time qty changes
+
+    // if stock unknown, fetch and then validate
+    if ((availableStock === undefined || availableStock === null) && medicineId) {
+      this._pharmacistInventoryService.get(medicineId).subscribe({
+        next: (mres) => {
+          const s = mres.stock || 0;
+          this.medicineStocks[medicineId] = s;
+          if (itm.qty > s) {
+            this.messageService.add({
+              severity: 'warn',
+              summary: 'Stock Limit',
+              detail: `Only ${s} units available for ${itm.medicineName}`
+            });
+            setTimeout(() => {
+              itm.qty = s;
+              this.selectedPrescriptionItem = [...this.selectedPrescriptionItem];
+              this.cdRef.detectChanges();
+              this.total = this.getPrescriptionTotal();
+            }, 0);
+          } else {
+            this.selectedPrescriptionItem = [...this.selectedPrescriptionItem];
+            this.cdRef.detectChanges();
+            this.total = this.getPrescriptionTotal();
+          }
+        },
+        error: () => {
+          // ignore fetch error
+        }
+      });
+      return;
+    }
+
+    // normal path
+    this.selectedPrescriptionItem = [...this.selectedPrescriptionItem];
+    this.total = this.getPrescriptionTotal();
   }
-  loadMedicines() {
-    // Call getAll() with default parameters to get all available medicines
+
+  loadMedicines(afterLoadedCallback?: () => void) {
     this._pharmacistInventoryService.getAll(
-      undefined,  // keyword
-      undefined,  // sorting
-      undefined,  // minStock
-      undefined,  // maxStock
-      undefined,  // fromExpiryDate
-      true,       // isAvailable (only get available medicines)
-      undefined,  // skipCount
-      undefined   // maxResultCount
+      undefined, undefined, undefined, undefined, undefined, true, undefined, undefined
     ).subscribe({
       next: (res) => {
         if (res.items && res.items.length > 0) {
-          const selectedIds = this.selectedPrescriptionItem?.map(itm => itm.medicineId) || [];
           this.medicineOptions = res.items.map(item => ({
             label: item.medicineName,
-            value: item.id, // Use medicineId as value
-            name: item.medicineName, // Store name separately
-            disabled: selectedIds.includes(item.id)
+            value: item.id,
+            name: item.medicineName
           }));
 
-
-          // Prepare dosage options for each medicine
           res.items.forEach(medicine => {
-            const unit = medicine.unit;
-            if (unit) {
-              // Split units if they are comma separated (e.g., "200 mg, 500 mg")
-              const units = unit.split(',').map(u => u.trim());
-              this.medicineDosageOptions[medicine.medicineName] = units;
-              this.selectedMedicineUnits[medicine.medicineName] = units[0];
-            }
+            const units = medicine.unit ? medicine.unit.split(',').map((u: string) => u.trim()) : [];
+            this.medicineDosageOptions[medicine.medicineName] = units;
+            this.selectedMedicineUnits[medicine.medicineName] = units.length ? units[0] : '';
+            this.medicineStocks[medicine.id] = medicine.stock || 0;
           });
         }
+        if (afterLoadedCallback) afterLoadedCallback();
       },
       error: (err) => {
         this.notify.error('Could not load medicines');
-        console.error('Error loading medicines:', err);
+        if (afterLoadedCallback) afterLoadedCallback();
       }
     });
   }
+
   getDosageOptions(medicineName: string): any[] {
     if (!medicineName || !this.medicineDosageOptions[medicineName]) return [];
-
-    return this.medicineDosageOptions[medicineName].map(unit => ({
-      label: unit,
-      value: unit
-    }));
+    return this.medicineDosageOptions[medicineName].map(unit => ({ label: unit, value: unit }));
   }
+
   onMedicineChange(item: any) {
     const selected = this.medicineOptions.find(m => m.value === item.medicineId);
     if (selected) {
       item.medicineName = selected.name;
-
-      // Set default dosage
       if (this.medicineDosageOptions[selected.name]) {
         item.dosage = this.selectedMedicineUnits[selected.name];
       } else {
@@ -249,48 +307,51 @@ export class EditPharmacistPrescriptionComponent extends AppComponentBase implem
     (item as any).durationValue = 1;
     (item as any).durationUnit = 'Days';
     (item as any)._isNew = true;
+    (item as any)._rowId = this.nextRowId();
     this.newPrescriptionItem = item;
   }
+
   removeItem(index: number): void {
     this.selectedPrescriptionItem.splice(index, 1);
-    this.loadMedicines();
+    this.selectedPrescriptionItem = [...this.selectedPrescriptionItem];
+    this.total = this.getPrescriptionTotal();
+     this.loadMedicines();
   }
+
   GetPriceOfMedicine(_medicineId: number) {
     this._pharmacistInventoryService.get(_medicineId).subscribe({
       next: (res) => {
-        this.newPrescriptionItem.unitPrice = res.sellingPrice
-      }, error: (err) => { }
+        if (this.newPrescriptionItem) this.newPrescriptionItem.unitPrice = res.sellingPrice;
+        this.medicineStocks[_medicineId] = res.stock || 0;
+      },
+      error: () => { }
     });
   }
+
   addItem() {
     if (this.newPrescriptionItem) {
-      this.newPrescriptionItem.duration = `${(this.newPrescriptionItem as any).durationValue} ${(this.newPrescriptionItem as any).durationUnit}`;
+      const medicineId = this.newPrescriptionItem.medicineId;
+      const stock = (medicineId ? this.medicineStocks[medicineId] : undefined);
+      if (stock !== undefined && stock >= 0 && this.newPrescriptionItem.qty > stock) {
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Stock Limit',
+          detail: `Only ${stock} units available for ${this.newPrescriptionItem.medicineName}`
+        });
+        // clamp
+        this.newPrescriptionItem.qty = stock;
+      }
+
+      this.newPrescriptionItem.duration =
+        `${(this.newPrescriptionItem as any).durationValue} ${(this.newPrescriptionItem as any).durationUnit}`;
+
+      // ensure new item has stable row id
+      (this.newPrescriptionItem as any)._rowId = this.nextRowId();
+
       this.selectedPrescriptionItem.push(this.newPrescriptionItem);
+      this.selectedPrescriptionItem = [...this.selectedPrescriptionItem];
       this.newPrescriptionItem = null;
-      this.getPrescriptionTotal();
+      this.total = this.getPrescriptionTotal();
     }
-  }
-  // AddPrescriptionItems() {
-  //   this.PrescriptionItemsService.createPrescriptionItemList(this.selectedPrescriptionItem).subscribe({
-  //     next: (res) => {
-  //       this.save();
-  //     }, error: (err) => {
-  //     }
-  //   })
-  // }
-  validateMedicineStock(itm: any) {
-    this._pharmacistInventoryService
-      .getMedicineStatus(itm.medicineId, itm.qty)
-      .subscribe(result => {
-        if (!result.isValid) {
-          // Rollback to previous value
-          itm.qty = itm.qty - 1;
-          this.messageService.add({ severity: 'warn', summary: 'Stock Check', detail: result.message });
-        } else if (result.message.includes("Warning")) {
-          this.messageService.add({ severity: 'info', summary: 'Stock Warning', detail: result.message });
-        }
-        // Update total anyway
-        this.total = this.getPrescriptionTotal();
-      });
   }
 }

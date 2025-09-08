@@ -2,12 +2,10 @@
     <div class="overlay" *ngIf="isSaving">
         <p-progressSpinner></p-progressSpinner>
     </div>
-    <form class="form-horizontal" autocomplete="off" #createPharmacistPrescriptionForm="ngForm"
-        (ngSubmit)="save()">
+    <form class="form-horizontal" autocomplete="off" #createPharmacistPrescriptionForm="ngForm" (ngSubmit)="save()">
         <abp-modal-header title="Create Pharmacist Prescription" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
 
         <div class="modal-body">
-
             <!-- Patient Selection -->
             <div class="row">
                 <div class="col-md-12">
@@ -41,7 +39,7 @@
                     </div>
                     <!-- Confirmed Items Table -->
                     <p-table [value]="selectedPrescriptionItem" class="p-datatable-sm shadow-md rounded"
-                        [tableStyle]="{ 'min-width': '40rem' }">
+                        [tableStyle]="{ 'min-width': '40rem' }" [dataKey]="'_rowId'">
                         <ng-template pTemplate="header">
                             <tr>
                                 <th>Medicine</th>
@@ -50,6 +48,7 @@
                                 <th>Duration</th>
                                 <th>Instructions</th>
                                 <th>Price</th>
+                                <th>Stock</th>
                                 <th>Qty</th>
                                 <th class="text-right">Line Total</th>
                                 <th>Action</th>
@@ -62,12 +61,14 @@
                                 <td>{{ itm.frequency }}</td>
                                 <td>{{ itm.duration }}</td>
                                 <td>{{ itm.instructions }}</td>
-                                <td>{{ itm.unitPrice }}</td>
-                                <td>
-                                    <p-inputnumber [(ngModel)]="itm.qty" [showButtons]="true" [min]="1" name="qunatity"
-                                        (onInput)="onQtyChange(itm);"></p-inputnumber>
+                                <td>{{ itm.unitPrice | number:'1.2-2' }}</td>
+                                <td>{{ getStockForItem(itm) }}</td>
+                                <td style="width:140px;">
+                                    <p-inputNumber [(ngModel)]="itm.qty" [showButtons]="true" [min]="1"
+                                        name="quantity{{itm._rowId}}"
+                                        (ngModelChange)="onQtyChange(itm, $event)"></p-inputNumber>
                                 </td>
-                                <td class="text-right">{{ itm.unitPrice * itm.qty }}</td>
+                                <td class="text-right">{{ (itm.unitPrice * itm.qty) | number:'1.2-2' }}</td>
                                 <td>
                                     <p-button *ngIf="itm._isNew" variant="text" severity="danger"
                                         (click)="removeItem(i)" icon="fa-solid fa-xmark" />
@@ -76,20 +77,22 @@
                         </ng-template>
                         <ng-template pTemplate="footer">
                             <tr>
-                                <td colspan="9">
+                                <td colspan="10">
                                     <div class="text-right">
-                                        <h5><strong>Total: ₹{{ getPrescriptionTotal() }}</strong></h5>
+                                        <h5><strong>Total: ₹{{ getPrescriptionTotal() | number:'1.2-2' }}</strong></h5>
                                     </div>
                                 </td>
                             </tr>
                         </ng-template>
                     </p-table>
+                    <p-toast></p-toast>
+                    <!-- New Item Row -->
                     <form #itemForm="ngForm">
                         <div *ngIf="newPrescriptionItem as item" class="d-flex align-items-center mt-3 mb-3">
                             <!-- Medicine Dropdown -->
                             <p-dropdown appendTo="self" [(ngModel)]="item.medicineId" [options]="medicineOptions"
                                 optionLabel="label" optionValue="value" placeholder="Select Medicine" class="w-25 mr-2"
-                                name="itemMedicine" (onChange)="onMedicineChange(item)" required>
+                                name="itemMedicine" [optionDisabled]="'disabled'" (onChange)="onMedicineChange(item)" required>
                             </p-dropdown>
                             <!-- Dosage Dropdown -->
                             <p-dropdown appendTo="self"
@@ -102,39 +105,35 @@
                                 pInputText [(ngModel)]="item.dosage" name="itemDosage" class="w-25 mr-2"
                                 placeholder="Dosage" required />
 
-                            <!-- Frequency Dropdown -->
                             <p-dropdown appendTo="self" [(ngModel)]="item.frequency" [options]="frequencyOptions"
                                 optionLabel="label" optionValue="value" placeholder="Frequency" class="mr-2"
                                 name="itemFrequency" required></p-dropdown>
 
-                            <!-- Duration (Input + Dropdown) -->
                             <div class="d-flex mr-2">
                                 <input type="number" pInputText [(ngModel)]="item.durationValue" placeholder="Duration"
-                                    class="w-50 mr-1" min="1" required name="durationValue" required>
-
+                                    class="w-50 mr-1" min="1" required name="durationValue">
                                 <p-dropdown appendTo="self" [(ngModel)]="item.durationUnit" [options]="durationUnits"
                                     optionLabel="label" optionValue="value" class="w-50" name="itemDurationUnit"
                                     required></p-dropdown>
                             </div>
 
-                            <!-- Instructions Textarea -->
                             <textarea pInputText [(ngModel)]="item.instructions" name="itemInstructions" class="mr-2"
-                                style="min-width:150px; max-width:100px; flex:1" placeholder="Instructions" rows="1"
-                                name="abcd" required></textarea>
+                                style="min-width:150px; max-width:100px; flex:1" placeholder="Instructions" rows="1" required></textarea>
 
-                            <p-inputnumber name="medicinePrice" inputId="integeronly" [(ngModel)]="item.unitPrice"
-                                class="w-25 mr-2" placeholder="Price" [disabled]="true" />
+                            <p-inputNumber name="medicinePrice" inputId="integeronly" [(ngModel)]="item.unitPrice"
+                                class="w-25 mr-2" placeholder="Price" [disabled]="true"></p-inputNumber>
 
-                            <p-inputnumber [(ngModel)]="item.qty" [showButtons]="true" [min]="1" name="qty"
-                                (onInput)="onQtyChange(item)"></p-inputnumber>
+                            <p-inputNumber [(ngModel)]="item.qty" [showButtons]="true" [min]="1" name="qtyNewItem"
+                                (ngModelChange)="onQtyChange(item, $event)"></p-inputNumber>
 
-                            <p-button variant="text" severity="success" (click)="addItem()" icon="fa-solid fa-check" [disabled]="!itemForm.form.valid" />
+                            <p-button variant="text" severity="success" (click)="addItem()" [disabled]="!itemForm.form.valid" icon="fa-solid fa-check"></p-button>
                             <p-button variant="text" severity="danger" (click)="newPrescriptionItem = null"
-                                icon="fa-solid fa-xmark" />
+                                icon="fa-solid fa-xmark"></p-button>
                         </div>
                     </form>
                 </div>
 
+                <!-- Notes -->
                 <div class="row mt-2">
                     <div class="col-md-12">
                         <label>Notes</label>
@@ -149,17 +148,12 @@
                         <label>Payment Method</label>
                         <div class="d-flex">
                             <div class="payment-option" [class.active]="paymentMethod === PaymentMethod._1"
-                                (click)="setPaymentMethod(PaymentMethod._1)">
-                                💳 Card
-                            </div>
+                                (click)="setPaymentMethod(PaymentMethod._1)">💳 Card</div>
                             <div class="payment-option ml-2" [class.active]="paymentMethod === PaymentMethod._0"
-                                (click)="setPaymentMethod(PaymentMethod._0)">
-                                💵 Cash
-                            </div>
+                                (click)="setPaymentMethod(PaymentMethod._0)">💵 Cash</div>
                         </div>
                     </div>
                 </div>
-
             </div>
             <abp-modal-footer [cancelDisabled]="isSaving"
                 [saveDisabled]="!createPharmacistPrescriptionForm.form.valid  || isSaving"
