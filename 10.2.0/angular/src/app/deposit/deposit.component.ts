@@ -19,6 +19,7 @@ import { CreateDepositComponent } from './create-deposit/create-deposit.componen
 import {PatientReceiptListComponent} from './patient-receipt-list/patient-receipt-list.component'
 import { PatientDepositDto, PatientDepositDtoPagedResultDto, PatientDepositServiceProxy } from '@shared/service-proxies/service-proxies';
 import { TagModule } from 'primeng/tag';
+import {ViewDepositTransactionComponent} from './view-deposit-transaction/view-deposit-transaction.component';
 @Component({
   selector: 'app-deposit',
   imports: [LocalizePipe, TableModule,TagModule, PaginatorModule, FormsModule, NgIf, PrimeTemplate, ChipModule, OverlayPanelModule, MenuModule, ButtonModule],
@@ -120,6 +121,16 @@ export class DepositComponent extends PagedListingComponentBase<PatientDepositDt
     class: 'modal-lg',
     initialState: {
       patientDepositId: dto.id,
+      patientName: dto.patientName
+    }
+  });
+}
+viewTransactions(dto: PatientDepositDto): void {
+  debugger
+  const modalRef: BsModalRef = this._modalService.show(ViewDepositTransactionComponent, {
+    class: 'modal-xl',   // thoda bada modal transactions ke liye
+    initialState: {
+      depositId: dto.id,
       patientName: dto.patientName
     }
   });
