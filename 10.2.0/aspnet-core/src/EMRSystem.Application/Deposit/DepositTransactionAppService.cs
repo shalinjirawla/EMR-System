@@ -131,6 +131,25 @@ namespace EMRSystem.Deposit
 
             return new ListResultDto<DepositTransactionDto>(transactionDtos);
         }
+        public async Task<ListResultDto<DepositTransactionDto>> GetAllByPatientDepositTransactionAsync(long patientDepositId)
+        {
+
+            var patientDeposit = await _patientDepositRepository.FirstOrDefaultAsync(patientDepositId);
+            if (patientDeposit == null)
+            {
+                throw new UserFriendlyException("Patient deposit not found");
+            }
+
+            var transactions = await Repository
+                .GetAll()
+                .Where(t => t.PatientDepositId == patientDepositId)
+                .OrderByDescending(t => t.Id)
+                .ToListAsync();
+
+            var transactionDtos = ObjectMapper.Map<List<DepositTransactionDto>>(transactions);
+
+            return new ListResultDto<DepositTransactionDto>(transactionDtos);
+        }
 
 
     }

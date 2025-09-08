@@ -1,0 +1,66 @@
+<abp-modal-header [title]="'Deposit Transactions - ' + patientName" (onCloseClick)="close()"></abp-modal-header>
+
+<div class="p-3">
+
+  <!-- 🔹 Summary Cards -->
+  <div class="row mb-3 transaction-summary">
+    <div class="col-md-4">
+      <div class="card summary-card credit">
+        <div class="card-body text-center">
+          <h6 class="mb-1">Total Credit</h6>
+          <h5 class="fw-bold">₹ {{ totalCredit | number:'1.0-2' }}</h5>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card summary-card debit">
+        <div class="card-body text-center">
+          <h6 class="mb-1">Total Debit</h6>
+          <h5 class="fw-bold">₹ {{ totalDebit | number:'1.0-2' }}</h5>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card summary-card balance">
+        <div class="card-body text-center">
+          <h6 class="mb-1">Net Balance</h6>
+          <h5 class="fw-bold" [ngClass]="netBalance >= 0 ? 'text-success' : 'text-danger'">
+            ₹ {{ netBalance | number:'1.0-2' }}
+          </h5>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🔹 Transactions Table -->
+  <p-table
+    [value]="transactions"
+    [tableStyle]="{ 'min-width': '55rem' }"
+    styleClass="p-datatable-striped p-datatable-sm custom-transaction-table"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Description</th>
+        <th class="text-right">Amount</th>
+        <th>Date</th>
+        <th>Receipt No</th>
+        <th>Transaction Type</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-t>
+      <tr>
+        <td>{{ t.description }}</td>
+        <td class="text-right fw-bold">₹ {{ t.amount | number:'1.0-2' }}</td>
+        <td>{{ t.transactionDate | date: 'dd MMM yyyy, hh:mm a' }}</td>
+        <td>{{ t.receiptNo || '-' }}</td>
+        <td>
+          <p-tag [value]="getTransactionTypeLabel(t.transactionType)"
+                 [severity]="t.transactionType === 0 ? 'success' : 'danger'">
+          </p-tag>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
