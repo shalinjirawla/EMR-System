@@ -1,0 +1,39 @@
+/* Summary cards layout */
+.transaction-summary .summary-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  transition: transform 0.2s ease;
+}
+
+.transaction-summary .summary-card:hover {
+  transform: translateY(-3px);
+}
+
+/* Credit card */
+.transaction-summary .credit {
+  border-left: 4px solid #28a745;
+}
+
+/* Debit card */
+.transaction-summary .debit {
+  border-left: 4px solid #dc3545;
+}
+
+/* Balance card */
+.transaction-summary .balance {
+  border-left: 4px solid #007bff;
+}
+
+/* Table custom style */
+:host ::ng-deep .custom-transaction-table thead th {
+  background-color: #f4f6f9;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #495057;
+  padding: 12px;
+  border-bottom: 2px solid #dee2e6;
+}
+
+:host ::ng-deep .custom-transaction-table tbody tr:hover {
+  background-color: #f9fcff;
+}
