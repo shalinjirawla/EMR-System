@@ -12,6 +12,7 @@ namespace EMRSystem.Pharmacist.Dto
     public class ViewPharmacistPrescriptionsDto
     {
         public string TenantName { get; set; }
+        public long PharmacistPrescriptionId { get; set; }
         public long PrescriptionId { get; set; }
         public long PatientId { get; set; }
         public string PatientName { get; set; }
@@ -26,6 +27,7 @@ namespace EMRSystem.Pharmacist.Dto
         public long? PickedUpByNurseId { get; set; }
         public long? PickedUpByPatientId { get; set; }
         public string PickedUpByNurse { get; set; }
+        public string PickedUpByPatient { get; set; }
         public decimal GrandTotal { get; set; }
         public List<PrescriptionItemDto> PrescriptionItems { get; set; }
     }

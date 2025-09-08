@@ -123,31 +123,45 @@ namespace EMRSystem.Pharmacist
             return itemDtos;
         }
 
-        public async Task<MedicineStatusResult>  GetMedicineStatus(long medicineId,int qunatity)
+        public async Task<MedicineStatusResult> GetMedicineStatus(long medicineId, int quantity)
         {
             var medicine = await Repository.FirstOrDefaultAsync(medicineId);
             if (medicine == null)
-                return new MedicineStatusResult { IsAvailable = false, Message = "Medicine not found" };
+                return new MedicineStatusResult { IsValid = false, Message = "Medicine not found" };
 
             if (medicine.ExpiryDate <= DateTime.UtcNow)
-                return new MedicineStatusResult { IsAvailable = false, Message = $"{medicine.MedicineName} is expired" };
+                return new MedicineStatusResult { IsValid = false, Message = $"{medicine.MedicineName} is expired" };
 
             if (medicine.Stock <= 0)
-                return new MedicineStatusResult { IsAvailable = false, Message = $"{medicine.MedicineName} is out of stock" };
+                return new MedicineStatusResult { IsValid = false, Message = $"{medicine.MedicineName} is out of stock" };
 
-            if (medicine.Stock < qunatity)
+            // Check stock
+            if (medicine.Stock <= 0)
                 return new MedicineStatusResult
                 {
-                    IsAvailable = false,
-                    Message = $"Only {medicine.Stock} units available",
-                    AvailableStock = medicine.Stock
+                    IsValid = false,
+                    Message = $"{medicine.MedicineName} is out of stock."
+                };
+
+            if (medicine.Stock < quantity)
+                return new MedicineStatusResult
+                {
+                    IsValid = false,
+                    Message = $"Only {medicine.Stock} units available for {medicine.MedicineName}.",
+                };
+
+            // Check min stock warning
+            if ((medicine.Stock - quantity) < medicine.MinStock)
+                return new MedicineStatusResult
+                {
+                    IsValid = true,
+                    Message = $"Warning: Stock will fall below minimum threshold ({medicine.MinStock})."
                 };
 
             return new MedicineStatusResult
             {
-                IsAvailable = true,
+                IsValid = true,
                 Message = $"{medicine.MedicineName} is available",
-                AvailableStock = medicine.Stock
             };
 
         }

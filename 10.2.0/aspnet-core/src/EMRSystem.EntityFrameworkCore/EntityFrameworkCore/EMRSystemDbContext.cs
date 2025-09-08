@@ -827,13 +827,17 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
             .OnDelete(DeleteBehavior.Restrict);
         });
 
+        modelBuilder.Entity<PharmacistPrescriptions>()
+        .Property(p => p.Id)
+        .ValueGeneratedOnAdd();
+
         modelBuilder.Entity<PharmacistPrescriptions>(b =>
         {
             b.ToTable("PharmacistPrescriptions");
 
             b.HasOne(e => e.Prescriptions)
-             .WithOne(d => d.PharmacistPrescriptions)
-              .HasForeignKey<PharmacistPrescriptions>(c => c.PrescriptionId)
+             .WithMany(d => d.PharmacistPrescriptions)
+              .HasForeignKey(c => c.PrescriptionId)
              .OnDelete(DeleteBehavior.Restrict);
 
             b.HasOne(e => e.Nurse)
@@ -845,6 +849,22 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
            .WithMany(d => d.PharmacistPrescriptions)
            .HasForeignKey(e => e.PickedUpByPatient)
            .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<PrescriptionItem>(b =>
+        {
+            b.ToTable("PrescriptionItem");
+
+            b.HasOne(e => e.PharmacistPrescription)
+             .WithMany(d => d.PrescriptionItems)
+              .HasForeignKey(c => c.PharmacistPrescriptionId)
+             .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(e => e.Prescription)
+            .WithMany(d => d.Items)
+            .HasForeignKey(e => e.PrescriptionId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
         });
 
     }

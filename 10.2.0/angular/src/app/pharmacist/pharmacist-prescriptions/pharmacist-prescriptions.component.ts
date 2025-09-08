@@ -127,12 +127,13 @@ export class PharmacistPrescriptionsComponent extends PagedListingComponentBase<
             this.refresh();
         });
     }
-    ViewPharmacistPrescriptions(id: number) {
+    ViewPharmacistPrescriptions(prescriptionId: number, pharmacistPrescriptionId: number) {
         let createDialog: BsModalRef;
         createDialog = this._modalService.show(ViewPharmacistPrescriptionComponent, {
             class: 'modal-xl',
             initialState: {
-                id: id,
+                _prescriptionId: prescriptionId,
+                _pharmacistPrescriptionId: pharmacistPrescriptionId
             },
         });
     }

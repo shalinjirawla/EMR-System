@@ -23,6 +23,9 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using EMRSystem.Patients;
 using EMRSystem.Pharmacists;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Abp.EntityFrameworkCore.Repositories;
+using EMRSystem.Admission;
+using static Castle.MicroKernel.ModelBuilder.Descriptors.InterceptorDescriptor;
 
 namespace EMRSystem.Pharmacist
 {
@@ -32,11 +35,15 @@ namespace EMRSystem.Pharmacist
     {
 
         private readonly IRepository<EMRSystem.Pharmacists.PharmacistInventory, long> _pharmacistInventoryRepository;
+        private readonly IRepository<EMRSystem.Prescriptions.PrescriptionItem, long> _prescriptionItemRepository;
         private readonly TenantManager _tenantManager;
-        public PharmacistPrescriptionsAppService(IRepository<EMRSystem.Pharmacists.PharmacistPrescriptions, long> repository, IRepository<Pharmacists.PharmacistInventory, long> pharmacistInventoryRepository, TenantManager tenantManager) : base(repository)
+        public PharmacistPrescriptionsAppService(IRepository<EMRSystem.Pharmacists.PharmacistPrescriptions, long> repository,
+            IRepository<Pharmacists.PharmacistInventory, long> pharmacistInventoryRepository, TenantManager tenantManager,
+            IRepository<PrescriptionItem, long> prescriptionItemRepository) : base(repository)
         {
             _pharmacistInventoryRepository = pharmacistInventoryRepository;
             _tenantManager = tenantManager;
+            _prescriptionItemRepository = prescriptionItemRepository;
         }
 
         [HttpGet]
@@ -74,20 +81,57 @@ namespace EMRSystem.Pharmacist
                 throw new UserFriendlyException("Error in GetPrescriptionFulfillment", ex);
             }
         }
-        public async Task CreatePharmacistPrescriptionsWithItem(CreateUpdatePharmacistPrescriptionsDto input)
+        [HttpPost]
+        public async Task CreatePharmacistPrescriptionsWithItem(CreatePharmacistPrescriptionsWithItemDto withItemDto)
         {
             try
             {
-                var prescription = ObjectMapper.Map<EMRSystem.Pharmacists.PharmacistPrescriptions>(input);
+                var prescription = ObjectMapper.Map<EMRSystem.Pharmacists.PharmacistPrescriptions>(withItemDto.pharmacistPrescriptionsDto);
                 prescription.IsPaid = true;
-                if (input.Id <= 0)
+                long? pharmacistPrescriptionId = null;
+                if (withItemDto.pharmacistPrescriptionsDto.Id <= 0)
                 {
-                    await Repository.InsertAsync(prescription);
+                    var isAlreadyExist = await Repository.GetAll().FirstOrDefaultAsync(x => x.PrescriptionId == prescription.PrescriptionId);
+                    if (isAlreadyExist != null && !isAlreadyExist.IsPaid && isAlreadyExist.CollectionStatus == CollectionStatus.NotPickedUp)
+                    {
+                        await Repository.DeleteAsync(isAlreadyExist);
+                    }
+                    pharmacistPrescriptionId = await Repository.InsertAndGetIdAsync(prescription);
+                    var entity = ObjectMapper.Map<List<PrescriptionItem>>(withItemDto.pharmacistPrescriptionsListOfItem);
+                    if (entity.Count > 0)
+                    {
+                        entity.ForEach(x =>
+                        {
+                            x.PharmacistPrescriptionId = pharmacistPrescriptionId;
+                            x.IsPrescribe = false;
+                        });
+                        await _prescriptionItemRepository.InsertRangeAsync(entity);
+                    }
                 }
                 else
                 {
                     await Repository.UpdateAsync(prescription);
+                    pharmacistPrescriptionId = withItemDto.pharmacistPrescriptionsDto.Id;
+
+
+                    var getExistingListOfItems = await _prescriptionItemRepository.GetAll()
+                                                .Where(x => x.PharmacistPrescriptionId == pharmacistPrescriptionId)
+                                                .ToListAsync();
+                    if (getExistingListOfItems.Count > 0)
+                        _prescriptionItemRepository.RemoveRange(getExistingListOfItems);
+
+                    var entity = ObjectMapper.Map<List<PrescriptionItem>>(withItemDto.pharmacistPrescriptionsListOfItem);
+                    if (entity.Count > 0)
+                    {
+                        entity.ForEach(x =>
+                        {
+                            x.PharmacistPrescriptionId = pharmacistPrescriptionId;
+                            x.IsPrescribe = false;
+                        });
+                        await _prescriptionItemRepository.InsertRangeAsync(entity);
+                    }
                 }
+
                 await CurrentUnitOfWork.SaveChangesAsync();
             }
             catch (Exception ex)
@@ -102,7 +146,7 @@ namespace EMRSystem.Pharmacist
             var details = await Repository.GetAllIncluding(
                                             x => x.Prescriptions,
                                             x => x.Prescriptions.Patient,
-                                            x => x.Prescriptions.Items
+                                            x => x.Prescriptions.Items.Where(x => x.PharmacistPrescriptionId == null)
                                             ).FirstOrDefaultAsync(x => x.Id == _id);
             var prescription = details.Prescriptions;
             var mappedDetails = new EditPharmacistPrescriptionsWithItemsDto();
@@ -117,16 +161,17 @@ namespace EMRSystem.Pharmacist
         }
 
         [HttpGet]
-        public async Task<ViewPharmacistPrescriptionsDto> ViewPharmacistPrescriptionsReceipt(long prescriptionId)
+        public async Task<ViewPharmacistPrescriptionsDto> ViewPharmacistPrescriptionsReceipt(long prescriptionId, long? pharmacistPrescriptionId)
         {
             var query = await Repository.GetAllIncludingAsync(
                 x => x.Prescriptions,
                 x => x.Prescriptions.PharmacistPrescriptions,
                 x => x.Prescriptions.Patient,
                 x => x.Prescriptions.Doctor,
+                x => x.Prescriptions,
                 x => x.Prescriptions.Consultation_Requests,
                 x => x.Prescriptions.SelectedEmergencyProcedureses,
-                x => x.Prescriptions.Items
+                x => x.Prescriptions.Items.Where(x => x.PharmacistPrescriptionId == pharmacistPrescriptionId)
                 );
 
             var entity = await query
@@ -140,6 +185,7 @@ namespace EMRSystem.Pharmacist
             var dto = new ViewPharmacistPrescriptionsDto
             {
                 TenantName = tenant?.Name,
+                PharmacistPrescriptionId = entity.PharmacistPrescriptions.ToList()[0].Id,
                 PrescriptionId = entity.Id,
                 PatientId = entity.Patient?.Id ?? 0,
                 PatientName = entity.Patient?.FullName,
@@ -147,13 +193,15 @@ namespace EMRSystem.Pharmacist
                 Gender = entity.Patient?.Gender,
                 DoctorName = entity.Doctor?.FullName,
                 DoctorRegistrationNumber = entity.Doctor?.RegistrationNumber,
-                PharmacyNotes = entity.PharmacistPrescriptions.PharmacyNotes,
-                IsPaid = entity.PharmacistPrescriptions.IsPaid,
-                CollectionStatus = entity.PharmacistPrescriptions.CollectionStatus,
-                IssueDate = entity.PharmacistPrescriptions.IssueDate.Value,
-                PickedUpByNurseId = entity.PharmacistPrescriptions?.Nurse?.Id,
-                PickedUpByNurse = entity.PharmacistPrescriptions?.Nurse?.FullName,
-                GrandTotal = entity.PharmacistPrescriptions.GrandTotal,
+                PharmacyNotes = entity.PharmacistPrescriptions.ToList()[0].PharmacyNotes,
+                IsPaid = entity.PharmacistPrescriptions.ToList()[0].IsPaid,
+                CollectionStatus = entity.PharmacistPrescriptions.ToList()[0].CollectionStatus,
+                IssueDate = entity.PharmacistPrescriptions.ToList()[0].IssueDate.Value,
+                PickedUpByNurseId = entity.PharmacistPrescriptions?.ToList()[0].Nurse?.Id,
+                PickedUpByNurse = entity.PharmacistPrescriptions?.ToList()[0].Nurse?.FullName,
+                PickedUpByPatientId = entity.PharmacistPrescriptions?.ToList()[0].Patient?.Id,
+                PickedUpByPatient = entity.PharmacistPrescriptions?.ToList()[0].Patient?.FullName,
+                GrandTotal = entity.PharmacistPrescriptions.ToList()[0].GrandTotal,
                 PrescriptionItems = entity.Items?.Select(i => new PrescriptionItemDto
                 {
                     MedicineName = i.MedicineName,
@@ -164,6 +212,7 @@ namespace EMRSystem.Pharmacist
                     IsPrescribe = i.IsPrescribe,
                     Qty = i.Qty,
                     UnitPrice = i.UnitPrice,
+                    PharmacistPrescriptionId = i.PharmacistPrescriptionId
                 }).ToList()
             };
 

@@ -27,6 +27,7 @@ namespace EMRSystem.Pharmacists
         public long? PickedUpByPatient { get; set; }
         public Patient Patient { get; set; }
         public decimal GrandTotal { get; set; }
+        public ICollection<PrescriptionItem> PrescriptionItems { get; set; }
     }
 
     public enum CollectionStatus

@@ -147,7 +147,8 @@ namespace EMRSystem.Prescriptions
                             Frequency = i.Frequency,
                             Duration = i.Duration,
                             Instructions = i.Instructions,
-                        }).ToList(),
+                            PharmacistPrescriptionId = i.PharmacistPrescriptionId
+                        }).Where(x => x.PharmacistPrescriptionId == null).ToList(),
                         LabTests = x.LabTests.Select(lt => new EMRSystem.LabReports.PrescriptionLabTest
                         {
                             Id = lt.Id,
@@ -226,7 +227,7 @@ namespace EMRSystem.Prescriptions
             await Repository.InsertAsync(prescription);
             await CurrentUnitOfWork.SaveChangesAsync(); // Needed to get prescription.Id
 
-            
+
 
             if (isAdmitted)
             {
@@ -350,28 +351,29 @@ namespace EMRSystem.Prescriptions
             }
 
 
-
-            // create Pharmacist Prescriptions
-            var pharmacistPrescriptionsdto = new EMRSystem.Pharmacists.PharmacistPrescriptions();
-            pharmacistPrescriptionsdto.TenantId = input.TenantId;
-            pharmacistPrescriptionsdto.PrescriptionId = prescription.Id;
-            pharmacistPrescriptionsdto.IssueDate = DateTime.Now;
-            pharmacistPrescriptionsdto.CollectionStatus = CollectionStatus.NotPickedUp;
-            if (isAdmitted)
+            if (input.Items.Count > 0)
             {
-                pharmacistPrescriptionsdto.IsPaid = true;
+                // create Pharmacist Prescriptions
+                var pharmacistPrescriptionsdto = new EMRSystem.Pharmacists.PharmacistPrescriptions();
+                pharmacistPrescriptionsdto.TenantId = input.TenantId;
+                pharmacistPrescriptionsdto.PrescriptionId = prescription.Id;
+                pharmacistPrescriptionsdto.IssueDate = DateTime.Now;
+                pharmacistPrescriptionsdto.CollectionStatus = CollectionStatus.NotPickedUp;
+                if (isAdmitted)
+                {
+                    pharmacistPrescriptionsdto.IsPaid = true;
+                }
+                else if (input.IsEmergencyPrescription)
+                {
+                    pharmacistPrescriptionsdto.IsPaid = true;
+                }
+                else
+                {
+                    pharmacistPrescriptionsdto.IsPaid = false;
+                }
+                pharmacistPrescriptionsdto.GrandTotal = 0;//await GetGrandTotal(prescription.Id);
+                var res = await _pharmacistPrescriptionsRepository.InsertAndGetIdAsync(pharmacistPrescriptionsdto);
             }
-            else if (input.IsEmergencyPrescription)
-            {
-                pharmacistPrescriptionsdto.IsPaid = true;
-            }
-            else
-            {
-                pharmacistPrescriptionsdto.IsPaid = false;
-            }
-            pharmacistPrescriptionsdto.GrandTotal = 0;//await GetGrandTotal(prescription.Id);
-            var res = await _pharmacistPrescriptionsRepository.InsertAndGetIdAsync(pharmacistPrescriptionsdto);
-
             await CurrentUnitOfWork.SaveChangesAsync();
         }
 
@@ -379,11 +381,11 @@ namespace EMRSystem.Prescriptions
         {
             // First get the existing prescription with its items
             var existingPrescription = await Repository.GetAllIncluding(
-                p => p.Items,
+                p => p.Items.Where(i => i.PharmacistPrescriptionId == null),
                 p => p.LabTests,
                 p => p.SelectedEmergencyProcedureses
             ).FirstOrDefaultAsync(p => p.Id == input.Id);
-
+         
             if (existingPrescription == null)
             {
                 throw new UserFriendlyException("Prescription not found");
@@ -455,7 +457,7 @@ namespace EMRSystem.Prescriptions
                         PrescriptionId = input.Id,
                         IsEmergencyPrescription = input.IsEmergencyPrescription,
                         EmergencyCaseId = input.EmergencyCaseId,
-                        IsPrescribed= isPrescribed,
+                        IsPrescribed = isPrescribed,
                         IsPaid = isPaid,
                         PatientId = input.PatientId,
                     });
@@ -549,6 +551,12 @@ namespace EMRSystem.Prescriptions
                 await CreateConsultationRequest(input.CreateUpdateConsultationRequests);
             }
 
+            if (input.Items.Count <= 0)
+            {
+                var res = await _pharmacistPrescriptionsRepository.GetAll().FirstOrDefaultAsync(x => x.PrescriptionId == input.Id);
+                await _pharmacistPrescriptionsRepository.DeleteAsync(res);
+            }
+
             await CreateUpdateCharges(input, input.Id, false);
 
         }
@@ -603,7 +611,8 @@ namespace EMRSystem.Prescriptions
                         Frequency = i.Frequency,
                         Duration = i.Duration,
                         Instructions = i.Instructions,
-                    }).ToList(),
+                        PharmacistPrescriptionId = i.PharmacistPrescriptionId
+                    }).Where(x => x.PharmacistPrescriptionId == null).ToList(),
                     LabTests = x.LabTests.Select(lt => new EMRSystem.LabReports.PrescriptionLabTest
                     {
                         Id = lt.Id,
@@ -771,7 +780,8 @@ namespace EMRSystem.Prescriptions
                         Qty = x.Qty,
                         UnitPrice = _pharmacistInventoryRepository.Get(x.MedicineId).SellingPrice,
                         IsPrescribe = x.IsPrescribe,
-                        TotalPayableAmount = 0
+                        TotalPayableAmount = 0,
+                        PharmacistPrescriptionId=x.PharmacistPrescriptionId,
                     }).ToList(),
                     Procedures = p.SelectedEmergencyProcedureses.Select(sep => new SelectedEmergencyProceduresDto
                     {

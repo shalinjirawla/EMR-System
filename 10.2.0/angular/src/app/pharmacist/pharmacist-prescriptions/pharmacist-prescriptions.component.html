@@ -135,7 +135,8 @@
                                                     *ngIf="record.collectionStatus===0">
                                                     <i class="pi pi-pencil"></i> Edit
                                                 </li>
-                                                <li (click)="ViewPharmacistPrescriptions(record.prescriptionId)">
+                                                <li (click)="ViewPharmacistPrescriptions(record.prescriptionId,record.id)"
+                                                    *ngIf="record.collectionStatus===1">
                                                     <i class="pi pi-eye"></i> View
                                                 </li>
                                                 <li (click)="openPickupDialog(record.id)"
