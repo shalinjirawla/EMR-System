@@ -13,7 +13,8 @@ import { CardModule } from 'primeng/card';
   providers: [PharmacistPrescriptionsServiceProxy]
 })
 export class ViewPharmacistPrescriptionComponent implements OnInit {
-  id: number;
+  _prescriptionId: number;
+  _pharmacistPrescriptionId: number;
   prescription!: ViewPharmacistPrescriptionsDto;
   constructor(private _pharmacistPrescriptionsService: PharmacistPrescriptionsServiceProxy,
     private cd: ChangeDetectorRef) {
@@ -52,7 +53,7 @@ export class ViewPharmacistPrescriptionComponent implements OnInit {
     }
   }
   GetData() {
-    this._pharmacistPrescriptionsService.viewPharmacistPrescriptionsReceipt(this.id).subscribe(res => {
+    this._pharmacistPrescriptionsService.viewPharmacistPrescriptionsReceipt(this._prescriptionId,this._pharmacistPrescriptionId).subscribe(res => {
       this.prescription = res;
       this.cd.detectChanges();
     })

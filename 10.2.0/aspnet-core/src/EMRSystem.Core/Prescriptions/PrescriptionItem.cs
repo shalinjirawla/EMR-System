@@ -1,4 +1,5 @@
 ﻿using Abp.Domain.Entities;
+using EMRSystem.Pharmacists;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,5 +21,7 @@ namespace EMRSystem.Prescriptions
         public virtual Prescription Prescription { get; set; }
         public decimal UnitPrice { get; set; }
         public bool IsPrescribe { get; set; }
+        public long? PharmacistPrescriptionId { get; set; }
+        public virtual PharmacistPrescriptions PharmacistPrescription { get; set; }
     }
 }

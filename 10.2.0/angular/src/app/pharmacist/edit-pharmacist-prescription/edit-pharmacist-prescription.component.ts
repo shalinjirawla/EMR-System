@@ -80,7 +80,6 @@ export class EditPharmacistPrescriptionComponent extends AppComponentBase implem
     if (this.id) {
       this.GetDetailsByID();
     }
-    this.loadMedicines();
   }
   GetDetailsByID() {
     this.pharmacistPrescriptionService.getPharmacistPrescriptionsById(this.id).subscribe({
@@ -123,11 +122,14 @@ export class EditPharmacistPrescriptionComponent extends AppComponentBase implem
     input.pharmacyNotes = this._pharmacyNotes;
     input.collectionStatus = CollectionStatus._0;
     input.grandTotal = this.getPrescriptionTotal();
-
+    const resBody: any = {
+      pharmacistPrescriptionsDto: input,
+      pharmacistPrescriptionsListOfItem: this.selectedPrescriptionItem,
+    }
     if (this.paymentMethod === PaymentMethod._0) {
 
       // Cash -> direct create
-      this.pharmacistPrescriptionService.createPharmacistPrescriptionsWithItem(input).subscribe({
+      this.pharmacistPrescriptionService.createPharmacistPrescriptionsWithItem(resBody).subscribe({
         next: () => {
           this.notify.success('Created successfully!');
           this.onSave.emit();
@@ -176,10 +178,12 @@ export class EditPharmacistPrescriptionComponent extends AppComponentBase implem
     ).subscribe({
       next: (res) => {
         if (res.items && res.items.length > 0) {
+          const selectedIds = this.selectedPrescriptionItem?.map(itm => itm.medicineId) || [];
           this.medicineOptions = res.items.map(item => ({
             label: item.medicineName,
             value: item.id, // Use medicineId as value
-            name: item.medicineName // Store name separately
+            name: item.medicineName, // Store name separately
+            disabled: selectedIds.includes(item.id)
           }));
 
 
@@ -227,6 +231,7 @@ export class EditPharmacistPrescriptionComponent extends AppComponentBase implem
     }
   }
   NewItem(): void {
+    this.loadMedicines();
     const item = new PharmacistPrescriptionItemWithUnitPriceDto();
     item.init({
       prescriptionId: this.selectedPrescriptionID,
@@ -248,6 +253,7 @@ export class EditPharmacistPrescriptionComponent extends AppComponentBase implem
   }
   removeItem(index: number): void {
     this.selectedPrescriptionItem.splice(index, 1);
+    this.loadMedicines();
   }
   GetPriceOfMedicine(_medicineId: number) {
     this._pharmacistInventoryService.get(_medicineId).subscribe({
@@ -264,12 +270,27 @@ export class EditPharmacistPrescriptionComponent extends AppComponentBase implem
       this.getPrescriptionTotal();
     }
   }
-  AddPrescriptionItems() {
-    this.PrescriptionItemsService.createPrescriptionItemList(this.selectedPrescriptionItem).subscribe({
-      next: (res) => {
-        this.save();
-      }, error: (err) => {
-      }
-    })
+  // AddPrescriptionItems() {
+  //   this.PrescriptionItemsService.createPrescriptionItemList(this.selectedPrescriptionItem).subscribe({
+  //     next: (res) => {
+  //       this.save();
+  //     }, error: (err) => {
+  //     }
+  //   })
+  // }
+  validateMedicineStock(itm: any) {
+    this._pharmacistInventoryService
+      .getMedicineStatus(itm.medicineId, itm.qty)
+      .subscribe(result => {
+        if (!result.isValid) {
+          // Rollback to previous value
+          itm.qty = itm.qty - 1;
+          this.messageService.add({ severity: 'warn', summary: 'Stock Check', detail: result.message });
+        } else if (result.message.includes("Warning")) {
+          this.messageService.add({ severity: 'info', summary: 'Stock Warning', detail: result.message });
+        }
+        // Update total anyway
+        this.total = this.getPrescriptionTotal();
+      });
   }
 }

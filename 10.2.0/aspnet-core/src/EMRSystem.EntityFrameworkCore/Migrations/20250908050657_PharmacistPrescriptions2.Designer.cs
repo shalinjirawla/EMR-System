@@ -4,6 +4,7 @@ using EMRSystem.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EMRSystem.Migrations
 {
     [DbContext(typeof(EMRSystemDbContext))]
-    partial class EMRSystemDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250908050657_PharmacistPrescriptions2")]
+    partial class PharmacistPrescriptions2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3344,9 +3347,6 @@ namespace EMRSystem.Migrations
                     b.Property<string>("MedicineName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long?>("PharmacistPrescriptionId")
-                        .HasColumnType("bigint");
-
                     b.Property<long>("PrescriptionId")
                         .HasColumnType("bigint");
 
@@ -3358,11 +3358,9 @@ namespace EMRSystem.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PharmacistPrescriptionId");
-
                     b.HasIndex("PrescriptionId");
 
-                    b.ToTable("PrescriptionItem", (string)null);
+                    b.ToTable("PrescriptionItem");
                 });
 
             modelBuilder.Entity("EMRSystem.ProcedureReceipts.ProcedureReceipt", b =>
@@ -4555,18 +4553,11 @@ namespace EMRSystem.Migrations
 
             modelBuilder.Entity("EMRSystem.Prescriptions.PrescriptionItem", b =>
                 {
-                    b.HasOne("EMRSystem.Pharmacists.PharmacistPrescriptions", "PharmacistPrescription")
-                        .WithMany("PrescriptionItems")
-                        .HasForeignKey("PharmacistPrescriptionId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("EMRSystem.Prescriptions.Prescription", "Prescription")
                         .WithMany("Items")
                         .HasForeignKey("PrescriptionId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("PharmacistPrescription");
 
                     b.Navigation("Prescription");
                 });
@@ -4918,11 +4909,6 @@ namespace EMRSystem.Migrations
                     b.Navigation("Visit");
 
                     b.Navigation("Vitals");
-                });
-
-            modelBuilder.Entity("EMRSystem.Pharmacists.PharmacistPrescriptions", b =>
-                {
-                    b.Navigation("PrescriptionItems");
                 });
 
             modelBuilder.Entity("EMRSystem.Prescriptions.Prescription", b =>

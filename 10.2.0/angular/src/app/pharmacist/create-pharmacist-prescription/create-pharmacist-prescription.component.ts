@@ -5,6 +5,7 @@ import { AbpModalHeaderComponent } from "../../../shared/components/modal/abp-mo
 import { AbpModalFooterComponent } from "../../../shared/components/modal/abp-modal-footer.component";
 import {
   CollectionStatus,
+  CreatePharmacistPrescriptionsWithItemDto,
   CreateUpdatePharmacistPrescriptionsDto,
   OrderStatus,
   PatientServiceProxy,
@@ -88,7 +89,6 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
   }
   ngOnInit() {
     this.loadPatients();
-    this.loadMedicines();
   }
   loadPatients() {
     this.patientService.getOpdPatients().subscribe({
@@ -110,7 +110,6 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
   }
   loadPrescriptions(patientId: number) {
     this.prescriptionService.getPrescriptionsByPatient(patientId).subscribe(res => {
-      debugger
       this.prescriptions = res.items.map(p => ({
         ...p,
         prescriptionName: `${p.patient?.fullName || ''} - ${p.issueDate.toDate().toLocaleDateString()} - ${p.id}`
@@ -123,12 +122,13 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
       return;
     }
     this.selectedPrescriptionID = prescriptionId;
-    this.selectedPrescriptionItem = this.prescriptions.find(x => x.id === prescriptionId)?.pharmacistPrescription;
-    // this.selectedPrescriptionItem.forEach(itm => {
-    //   if (!itm.qty || itm.qty < 1) {
-    //     itm.qty = 1;
-    //   }
-    // });
+    const filterdList = this.prescriptions.find(x => x.id === prescriptionId)?.pharmacistPrescription;
+    this.selectedPrescriptionItem=filterdList.filter(x=>x.pharmacistPrescriptionId==null)
+    this.selectedPrescriptionItem.forEach(itm => {
+      if (!itm.qty || itm.qty < 1) {
+        itm.qty = 1;
+      }
+    });
     // calculate total immediately on load
     this.total = this.getPrescriptionTotal();
   }
@@ -147,9 +147,14 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
     input.issueDate = moment();
     input.pharmacyNotes = this._pharmacyNotes;
     input.collectionStatus = CollectionStatus._1;
+    input.pickedUpByPatient=this.selectedPatient;
     input.grandTotal = this.getPrescriptionTotal();
+    const resBody: any = {
+      pharmacistPrescriptionsDto: input,
+      pharmacistPrescriptionsListOfItem: this.selectedPrescriptionItem,
+    }
     if (this.paymentMethod === PaymentMethod._0) {
-      this.pharmacistPrescriptionService.createPharmacistPrescriptionsWithItem(input).subscribe({
+      this.pharmacistPrescriptionService.createPharmacistPrescriptionsWithItem(resBody).subscribe({
         next: () => {
           this.notify.success('Created successfully!');
           this.onSave.emit();
@@ -199,12 +204,13 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
     ).subscribe({
       next: (res) => {
         if (res.items && res.items.length > 0) {
+          const selectedIds = this.selectedPrescriptionItem?.map(itm => itm.medicineId) || [];
           this.medicineOptions = res.items.map(item => ({
             label: item.medicineName,
             value: item.id, // Use medicineId as value
-            name: item.medicineName // Store name separately
+            name: item.medicineName, // Store name separately
+            disabled: selectedIds.includes(item.id)
           }));
-
 
           // Prepare dosage options for each medicine
           res.items.forEach(medicine => {
@@ -250,6 +256,7 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
     }
   }
   NewItem(): void {
+    this.loadMedicines();
     const item = new PharmacistPrescriptionItemWithUnitPriceDto();
     item.init({
       prescriptionId: this.selectedPrescriptionID,
@@ -271,6 +278,7 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
   }
   removeItem(index: number): void {
     this.selectedPrescriptionItem.splice(index, 1);
+    this.loadMedicines();
   }
   GetPriceOfMedicine(_medicineId: number) {
     this._pharmacistInventoryService.get(_medicineId).subscribe({
@@ -287,16 +295,6 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
       this.getPrescriptionTotal();
     }
   }
-  AddPrescriptionItems() {
-    this.PrescriptionItemsService.createPrescriptionItemList(this.selectedPrescriptionItem).subscribe({
-      next: (res) => {
-        this.save();
-      }, error: (err) => {
-        debugger
-      }
-    })
-  }
-
   checkForMedicine(medicineId: any, qty: any) {
     this._pharmacistInventoryService.getMedicineStatus(medicineId, qty)
       .subscribe({
