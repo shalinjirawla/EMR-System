@@ -106,9 +106,8 @@ export class CreateEmergencyCaseComponent extends AppComponentBase implements On
   }
 
   loadDoctors() {
-    this._doctorService.getAllDoctorsByTenantID(abp.session.tenantId).subscribe(res => {
-      const filterdList = res.items;
-      this.doctors = filterdList.filter(x => x.isEmergencyDoctor)
+    this._doctorService.getAllEmergencyDoctorsByTenantID(abp.session.tenantId).subscribe(res => {
+      this.doctors = res.items;
       this.cd.detectChanges();
     });
   }

@@ -74,7 +74,7 @@ namespace EMRSystem.Deposit
                             UnitAmount = (long)(input.Amount * 100), 
                             ProductData = new SessionLineItemPriceDataProductDataOptions
                             {
-                                Name = "Patient Deposit"
+                                Name = "Credit Deposit"
                             },
                         },
                         Quantity = 1,

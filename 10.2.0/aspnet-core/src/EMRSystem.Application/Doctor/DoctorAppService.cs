@@ -46,11 +46,28 @@ namespace EMRSystem.Doctor
 
         public async Task<ListResultDto<DoctorDto>> GetAllDoctorsByTenantID(int tenantId)
         {
-            var doctorDto = await Repository.GetAllIncludingAsync(x => x.AbpUser,x=>x.Department);
-            var list = doctorDto.Where(x => x.TenantId == tenantId && !x.AbpUser.IsDeleted);
-            var mapped = ObjectMapper.Map<List<DoctorDto>>(list);
-            var resultList = new ListResultDto<DoctorDto>(mapped);
-            return resultList;
+            var doctors = await Repository
+                .GetAllIncluding(x => x.AbpUser, x => x.Department)
+                .Where(x => x.TenantId == tenantId
+                            && !x.AbpUser.IsDeleted
+                            && !x.isEmergencyDoctor) // correct case
+                .ToListAsync();
+
+            var mapped = ObjectMapper.Map<List<DoctorDto>>(doctors);
+            return new ListResultDto<DoctorDto>(mapped);
+        }
+
+        public async Task<ListResultDto<DoctorDto>> GetAllEmergencyDoctorsByTenantID(int tenantId)
+        {
+            var doctors = await Repository
+                .GetAllIncluding(x => x.AbpUser, x => x.Department)
+                .Where(x => x.TenantId == tenantId
+                            && !x.AbpUser.IsDeleted
+                            && x.isEmergencyDoctor)  // only emergency doctors
+                .ToListAsync();
+
+            var mapped = ObjectMapper.Map<List<DoctorDto>>(doctors);
+            return new ListResultDto<DoctorDto>(mapped);
         }
 
         public EMRSystem.Doctors.Doctor GetDoctorDetailsByAbpUserID(long abpUserId)
