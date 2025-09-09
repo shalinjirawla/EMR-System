@@ -35940,7 +35940,7 @@ export interface IPharmacistInventoryDtoPagedResultDto {
 }
 
 export class PharmacistPrescriptionItemWithUnitPriceDto implements IPharmacistPrescriptionItemWithUnitPriceDto {
-    prescriptionId: number;
+    prescriptionId: number | undefined;
     pharmacistPrescriptionId: number | undefined;
     medicineId: number;
     medicineName: string | undefined;
@@ -36012,7 +36012,7 @@ export class PharmacistPrescriptionItemWithUnitPriceDto implements IPharmacistPr
 }
 
 export interface IPharmacistPrescriptionItemWithUnitPriceDto {
-    prescriptionId: number;
+    prescriptionId: number | undefined;
     pharmacistPrescriptionId: number | undefined;
     medicineId: number;
     medicineName: string | undefined;
@@ -36746,7 +36746,7 @@ export class PrescriptionItem implements IPrescriptionItem {
     frequency: string | undefined;
     duration: string | undefined;
     instructions: string | undefined;
-    prescriptionId: number;
+    prescriptionId: number | undefined;
     medicineId: number;
     qty: number;
     prescription: Prescription;
@@ -36824,7 +36824,7 @@ export interface IPrescriptionItem {
     frequency: string | undefined;
     duration: string | undefined;
     instructions: string | undefined;
-    prescriptionId: number;
+    prescriptionId: number | undefined;
     medicineId: number;
     qty: number;
     prescription: Prescription;

@@ -148,7 +148,7 @@ namespace EMRSystem.Prescriptions
                             Duration = i.Duration,
                             Instructions = i.Instructions,
                             PharmacistPrescriptionId = i.PharmacistPrescriptionId
-                        }).Where(x => x.PharmacistPrescriptionId == null).ToList(),
+                        }).ToList(),
                         LabTests = x.LabTests.Select(lt => new EMRSystem.LabReports.PrescriptionLabTest
                         {
                             Id = lt.Id,
@@ -612,7 +612,7 @@ namespace EMRSystem.Prescriptions
                         Duration = i.Duration,
                         Instructions = i.Instructions,
                         PharmacistPrescriptionId = i.PharmacistPrescriptionId
-                    }).Where(x => x.PharmacistPrescriptionId == null).ToList(),
+                    }).ToList(),
                     LabTests = x.LabTests.Select(lt => new EMRSystem.LabReports.PrescriptionLabTest
                     {
                         Id = lt.Id,
