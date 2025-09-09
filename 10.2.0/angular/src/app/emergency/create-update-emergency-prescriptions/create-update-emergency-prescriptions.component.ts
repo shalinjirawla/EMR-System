@@ -117,6 +117,7 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
   ngOnInit(): void {
     this.showAddPatientButton = this.permissionChecker.isGranted('Pages.Users');
     this.GetLoggedInUserRole();
+    this.loadEmergencyDoctors();
     this.loadDoctors();
     this.FetchDoctorID();
     this.LoadLabReports();
@@ -128,13 +129,17 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
     this.loadDepartments();
     this.loadProcedures();
   }
-  loadDoctors() {
-    this._doctorService.getAllDoctorsByTenantID(abp.session.tenantId).subscribe(res => {
-      this.totalDoctorList = res.items;
-      const filterdDoctorList = res.items;
-      this.doctors = filterdDoctorList.filter(x => x.isEmergencyDoctor)
+  loadEmergencyDoctors() {
+    this._doctorService.getAllEmergencyDoctorsByTenantID(abp.session.tenantId).subscribe(res => {
+      this.doctors = res.items;
       this.cd.detectChanges();
     });
+  }
+  loadDoctors(){
+    this._doctorService.getAllDoctorsByTenantID(abp.session.tenantId).subscribe(res=>{
+      this.totalDoctorList = res.items;
+      this.cd.detectChanges();
+    })
   }
   loadMedicines() {
     // Call getAll() with default parameters to get all available medicines
