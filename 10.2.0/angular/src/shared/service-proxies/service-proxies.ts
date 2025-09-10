@@ -13959,6 +13959,120 @@ export class PharmacistPrescriptionsServiceProxy {
     }
 
     /**
+     * @param tenantId (optional) 
+     * @return OK
+     */
+    generateReceiptNo(tenantId: number | undefined): Observable<string> {
+        let url_ = this.baseUrl + "/api/services/app/PharmacistPrescriptions/GenerateReceiptNo?";
+        if (tenantId === null)
+            throw new Error("The parameter 'tenantId' cannot be null.");
+        else if (tenantId !== undefined)
+            url_ += "tenantId=" + encodeURIComponent("" + tenantId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGenerateReceiptNo(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGenerateReceiptNo(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<string>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<string>;
+        }));
+    }
+
+    protected processGenerateReceiptNo(response: HttpResponseBase): Observable<string> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    handlePharmacistPrescriptionPayment(body: CreatePharmacistPrescriptionsWithItemDto | undefined): Observable<string> {
+        let url_ = this.baseUrl + "/api/services/app/PharmacistPrescriptions/HandlePharmacistPrescriptionPayment";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processHandlePharmacistPrescriptionPayment(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processHandlePharmacistPrescriptionPayment(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<string>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<string>;
+        }));
+    }
+
+    protected processHandlePharmacistPrescriptionPayment(response: HttpResponseBase): Observable<string> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * @param body (optional) 
      * @return OK
      */
@@ -14530,6 +14644,63 @@ export class PrescriptionServiceProxy {
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param tenantId (optional) 
+     * @return OK
+     */
+    generateReceiptNo(tenantId: number | undefined): Observable<string> {
+        let url_ = this.baseUrl + "/api/services/app/Prescription/GenerateReceiptNo?";
+        if (tenantId === null)
+            throw new Error("The parameter 'tenantId' cannot be null.");
+        else if (tenantId !== undefined)
+            url_ += "tenantId=" + encodeURIComponent("" + tenantId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGenerateReceiptNo(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGenerateReceiptNo(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<string>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<string>;
+        }));
+    }
+
+    protected processGenerateReceiptNo(response: HttpResponseBase): Observable<string> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
+            return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -26393,6 +26564,10 @@ export class CreateUpdatePharmacistPrescriptionsDto implements ICreateUpdatePhar
     pharmacyNotes: string | undefined;
     collectionStatus: CollectionStatus;
     grandTotal: number;
+    paymentIntentId: string | undefined;
+    isPaid: boolean | undefined;
+    receiptNumber: string | undefined;
+    paymentMethod: PaymentMethod;
 
     constructor(data?: ICreateUpdatePharmacistPrescriptionsDto) {
         if (data) {
@@ -26414,6 +26589,10 @@ export class CreateUpdatePharmacistPrescriptionsDto implements ICreateUpdatePhar
             this.pharmacyNotes = _data["pharmacyNotes"];
             this.collectionStatus = _data["collectionStatus"];
             this.grandTotal = _data["grandTotal"];
+            this.paymentIntentId = _data["paymentIntentId"];
+            this.isPaid = _data["isPaid"];
+            this.receiptNumber = _data["receiptNumber"];
+            this.paymentMethod = _data["paymentMethod"];
         }
     }
 
@@ -26435,6 +26614,10 @@ export class CreateUpdatePharmacistPrescriptionsDto implements ICreateUpdatePhar
         data["pharmacyNotes"] = this.pharmacyNotes;
         data["collectionStatus"] = this.collectionStatus;
         data["grandTotal"] = this.grandTotal;
+        data["paymentIntentId"] = this.paymentIntentId;
+        data["isPaid"] = this.isPaid;
+        data["receiptNumber"] = this.receiptNumber;
+        data["paymentMethod"] = this.paymentMethod;
         return data;
     }
 
@@ -26456,6 +26639,10 @@ export interface ICreateUpdatePharmacistPrescriptionsDto {
     pharmacyNotes: string | undefined;
     collectionStatus: CollectionStatus;
     grandTotal: number;
+    paymentIntentId: string | undefined;
+    isPaid: boolean | undefined;
+    receiptNumber: string | undefined;
+    paymentMethod: PaymentMethod;
 }
 
 export class CreateUpdatePrescriptionDto implements ICreateUpdatePrescriptionDto {
@@ -28612,6 +28799,8 @@ export class EditPharmacistPrescriptionsWithItemsDto implements IEditPharmacistP
     collectionStatus: CollectionStatus;
     pickedUpByNurse: number | undefined;
     pickedUpByPatient: number | undefined;
+    isPaid: boolean;
+    receiptNumber: string | undefined;
     prescriptionItem: PharmacistPrescriptionItemWithUnitPriceDto[] | undefined;
 
     constructor(data?: IEditPharmacistPrescriptionsWithItemsDto) {
@@ -28633,6 +28822,8 @@ export class EditPharmacistPrescriptionsWithItemsDto implements IEditPharmacistP
             this.collectionStatus = _data["collectionStatus"];
             this.pickedUpByNurse = _data["pickedUpByNurse"];
             this.pickedUpByPatient = _data["pickedUpByPatient"];
+            this.isPaid = _data["isPaid"];
+            this.receiptNumber = _data["receiptNumber"];
             if (Array.isArray(_data["prescriptionItem"])) {
                 this.prescriptionItem = [] as any;
                 for (let item of _data["prescriptionItem"])
@@ -28658,6 +28849,8 @@ export class EditPharmacistPrescriptionsWithItemsDto implements IEditPharmacistP
         data["collectionStatus"] = this.collectionStatus;
         data["pickedUpByNurse"] = this.pickedUpByNurse;
         data["pickedUpByPatient"] = this.pickedUpByPatient;
+        data["isPaid"] = this.isPaid;
+        data["receiptNumber"] = this.receiptNumber;
         if (Array.isArray(this.prescriptionItem)) {
             data["prescriptionItem"] = [];
             for (let item of this.prescriptionItem)
@@ -28683,6 +28876,8 @@ export interface IEditPharmacistPrescriptionsWithItemsDto {
     collectionStatus: CollectionStatus;
     pickedUpByNurse: number | undefined;
     pickedUpByPatient: number | undefined;
+    isPaid: boolean;
+    receiptNumber: string | undefined;
     prescriptionItem: PharmacistPrescriptionItemWithUnitPriceDto[] | undefined;
 }
 
@@ -36040,6 +36235,9 @@ export class PharmacistPrescriptions implements IPharmacistPrescriptions {
     pickedUpByPatient: number | undefined;
     patient: Patient;
     grandTotal: number;
+    receiptNumber: string | undefined;
+    paymentIntentId: string | undefined;
+    paymentMethod: PaymentMethod;
     prescriptionItems: PrescriptionItem[] | undefined;
 
     constructor(data?: IPharmacistPrescriptions) {
@@ -36066,6 +36264,9 @@ export class PharmacistPrescriptions implements IPharmacistPrescriptions {
             this.pickedUpByPatient = _data["pickedUpByPatient"];
             this.patient = _data["patient"] ? Patient.fromJS(_data["patient"]) : <any>undefined;
             this.grandTotal = _data["grandTotal"];
+            this.receiptNumber = _data["receiptNumber"];
+            this.paymentIntentId = _data["paymentIntentId"];
+            this.paymentMethod = _data["paymentMethod"];
             if (Array.isArray(_data["prescriptionItems"])) {
                 this.prescriptionItems = [] as any;
                 for (let item of _data["prescriptionItems"])
@@ -36096,6 +36297,9 @@ export class PharmacistPrescriptions implements IPharmacistPrescriptions {
         data["pickedUpByPatient"] = this.pickedUpByPatient;
         data["patient"] = this.patient ? this.patient.toJSON() : <any>undefined;
         data["grandTotal"] = this.grandTotal;
+        data["receiptNumber"] = this.receiptNumber;
+        data["paymentIntentId"] = this.paymentIntentId;
+        data["paymentMethod"] = this.paymentMethod;
         if (Array.isArray(this.prescriptionItems)) {
             data["prescriptionItems"] = [];
             for (let item of this.prescriptionItems)
@@ -36126,6 +36330,9 @@ export interface IPharmacistPrescriptions {
     pickedUpByPatient: number | undefined;
     patient: Patient;
     grandTotal: number;
+    receiptNumber: string | undefined;
+    paymentIntentId: string | undefined;
+    paymentMethod: PaymentMethod;
     prescriptionItems: PrescriptionItem[] | undefined;
 }
 
@@ -41092,6 +41299,9 @@ export class ViewPharmacistPrescriptionsDto implements IViewPharmacistPrescripti
     collectionStatus: CollectionStatus;
     isPaid: boolean;
     pharmacyNotes: string | undefined;
+    receiptNumber: string | undefined;
+    paymentIntentId: string | undefined;
+    paymentMethod: PaymentMethod;
     pickedUpByNurseId: number | undefined;
     pickedUpByPatientId: number | undefined;
     pickedUpByNurse: string | undefined;
@@ -41123,6 +41333,9 @@ export class ViewPharmacistPrescriptionsDto implements IViewPharmacistPrescripti
             this.collectionStatus = _data["collectionStatus"];
             this.isPaid = _data["isPaid"];
             this.pharmacyNotes = _data["pharmacyNotes"];
+            this.receiptNumber = _data["receiptNumber"];
+            this.paymentIntentId = _data["paymentIntentId"];
+            this.paymentMethod = _data["paymentMethod"];
             this.pickedUpByNurseId = _data["pickedUpByNurseId"];
             this.pickedUpByPatientId = _data["pickedUpByPatientId"];
             this.pickedUpByNurse = _data["pickedUpByNurse"];
@@ -41158,6 +41371,9 @@ export class ViewPharmacistPrescriptionsDto implements IViewPharmacistPrescripti
         data["collectionStatus"] = this.collectionStatus;
         data["isPaid"] = this.isPaid;
         data["pharmacyNotes"] = this.pharmacyNotes;
+        data["receiptNumber"] = this.receiptNumber;
+        data["paymentIntentId"] = this.paymentIntentId;
+        data["paymentMethod"] = this.paymentMethod;
         data["pickedUpByNurseId"] = this.pickedUpByNurseId;
         data["pickedUpByPatientId"] = this.pickedUpByPatientId;
         data["pickedUpByNurse"] = this.pickedUpByNurse;
@@ -41193,6 +41409,9 @@ export interface IViewPharmacistPrescriptionsDto {
     collectionStatus: CollectionStatus;
     isPaid: boolean;
     pharmacyNotes: string | undefined;
+    receiptNumber: string | undefined;
+    paymentIntentId: string | undefined;
+    paymentMethod: PaymentMethod;
     pickedUpByNurseId: number | undefined;
     pickedUpByPatientId: number | undefined;
     pickedUpByNurse: string | undefined;

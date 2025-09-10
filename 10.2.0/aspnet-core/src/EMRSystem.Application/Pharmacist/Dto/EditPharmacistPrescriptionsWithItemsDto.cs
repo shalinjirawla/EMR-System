@@ -19,6 +19,9 @@ namespace EMRSystem.Pharmacist.Dto
         public CollectionStatus CollectionStatus { get; set; }
         public long? PickedUpByNurse { get; set; }
         public long? PickedUpByPatient { get; set; }
+        public bool IsPaid { get; set; }
+        public string? ReceiptNumber { get; set; }
+
         public List<PharmacistPrescriptionItemWithUnitPriceDto> PrescriptionItem { get; set; }
     }
 }

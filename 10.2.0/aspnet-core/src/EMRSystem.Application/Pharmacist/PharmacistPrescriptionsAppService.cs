@@ -1,31 +1,35 @@
-﻿using Abp.Application.Services.Dto;
-using Abp.Application.Services;
+﻿using Abp.Application.Services;
+using Abp.Application.Services.Dto;
 using Abp.Domain.Repositories;
+using Abp.EntityFrameworkCore.Repositories;
+using Abp.UI;
+using EMRSystem.Admission;
+using EMRSystem.Appointments;
+using EMRSystem.EmergencyProcedure;
+using EMRSystem.Invoices;
+using EMRSystem.IpdChargeEntry;
+using EMRSystem.LabReport.Dto;
+using EMRSystem.LabReports;
+using EMRSystem.MedicineOrder;
+using EMRSystem.MultiTenancy;
+using EMRSystem.NumberingService;
+using EMRSystem.Patients;
 using EMRSystem.Pharmacist.Dto;
+using EMRSystem.Pharmacists;
+using EMRSystem.Prescriptions;
+using EMRSystem.Prescriptions.Dto;
+using EMRSystem.TempStripeData;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Stripe.Checkout;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Abp.UI;
-using EMRSystem.Appointments;
-using EMRSystem.EmergencyProcedure;
-using EMRSystem.IpdChargeEntry;
-using EMRSystem.LabReports;
-using EMRSystem.MedicineOrder;
-using EMRSystem.Prescriptions.Dto;
-using EMRSystem.Prescriptions;
-using EMRSystem.LabReport.Dto;
-using EMRSystem.MultiTenancy;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
-using EMRSystem.Patients;
-using EMRSystem.Pharmacists;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Abp.EntityFrameworkCore.Repositories;
-using EMRSystem.Admission;
 using static Castle.MicroKernel.ModelBuilder.Descriptors.InterceptorDescriptor;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace EMRSystem.Pharmacist
 {
@@ -37,12 +41,20 @@ namespace EMRSystem.Pharmacist
         private readonly IRepository<EMRSystem.Pharmacists.PharmacistInventory, long> _pharmacistInventoryRepository;
         private readonly IRepository<EMRSystem.Prescriptions.PrescriptionItem, long> _prescriptionItemRepository;
         private readonly TenantManager _tenantManager;
-        public PharmacistPrescriptionsAppService(IRepository<EMRSystem.Pharmacists.PharmacistPrescriptions, long> repository,
+        private readonly INumberingService _numberingService;
+        private readonly ITempStripeDataService _tempStripeDataService;
+
+        public PharmacistPrescriptionsAppService(
+            IRepository<EMRSystem.Pharmacists.PharmacistPrescriptions, long> repository,
+            INumberingService numberingService,
+            ITempStripeDataService tempStripeDataService,
             IRepository<Pharmacists.PharmacistInventory, long> pharmacistInventoryRepository, TenantManager tenantManager,
             IRepository<PrescriptionItem, long> prescriptionItemRepository) : base(repository)
         {
             _pharmacistInventoryRepository = pharmacistInventoryRepository;
             _tenantManager = tenantManager;
+            _numberingService = numberingService;
+            _tempStripeDataService = tempStripeDataService;
             _prescriptionItemRepository = prescriptionItemRepository;
         }
 
@@ -81,6 +93,65 @@ namespace EMRSystem.Pharmacist
                 throw new UserFriendlyException("Error in GetPrescriptionFulfillment", ex);
             }
         }
+        
+        public async Task<string> GenerateReceiptNoAsync(int tenantId)
+        {
+            return await _numberingService.GenerateReceiptNumberAsync(
+                Repository,
+                "MED-REC",
+                tenantId,
+                "ReceiptNumber"
+            );
+        }
+        [HttpPost]
+        public async Task<string> HandlePharmacistPrescriptionPayment(CreatePharmacistPrescriptionsWithItemDto withItemDto)
+        {
+            if (withItemDto.pharmacistPrescriptionsDto.PaymentMethod == PaymentMethod.Cash)
+            {
+                // Cash → Direct Create
+                await CreatePharmacistPrescriptionsWithItem(withItemDto);
+                return "Cash payment successful. Prescription created.";
+            }
+            else if (withItemDto.pharmacistPrescriptionsDto.PaymentMethod == PaymentMethod.Card)
+            {
+                var tempDataId = Guid.NewGuid().ToString();
+                await _tempStripeDataService.StoreData(tempDataId, withItemDto);
+                // Card → Create Stripe Checkout Session
+                var options = new SessionCreateOptions
+                {
+                    PaymentMethodTypes = new List<string> { "card" },
+                    LineItems = withItemDto.pharmacistPrescriptionsListOfItem.Select(i => new SessionLineItemOptions
+                    {
+                        PriceData = new SessionLineItemPriceDataOptions
+                        {
+                            Currency = "inr",
+                            UnitAmountDecimal = i.UnitPrice * 100,
+                            ProductData = new SessionLineItemPriceDataProductDataOptions
+                            {
+                                Name = i.MedicineName
+                            }
+                        },
+                        Quantity = i.Qty
+                    }).ToList(),
+                    Mode = "payment",
+                    SuccessUrl = "http://localhost:4200/app/pharmacist/pharmacist-prescriptions",
+                    CancelUrl = "http://localhost:4200/app/pharmacist/pharmacist-prescriptions",
+                    Metadata = new Dictionary<string, string>
+            {
+                { "purpose", "pharmacistPrescription" },
+                { "tempDataId", tempDataId }, // ✅ Only store reference ID
+                { "tenantId", withItemDto.pharmacistPrescriptionsDto.TenantId.ToString() }
+            }
+                };
+
+                var service = new SessionService();
+                var session = service.Create(options);
+                return session.Url;
+            }
+
+            throw new UserFriendlyException("Invalid payment method");
+        }
+
         [HttpPost]
         public async Task CreatePharmacistPrescriptionsWithItem(CreatePharmacistPrescriptionsWithItemDto withItemDto)
         {
@@ -103,6 +174,9 @@ namespace EMRSystem.Pharmacist
                         isAlreadyExist.PickedUpByPatient = prescription.PickedUpByPatient;
                         isAlreadyExist.CollectionStatus = CollectionStatus.PickedUp;
                         isAlreadyExist.PharmacyNotes = prescription.PharmacyNotes;
+                        isAlreadyExist.PaymentMethod = prescription.PaymentMethod;
+                        isAlreadyExist.PaymentIntentId = prescription.PaymentIntentId;
+                        isAlreadyExist.ReceiptNumber = await GenerateReceiptNoAsync(prescription.TenantId);
 
                         await Repository.UpdateAsync(isAlreadyExist);
                         pharmacistPrescriptionId = isAlreadyExist.Id;
@@ -403,6 +477,8 @@ namespace EMRSystem.Pharmacist
                 PrescriptionId = prescription.Id,
                 PatientId = prescription.PatientId,
                 PharmacyNotes = details.PharmacyNotes,
+                IsPaid = details.IsPaid,
+                ReceiptNumber = details.ReceiptNumber,
                 IssueDate = details.IssueDate,
                 CollectionStatus = details.CollectionStatus,
                 PatientName = prescription?.Patient?.FullName,

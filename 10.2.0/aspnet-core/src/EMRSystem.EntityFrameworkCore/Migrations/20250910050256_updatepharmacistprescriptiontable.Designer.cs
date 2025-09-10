@@ -4,6 +4,7 @@ using EMRSystem.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EMRSystem.Migrations
 {
     [DbContext(typeof(EMRSystemDbContext))]
-    partial class EMRSystemDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250910050256_updatepharmacistprescriptiontable")]
+    partial class updatepharmacistprescriptiontable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3228,7 +3231,7 @@ namespace EMRSystem.Migrations
                     b.Property<string>("PaymentIntentId")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("PaymentMethod")
+                    b.Property<int>("PaymentMethod")
                         .HasColumnType("int");
 
                     b.Property<string>("PharmacyNotes")
