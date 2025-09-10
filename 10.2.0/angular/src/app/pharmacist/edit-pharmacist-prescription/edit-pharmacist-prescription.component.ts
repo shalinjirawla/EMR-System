@@ -295,7 +295,7 @@ export class EditPharmacistPrescriptionComponent extends AppComponentBase implem
     this.loadMedicines();
     const item = new PharmacistPrescriptionItemWithUnitPriceDto();
     item.init({
-      prescriptionId: this.selectedPrescriptionID,
+      prescriptionId: null,
       medicineId: 0,
       medicineName: '',
       dosage: '',

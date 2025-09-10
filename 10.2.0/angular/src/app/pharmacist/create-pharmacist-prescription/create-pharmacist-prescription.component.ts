@@ -133,7 +133,7 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
 
     // take items from selected prescription; ensure stable row ids and qty >=1
     const items = this.prescriptions.find(x => x.id === prescriptionId)?.pharmacistPrescription || [];
-    const items1 = items.filter(x => x.pharmacistPrescriptionId == null)
+    const items1 = items.filter(x => x.isPrescribe == true)
     this.selectedPrescriptionItem = (items1 || []).map((it: any) => {
       if (!it.qty || it.qty < 1) it.qty = 1;
       it._rowId = this.nextRowId();
@@ -178,6 +178,7 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
       pharmacistPrescriptionsListOfItem: this.selectedPrescriptionItem,
     }
     if (this.paymentMethod === PaymentMethod._0) {
+      debugger
       this.pharmacistPrescriptionService.createPharmacistPrescriptionsWithItem(resBody).subscribe({
         next: () => {
           this.notify.success('Created successfully!');
@@ -312,7 +313,7 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
     this.loadMedicines();
     const item = new PharmacistPrescriptionItemWithUnitPriceDto();
     item.init({
-      prescriptionId: this.selectedPrescriptionID,
+      prescriptionId: null,
       medicineId: 0,
       medicineName: '',
       dosage: '',
