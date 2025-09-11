@@ -1,4 +1,5 @@
-﻿using EMRSystem.LabReport.Dto;
+﻿using EMRSystem.Invoices;
+using EMRSystem.LabReport.Dto;
 using EMRSystem.Pharmacists;
 using EMRSystem.Prescriptions.Dto;
 using System;
@@ -24,6 +25,9 @@ namespace EMRSystem.Pharmacist.Dto
         public CollectionStatus CollectionStatus { get; set; }
         public bool IsPaid { get; set; }
         public string PharmacyNotes { get; set; }
+        public string? ReceiptNumber { get; set; }
+        public string? PaymentIntentId { get; set; }
+        public PaymentMethod PaymentMethod { get; set; }
         public long? PickedUpByNurseId { get; set; }
         public long? PickedUpByPatientId { get; set; }
         public string PickedUpByNurse { get; set; }

@@ -1,4 +1,5 @@
 ﻿using Abp.Application.Services.Dto;
+using EMRSystem.Invoices;
 using EMRSystem.MedicineOrder;
 using EMRSystem.Pharmacists;
 using EMRSystem.Prescriptions.Dto;
@@ -20,6 +21,11 @@ namespace EMRSystem.Pharmacist.Dto
         public string PharmacyNotes { get; set; }
         public CollectionStatus CollectionStatus { get; set; }
         public decimal GrandTotal { get; set; }
+        public string? PaymentIntentId { get; set; }
+        public bool? IsPaid { get; set; } = false;
+        public string? ReceiptNumber { get; set; }
+
+        public PaymentMethod? PaymentMethod { get; set; }
     }
     public class CreatePharmacistPrescriptionsWithItemDto
     {

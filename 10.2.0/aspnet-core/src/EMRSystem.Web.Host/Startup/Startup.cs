@@ -52,6 +52,7 @@ namespace EMRSystem.Web.Host.Startup
             AuthConfigurer.Configure(services, _appConfiguration);
 
             services.AddSignalR();
+            services.AddDistributedMemoryCache(); // Ya Redis agar production ke liye
 
             // Configure CORS for angular2 UI
             services.AddCors(

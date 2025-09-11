@@ -1,5 +1,6 @@
 ﻿using Abp.Domain.Entities;
 using EMRSystem.Doctors;
+using EMRSystem.Invoices;
 using EMRSystem.MedicineOrder;
 using EMRSystem.Nurses;
 using EMRSystem.Patients;
@@ -27,6 +28,10 @@ namespace EMRSystem.Pharmacists
         public long? PickedUpByPatient { get; set; }
         public Patient Patient { get; set; }
         public decimal GrandTotal { get; set; }
+        public string? ReceiptNumber { get; set; }
+        public string? PaymentIntentId { get; set; }
+        public PaymentMethod? PaymentMethod { get; set; }
+
         public ICollection<PrescriptionItem> PrescriptionItems { get; set; }
     }
 

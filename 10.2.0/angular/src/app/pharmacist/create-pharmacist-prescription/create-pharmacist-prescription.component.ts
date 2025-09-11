@@ -171,30 +171,32 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
     input.issueDate = moment();
     input.pharmacyNotes = this._pharmacyNotes;
     input.collectionStatus = CollectionStatus._1;
+    input.paymentMethod= this.paymentMethod;
+    input.isPaid=false;
     input.pickedUpByPatient=this.selectedPatient;
     input.grandTotal = this.getPrescriptionTotal();
     const resBody: any = {
       pharmacistPrescriptionsDto: input,
       pharmacistPrescriptionsListOfItem: this.selectedPrescriptionItem,
     }
-    if (this.paymentMethod === PaymentMethod._0) {
+    this.pharmacistPrescriptionService.handlePharmacistPrescriptionPayment(resBody).subscribe({
+    next: (result: any) => {
       debugger
-      this.pharmacistPrescriptionService.createPharmacistPrescriptionsWithItem(resBody).subscribe({
-        next: () => {
-          this.notify.success('Created successfully!');
-          this.onSave.emit();
-          this.bsModalRef.hide();
-        },
-        error: () => this.isSaving = false
-      });
-    } else {
-      this.isSaving = false;
-    }
-  }
+      if (this.paymentMethod === PaymentMethod._0) {
+        // ✅ Cash → normal success
+        this.notify.success('Created successfully!');
+        this.onSave.emit();
+        this.bsModalRef.hide();
+      } else if (this.paymentMethod === PaymentMethod._1 && result) {
+        // ✅ Card → redirect to Stripe checkout
+        window.location.href = result;
+      }
+    },
+    error: () => this.isSaving = false,
+    complete: () => this.isSaving = false
+  });
+}
 
-  /**
-   * onQtyChange: newQty comes from ngModelChange
-   */
   onQtyChange(itm: any, newQty: number) {
     itm.qty = Number(newQty) || 0;
     if (itm.qty < 1) itm.qty = 1;

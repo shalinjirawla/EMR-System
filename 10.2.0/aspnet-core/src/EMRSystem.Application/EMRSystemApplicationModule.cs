@@ -1,4 +1,5 @@
 ﻿using Abp.AutoMapper;
+using Abp.Dependency;
 using Abp.Modules;
 using Abp.Reflection.Extensions;
 using EMRSystem.Appointments.Dto;
@@ -13,6 +14,7 @@ using EMRSystem.Nurse.Dto;
 using EMRSystem.Patients.Dto;
 using EMRSystem.Pharmacist.Dto;
 using EMRSystem.Prescriptions.Dto;
+using EMRSystem.TempStripeData;
 using EMRSystem.Visits.Dto;
 using EMRSystem.Vitals.Dto;
 
@@ -26,6 +28,7 @@ public class EMRSystemApplicationModule : AbpModule
     public override void PreInitialize()
     {
         Configuration.Authorization.Providers.Add<EMRSystemAuthorizationProvider>();
+        IocManager.Register<ITempStripeDataService, TempStripeDataService>(DependencyLifeStyle.Transient);
     }
 
     public override void Initialize()
