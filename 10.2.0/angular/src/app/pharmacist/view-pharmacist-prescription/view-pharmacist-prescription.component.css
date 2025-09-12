@@ -1,0 +1,155 @@
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f9fafb;
+  margin: 0;
+  padding: 12px;
+}
+
+.prescription-container {
+  max-width: auto;
+  margin: auto;
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.clinic-name {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+.sub {
+  margin: 6px 0 0;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+/* Grid Layout */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Card Section */
+.card-section {
+  background: #fafafa;
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+.card-section h4 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+  color: #111827;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 6px;
+}
+.card-section p {
+  margin: 6px 0;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+/* Medicine Table */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+.medicine-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  min-width: 600px; /* Responsive scroll */
+}
+.medicine-table th,
+.medicine-table td {
+  border: 1px solid #e5e7eb;
+  padding: 8px 10px;
+  text-align: left;
+}
+.medicine-table th {
+  background: #f3f4f6;
+  color: #111827;
+  white-space: nowrap;
+}
+.medicine-table tr:nth-child(even) {
+  background: #f9fafb;
+}
+.medicine-table tr:hover {
+  background: #f1f5f9;
+}
+
+/* Badges */
+.badge {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.success {
+  background: linear-gradient(90deg, #dcfce7, #bbf7d0);
+  color: #166534;
+}
+.info {
+  background: linear-gradient(90deg, #dbeafe, #bfdbfe);
+  color: #1e40af;
+}
+.danger {
+  background: linear-gradient(90deg, #fee2e2, #fecaca);
+  color: #991b1b;
+}
+.warning {
+  background: linear-gradient(90deg, #fef9c3, #fde68a);
+  color: #92400e;
+}
+
+/* Total Highlight */
+.total-amount {
+  font-weight: 700;
+  color: #1e3a8a;
+  font-size: 1rem;
+}
+
+/* Footer */
+.footer {
+  text-align: right;
+  margin-top: 20px;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 12px;
+}
+.footer h5 {
+  margin: 4px 0;
+  font-weight: 600;
+}
+.footer small {
+  color: #6b7280;
+}
+
+/* Mobile Tweaks */
+@media (max-width: 480px) {
+  .clinic-name {
+    font-size: 1.5rem;
+  }
+  .card-section {
+    padding: 12px;
+  }
+  .medicine-table {
+    font-size: 0.8rem;
+  }
+}

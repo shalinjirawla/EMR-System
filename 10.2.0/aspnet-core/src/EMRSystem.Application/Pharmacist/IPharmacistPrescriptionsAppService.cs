@@ -12,5 +12,8 @@ namespace EMRSystem.Pharmacist
     public interface IPharmacistPrescriptionsAppService : IAsyncCrudAppService<
     PharmacistPrescriptionsDto, long, PagedAndSortedResultRequestDto, CreateUpdatePharmacistPrescriptionsDto, CreateUpdatePharmacistPrescriptionsDto>
     {
+        Task CreatePharmacistPrescriptionsWithItem(CreatePharmacistPrescriptionsWithItemDto withItemDto);
+
+        Task<string> HandlePharmacistPrescriptionPayment(CreatePharmacistPrescriptionsWithItemDto withItemDto);
     }
 }

@@ -4,6 +4,7 @@ using Abp.Domain.Entities;
 using Abp.Domain.Repositories;
 using Abp.EntityFrameworkCore.Repositories;
 using Abp.EntityFrameworkCore.Repositories;
+using Abp.EntityFrameworkCore.Repositories;
 using Abp.Extensions;
 using Abp.Linq.Extensions;
 using Abp.UI;
@@ -15,14 +16,20 @@ using EMRSystem.Doctor.Dto;
 using EMRSystem.Doctors;
 using EMRSystem.EmergencyProcedure;
 using EMRSystem.EmergencyProcedure;
+using EMRSystem.EmergencyProcedure;
 using EMRSystem.EmergencyProcedure.Dto;
+using EMRSystem.IpdChargeEntry;
 using EMRSystem.IpdChargeEntry;
 using EMRSystem.IpdChargeEntry;
 using EMRSystem.LabReports;
 using EMRSystem.MedicineOrder;
+using EMRSystem.MedicineOrder;
+using EMRSystem.NumberingService;
 using EMRSystem.Patients;
 using EMRSystem.Patients.Dto;
 using EMRSystem.Pharmacist.Dto;
+using EMRSystem.Pharmacist.Dto;
+using EMRSystem.Pharmacists;
 using EMRSystem.PrescriptionLabTest.Dto;
 using EMRSystem.Prescriptions.Dto;
 using EMRSystem.Users.Dto;
@@ -33,20 +40,13 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Stripe.V2;
 using Stripe.V2;
+using Stripe.V2;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
-
-using EMRSystem.EmergencyProcedure;
-using EMRSystem.IpdChargeEntry;
-using Stripe.V2;
-using Abp.EntityFrameworkCore.Repositories;
-using EMRSystem.Pharmacist.Dto;
-using EMRSystem.MedicineOrder;
-using EMRSystem.Pharmacists;
 
 
 
@@ -64,16 +64,22 @@ namespace EMRSystem.Prescriptions
         private readonly IRepository<EMRSystem.EmergencyProcedure.EmergencyProcedure, long> _emergencyProcedureRepository;
         private readonly IRepository<EMRSystem.IpdChargeEntry.IpdChargeEntry, long> _ipdChargeEntryRepository;
         private readonly IRepository<EMRSystem.Admission.Admission, long> _admissionRepository;
+        private readonly INumberingService _numberingService;
         private readonly IRepository<EMRSystem.Doctors.ConsultationRequests, long> _consultationRequestsRepository;
         private readonly IRepository<EMRSystem.Pharmacists.PharmacistPrescriptions, long> _pharmacistPrescriptionsRepository;
         private readonly IRepository<EMRSystem.Pharmacists.PharmacistInventory, long> _pharmacistInventoryRepository;
 
         private readonly UserManager _userManager;
-        public PrescriptionAppService(IRepository<Prescription, long> repository, IRepository<EMRSystem.Admission.Admission, long> admissionRepository,
-            IRepository<EMRSystem.IpdChargeEntry.IpdChargeEntry, long> ipdChargeEntryRepository
-            , IDoctorAppService doctorAppService, UserManager userManager, IRepository<Appointment, long> appointmentRepository,
-            IRepository<Patient, long> patientRepository, IRepository<EMRSystem.LabReports.PrescriptionLabTest, long> prescriptionLabTestRepository
-            , IRepository<EmergencyChargeEntries.EmergencyChargeEntry, long> emergencyChargeEntriesRepository,
+        public PrescriptionAppService(
+            IRepository<Prescription, long> repository,
+            IRepository<EMRSystem.Admission.Admission, long> admissionRepository,
+            IRepository<EMRSystem.IpdChargeEntry.IpdChargeEntry, long> ipdChargeEntryRepository,
+            INumberingService numberingService,
+            IDoctorAppService doctorAppService, UserManager userManager,
+            IRepository<Appointment, long> appointmentRepository,
+            IRepository<Patient, long> patientRepository,
+            IRepository<EMRSystem.LabReports.PrescriptionLabTest, long> prescriptionLabTestRepository,
+            IRepository<EmergencyChargeEntries.EmergencyChargeEntry, long> emergencyChargeEntriesRepository,
             IRepository<DoctorMaster.DoctorMaster, long> doctorMasterRepository,
             IRepository<EmergencyProcedure.EmergencyProcedure, long> emergencyProcedureRepository,
             IRepository<Doctors.ConsultationRequests, long> consultationRequestsRepository,
@@ -83,6 +89,7 @@ namespace EMRSystem.Prescriptions
         {
             _doctorAppService = doctorAppService;
             _userManager = userManager;
+            _numberingService = numberingService;
             _appointmentRepository = appointmentRepository;
             _patientRepository = patientRepository;
             _prescriptionLabTestRepository = prescriptionLabTestRepository;
@@ -148,7 +155,7 @@ namespace EMRSystem.Prescriptions
                             Duration = i.Duration,
                             Instructions = i.Instructions,
                             PharmacistPrescriptionId = i.PharmacistPrescriptionId
-                        }).Where(x => x.PharmacistPrescriptionId == null).ToList(),
+                        }).ToList(),
                         LabTests = x.LabTests.Select(lt => new EMRSystem.LabReports.PrescriptionLabTest
                         {
                             Id = lt.Id,
@@ -362,10 +369,13 @@ namespace EMRSystem.Prescriptions
                 if (isAdmitted)
                 {
                     pharmacistPrescriptionsdto.IsPaid = true;
+                    pharmacistPrescriptionsdto.ReceiptNumber = await GenerateReceiptNoAsync(input.TenantId);
                 }
                 else if (input.IsEmergencyPrescription)
                 {
                     pharmacistPrescriptionsdto.IsPaid = true;
+                    pharmacistPrescriptionsdto.ReceiptNumber = await GenerateReceiptNoAsync(input.TenantId);
+
                 }
                 else
                 {
@@ -376,7 +386,15 @@ namespace EMRSystem.Prescriptions
             }
             await CurrentUnitOfWork.SaveChangesAsync();
         }
-
+        public async Task<string> GenerateReceiptNoAsync(int tenantId)
+        {
+            return await _numberingService.GenerateReceiptNumberAsync(
+                _pharmacistPrescriptionsRepository,
+                "MED-REC",
+                tenantId,
+                "ReceiptNumber"
+            );
+        }
         public async Task UpdatePrescriptionWithItemAsync(CreateUpdatePrescriptionDto input)
         {
             // First get the existing prescription with its items
@@ -612,7 +630,7 @@ namespace EMRSystem.Prescriptions
                         Duration = i.Duration,
                         Instructions = i.Instructions,
                         PharmacistPrescriptionId = i.PharmacistPrescriptionId
-                    }).Where(x => x.PharmacistPrescriptionId == null).ToList(),
+                    }).ToList(),
                     LabTests = x.LabTests.Select(lt => new EMRSystem.LabReports.PrescriptionLabTest
                     {
                         Id = lt.Id,

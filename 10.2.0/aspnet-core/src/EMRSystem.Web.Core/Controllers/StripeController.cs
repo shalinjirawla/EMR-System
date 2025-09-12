@@ -9,9 +9,12 @@ using EMRSystem.Invoices;
 using EMRSystem.LabTestReceipt;
 using EMRSystem.LabTestReceipt.Dto;
 using EMRSystem.Patients;
+using EMRSystem.Pharmacist;
+using EMRSystem.Pharmacist.Dto;
 using EMRSystem.PrescriptionLabTest;
 using EMRSystem.ProcedureReceipts;
 using EMRSystem.ProcedureReceipts.Dto;
+using EMRSystem.TempStripeData;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -46,7 +49,8 @@ namespace EMRSystem.Controllers
         private readonly IRepository<DepositTransaction, long> _depositTransactionRepository;
         private readonly IRepository<PatientDeposit, long> _patientDepositRepository;
         private readonly IRepository<SelectedEmergencyProcedures, long> _selectedProcedureRepository;
-
+        private readonly IPharmacistPrescriptionsAppService _pharmacistPrescriptionsAppService;
+        private readonly ITempStripeDataService _tempStripeDataService;
 
 
         public StripeController(
@@ -55,8 +59,10 @@ namespace EMRSystem.Controllers
             IUnitOfWorkManager unitOfWorkManager,
             IAppointmentAppService appointmentAppService,
             IProcedureReceiptAppService procedureReceiptAppService,
+            IPharmacistPrescriptionsAppService pharmacistPrescriptionsAppService,
             ILabTestReceiptAppService labTestReceiptAppService,
             IRepository<DepositTransaction,long> depositTransactionRepository,
+            ITempStripeDataService tempStripeDataService,
             IRepository<SelectedEmergencyProcedures, long> selectedProcedureRepository,
             IRepository<PatientDeposit, long> patientDepositRepository,
             IDepositTransactionAppService depositetansactionAppService,
@@ -71,10 +77,12 @@ namespace EMRSystem.Controllers
             _selectedProcedureRepository = selectedProcedureRepository;
             _prescriptionLabTestRepository = prescriptionLabTestRepository;
             _depositTransactionRepository = depositTransactionRepository;
+            _tempStripeDataService = tempStripeDataService;
             _patientDepositRepository = patientDepositRepository;
             _appointmentRepository = appointmentRepository;
             _depositetansactionAppService = depositetansactionAppService;
             _procedureReceiptAppService = procedureReceiptAppService;
+            _pharmacistPrescriptionsAppService = pharmacistPrescriptionsAppService;
         }
 
         [HttpPost]
@@ -230,7 +238,42 @@ namespace EMRSystem.Controllers
                             await uow.CompleteAsync();
                         }
                     }
-
+                    else if (session.Metadata.TryGetValue("purpose", out var pharmacistPurpose) && pharmacistPurpose == "pharmacistPrescription")
+                    {
+                        if (!session.Metadata.TryGetValue("tempDataId", out var tempDataId))
+                            return Ok();
+                        try
+                        {
+                            var dto = await _tempStripeDataService.RetrieveData(tempDataId);
+                            if (dto == null)
+                            {
+                                Logger.Warn($"Temp data not found for ID: {tempDataId}");
+                                return Ok();
+                            }
+                            await _tempStripeDataService.RemoveData(tempDataId);
+                            if (session.Metadata.TryGetValue("tenantId", out var tenantIdStr) &&
+                            int.TryParse(tenantIdStr, out var tenantId))
+                            {
+                                dto.pharmacistPrescriptionsDto.TenantId = tenantId;
+                            }
+                            using (var uow = _unitOfWorkManager.Begin())
+                            {
+                                dto.pharmacistPrescriptionsDto.PaymentIntentId = session.PaymentIntentId;
+                                dto.pharmacistPrescriptionsDto.PaymentMethod = PaymentMethod.Card;
+                                dto.pharmacistPrescriptionsDto.IsPaid = true;
+                                await _pharmacistPrescriptionsAppService.CreatePharmacistPrescriptionsWithItem(dto);
+                                await uow.CompleteAsync();
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Error($"Error processing pharmacist prescription webhook: {ex.Message}", ex);
+                            // Even if error, don't keep stale data
+                            await _tempStripeDataService.RemoveData(tempDataId);
+                            throw;
+                        }
+                    }
+                   
 
                 }
 

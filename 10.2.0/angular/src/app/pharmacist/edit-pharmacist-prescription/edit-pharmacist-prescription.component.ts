@@ -45,6 +45,8 @@ export class EditPharmacistPrescriptionComponent extends AppComponentBase implem
   newPrescriptionItem!: PharmacistPrescriptionItemWithUnitPriceDto;
   selectedPrescriptionID!: number;
   _pharmacyNotes!: string;
+  ispaid:any;
+  receiptNumber:string;
   selectedPrescriptionName!: string;
   total: number = 0;
   medicineOptions: any[] = [];
@@ -95,6 +97,8 @@ export class EditPharmacistPrescriptionComponent extends AppComponentBase implem
           if (res.prescriptionId) {
             this.selectedPrescriptionID = res.prescriptionId;
             this._pharmacyNotes = res.pharmacyNotes;
+            this.ispaid =res.isPaid;
+            this.receiptNumber = res.receiptNumber;
             // const filterdList=res.prescriptionItem.filter(x=>x.pharmacistPrescriptionId==res.)
             this.selectedPrescriptionItem = (res.prescriptionItem || []).map((it: any) => {
               // ensure qty and stable row id
@@ -144,13 +148,14 @@ export class EditPharmacistPrescriptionComponent extends AppComponentBase implem
     input.prescriptionId = this.selectedPrescriptionID;
     input.issueDate = moment();
     input.pharmacyNotes = this._pharmacyNotes;
+    input.isPaid=this.ispaid;
+    input.receiptNumber = this.receiptNumber;
     input.collectionStatus = CollectionStatus._0;
     input.grandTotal = this.getPrescriptionTotal();
     const resBody: any = {
       pharmacistPrescriptionsDto: input,
       pharmacistPrescriptionsListOfItem: this.selectedPrescriptionItem,
     }
-    if (this.paymentMethod === PaymentMethod._0) {
 
       // Cash -> direct create
       this.pharmacistPrescriptionService.createPharmacistPrescriptionsWithItem(resBody).subscribe({
@@ -161,11 +166,8 @@ export class EditPharmacistPrescriptionComponent extends AppComponentBase implem
         },
         error: () => this.isSaving = false
       });
-    } else {
-      // card flow (if implemented)
-      this.isSaving = false;
-    }
-  }
+    } 
+  
 
   getPrescriptionTotal(): number {
     if (!this.selectedPrescriptionItem || !this.selectedPrescriptionItem.length) return 0;
@@ -295,7 +297,7 @@ export class EditPharmacistPrescriptionComponent extends AppComponentBase implem
     this.loadMedicines();
     const item = new PharmacistPrescriptionItemWithUnitPriceDto();
     item.init({
-      prescriptionId: this.selectedPrescriptionID,
+      prescriptionId: null,
       medicineId: 0,
       medicineName: '',
       dosage: '',

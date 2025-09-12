@@ -133,7 +133,7 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
 
     // take items from selected prescription; ensure stable row ids and qty >=1
     const items = this.prescriptions.find(x => x.id === prescriptionId)?.pharmacistPrescription || [];
-    const items1 = items.filter(x => x.pharmacistPrescriptionId == null)
+    const items1 = items.filter(x => x.isPrescribe == true)
     this.selectedPrescriptionItem = (items1 || []).map((it: any) => {
       if (!it.qty || it.qty < 1) it.qty = 1;
       it._rowId = this.nextRowId();
@@ -171,29 +171,32 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
     input.issueDate = moment();
     input.pharmacyNotes = this._pharmacyNotes;
     input.collectionStatus = CollectionStatus._1;
+    input.paymentMethod= this.paymentMethod;
+    input.isPaid=false;
     input.pickedUpByPatient=this.selectedPatient;
     input.grandTotal = this.getPrescriptionTotal();
     const resBody: any = {
       pharmacistPrescriptionsDto: input,
       pharmacistPrescriptionsListOfItem: this.selectedPrescriptionItem,
     }
-    if (this.paymentMethod === PaymentMethod._0) {
-      this.pharmacistPrescriptionService.createPharmacistPrescriptionsWithItem(resBody).subscribe({
-        next: () => {
-          this.notify.success('Created successfully!');
-          this.onSave.emit();
-          this.bsModalRef.hide();
-        },
-        error: () => this.isSaving = false
-      });
-    } else {
-      this.isSaving = false;
-    }
-  }
+    this.pharmacistPrescriptionService.handlePharmacistPrescriptionPayment(resBody).subscribe({
+    next: (result: any) => {
+      debugger
+      if (this.paymentMethod === PaymentMethod._0) {
+        // ✅ Cash → normal success
+        this.notify.success('Created successfully!');
+        this.onSave.emit();
+        this.bsModalRef.hide();
+      } else if (this.paymentMethod === PaymentMethod._1 && result) {
+        // ✅ Card → redirect to Stripe checkout
+        window.location.href = result;
+      }
+    },
+    error: () => this.isSaving = false,
+    complete: () => this.isSaving = false
+  });
+}
 
-  /**
-   * onQtyChange: newQty comes from ngModelChange
-   */
   onQtyChange(itm: any, newQty: number) {
     itm.qty = Number(newQty) || 0;
     if (itm.qty < 1) itm.qty = 1;
@@ -312,7 +315,7 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
     this.loadMedicines();
     const item = new PharmacistPrescriptionItemWithUnitPriceDto();
     item.init({
-      prescriptionId: this.selectedPrescriptionID,
+      prescriptionId: null,
       medicineId: 0,
       medicineName: '',
       dosage: '',

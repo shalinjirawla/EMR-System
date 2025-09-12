@@ -1,4 +1,5 @@
 ﻿using Abp.Application.Services.Dto;
+using EMRSystem.Invoices;
 using EMRSystem.MedicineOrder;
 using EMRSystem.Nurse.Dto;
 using EMRSystem.Pharmacists;
@@ -20,6 +21,8 @@ namespace EMRSystem.Pharmacist.Dto
         public DateTime? IssueDate { get; set; }
         public string PharmacyNotes { get; set; }
         public CollectionStatus CollectionStatus { get; set; }
+        //public string? PaymentIntentId { get; set; }
+        //public PaymentMethod? PaymentMethod { get; set; }
         public long? PickedUpByNurse { get; set; }
         public long? PickedUpByPatient { get; set; }
         public bool IsPaid { get; set; }

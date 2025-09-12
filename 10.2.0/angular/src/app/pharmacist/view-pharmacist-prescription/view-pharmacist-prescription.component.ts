@@ -73,4 +73,10 @@ export class ViewPharmacistPrescriptionComponent implements OnInit {
       default: return 'info';
     }
   }
+  getPaymentMethodLabel(method: number): string {
+  switch (method) {
+    case 0: return 'Cash';
+    case 1: return 'Credit Card';
+  }
+}
 }

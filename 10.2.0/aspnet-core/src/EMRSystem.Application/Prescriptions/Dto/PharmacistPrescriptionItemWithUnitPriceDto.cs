@@ -8,7 +8,7 @@ namespace EMRSystem.Prescriptions.Dto
 {
     public class PharmacistPrescriptionItemWithUnitPriceDto
     {
-        public long PrescriptionId { get; set; }
+        public long? PrescriptionId { get; set; }
         public long? PharmacistPrescriptionId { get; set; }
         public int MedicineId { get; set; }
         public string MedicineName { get; set; }

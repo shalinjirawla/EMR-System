@@ -4,6 +4,7 @@ using EMRSystem.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EMRSystem.Migrations
 {
     [DbContext(typeof(EMRSystemDbContext))]
-    partial class EMRSystemDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250910050256_updatepharmacistprescriptiontable")]
+    partial class updatepharmacistprescriptiontable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3066,57 +3069,6 @@ namespace EMRSystem.Migrations
                     b.ToTable("Nurses");
                 });
 
-            modelBuilder.Entity("EMRSystem.PatientDischarge.PatientDischarge", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("AdmissionId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long?>("BillingStaffId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("DischargeDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("DischargeStatus")
-                        .HasColumnType("int");
-
-                    b.Property<string>("DischargeSummary")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long?>("DoctorId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("PatientId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long?>("PharmacyStaffId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AdmissionId")
-                        .IsUnique();
-
-                    b.HasIndex("BillingStaffId");
-
-                    b.HasIndex("DoctorId");
-
-                    b.HasIndex("PatientId");
-
-                    b.HasIndex("PharmacyStaffId");
-
-                    b.ToTable("PatientDischarges", (string)null);
-                });
-
             modelBuilder.Entity("EMRSystem.Patients.Patient", b =>
                 {
                     b.Property<long>("Id")
@@ -3279,7 +3231,7 @@ namespace EMRSystem.Migrations
                     b.Property<string>("PaymentIntentId")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("PaymentMethod")
+                    b.Property<int>("PaymentMethod")
                         .HasColumnType("int");
 
                     b.Property<string>("PharmacyNotes")
@@ -4523,46 +4475,6 @@ namespace EMRSystem.Migrations
                     b.Navigation("AbpUser");
                 });
 
-            modelBuilder.Entity("EMRSystem.PatientDischarge.PatientDischarge", b =>
-                {
-                    b.HasOne("EMRSystem.Admission.Admission", "Admission")
-                        .WithOne("_PatientDischarge")
-                        .HasForeignKey("EMRSystem.PatientDischarge.PatientDischarge", "AdmissionId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("EMRSystem.Billings.Bill", "BillingStaff")
-                        .WithMany("_PatientDischarge")
-                        .HasForeignKey("BillingStaffId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("EMRSystem.Doctors.Doctor", "Doctor")
-                        .WithMany("_PatientDischarge")
-                        .HasForeignKey("DoctorId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("EMRSystem.Patients.Patient", "Patient")
-                        .WithMany("_PatientDischarge")
-                        .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("EMRSystem.Pharmacists.Pharmacist", "PharmacistStaff")
-                        .WithMany("_PatientDischarge")
-                        .HasForeignKey("PharmacyStaffId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Admission");
-
-                    b.Navigation("BillingStaff");
-
-                    b.Navigation("Doctor");
-
-                    b.Navigation("Patient");
-
-                    b.Navigation("PharmacistStaff");
-                });
-
             modelBuilder.Entity("EMRSystem.Patients.Patient", b =>
                 {
                     b.HasOne("EMRSystem.Authorization.Users.User", "AbpUser")
@@ -4824,8 +4736,6 @@ namespace EMRSystem.Migrations
                     b.Navigation("IpdChargeEntries");
 
                     b.Navigation("PatientDeposits");
-
-                    b.Navigation("_PatientDischarge");
                 });
 
             modelBuilder.Entity("EMRSystem.Appointments.Appointment", b =>
@@ -4870,8 +4780,6 @@ namespace EMRSystem.Migrations
             modelBuilder.Entity("EMRSystem.Billings.Bill", b =>
                 {
                     b.Navigation("Items");
-
-                    b.Navigation("_PatientDischarge");
                 });
 
             modelBuilder.Entity("EMRSystem.Departments.Department", b =>
@@ -4907,8 +4815,6 @@ namespace EMRSystem.Migrations
                     b.Navigation("SpecialistPrescriptions");
 
                     b.Navigation("Visits");
-
-                    b.Navigation("_PatientDischarge");
                 });
 
             modelBuilder.Entity("EMRSystem.Emergency.EmergencyCase.EmergencyCase", b =>
@@ -5023,13 +4929,6 @@ namespace EMRSystem.Migrations
                     b.Navigation("Visit");
 
                     b.Navigation("Vitals");
-
-                    b.Navigation("_PatientDischarge");
-                });
-
-            modelBuilder.Entity("EMRSystem.Pharmacists.Pharmacist", b =>
-                {
-                    b.Navigation("_PatientDischarge");
                 });
 
             modelBuilder.Entity("EMRSystem.Pharmacists.PharmacistPrescriptions", b =>
