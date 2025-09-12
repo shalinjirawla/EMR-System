@@ -98,25 +98,24 @@
                             [tableStyle]="{ 'min-width': '50rem' }" (onLazyLoad)="list($event)">
                             <ng-template pTemplate="header">
                                 <tr>
-                                    <th style="min-width: 150px" pSortableColumn="fullName">
+                                    <th pSortableColumn="fullName">
                                         {{ 'FullName' | localize }}
                                         <p-sortIcon field="fullName"></p-sortIcon>
-                                    </th>
-                                    <th style="min-width: 150px" pSortableColumn="emailAddress">
-                                        {{ 'EmailAddress' | localize }}
-                                        <p-sortIcon field="emailAddress"></p-sortIcon>
                                     </th>
                                     <th>
                                         Age/Gender
                                     </th>
-                                    <th style="min-width: 80px" *ngIf="showDoctorColumn">
+                                    <th *ngIf="showDoctorColumn">
                                         Assigned Doctor
                                     </th>
-                                    <th style="min-width: 80px">
+                                    <th>
                                         Assigned Nurse
                                     </th>
-                                    <th style="min-width: 50px">
+                                    <th>
                                         {{ 'IsActive' | localize }}
+                                    </th>
+                                    <th>
+                                        Status
                                     </th>
                                     <th style="min-width: 130px">
                                         {{ 'Actions' | localize }}
@@ -130,11 +129,6 @@
                                         <!-- <img [src]="getRandomAvatar()" class="rounded-circle mr-2" /> -->
                                         <span>
                                             {{ record.fullName }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span>
-                                            {{ record.emailAddress }}
                                         </span>
                                     </td>
                                     <td>
@@ -158,11 +152,20 @@
                                         </span>
                                     </td>
                                     <td>
+                                        <p-tag [value]="getStatusLabel(record.discharge_Status)"
+                                            [severity]="getStatusSeverity(record.discharge_Status)" [rounded]="true">
+                                        </p-tag>
+                                    </td>
+                                    <td>
                                         <button type="button" pButton icon="pi pi-ellipsis-v" class="p-button-text"
                                             (click)="rowMenu.toggle($event); selectedRecord = record">
                                         </button>
                                         <p-overlayPanel #rowMenu class="custom-overlay" [dismissable]="true">
                                             <ul class="custom-overlay-menu">
+                                                <li *ngIf="record.discharge_Status!=0"
+                                                    (click)="gotoDischargeSummaryPage(selectedRecord.id)">
+                                                    <i class="fa-solid fa-right-from-bracket"></i>Discharge Process
+                                                </li>
                                                 <li (click)="showCreatePrescriptionDialog(selectedRecord)">
                                                     <i class="fa-solid fa-file-medical"></i> Create Prescription
                                                 </li>

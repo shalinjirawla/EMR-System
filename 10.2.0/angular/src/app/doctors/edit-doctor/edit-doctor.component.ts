@@ -6,9 +6,12 @@ import { DepartmentDto, DepartmentServiceProxy } from '@shared/service-proxies/s
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { CheckboxModule } from 'primeng/checkbox';
+import { RadioButtonModule } from 'primeng/radiobutton';
+import { SelectModule } from 'primeng/select';
+import { DatePickerModule } from 'primeng/datepicker';
 @Component({
   selector: 'app-edit-doctor',
-  imports: [FormsModule, CommonModule, AbpValidationSummaryComponent, InputTextModule, InputNumberModule, CheckboxModule],
+  imports: [FormsModule, RadioButtonModule, DatePickerModule, SelectModule, CommonModule, AbpValidationSummaryComponent, InputTextModule, InputNumberModule, CheckboxModule],
   providers: [DepartmentServiceProxy],
   templateUrl: './edit-doctor.component.html',
   styleUrl: './edit-doctor.component.css'
@@ -31,7 +34,7 @@ export class EditDoctorComponent implements OnInit, OnChanges {
   genders = ['Male', 'Female', 'Other'];
   departments: DepartmentDto[] = [];
   maxDate: string;
-
+  today: Date = new Date();
   constructor(private _departmentService: DepartmentServiceProxy,
     private cd: ChangeDetectorRef
 

@@ -1,5 +1,5 @@
-<li class="nav-item dropdown" dropdown>
-    <a href="javascript:;" class="nav-link" dropdownToggle>
+<!-- <li class="dropdown" dropdown>
+    <a href="javascript:;" class="topbar-links" dropdownToggle>
         <i class="d-inline-block {{ currentLanguage.icon }}"></i>
         <span class="d-none d-md-inline-block ml-1">
             {{ currentLanguage.displayName }}
@@ -7,12 +7,28 @@
     </a>
     <div class="dropdown-menu dropdown-menu-right p-0" *dropdownMenu>
         @for (language of languages; track language) {
-            @if (language.name != currentLanguage.name) {
-                <a class="dropdown-item" href="javascript:;" (click)="changeLanguage(language.name)">
-                    <i class="d-inline-block {{ language.icon }} mr-1"></i>
-                    {{ language.displayName }}
-                </a>
-            }
+        @if (language.name != currentLanguage.name) {
+        <a class="dropdown-item" href="javascript:;" (click)="changeLanguage(language.name)">
+            <i class="d-inline-block {{ language.icon }} mr-1"></i>
+            {{ language.displayName }}
+        </a>
+        }
+        }
+    </div>
+</li> -->
+<li class="nav-item dropdown nav-user-menu" dropdown>
+    <p-overlay-badge severity="success" class="inline-flex nav-link p-1" dropdownToggle>
+        <p-avatar class="p-overlay-badge" icon="d-inline-block {{ currentLanguage.icon }}" size="small" style="border-radius: 6px;
+        border: 1px solid #e2e8f0; background: none;" />
+    </p-overlay-badge>
+    <div class="dropdown-menu dropdown-menu-right p-0 menu-border" *dropdownMenu>
+        @for (language of languages; track language) {
+        @if (language.name != currentLanguage.name) {
+        <a class="dropdown-item" href="javascript:;" (click)="changeLanguage(language.name)">
+            <i class="d-inline-block {{ language.icon }} mr-1"></i>
+            {{ language.displayName }}
+        </a>
+        }
         }
     </div>
 </li>

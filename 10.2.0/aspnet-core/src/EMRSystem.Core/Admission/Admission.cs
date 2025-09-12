@@ -32,6 +32,7 @@ namespace EMRSystem.Admission
         public virtual ICollection<EMRSystem.Emergency.EmergencyCase.EmergencyCase> EmergencyCases { get; set; }
         //public virtual ICollection<PatientDeposits> Deposits { get; set; }
         public virtual ICollection<PatientDeposit> PatientDeposits { get; set; }
+        public virtual EMRSystem.PatientDischarge.PatientDischarge _PatientDischarge { get; set; }
 
         public virtual EMRSystem.Patients.Patient Patient { get; set; }
         public virtual EMRSystem.Doctors.Doctor Doctor { get; set; }

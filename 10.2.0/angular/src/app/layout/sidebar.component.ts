@@ -10,7 +10,8 @@ import { SidebarMenuComponent } from './sidebar-menu.component';
     templateUrl: './sidebar.component.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: [SidebarLogoComponent, SidebarUserPanelComponent, SidebarMenuComponent],
+    styleUrl: './sidebar.component.css',
+    imports: [SidebarLogoComponent, SidebarMenuComponent],
 })
 export class SidebarComponent implements OnInit {
     sidebarExpanded: boolean;

@@ -1,4 +1,4 @@
-import { Component, Injector, ChangeDetectorRef, ViewChild } from '@angular/core';
+import { Component, Injector, ChangeDetectorRef, ViewChild, OnInit } from '@angular/core';
 import { finalize } from 'rxjs/operators';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
@@ -16,20 +16,36 @@ import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { OverlayPanel, OverlayPanelModule } from 'primeng/overlaypanel';
 import { MenuModule } from 'primeng/menu';
 import { ButtonModule } from 'primeng/button';
-
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { MenuItem } from 'primeng/api';
+import { TooltipModule } from 'primeng/tooltip';
+import { CardModule } from 'primeng/card';
+import { TagModule } from 'primeng/tag';
+import { SelectModule } from 'primeng/select';
+import { InputTextModule } from 'primeng/inputtext';
+import { CheckboxModule } from 'primeng/checkbox';
+interface FilterOption {
+    label: string;
+    value: any;
+    checked: boolean;
+}
 @Component({
     templateUrl: './roles.component.html',
-    styleUrl:'./roles.component.css',
+    styleUrl: './roles.component.css',
     animations: [appModuleAnimation()],
     standalone: true,
-    imports: [FormsModule, TableModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, OverlayPanelModule,MenuModule,ButtonModule],
+    imports: [FormsModule, TableModule, PrimeTemplate, NgIf, PaginatorModule, CheckboxModule,
+        BreadcrumbModule, TooltipModule, CardModule, TagModule, SelectModule, InputTextModule,
+        LocalizePipe, OverlayPanelModule, MenuModule, ButtonModule],
 })
-export class RolesComponent extends PagedListingComponentBase<RoleDto> {
+export class RolesComponent extends PagedListingComponentBase<RoleDto> implements OnInit {
     @ViewChild('dataTable', { static: true }) dataTable: Table;
     @ViewChild('paginator', { static: true }) paginator: Paginator;
-
+    items: MenuItem[] | undefined;
+    editDeleteMenus: MenuItem[] | undefined;
     roles: RoleDto[] = [];
     keyword = '';
+    selectedRecord: RoleDto;
 
     constructor(
         injector: Injector,
@@ -41,7 +57,24 @@ export class RolesComponent extends PagedListingComponentBase<RoleDto> {
         super(injector, cd);
         this.keyword = this._activatedRoute.snapshot.queryParams['keyword'] || '';
     }
-
+    ngOnInit(): void {
+        this.items = [
+            { label: 'Home', routerLink: '/' },
+            { label: 'Roles' },
+        ];
+        this.editDeleteMenus = [
+            {
+                label: 'Edit',
+                icon: 'pi pi-pencil',
+                command: () => this.editRole(this.selectedRecord)  // call edit
+            },
+            {
+                label: 'Delete',
+                icon: 'pi pi-trash',
+                command: () => this.delete(this.selectedRecord)  // call edit
+            }
+        ];
+    }
     list(event?: LazyLoadEvent): void {
         if (this.primengTableHelper.shouldResetPaging(event)) {
             this.paginator.changePage(0);
@@ -66,7 +99,7 @@ export class RolesComponent extends PagedListingComponentBase<RoleDto> {
                 })
             )
             .subscribe((result: RoleDtoPagedResultDto) => {
-             
+
                 this.primengTableHelper.records = result.items;
                 this.primengTableHelper.totalRecordsCount = result.totalCount;
                 this.primengTableHelper.hideLoadingIndicator();
@@ -85,7 +118,7 @@ export class RolesComponent extends PagedListingComponentBase<RoleDto> {
                             this.refresh();
                         })
                     )
-                    .subscribe(() => {});
+                    .subscribe(() => { });
             }
         });
     }

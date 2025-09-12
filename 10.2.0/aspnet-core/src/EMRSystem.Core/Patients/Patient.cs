@@ -52,6 +52,7 @@ namespace EMRSystem.Patients
         public virtual ICollection<EmergencyCase> EmergencyCases { get; set; }
         public virtual ICollection<EMRSystem.EmergencyChargeEntries.EmergencyChargeEntry> EmergencyChargeEntries { get; set; }
         public virtual ICollection<PharmacistPrescriptions> PharmacistPrescriptions { get; set; }
+        public virtual ICollection<EMRSystem.PatientDischarge.PatientDischarge> _PatientDischarge { get; set; }
 
 
         //public DateTime? AdmissionDate { get; set; }

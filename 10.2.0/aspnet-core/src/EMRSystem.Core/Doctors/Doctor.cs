@@ -39,6 +39,7 @@ namespace EMRSystem.Doctors
         public bool isEmergencyDoctor { get; set; }
         public virtual ICollection<EMRSystem.Doctors.ConsultationRequests> RequestingDoctor_Consultation_Requests { get; set; }
         public virtual ICollection<EMRSystem.Doctors.ConsultationRequests> RequestedSpecialist_Consultation_Requests { get; set; }
+        public virtual ICollection<EMRSystem.PatientDischarge.PatientDischarge> _PatientDischarge { get; set; }
 
     }
 }

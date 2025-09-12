@@ -1733,10 +1733,29 @@
   dependencies:
     "@primeuix/utils" "^0.3.2"
 
+"@primeuix/styled@^0.7.2":
+  "integrity" "sha512-tIJ6byZezTYZ9YUICNSidQHOIQOQL3zeUgjwiX0JnBTK3+WCvy4DyCBcrJ94RtiX0WGFZSYNvaGaFkTo4jU8FQ=="
+  "resolved" "https://registry.npmjs.org/@primeuix/styled/-/styled-0.7.2.tgz"
+  "version" "0.7.2"
+  dependencies:
+    "@primeuix/utils" "^0.6.1"
+
+"@primeuix/themes@^1.2.3":
+  "integrity" "sha512-GLAU2h6lhgln2w10EQalUQlgwbgQ0xZoIOLMNGfIvqU4O09L282P7rwKCKQksvAGAFt1GoO/Q1NgBSxnttr7iA=="
+  "resolved" "https://registry.npmjs.org/@primeuix/themes/-/themes-1.2.3.tgz"
+  "version" "1.2.3"
+  dependencies:
+    "@primeuix/styled" "^0.7.2"
+
 "@primeuix/utils@^0.3.2":
   "integrity" "sha512-B+nphqTQeq+i6JuICLdVWnDMjONome2sNz0xI65qIOyeB4EF12CoKRiCsxuZ5uKAkHi/0d1LqlQ9mIWRSdkavw=="
   "resolved" "https://registry.npmjs.org/@primeuix/utils/-/utils-0.3.2.tgz"
   "version" "0.3.2"
+
+"@primeuix/utils@^0.6.1":
+  "integrity" "sha512-tQL/ZOPgCdD+NTimlUmhyD0ey8J1XmpZE4hDHM+/fnuBicVVmlKOd5HpS748LcOVRUKbWjmEPdHX4hi5XZoC1Q=="
+  "resolved" "https://registry.npmjs.org/@primeuix/utils/-/utils-0.6.1.tgz"
+  "version" "0.6.1"
 
 "@rollup/rollup-win32-x64-msvc@4.34.8":
   "integrity" "sha512-U0FaE5O1BCpZSeE6gBl3c5ObhePQSfk9vDRToMmTkbhCOgW4jqvtS5LGyQ76L1fH8sM0keRp4uDTsbjiUyjk0g=="
@@ -7030,10 +7049,10 @@
   "resolved" "https://registry.npmjs.org/primeicons/-/primeicons-7.0.0.tgz"
   "version" "7.0.0"
 
-"primeng@^19.0.9":
-  "integrity" "sha512-Y994f4JDsdjwe1uK1J8Gvq94Mk2qQfV+M1zdW+XClXHK8EXzZp7kvBzfrlk607valJmUhLr/5DxSkVfVQGZhxA=="
-  "resolved" "https://registry.npmjs.org/primeng/-/primeng-19.0.9.tgz"
-  "version" "19.0.9"
+"primeng@^19.1.4":
+  "integrity" "sha512-l5l8SHTxopxxyyXZx1BvbQ11P7ndLv2Qp8H5k2/+OCi65jTZn4xmtrBDGDs7k2K5UMHSqAnGjBgtpbckyqQETg=="
+  "resolved" "https://registry.npmjs.org/primeng/-/primeng-19.1.4.tgz"
+  "version" "19.1.4"
   dependencies:
     "@primeuix/styled" "^0.3.2"
     "@primeuix/utils" "^0.3.2"

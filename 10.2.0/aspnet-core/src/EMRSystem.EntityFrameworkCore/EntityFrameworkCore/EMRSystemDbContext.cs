@@ -1,4 +1,5 @@
 ﻿using Abp.Zero.EntityFrameworkCore;
+using EMRSystem.Admission;
 using EMRSystem.Appointments;
 using EMRSystem.Authorization.Roles;
 using EMRSystem.Authorization.Users;
@@ -86,6 +87,7 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
     public DbSet<SelectedEmergencyProcedures> SelectedEmergencyProcedures { get; set; }
 
     public DbSet<ProcedureReceipt> ProcedureReceipts { get; set; }
+    public DbSet<EMRSystem.PatientDischarge.PatientDischarge> PatientDischarges { get; set; }
 
 
 
@@ -865,6 +867,37 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
             .HasForeignKey(e => e.PrescriptionId)
             .OnDelete(DeleteBehavior.Restrict);
             
+        });
+
+        modelBuilder.Entity<EMRSystem.PatientDischarge.PatientDischarge>(b =>
+        {
+            b.ToTable("PatientDischarges");
+
+            b.HasOne(d => d.Admission)
+              .WithOne(dep => dep._PatientDischarge)
+              .HasForeignKey<EMRSystem.PatientDischarge.PatientDischarge>(c => c.AdmissionId)
+              .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(d => d.Patient)
+              .WithMany(dep => dep._PatientDischarge)
+              .HasForeignKey(c => c.PatientId)
+              .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(d => d.Doctor)
+              .WithMany(dep => dep._PatientDischarge)
+              .HasForeignKey(c => c.DoctorId)
+              .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(d => d.PharmacistStaff)
+              .WithMany(dep => dep._PatientDischarge)
+              .HasForeignKey(c => c.PharmacyStaffId)
+              .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(d => d.BillingStaff)
+              .WithMany(dep => dep._PatientDischarge)
+              .HasForeignKey(c => c.BillingStaffId)
+              .OnDelete(DeleteBehavior.Restrict);
+
         });
 
     }

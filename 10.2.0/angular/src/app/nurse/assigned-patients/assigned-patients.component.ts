@@ -3,7 +3,7 @@ import { finalize } from 'rxjs/operators';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
 import { PagedListingComponentBase } from 'shared/paged-listing-component-base';
-import { UserServiceProxy, UserDto, UserDtoPagedResultDto, PatientDto, PatientServiceProxy, PatientDtoPagedResultDto, NurseServiceProxy, PatientsForDoctorAndNurseDtoPagedResultDto } from '@shared/service-proxies/service-proxies';
+import { UserServiceProxy, UserDto, UserDtoPagedResultDto, PatientDto, PatientServiceProxy, PatientDtoPagedResultDto, NurseServiceProxy, PatientsForDoctorAndNurseDtoPagedResultDto, PatientDischargeServiceProxy, DischargeStatus } from '@shared/service-proxies/service-proxies';
 import { Table, TableModule } from 'primeng/table';
 import { LazyLoadEvent, PrimeTemplate } from 'primeng/api';
 import { ActivatedRoute } from '@angular/router';
@@ -14,14 +14,17 @@ import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { OverlayPanel, OverlayPanelModule } from 'primeng/overlaypanel';
 import { MenuModule } from 'primeng/menu';
 import { ButtonModule } from 'primeng/button';
-
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { TagModule } from 'primeng/tag';
+import { ConfirmationService } from 'primeng/api';
+import { ConfirmDialog } from 'primeng/confirmdialog';
 @Component({
   selector: 'app-assigned-patients',
   templateUrl: './assigned-patients.component.html',
   styleUrl: './assigned-patients.component.css',
   animations: [appModuleAnimation()],
-  imports: [FormsModule, TableModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, OverlayPanelModule, MenuModule, ButtonModule,],
-  providers: [PatientServiceProxy, NurseServiceProxy],
+  imports: [ConfirmDialog, FormsModule, TagModule, TableModule, PrimeTemplate, ConfirmDialogModule, NgIf, PaginatorModule, LocalizePipe, OverlayPanelModule, MenuModule, ButtonModule,],
+  providers: [PatientServiceProxy, NurseServiceProxy, PatientDischargeServiceProxy, ConfirmationService],
 })
 export class AssignedPatientsComponent extends PagedListingComponentBase<PatientDto> {
   @ViewChild('dataTable', { static: true }) dataTable: Table;
@@ -32,6 +35,16 @@ export class AssignedPatientsComponent extends PagedListingComponentBase<Patient
   isActive: boolean | null;
   advancedFiltersVisible = false;
   nurseID: number;
+  statusOptions = [
+    { label: 'Pending', value: DischargeStatus._0 },
+    { label: 'Initiated', value: DischargeStatus._1 },
+    { label: 'Doctor Summary', value: DischargeStatus._2 },
+    { label: 'Sent To Billing', value: DischargeStatus._3 },
+    { label: 'Billing Completed', value: DischargeStatus._4 },
+    { label: 'Pharmacy Completed', value: DischargeStatus._5 },
+    { label: 'Final Approval', value: DischargeStatus._6 },
+    { label: 'Discharged', value: DischargeStatus._7 },
+  ];
   constructor(
     injector: Injector,
     private _userService: UserServiceProxy,
@@ -39,17 +52,17 @@ export class AssignedPatientsComponent extends PagedListingComponentBase<Patient
     private _patientService: PatientServiceProxy,
     private _nurseService: NurseServiceProxy,
     private _activatedRoute: ActivatedRoute,
+    private _patientDischargeService: PatientDischargeServiceProxy,
+    private confirmationService: ConfirmationService,
     cd: ChangeDetectorRef
   ) {
     super(injector, cd);
     this.keyword = this._activatedRoute.snapshot.queryParams['filterText'] || '';
   }
-
   clearFilters(): void {
     this.keyword = '';
     this.isActive = undefined;
   }
-
   list(event?: LazyLoadEvent): void {
     if (this.primengTableHelper.shouldResetPaging(event)) {
       this.paginator.changePage(0);
@@ -80,7 +93,6 @@ export class AssignedPatientsComponent extends PagedListingComponentBase<Patient
         this.cd.detectChanges();
       });
   }
-
   delete(user: PatientDto): void {
     abp.message.confirm(this.l('UserDeleteWarningMessage', user.fullName), undefined, (result: boolean) => {
       if (result) {
@@ -91,7 +103,6 @@ export class AssignedPatientsComponent extends PagedListingComponentBase<Patient
       }
     });
   }
-
   FetchNurseID() {
     this._nurseService.getNurseDetailsByAbpUserID(abp.session.userId).subscribe({
       next: (res) => {
@@ -101,7 +112,6 @@ export class AssignedPatientsComponent extends PagedListingComponentBase<Patient
       }
     })
   }
-
   calculateAge(dob: string | Date): number {
     const birthDate = new Date(dob);
     const today = new Date();
@@ -118,5 +128,40 @@ export class AssignedPatientsComponent extends PagedListingComponentBase<Patient
 
     return age;
   }
-
+  initiateDischarge(record: any) {
+    this._patientDischargeService
+      .initiateDischarge(record.id)
+      .subscribe(() => {
+        abp.notify.success("Discharge initiated successfully.");
+        this.refresh(); // Refresh table
+      });
+  }
+  confirmInitiate(record: any) {
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to initiate discharge for ' + record.fullName + ' ?',
+      header: 'Confirm Discharge',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.initiateDischarge(record);
+      }
+    });
+  }
+  getStatusLabel(value: number): string {
+    const status = this.statusOptions.find(s => s.value === value);
+    const dataa = status ? status.label : '';
+    return dataa;
+  }
+  getStatusSeverity(value: number){
+    switch (value) {
+      case DischargeStatus._0: return 'warn';
+      case DischargeStatus._1: return 'warn';
+      case DischargeStatus._2: return 'warn';
+      case DischargeStatus._3: return 'warn';
+      case DischargeStatus._4: return 'warn';
+      case DischargeStatus._5: return 'warn';
+      case DischargeStatus._6: return 'warn';
+      case DischargeStatus._7: return 'success';
+      default: return 'warn';
+    }
+  }
 }

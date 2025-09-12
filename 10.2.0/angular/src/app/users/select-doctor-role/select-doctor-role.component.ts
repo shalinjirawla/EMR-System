@@ -2,14 +2,16 @@ import { ChangeDetectorRef, Component, EventEmitter, forwardRef, OnInit, Output,
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR, NgForm } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AbpValidationSummaryComponent } from '../../../shared/components/validation/abp-validation.summary.component';
-import { fn } from 'moment';
+import { DatePickerModule } from 'primeng/datepicker';
 import { CreateUpdateDoctorDto, DepartmentServiceProxy } from '@shared/service-proxies/service-proxies';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { CheckboxModule } from 'primeng/checkbox';
+import { RadioButtonModule } from 'primeng/radiobutton';
+import { SelectModule } from 'primeng/select';
 @Component({
   selector: 'app-select-doctor-role',
-  imports: [FormsModule, CommonModule, AbpValidationSummaryComponent, CheckboxModule, InputTextModule, InputNumberModule],
+  imports: [FormsModule,DatePickerModule, SelectModule,CommonModule,RadioButtonModule, AbpValidationSummaryComponent, CheckboxModule, InputTextModule, InputNumberModule],
   providers: [DepartmentServiceProxy],
   templateUrl: './select-doctor-role.component.html',
   styleUrl: './select-doctor-role.component.css'
@@ -18,6 +20,7 @@ export class SelectDoctorRoleComponent implements OnInit {
   @Output() doctorDataChange = new EventEmitter<any>();
   @ViewChild('doctorForm', { static: true }) doctorForm: NgForm;
   isEmergencyDoctor = false;
+    today: Date = new Date();
 
   doctorData = {
     gender: 'Male',
@@ -36,7 +39,6 @@ export class SelectDoctorRoleComponent implements OnInit {
   ) { }
   genders = ['Male', 'Female', 'Other'];
   departments: { id: number; name: string }[] = [];
-  maxDate: string;
 
   onInputChange() {
     this.updateData();
@@ -48,7 +50,6 @@ export class SelectDoctorRoleComponent implements OnInit {
   ngOnInit(): void {
     this.loadDepartments();
     const today = new Date();
-    this.maxDate = today.toISOString().split('T')[0];
   }
 
   loadDepartments(): void {

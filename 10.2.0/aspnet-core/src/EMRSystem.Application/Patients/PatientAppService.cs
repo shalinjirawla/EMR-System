@@ -135,6 +135,7 @@ namespace EMRSystem.Patients
             var query = Repository.GetAll()
                 //.Include(x => x.Doctors)
                 .Include(x => x.AbpUser)
+                .Include(x=>x._PatientDischarge)
                 .Include(p => p.Admissions)
                   .ThenInclude(a => a.Doctor)
                 .Include(p => p.Admissions)
@@ -184,6 +185,7 @@ namespace EMRSystem.Patients
 
             var query = Repository.GetAll()
                 .Include(x => x.AbpUser)
+                 .Include(x => x._PatientDischarge)
                 .Include(p => p.Admissions)
                     .ThenInclude(a => a.Doctor)
                 .Include(p => p.Admissions)

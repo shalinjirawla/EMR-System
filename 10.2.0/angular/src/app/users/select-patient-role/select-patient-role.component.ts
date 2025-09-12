@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { AbpValidationSummaryComponent } from "../../../shared/components/validation/abp-validation.summary.component";
 import { FormsModule, NgForm } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -7,11 +7,11 @@ import { NurseDto, DoctorDto, DoctorServiceProxy, NurseServiceProxy, PaymentMeth
 @Component({
   selector: 'app-select-patient-role',
   imports: [AbpValidationSummaryComponent, FormsModule, CommonModule],
-  providers:[RoomServiceProxy],
+  providers: [RoomServiceProxy],
   templateUrl: './select-patient-role.component.html',
   styleUrl: './select-patient-role.component.css'
 })
-export class SelectPatientRoleComponent {
+export class SelectPatientRoleComponent implements OnInit {
   @Output() patientDataChange = new EventEmitter<any>();
   @ViewChild('patientForm', { static: true }) patientForm: NgForm;
   genders = ['Male', 'Female', 'Other'];
@@ -27,7 +27,7 @@ export class SelectPatientRoleComponent {
     { label: 'Insurance + SelfPay', value: BillingMethod._2 }
   ];
   BillingMethod = BillingMethod; // Add this line
-
+  maxDate: string;
   nurseList!: NurseDto[];
   doctorList!: DoctorDto[];
   isDoctorLoggedIn: boolean = false;
@@ -52,42 +52,46 @@ export class SelectPatientRoleComponent {
   };
 
   constructor(
-  //   private _doctorService: DoctorServiceProxy,
-  //   private _nurseService: NurseServiceProxy,
-  // private _roomService: RoomServiceProxy
+    //   private _doctorService: DoctorServiceProxy,
+    //   private _nurseService: NurseServiceProxy,
+    // private _roomService: RoomServiceProxy
   ) {
     // this.GetLoggedInUserRole();
     //this.LoadDoctors();
     //this.LoadNurse();
     //this.LoadRooms(); 
   }
-//  LoadRooms() {
-//     this._roomService.getAvailableRooms(abp.session.tenantId).subscribe({
-//       next: (res) => {          // अगर API simple list return करती है
-//         this.roomList = res;    // (PagedResult हो तो res.items दें)
-//       },
-//       error: () => { }
-//     });
-//   }
-//   LoadDoctors() {
-//     this._doctorService.getAllDoctorsByTenantID(abp.session.tenantId).subscribe({
-//       next: (res) => {
-//         this.doctorList = res.items;
-//       }, error: (err) => {
-//       }
-//     })
-//   }
-//   LoadNurse() {
-//     this._nurseService.getAllNursesByTenantID(abp.session.tenantId).subscribe({
-//       next: (res) => {
-//         this.nurseList = res.items;
-//       }, error: (err) => {
-//       }
-//     })
-//   }
+  ngOnInit(): void {
+    const today = new Date();
+    this.maxDate = today.toISOString().split('T')[0];
+  }
+  //  LoadRooms() {
+  //     this._roomService.getAvailableRooms(abp.session.tenantId).subscribe({
+  //       next: (res) => {          // अगर API simple list return करती है
+  //         this.roomList = res;    // (PagedResult हो तो res.items दें)
+  //       },
+  //       error: () => { }
+  //     });
+  //   }
+  //   LoadDoctors() {
+  //     this._doctorService.getAllDoctorsByTenantID(abp.session.tenantId).subscribe({
+  //       next: (res) => {
+  //         this.doctorList = res.items;
+  //       }, error: (err) => {
+  //       }
+  //     })
+  //   }
+  //   LoadNurse() {
+  //     this._nurseService.getAllNursesByTenantID(abp.session.tenantId).subscribe({
+  //       next: (res) => {
+  //         this.nurseList = res.items;
+  //       }, error: (err) => {
+  //       }
+  //     })
+  //   }
 
-   onInputChange() {
-     this.patientDataChange.emit(this.patient);
+  onInputChange() {
+    this.patientDataChange.emit(this.patient);
   }
 
   // onAdmitChange() {

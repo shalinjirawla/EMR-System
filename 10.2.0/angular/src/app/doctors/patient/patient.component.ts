@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, Injector, OnInit, ViewChild } from '@angu
 import { Table, TableModule } from 'primeng/table';
 import { Paginator, PaginatorModule } from 'primeng/paginator';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
-import { PatientDto, PatientServiceProxy, PatientsForDoctorAndNurseDtoPagedResultDto, UserServiceProxy } from '@shared/service-proxies/service-proxies';
+import { DischargeStatus, PatientDischargeServiceProxy, PatientDto, PatientServiceProxy, PatientsForDoctorAndNurseDtoPagedResultDto, UserServiceProxy } from '@shared/service-proxies/service-proxies';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { ActivatedRoute } from '@angular/router';
 import { PagedListingComponentBase } from 'shared/paged-listing-component-base';
@@ -16,14 +16,19 @@ import { PatientProfileComponent } from '@app/patient/patient-profile/patient-pr
 import { OverlayPanel, OverlayPanelModule } from 'primeng/overlaypanel';
 import { MenuModule } from 'primeng/menu';
 import { ButtonModule } from 'primeng/button';
+import { ConfirmationService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { TagModule } from 'primeng/tag';
+import { ConfirmDialog } from 'primeng/confirmdialog';
 import { CreatePrescriptionsComponent } from '../create-prescriptions/create-prescriptions.component';
+import { Router } from '@angular/router';
 @Component({
     selector: 'app-patient',
-    imports: [FormsModule, TableModule, ButtonModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, OverlayPanelModule, MenuModule],
+    imports: [FormsModule, TableModule, ButtonModule, ConfirmDialogModule, TagModule, ConfirmDialog, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, OverlayPanelModule, MenuModule],
     animations: [appModuleAnimation()],
     templateUrl: './patient.component.html',
     styleUrl: './patient.component.css',
-    providers: [PatientServiceProxy, UserServiceProxy]
+    providers: [PatientServiceProxy, PatientDischargeServiceProxy, UserServiceProxy, ConfirmationService]
 })
 export class PatientComponent extends PagedListingComponentBase<PatientDto> implements OnInit {
     @ViewChild('dataTable', { static: true }) dataTable: Table;
@@ -35,12 +40,23 @@ export class PatientComponent extends PagedListingComponentBase<PatientDto> impl
     advancedFiltersVisible = false;
     showDoctorColumn: boolean = false;
     showNurseColumn: boolean = false;
+    statusOptions = [
+        { label: 'Discharge Pending', value: DischargeStatus._0 },
+        { label: 'Discharge Initiated', value: DischargeStatus._1 },
+        { label: 'Doctor Summary', value: DischargeStatus._2 },
+        { label: 'Sent To Billing', value: DischargeStatus._3 },
+        { label: 'Billing Completed', value: DischargeStatus._4 },
+        { label: 'Pharmacy Completed', value: DischargeStatus._5 },
+        { label: 'Final Approval', value: DischargeStatus._6 },
+        { label: 'Discharged', value: DischargeStatus._7 },
+    ];
     constructor(
         injector: Injector,
         private _modalService: BsModalService,
         private _activatedRoute: ActivatedRoute,
         private _userService: UserServiceProxy,
         private _patientService: PatientServiceProxy,
+        private router: Router,
         cd: ChangeDetectorRef
     ) {
         super(injector, cd);
@@ -93,19 +109,18 @@ export class PatientComponent extends PagedListingComponentBase<PatientDto> impl
         });
     }
     showCreatePrescriptionDialog(patient: PatientDto): void {
-  let createPrescriptionDialog: BsModalRef;
-debugger
-  createPrescriptionDialog = this._modalService.show(CreatePrescriptionsComponent, {
-    class: 'modal-xl',
-    initialState: {
-      selectedPatient: patient   // 👈 patient को pass कर रहे हैं
-    },
-  });
+        let createPrescriptionDialog: BsModalRef;
+        createPrescriptionDialog = this._modalService.show(CreatePrescriptionsComponent, {
+            class: 'modal-xl',
+            initialState: {
+                selectedPatient: patient   // 👈 patient को pass कर रहे हैं
+            },
+        });
 
-  createPrescriptionDialog.content.onSave.subscribe(() => {
-    this.refresh();
-  });
-}
+        createPrescriptionDialog.content.onSave.subscribe(() => {
+            this.refresh();
+        });
+    }
     showCreatePatientDialog(id?: number): void {
         let createOrEditPatientDialog: BsModalRef;
         if (!id) {
@@ -117,14 +132,6 @@ debugger
                 }
             });
         }
-        // else {
-        //     createOrEditPatientDialog = this._modalService.show(EditPatientsComponent, {
-        //         class: 'modal-lg',
-        //         initialState: {
-        //             id: id,
-        //         },
-        //     });
-        // }
         createOrEditPatientDialog.content.onSave.subscribe(() => {
             this.refresh();
         });
@@ -137,10 +144,6 @@ debugger
                 id: id,
             },
         });
-
-        // patientDetailsDialog.content.onSave.subscribe(() => {
-        //     this.refresh();
-        // });
     }
     calculateAge(dob: string | Date): number {
         const birthDate = new Date(dob);
@@ -178,5 +181,26 @@ debugger
             }
             this.cd.detectChanges();
         });
+    }
+    getStatusLabel(value: number): string {
+        const status = this.statusOptions.find(s => s.value === value);
+        const dataa = status ? status.label : '';
+        return dataa;
+    }
+    getStatusSeverity(value: number) {
+        switch (value) {
+            case DischargeStatus._0: return 'warn';
+            case DischargeStatus._1: return 'success';
+            case DischargeStatus._2: return 'warn';
+            case DischargeStatus._3: return 'warn';
+            case DischargeStatus._4: return 'warn';
+            case DischargeStatus._5: return 'warn';
+            case DischargeStatus._6: return 'warn';
+            case DischargeStatus._7: return 'success';
+            default: return 'warn';
+        }
+    }
+    gotoDischargeSummaryPage(id: number): void {
+        this.router.navigate(['app/patient-discharge/create',id],);
     }
 }

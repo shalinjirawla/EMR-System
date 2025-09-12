@@ -1,0 +1,185 @@
+<div [@routerTransition]>
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex flex-column">
+                    <h4>Create</h4>
+                    <div>
+                        <p-breadcrumb [model]="items" />
+                    </div>
+                </div>
+                <div>
+                    <a (click)="gotList()" style="cursor: pointer;"><span class="pi pi-arrow-left mr-2"></span>Back to
+                        list</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="content px-2 pb-5">
+        <div class="container-fluid">
+            <div class="card mb-0 table-wrapper">
+                <div class="card-body">
+                    <p-stepper [value]="1">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <p-step-list>
+                                    <p-step [value]="1" class="mb-2 border  rounded w-100"> <i
+                                            class="fa fa-info-circle mr-3"></i> Patient Details</p-step>
+                                    <p-step [value]="2" class="mt-2 mb-2 border rounded w-100"> <i
+                                            class="fa fa-clinic-medical mr-3"></i> Treatment Summary</p-step>
+                                    <p-step [value]="3" class="mt-2 mb-2 border rounded  w-100"> <i
+                                            class="fa-vial fas nav-icon mr-3"></i> Lab Results</p-step>
+                                    <p-step [value]="4" class="mt-2 mb-2 border rounded w-100"> <i
+                                            class="fa-file-invoice-dollar fas nav-icon mr-3"></i> Billing
+                                        Summary</p-step>
+                                    <p-step [value]="5" class="mt-2 mb-2 border rounded w-100"> <i
+                                            class="pi pi-sign-out mr-3"></i> Discharge Instructions</p-step>
+                                </p-step-list>
+                            </div>
+                            <div class="col-md-9">
+                                <p-step-panels class="p-0">
+                                    <p-step-panel [value]="1">
+                                        <ng-template #content let-activateCallback="activateCallback">
+                                            <div class="card">
+                                                <div class="card-header">
+                                                    <b>Basic Information</b>
+                                                </div>
+                                                <div class="card-body">
+                                                    <p-avatar class="p-overlay-badge"
+                                                        image="https://primefaces.org/cdn/primeng/images/demo/avatar/walter.jpg"
+                                                        size="xlarge" />
+                                                    <div class="row">
+                                                        <div class="col-md-3 d-flex flex-column">
+                                                            <label>ID</label>
+                                                            <input type="text" pInputText [(ngModel)]="value"
+                                                                pSize="small" />
+                                                        </div>
+                                                        <div class="col-md-3 d-flex flex-column">
+                                                            <label>First Name</label>
+                                                            <input type="text" pInputText [(ngModel)]="value"
+                                                                pSize="small" />
+                                                        </div>
+                                                        <div class="col-md-3 d-flex flex-column">
+                                                            <label>Middle Name</label>
+                                                            <input type="text" pInputText [(ngModel)]="value"
+                                                                pSize="small" />
+                                                        </div>
+                                                        <div class="col-md-3 d-flex flex-column">
+                                                            <label>Last Name</label>
+                                                            <input type="text" pInputText [(ngModel)]="value"
+                                                                pSize="small" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mt-1">
+                                                        <div class="col-md-4 d-flex flex-column">
+                                                            <label>User Name</label>
+                                                            <input type="text" pInputText [(ngModel)]="value"
+                                                                pSize="small" />
+                                                        </div>
+                                                        <div class="col-md-4 d-flex flex-column">
+                                                            <label>Email Address</label>
+                                                            <input type="text" pInputText [(ngModel)]="value"
+                                                                pSize="small" />
+                                                        </div>
+                                                        <div class="col-md-4 d-flex flex-column">
+                                                            <label>Gender</label>
+                                                            <input type="text" pInputText [(ngModel)]="value"
+                                                                pSize="small" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mt-1">
+                                                        <div class="col-md-4 d-flex flex-column">
+                                                            <label>Dob</label>
+                                                            <input type="text" pInputText [(ngModel)]="value"
+                                                                pSize="small" />
+                                                        </div>
+                                                        <div class="col-md-4 d-flex flex-column">
+                                                            <label>Age</label>
+                                                            <input type="text" pInputText [(ngModel)]="value"
+                                                                pSize="small" />
+                                                        </div>
+                                                        <div class="col-md-4 d-flex flex-column">
+                                                            <label>Patient Type</label>
+                                                            <input type="text" pInputText [(ngModel)]="value"
+                                                                pSize="small" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="card mt-2">
+                                                <div class="card-header">
+                                                    <b>Contact Information</b>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-md-4 d-flex flex-column">
+                                                            <label>Mobile Number</label>
+                                                            <input type="text" pInputText [(ngModel)]="value"
+                                                                pSize="small" />
+                                                        </div>
+                                                        <div class="col-md-4 d-flex flex-column">
+                                                            <label>Emergency Number</label>
+                                                            <input type="text" pInputText [(ngModel)]="value"
+                                                                pSize="small" />
+                                                        </div>
+                                                        <div class="col-md-4 d-flex flex-column">
+                                                            <label>Emergency Guardian / Person Name</label>
+                                                            <input type="text" pInputText [(ngModel)]="value"
+                                                                pSize="small" />
+                                                        </div>
+                                                        <div class="col-md-12 d-flex flex-column">
+                                                            <label>Address</label>
+                                                            <input type="text" pInputText [(ngModel)]="value"
+                                                                pSize="small" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="card mt-2">
+                                                <div class="card-header">
+                                                    <b>Assign Doctor/Nurse Info</b>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-md-6 d-flex flex-column">
+                                                            <label>Doctor Name</label>
+                                                            <input type="text" pInputText [(ngModel)]="value"
+                                                                pSize="small" />
+                                                        </div>
+                                                        <div class="col-md-6 d-flex flex-column">
+                                                            <label>Department</label>
+                                                            <input type="text" pInputText [(ngModel)]="value"
+                                                                pSize="small" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6 d-flex flex-column">
+                                                            <label>Nurse Name</label>
+                                                            <input type="text" pInputText [(ngModel)]="value"
+                                                                pSize="small" />
+                                                        </div>
+
+                                                        <div class="col-md-6 d-flex flex-column">
+                                                            <label>Department</label>
+                                                            <input type="text" pInputText [(ngModel)]="value"
+                                                                pSize="small" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex justify-content-end">
+                                                <button class="btn btn-sm next-btn " (click)="activateCallback(2)">
+                                                    Next
+                                                </button>
+                                            </div>
+                                        </ng-template>
+                                    </p-step-panel>
+                                </p-step-panels>
+                            </div>
+                        </div>
+                    </p-stepper>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>

@@ -7,6 +7,7 @@ using AutoMapper.Internal.Mappers;
 using EMRSystem.Admissions.Dto;
 using EMRSystem.Deposit;
 using EMRSystem.IpdChargeEntry;
+using EMRSystem.PatientDischarge;
 using EMRSystem.Patients;
 using EMRSystem.Room;
 using EMRSystem.RoomMaster;
@@ -22,6 +23,7 @@ namespace EMRSystem.Admissions
     public class AdmissionAppService : AsyncCrudAppService<EMRSystem.Admission.Admission, AdmissionDto, long, PagedAdmissionResultRequestDto, CreateUpdateAdmissionDto, CreateUpdateAdmissionDto>, IAdmissionAppService
     {
         private readonly IRepository<EMRSystem.Admission.Admission, long> _repository;
+        private readonly IRepository<EMRSystem.PatientDischarge.PatientDischarge, long> _patientDischargeRepository;
         private readonly IRepository<Patient, long> _patientRepo;
         private readonly IRepository<EMRSystem.Room.Room, long> _roomRepo;
         private readonly IRepository<Bed, long> _bedRepo;
@@ -31,6 +33,7 @@ namespace EMRSystem.Admissions
 
         public AdmissionAppService(
             IRepository<EMRSystem.Admission.Admission, long> repository,
+            IRepository<EMRSystem.PatientDischarge.PatientDischarge, long> patientDischargeRepository,
             IRepository<EMRSystem.Room.Room, long> roomRepo,
             IRepository<RoomTypeMaster, long> roomTypeRepo,
             IRepository<Bed, long> bedRepo,
@@ -45,6 +48,7 @@ namespace EMRSystem.Admissions
             _roomRepo = roomRepo;
             _roomTypeRepo = roomTypeRepo;
             _bedRepo = bedRepo;
+            _patientDischargeRepository = patientDischargeRepository;
         }
 
         protected override IQueryable<EMRSystem.Admission.Admission> CreateFilteredQuery(PagedAdmissionResultRequestDto input)
@@ -53,7 +57,7 @@ namespace EMRSystem.Admissions
                 .Include(x => x.Doctor)
                 .Include(x => x.Nurse)
                 .Include(x => x.Patient)
-                .Include(x=> x.Bed)
+                .Include(x => x.Bed)
                 .Include(x => x.Room)
                     .ThenInclude(r => r.RoomTypeMaster)
                 .WhereIf(!input.Keyword.IsNullOrWhiteSpace(),
@@ -123,7 +127,7 @@ namespace EMRSystem.Admissions
 
             // ✅ Step 1: Map and insert admission
             var admission = ObjectMapper.Map<EMRSystem.Admission.Admission>(input);
-            await _repository.InsertAsync(admission);
+            var newAdmissionId = await _repository.InsertAndGetIdAsync(admission);
 
             // Save so that Admission Id is generated
             await CurrentUnitOfWork.SaveChangesAsync();
@@ -160,7 +164,19 @@ namespace EMRSystem.Admissions
 
             await CurrentUnitOfWork.SaveChangesAsync();
 
-            return MapToEntityDto(admission);
+            var res = MapToEntityDto(admission);
+
+            var patientDischarge = new EMRSystem.PatientDischarge.PatientDischarge();
+            patientDischarge.TenantId = AbpSession.TenantId.Value;
+            patientDischarge.AdmissionId = admission.Id;
+            patientDischarge.PatientId = admission.PatientId;
+            patientDischarge.DischargeStatus = DischargeStatus.Pending;
+            patientDischarge.DischargeDate = null;
+            patientDischarge.DischargeSummary = null;
+            patientDischarge.DoctorId = null;
+            await _patientDischargeRepository.InsertAsync(patientDischarge);
+
+            return res;
         }
 
         public override async Task<AdmissionDto> UpdateAsync(CreateUpdateAdmissionDto input)
