@@ -1,84 +1,101 @@
 <div class="invoice-container">
-    <div class="invoice-card">
-        <div class="invoice-header">
-            <div class="watermark">INVOICE</div>
-            <div class="row align-items-center">
-                <div class="col-md-6 clinic-info">
-                    <h2>{{hospitalName}}</h2>
-                    <p><i class="fas fa-map-marker-alt"></i> 123 Healthcare Avenue, Mumbai</p>
-                    <p><i class="fas fa-phone"></i> +91 22 1234 5678</p>
-                    <p><i class="fas fa-envelope"></i> info&commat;medlifeclinic.com</p>
-                </div>
-                <div class="col-md-6 invoice-title">
-                    <h1>TAX INVOICE</h1>
-                    <div class="invoice-status" [class.paid]="invoice.status === 1" [class.unpaid]="invoice.status === 0">
-                        {{ invoice.status == 1 ? 'PAID' : 'UNPAID' }}
-                    </div>
-                </div>
-            </div>
+  <div class="invoice-card">
+    
+    <!-- Header (Fixed) -->
+    <div class="invoice-header">
+      <div class="row align-items-center">
+        <div class="col-md-6 clinic-info">
+          <h2>{{hospitalName}}</h2>
+          <p><i class="fas fa-map-marker-alt"></i> 123 Healthcare Avenue, Mumbai</p>
+          <p><i class="fas fa-phone"></i> +91 22 1234 5678</p>
+          <p><i class="fas fa-envelope"></i> info&commat;medlifeclinic.com</p>
         </div>
-        
-        <div class="invoice-body">
-            <div class="row">
-                <div class="col-md-6 detail-group">
-                    <p><strong>Invoice No:</strong> {{ invoice.invoiceNo }}</p>
-                    <p><strong>Invoice Date:</strong> {{ invoice.invoiceDate | date:'dd/MM/yyyy' }}</p>
-                    <p><strong>Invoice Type:</strong> {{ invoice.invoiceType == 0 ? 'Daily Invoice' : 'Full Invoice' }}</p>
-                </div>
-                <div class="col-md-6 detail-group">
-                    <p><strong>Patient ID:</strong> PT-{{ invoice.patientId | number:'4.0' }}</p>
-                    <p><strong>Payment Method:</strong> {{ invoice.paymentMethod ? invoice.paymentMethod : 'Not Provided' }}</p>
-                </div>
-            </div>
-            
-            <div class="detail-group">
-                <p><strong>Bill To:</strong></p>
-                <p class="patient-name">{{ invoice.patientName }}</p>
-            </div>
-            
-            <table class="items-table">
-                <thead>
-                    <tr>
-                        <th width="60%">Description</th>
-                        <th width="60%">Date</th>
-                        <th width="20%">Qty</th>
-                        <th width="20%">Amount (₹)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let item of invoice.items">
-                        <td>{{ item.description }}</td>
-                        <td>{{ item.entryDate|date:'dd/MM/yyyy'}}</td>
-                        <td>{{ item.quantity }}</td>
-                        <td>{{ item.unitPrice | number:'1.2-2' }}</td>
-                    </tr>
-                </tbody>
-            </table>
-            
-            <div class="invoice-summary">
-                <div class="summary-row">
-                    <div class="label">Sub Total:</div>
-                    <div class="value">₹{{ invoice.subTotal | number:'1.2-2' }}</div>
-                </div>
-                <div class="summary-row">
-                    <div class="label">GST (18%):</div>
-                    <div class="value">₹{{ invoice.gstAmount | number:'1.2-2' }}</div>
-                </div>
-                <div class="summary-row total">
-                    <div class="label">Total Amount:</div>
-                    <div class="value">₹{{ invoice.totalAmount | number:'1.2-2' }}</div>
-                </div>
-            </div>
-            
-            <div class="footer-notes">
-                <p>Thank you for choosing MedLife Clinic. Please retain this copy for your records.</p>
-                <p>Terms: Payment due within 15 days of invoice date</p>
-            </div>
+        <div class="col-md-6 invoice-title">
+          <h1>TAX INVOICE</h1>
+          <div class="invoice-status" [class.paid]="invoice.status === 1" [class.unpaid]="invoice.status === 0">
+            <i class="fas" [ngClass]="invoice.status == 1 ? 'fa-check-circle' : 'fa-times-circle'"></i>
+            {{ invoice.status == 1 ? 'PAID' : 'UNPAID' }}
+          </div>
         </div>
-        
-        <div class="invoice-actions">
-            <button class="btn btn-print" (click)="printInvoice()"><i class="fas fa-print"></i> Print Invoice</button>
-            <button class="btn btn-download" (click)="downloadPDF()"><i class="fas fa-download"></i> Download PDF</button>
-        </div>
+      </div>
     </div>
+
+    <!-- Body (Scrollable Table) -->
+    <div class="invoice-body">
+      
+      <div class="row">
+        <div class="col-md-6 detail-group">
+          <p><strong>Patient ID:</strong> {{ invoice.patientId }}</p>
+          <p><strong>Patient Name:</strong> {{ invoice.patientName }}</p>
+          <p><strong>Payment Method:</strong> {{ invoice.paymentMethod || 'Not Provided' }}</p>
+        </div>
+        <div class="col-md-6 detail-group">
+          <p><strong>Invoice No:</strong> {{ invoice.invoiceNo }}</p>
+          <p><strong>Invoice Date:</strong> {{ invoice.invoiceDate | date:'dd/MM/yyyy' }}</p>
+          <p><strong>Invoice Type:</strong> {{ invoice.invoiceType == 0 ? 'Daily Invoice' : 'Full Invoice' }}</p>
+        </div>
+      </div>
+
+      <div class="detail-group">
+        <p><strong>Bill To:</strong></p>
+        <p class="patient-name">{{ invoice.patientName }}</p>
+      </div>
+
+      <!-- Table Scroll -->
+      <div class="table-responsive">
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th>Date</th>
+              <th>Qty</th>
+              <th>Amount (₹)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of invoice.items">
+              <td>{{ item.description }}</td>
+              <td>{{ item.entryDate | date:'dd/MM/yyyy' }}</td>
+              <td>{{ item.quantity }}</td>
+              <td>{{ item.unitPrice | number:'1.2-2' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Summary (Above Footer) -->
+      <div class="invoice-summary">
+        <div class="summary-row">
+          <div class="label">Sub Total:</div>
+          <div class="value">₹{{ invoice.subTotal | number:'1.2-2' }}</div>
+        </div>
+        <div class="summary-row">
+          <div class="label">GST (18%):</div>
+          <div class="value">₹{{ invoice.gstAmount | number:'1.2-2' }}</div>
+        </div>
+        <div class="summary-row total">
+          <div class="label">Total Amount:</div>
+          <div class="value">₹{{ invoice.totalAmount | number:'1.2-2' }}</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer (Fixed Actions) -->
+    <div class="invoice-footer">
+      <div class="footer-notes">
+        <p>Thank you for choosing <strong>{{hospitalName}}</strong>.</p>
+        <p><em>Your health, our priority.</em></p>
+      </div>
+      <div class="invoice-actions">
+        <button class="btn btn-print" (click)="printInvoice()">
+          <i class="fas fa-print"></i> Print
+        </button>
+        <button class="btn btn-download" (click)="downloadPDF()">
+          <i class="fas fa-download"></i> Download
+        </button>
+      </div>
+    </div>
+
+  </div>
 </div>

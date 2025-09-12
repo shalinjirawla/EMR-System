@@ -145,6 +145,25 @@ namespace EMRSystem.ProcedureReceipts
 
             return session.Url; // frontend redirect
         }
+        public async Task<ViewProcedureReceiptDto> GetReceiptWithProceduresAsync(long procedureReceiptId)
+        {
+            var receipt = await Repository.GetAll()
+                .Include(x => x.Patient)
+                .Include(x => x.SelectedEmergencyProcedures)
+                    .ThenInclude(sp => sp.EmergencyProcedures)
+                .FirstOrDefaultAsync(x => x.Id == procedureReceiptId);
+
+            if (receipt == null)
+            {
+                throw new Abp.UI.UserFriendlyException("Receipt not found");
+            }
+
+            var dto = ObjectMapper.Map<ViewProcedureReceiptDto>(receipt);
+
+
+            return dto;
+        }
+
 
     }
 }

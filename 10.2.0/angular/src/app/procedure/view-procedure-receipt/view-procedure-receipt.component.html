@@ -1,1 +1,79 @@
-<p>view-procedure-receipt works!</p>
+<div class="medical-receipt">
+  <!-- Receipt Header with Clinic Info -->
+  <div class="receipt-header">
+    <div class="clinic-brand">
+      <div class="clinic-logo">
+        <i class="fas fa-hospital"></i>
+      </div>
+      <div class="clinic-details">
+        <h1>{{ hospitalName }}</h1>
+        <p>123 Medical Complex, Health Nagar, Mumbai-400001</p>
+        <p>Contact: +91 9876543210 | GSTIN: 27ABCDE1234F1Z5</p>
+      </div>
+    </div>
+
+    <div class="receipt-title">
+      <h2>PROCEDURE RECEIPT</h2>
+      <div class="receipt-number">Receipt No: {{ receipt?.receiptNumber }}</div>
+    </div>
+  </div>
+
+  <!-- Receipt Body -->
+  <div class="receipt-body" *ngIf="!loading && receipt">
+    <div class="patient-details">
+      <div class="detail-row">
+        <span class="label">Patient Name:</span>
+        <span class="value">{{ receipt.patientName }}</span>
+      </div>
+    </div>
+
+    <!-- Payment Details Table -->
+    <div class="payment-table">
+      <div class="table-header">
+        <div class="header-item">Procedure</div>
+        <div class="header-item">Price</div>
+      </div>
+
+      <div class="table-row" *ngFor="let proc of receipt.selectedProcedures">
+        <div class="row-item">{{ proc.emergencyProcedureName }}</div>
+        <div class="row-item">{{ proc.price }}</div>
+      </div>
+
+      <div class="table-footer">
+        <div class="footer-item">Total Fee</div>
+        <div class="footer-item amount">{{ receipt.totalFee | number: '1.2-2' }}</div>
+      </div>
+    </div>
+
+    <div class="payment-details">
+      <div class="detail-row">
+        <span class="label">Payment Mode:</span>
+        <span class="value">{{ receipt.paymentMethod }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Paid On:</span>
+        <span class="value">{{ receipt.paymentDate | date: 'dd-MMM-yyyy hh:mm a' }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Payment Status:</span>
+        <span class="value status-paid">{{ receipt.status }}</span>
+      </div>
+    </div>
+
+    <div class="receipt-footer">
+      <div class="signature-line">
+        <p>Authorized Signature</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Receipt Actions -->
+  <div class="receipt-actions">
+    <button class="btn print-btn" (click)="print()">
+      <i class="fas fa-print"></i> Print Receipt
+    </button>
+    <button class="btn close-btn" (click)="close()">
+      <i class="fas fa-times"></i> Close
+    </button>
+  </div>
+</div>

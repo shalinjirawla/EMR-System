@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Injector, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, Injector, OnInit, ViewChild } from '@angular/core';
 import { PagedListingComponentBase } from '@shared/paged-listing-component-base';
 import { PharmacistInventoryDto, PharmacistInventoryDtoPagedResultDto, PharmacistInventoryServiceProxy, PrescriptionDto } from '@shared/service-proxies/service-proxies';
 import { PaginatorModule, Paginator } from "primeng/paginator";
@@ -30,7 +30,7 @@ import { CalendarModule } from 'primeng/calendar';
   templateUrl: './pharmacist-inventory.component.html',
   styleUrl: './pharmacist-inventory.component.css'
 })
-export class PharmacistInventoryComponent extends PagedListingComponentBase<PharmacistInventoryDto> {
+export class PharmacistInventoryComponent extends PagedListingComponentBase<PharmacistInventoryDto>implements OnInit {
   @ViewChild('dataTable', { static: true }) dataTable: Table;
   @ViewChild('paginator', { static: true }) paginator: Paginator;
   PharmacistInventory: PharmacistInventoryDto[] = [];
@@ -59,7 +59,8 @@ export class PharmacistInventoryComponent extends PagedListingComponentBase<Phar
     this.maxStock = undefined;
     this.list();
   }
-
+ngOnInit(): void {
+    }
   list(event?: LazyLoadEvent): void {
     if (this.primengTableHelper.shouldResetPaging(event)) {
       this.paginator.changePage(0);
@@ -113,7 +114,6 @@ export class PharmacistInventoryComponent extends PagedListingComponentBase<Phar
     this.showCreateOrEditMedicine(dto.id);
   }
   showCreateOrEditMedicine(id?: number): void {
-    debugger
     let createOrEditUserDialog: BsModalRef;
     if (!id) {
       createOrEditUserDialog = this._modalService.show(AddMedicineComponent, {
@@ -128,9 +128,6 @@ export class PharmacistInventoryComponent extends PagedListingComponentBase<Phar
         },
       });
     }
-    createOrEditUserDialog.onHide.subscribe(() => {
-       this.refresh();
-    });
     createOrEditUserDialog.content.onSave.subscribe(() => {
       this.refresh();
     });
