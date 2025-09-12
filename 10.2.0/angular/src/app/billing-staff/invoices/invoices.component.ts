@@ -147,7 +147,7 @@ getPaymentMethodString(method: number): string {
   let viewInvoiceDialog: BsModalRef;
 
   viewInvoiceDialog = this._modalService.show(ViewInvoiceComponent, {
-    class: 'modal-lg',
+    class: 'modal-xl',
     initialState: {
       id: invoice.id,   // Pass invoice id to modal
     },
@@ -157,7 +157,7 @@ getPaymentMethodString(method: number): string {
       let createOrEditUserDialog: BsModalRef;
       if (!id) {
         createOrEditUserDialog = this._modalService.show(CreateInvoiceComponent, {
-          class: 'modal-lg',
+          class: 'modal-xl',
         });
       }
     //    else {

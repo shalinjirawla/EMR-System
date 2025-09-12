@@ -5,6 +5,7 @@ using Abp.EntityFrameworkCore.Repositories;
 using Abp.UI;
 using EMRSystem.Admission;
 using EMRSystem.Appointments;
+using EMRSystem.EmergencyChargeEntries;
 using EMRSystem.EmergencyProcedure;
 using EMRSystem.Invoices;
 using EMRSystem.IpdChargeEntry;
@@ -42,17 +43,23 @@ namespace EMRSystem.Pharmacist
         private readonly IRepository<EMRSystem.Prescriptions.PrescriptionItem, long> _prescriptionItemRepository;
         private readonly TenantManager _tenantManager;
         private readonly INumberingService _numberingService;
+        private readonly IRepository<EmergencyChargeEntry, long> _emergencyChargeRepository;
+        private readonly IRepository<EMRSystem.IpdChargeEntry.IpdChargeEntry, long> _ipdChargeRepository;
         private readonly ITempStripeDataService _tempStripeDataService;
 
         public PharmacistPrescriptionsAppService(
             IRepository<EMRSystem.Pharmacists.PharmacistPrescriptions, long> repository,
             INumberingService numberingService,
+            IRepository<EmergencyChargeEntry, long> emergencyChargeRepository,
+            IRepository<EMRSystem.IpdChargeEntry.IpdChargeEntry, long> ipdChargeRepository,
             ITempStripeDataService tempStripeDataService,
             IRepository<Pharmacists.PharmacistInventory, long> pharmacistInventoryRepository, TenantManager tenantManager,
             IRepository<PrescriptionItem, long> prescriptionItemRepository) : base(repository)
         {
             _pharmacistInventoryRepository = pharmacistInventoryRepository;
             _tenantManager = tenantManager;
+            _emergencyChargeRepository = emergencyChargeRepository;
+            _ipdChargeRepository = ipdChargeRepository;
             _numberingService = numberingService;
             _tempStripeDataService = tempStripeDataService;
             _prescriptionItemRepository = prescriptionItemRepository;
@@ -523,38 +530,14 @@ namespace EMRSystem.Pharmacist
 
             if (pharmacistPrescriptionsEntity == null)
                 return null;
+
             var tenant = await _tenantManager.GetByIdAsync(AbpSession.TenantId.Value);
-            var dto = new ViewPharmacistPrescriptionsDto();
+
+            // Use AutoMapper for mapping
+            var dto = ObjectMapper.Map<ViewPharmacistPrescriptionsDto>(pharmacistPrescriptionsEntity);
+
+            // Set tenant name manually
             dto.TenantName = tenant?.Name;
-            dto.PharmacistPrescriptionId = pharmacistPrescriptionsEntity.Id;
-            dto.PrescriptionId = pharmacistPrescriptionsEntity.PrescriptionId.Value;
-            dto.PatientId = pharmacistPrescriptionsEntity.Prescriptions?.Patient?.Id ?? 0;
-            dto.PatientName = pharmacistPrescriptionsEntity.Prescriptions?.Patient?.FullName;
-            dto.PatientDateOfBirth = pharmacistPrescriptionsEntity.Prescriptions?.Patient?.DateOfBirth;
-            dto.Gender = pharmacistPrescriptionsEntity.Prescriptions?.Patient?.Gender;
-            dto.DoctorName = pharmacistPrescriptionsEntity?.Prescriptions?.Doctor?.FullName;
-            dto.DoctorRegistrationNumber = pharmacistPrescriptionsEntity.Prescriptions.Doctor?.RegistrationNumber;
-            dto.PharmacyNotes = pharmacistPrescriptionsEntity.PharmacyNotes;
-            dto.IsPaid = pharmacistPrescriptionsEntity.IsPaid;
-            dto.CollectionStatus = pharmacistPrescriptionsEntity.CollectionStatus;
-            dto.IssueDate = pharmacistPrescriptionsEntity.IssueDate.Value;
-            dto.PickedUpByNurseId = pharmacistPrescriptionsEntity.PickedUpByNurse;
-            dto.PickedUpByNurse = pharmacistPrescriptionsEntity.Nurse?.FullName;
-            dto.PickedUpByPatientId = pharmacistPrescriptionsEntity.PickedUpByPatient;
-            dto.PickedUpByPatient = pharmacistPrescriptionsEntity.Patient?.FullName;
-            dto.GrandTotal = pharmacistPrescriptionsEntity.GrandTotal;
-            dto.PrescriptionItems = pharmacistPrescriptionsEntity.PrescriptionItems?.Select(i => new PrescriptionItemDto
-            {
-                MedicineName = i.MedicineName,
-                Dosage = i.Dosage,
-                Frequency = i.Frequency,
-                Duration = i.Duration,
-                Instructions = i.Instructions,
-                IsPrescribe = i.IsPrescribe,
-                Qty = i.Qty,
-                UnitPrice = i.UnitPrice,
-                PharmacistPrescriptionId = i.PharmacistPrescriptionId
-            }).ToList();
 
             return dto;
         }
@@ -562,10 +545,14 @@ namespace EMRSystem.Pharmacist
         [HttpPost]
         public async Task MarkAsPickedUp(long? pharmacistPrescriptionId, long? pickedUpById, bool isPickedUpByNurse = false)
         {
-            var prescription = await Repository.GetAllIncluding(x => x.Prescriptions.Patient).FirstOrDefaultAsync(x => x.Id == pharmacistPrescriptionId);
+            var prescription = await Repository.GetAllIncluding(
+         x => x.Prescriptions.Patient.Admissions
+     ).FirstOrDefaultAsync(x => x.Id == pharmacistPrescriptionId);
+
             if (prescription != null)
             {
                 prescription.CollectionStatus = CollectionStatus.PickedUp;
+
                 if (isPickedUpByNurse)
                 {
                     prescription.PickedUpByNurse = pickedUpById;
@@ -574,6 +561,50 @@ namespace EMRSystem.Pharmacist
                 {
                     prescription.PickedUpByPatient = prescription?.Prescriptions.Patient?.Id;
                 }
+
+                // 💡 Charge Entry logic
+                if (prescription.Prescriptions != null)
+                {
+                    if (prescription.Prescriptions.IsEmergencyPrescription) // emergency
+                    {
+                        var emergencyCharge = new EmergencyChargeEntry
+                        {
+                            TenantId = prescription.TenantId,
+                            PatientId = prescription.Prescriptions.PatientId,
+                            ChargeType = ChargeType.Medicine,
+                            Description = $"Emergency Medicine Charges",
+                            Amount = prescription.GrandTotal,
+                            EntryDate = DateTime.Now,
+                            IsProcessed = false,
+                            PrescriptionId = prescription.PrescriptionId,
+                            EmergencyCaseId = prescription.Prescriptions.EmergencyCaseId,
+                            ReferenceId = prescription.Id
+                        };
+
+                        await _emergencyChargeRepository.InsertAsync(emergencyCharge);
+                    }
+                    else // ipd
+                    {
+                        var currentAdmission = prescription.Prescriptions.Patient?.Admissions
+                    ?.FirstOrDefault(a => !a.IsDischarged);
+                        var ipdCharge = new EMRSystem.IpdChargeEntry.IpdChargeEntry
+                        {
+                            TenantId = prescription.TenantId,
+                            PatientId = prescription.Prescriptions.PatientId ?? 0,
+                            ChargeType = ChargeType.Medicine,
+                            Description = $"IPD Medicine Charges",
+                            Amount = prescription.GrandTotal,
+                            EntryDate = DateTime.Now,
+                            IsProcessed = false,
+                            PrescriptionId = prescription.PrescriptionId,
+                            AdmissionId = currentAdmission?.Id ?? 0, // 🔹 yaha tumko AdmissionId set karna padega (agar available hai to)
+                            ReferenceId = prescription.Id
+                        };
+
+                        await _ipdChargeRepository.InsertAsync(ipdCharge);
+                    }
+                }
+
                 await Repository.UpdateAsync(prescription);
             }
         }

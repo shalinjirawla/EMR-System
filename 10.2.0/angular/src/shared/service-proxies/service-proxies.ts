@@ -16649,6 +16649,62 @@ export class ProcedureReceiptServiceProxy {
     }
 
     /**
+     * @param procedureReceiptId (optional) 
+     * @return OK
+     */
+    getReceiptWithProcedures(procedureReceiptId: number | undefined): Observable<ViewProcedureReceiptDto> {
+        let url_ = this.baseUrl + "/api/services/app/ProcedureReceipt/GetReceiptWithProcedures?";
+        if (procedureReceiptId === null)
+            throw new Error("The parameter 'procedureReceiptId' cannot be null.");
+        else if (procedureReceiptId !== undefined)
+            url_ += "procedureReceiptId=" + encodeURIComponent("" + procedureReceiptId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetReceiptWithProcedures(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetReceiptWithProcedures(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ViewProcedureReceiptDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ViewProcedureReceiptDto>;
+        }));
+    }
+
+    protected processGetReceiptWithProcedures(response: HttpResponseBase): Observable<ViewProcedureReceiptDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ViewProcedureReceiptDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * @param id (optional) 
      * @return OK
      */
@@ -41418,6 +41474,148 @@ export interface IViewPharmacistPrescriptionsDto {
     pickedUpByPatient: string | undefined;
     grandTotal: number;
     prescriptionItems: PrescriptionItemDto[] | undefined;
+}
+
+export class ViewProcedureReceiptDto implements IViewProcedureReceiptDto {
+    patientName: string | undefined;
+    receiptNumber: string | undefined;
+    totalFee: number;
+    paymentDate: moment.Moment;
+    paymentMethod: string | undefined;
+    status: string | undefined;
+    selectedProcedures: ViewSelectedProcedureDto[] | undefined;
+
+    constructor(data?: IViewProcedureReceiptDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.patientName = _data["patientName"];
+            this.receiptNumber = _data["receiptNumber"];
+            this.totalFee = _data["totalFee"];
+            this.paymentDate = _data["paymentDate"] ? moment(_data["paymentDate"].toString()) : <any>undefined;
+            this.paymentMethod = _data["paymentMethod"];
+            this.status = _data["status"];
+            if (Array.isArray(_data["selectedProcedures"])) {
+                this.selectedProcedures = [] as any;
+                for (let item of _data["selectedProcedures"])
+                    this.selectedProcedures.push(ViewSelectedProcedureDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ViewProcedureReceiptDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ViewProcedureReceiptDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["patientName"] = this.patientName;
+        data["receiptNumber"] = this.receiptNumber;
+        data["totalFee"] = this.totalFee;
+        data["paymentDate"] = this.paymentDate ? this.paymentDate.toISOString() : <any>undefined;
+        data["paymentMethod"] = this.paymentMethod;
+        data["status"] = this.status;
+        if (Array.isArray(this.selectedProcedures)) {
+            data["selectedProcedures"] = [];
+            for (let item of this.selectedProcedures)
+                data["selectedProcedures"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): ViewProcedureReceiptDto {
+        const json = this.toJSON();
+        let result = new ViewProcedureReceiptDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IViewProcedureReceiptDto {
+    patientName: string | undefined;
+    receiptNumber: string | undefined;
+    totalFee: number;
+    paymentDate: moment.Moment;
+    paymentMethod: string | undefined;
+    status: string | undefined;
+    selectedProcedures: ViewSelectedProcedureDto[] | undefined;
+}
+
+export class ViewSelectedProcedureDto implements IViewSelectedProcedureDto {
+    id: number;
+    emergencyProcedureId: number;
+    emergencyProcedureName: string | undefined;
+    price: number;
+    isPaid: boolean;
+    status: string | undefined;
+    prescriptionId: number | undefined;
+
+    constructor(data?: IViewSelectedProcedureDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.emergencyProcedureId = _data["emergencyProcedureId"];
+            this.emergencyProcedureName = _data["emergencyProcedureName"];
+            this.price = _data["price"];
+            this.isPaid = _data["isPaid"];
+            this.status = _data["status"];
+            this.prescriptionId = _data["prescriptionId"];
+        }
+    }
+
+    static fromJS(data: any): ViewSelectedProcedureDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ViewSelectedProcedureDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["emergencyProcedureId"] = this.emergencyProcedureId;
+        data["emergencyProcedureName"] = this.emergencyProcedureName;
+        data["price"] = this.price;
+        data["isPaid"] = this.isPaid;
+        data["status"] = this.status;
+        data["prescriptionId"] = this.prescriptionId;
+        return data;
+    }
+
+    clone(): ViewSelectedProcedureDto {
+        const json = this.toJSON();
+        let result = new ViewSelectedProcedureDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IViewSelectedProcedureDto {
+    id: number;
+    emergencyProcedureId: number;
+    emergencyProcedureName: string | undefined;
+    price: number;
+    isPaid: boolean;
+    status: string | undefined;
+    prescriptionId: number | undefined;
 }
 
 export class Visit implements IVisit {

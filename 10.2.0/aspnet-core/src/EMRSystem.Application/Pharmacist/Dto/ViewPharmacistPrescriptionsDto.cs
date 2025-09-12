@@ -27,7 +27,7 @@ namespace EMRSystem.Pharmacist.Dto
         public string PharmacyNotes { get; set; }
         public string? ReceiptNumber { get; set; }
         public string? PaymentIntentId { get; set; }
-        public PaymentMethod PaymentMethod { get; set; }
+        public PaymentMethod? PaymentMethod { get; set; }
         public long? PickedUpByNurseId { get; set; }
         public long? PickedUpByPatientId { get; set; }
         public string PickedUpByNurse { get; set; }

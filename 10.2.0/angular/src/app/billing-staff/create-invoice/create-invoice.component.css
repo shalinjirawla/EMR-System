@@ -1,25 +1,26 @@
-::ng-deep .p-datepicker{
-    width: 100% !important;
-}
-
-
-.payment-processing-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(255, 255, 255, 0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
 .payment-processing {
-    text-align: center;
-    background: white;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  text-align: center;
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.1);
+}
+
+.table th, .table td {
+  vertical-align: middle;
+}
+
+@media (max-width: 768px) {
+  .card-body .row.g-3 > div {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  .table-responsive {
+    font-size: 0.9rem;
+  }
+
+  .table th, .table td {
+    white-space: nowrap;
+  }
 }
