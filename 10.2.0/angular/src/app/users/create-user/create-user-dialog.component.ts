@@ -15,12 +15,13 @@ import { SelectDoctorRoleComponent } from '../select-doctor-role/select-doctor-r
 import { SelectNurseRoleComponent } from '../select-nurse-role/select-nurse-role.component'
 import { SelectLabtechnicianRoleComponent } from '../select-labtechnician-role/select-labtechnician-role.component'
 import { SelectPatientRoleComponent } from '../select-patient-role/select-patient-role.component';
-
-
+import { CheckboxModule } from 'primeng/checkbox';
+import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
 @Component({
     templateUrl: './create-user-dialog.component.html',
     standalone: true,
-    imports: [
+    imports: [CheckboxModule,InputTextModule,SelectModule,
         FormsModule,
         AbpModalHeaderComponent,
         AbpValidationSummaryComponent,
@@ -98,6 +99,7 @@ export class CreateUserDialogComponent extends AppComponentBase implements OnIni
     loadRoles(): void {
         this._userService.getRoles().subscribe(result => {
             this.roles = result.items;
+            debugger
             this.cd.detectChanges();
         });
     }

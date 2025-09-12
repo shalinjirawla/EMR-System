@@ -1,0 +1,84 @@
+li {
+    list-style: none !important;
+    margin-top: 5px;
+}
+
+li a {
+    display: -webkit-box;
+    border-radius: 6px;
+    display: -ms-flexbox;
+    display: flex;
+    align-items: center;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    font-size: 14px;
+    font-weight: 500;
+    position: relative;
+    width: 100%;
+    padding: 8px;
+    transition: all .2s ease;
+}
+
+::ng-deep li .active {
+    background-color: #1f6db2 !important;
+    border-radius: 5px !important;
+    color: #fff !important;
+}
+
+::ng-deep .side-menu-name {
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    margin-left: 8px;
+}
+
+::ng-deep .menu-arrow {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    align-items: center;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    justify-content: center;
+    -webkit-justify-content: center;
+    -ms-flex-pack: center;
+    text-rendering: auto;
+    line-height: 40px;
+    font-size: 18px;
+    line-height: 16px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translatey(-50%);
+    transition: all .2s ease;
+}
+
+::ng-deep .menu-arrow:before {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    /* left arrow */
+    content: "\f105";
+    /* down arrow */
+    /* content: "\f107"; */
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    margin-right: 0;
+    font-size: 14px;
+    display: inline-block;
+    transform: translateY(-50%);
+}
+
+::ng-deep .menu-arrow.open::before {
+    /* down arrow */
+    content: "\f107";
+}
+
+::ng-deep .hover-class:hover {
+    background-color: #1f6db2 !important;
+    border-radius: 5px !important;
+    color: #fff !important;
+}

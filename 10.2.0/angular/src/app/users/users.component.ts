@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Injector, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, Injector, OnInit, ViewChild } from '@angular/core';
 import { finalize } from 'rxjs/operators';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
@@ -17,15 +17,32 @@ import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { OverlayPanel, OverlayPanelModule } from 'primeng/overlaypanel';
 import { MenuModule } from 'primeng/menu';
 import { ButtonModule } from 'primeng/button';
-
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { MenuItem } from 'primeng/api';
+import { TooltipModule } from 'primeng/tooltip';
+import { CardModule } from 'primeng/card';
+import { TagModule } from 'primeng/tag';
+import { AvatarModule } from 'primeng/avatar';
+import { AvatarGroupModule } from 'primeng/avatargroup';
+import { SelectModule } from 'primeng/select';
+import { InputTextModule } from 'primeng/inputtext';
+import { CheckboxModule } from 'primeng/checkbox';
+interface FilterOption {
+    label: string;
+    value: any;
+    checked: boolean;
+}
 @Component({
     templateUrl: './users.component.html',
-    styleUrl:'./users.component.css',
+    styleUrl: './users.component.css',
     animations: [appModuleAnimation()],
     standalone: true,
-    imports: [FormsModule, TableModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe,OverlayPanelModule,MenuModule, ButtonModule,],
+    imports: [TagModule, SelectModule, CheckboxModule, TooltipModule, AvatarModule, AvatarGroupModule, CardModule, FormsModule, TableModule,
+        BreadcrumbModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe,
+        OverlayPanelModule, MenuModule, ButtonModule, InputTextModule],
 })
-export class UsersComponent extends PagedListingComponentBase<UserDto> {
+export class UsersComponent extends PagedListingComponentBase<UserDto> implements OnInit {
+    items: MenuItem[] | undefined;
     @ViewChild('dataTable', { static: true }) dataTable: Table;
     @ViewChild('paginator', { static: true }) paginator: Paginator;
 
@@ -33,7 +50,12 @@ export class UsersComponent extends PagedListingComponentBase<UserDto> {
     keyword = '';
     isActive: boolean | null;
     advancedFiltersVisible = false;
-
+    loading = true;
+    activeFilter = {
+        isActive: false,
+        isNotActive: false,
+        all: true
+    };
     constructor(
         injector: Injector,
         private _userService: UserServiceProxy,
@@ -44,7 +66,12 @@ export class UsersComponent extends PagedListingComponentBase<UserDto> {
         super(injector, cd);
         this.keyword = this._activatedRoute.snapshot.queryParams['filterText'] || '';
     }
-
+    ngOnInit(): void {
+        this.items = [
+            { label: 'Home', routerLink: '/' },
+            { label: 'Users' },
+        ];
+    }
     createUser(): void {
         this.showCreateOrEditUserDialog();
     }
@@ -72,7 +99,6 @@ export class UsersComponent extends PagedListingComponentBase<UserDto> {
         }
 
         this.primengTableHelper.showLoadingIndicator();
-
         this._userService
             .getAll(
                 this.keyword,
@@ -88,12 +114,12 @@ export class UsersComponent extends PagedListingComponentBase<UserDto> {
             )
             .subscribe((result: UserDtoPagedResultDto) => {
                 this.primengTableHelper.records = result.items;
+                this.loading = false;
                 this.primengTableHelper.totalRecordsCount = result.totalCount;
                 this.primengTableHelper.hideLoadingIndicator();
                 this.cd.detectChanges();
             });
     }
-
     delete(user: UserDto): void {
         abp.message.confirm(this.l('UserDeleteWarningMessage', user.fullName), undefined, (result: boolean) => {
             if (result) {
@@ -103,6 +129,44 @@ export class UsersComponent extends PagedListingComponentBase<UserDto> {
                 });
             }
         });
+    }
+    onFilterChange(selected: 'active' | 'notActive' | 'all', event: any) {
+        if (selected === 'all') {
+            if (event.checked) {
+                this.activeFilter.isActive = false;
+                this.activeFilter.isNotActive = false;
+                this.isActive = undefined; // "All"
+            } else {
+                // if uncheck All, force it back (must always have one selected)
+                this.activeFilter.all = true;
+                this.isActive = undefined;
+            }
+        }
+        else if (selected === 'active') {
+            if (event.checked) {
+                this.activeFilter.isNotActive = false;
+                this.activeFilter.all = false;
+                this.isActive = true;
+            } else {
+                // if uncheck Active, fallback to All
+                this.activeFilter.all = true;
+                this.isActive = undefined;
+            }
+        }
+        else if (selected === 'notActive') {
+            if (event.checked) {
+                this.activeFilter.isActive = false;
+                this.activeFilter.all = false;
+                this.isActive = false;
+            } else {
+                // if uncheck Not Active, fallback to All
+                this.activeFilter.all = true;
+                this.isActive = undefined;
+            }
+        }
+
+        this.cd.detectChanges();
+        this.list();
     }
 
     private showResetPasswordUserDialog(id?: number): void {

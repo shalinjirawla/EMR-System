@@ -104,10 +104,6 @@
                                         {{ 'FullName' | localize }}
                                         <p-sortIcon field="fullName"></p-sortIcon>
                                     </th>
-                                    <th style="min-width: 150px" pSortableColumn="emailAddress">
-                                        {{ 'EmailAddress' | localize }}
-                                        <p-sortIcon field="emailAddress"></p-sortIcon>
-                                    </th>
                                     <th>
                                         Age/Gender
                                     </th>
@@ -117,6 +113,9 @@
                                     <th style="min-width: 50px">
                                         {{ 'IsActive' | localize }}
                                     </th>
+                                    <th>
+                                        Action
+                                    </th>
                                 </tr>
                             </ng-template>
 
@@ -125,11 +124,6 @@
                                     <td>
                                         <span>
                                             {{ record.fullName }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span>
-                                            {{ record.emailAddress }}
                                         </span>
                                     </td>
                                     <td>
@@ -146,6 +140,16 @@
                                         <span>
                                             {{ record.isActive }}
                                         </span>
+                                    </td>
+                                    <td>
+                                        <p-tag [value]="getStatusLabel(record.discharge_Status)"
+                                            *ngIf="record.discharge_Status!=0"
+                                            [severity]="getStatusSeverity(record.discharge_Status)" [rounded]="true">
+                                        </p-tag>
+                                        <button type="button" *ngIf="record.isAdmitted && record.discharge_Status==0"
+                                            class="btn btn-sm btn-success" (click)="confirmInitiate(record)">
+                                            Initiate Discharge
+                                        </button>
                                     </td>
                                 </tr>
                             </ng-template>
@@ -183,3 +187,4 @@
         </div>
     </section>
 </div>
+<p-confirmDialog></p-confirmDialog>

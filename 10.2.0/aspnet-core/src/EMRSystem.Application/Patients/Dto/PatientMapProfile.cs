@@ -33,6 +33,7 @@ namespace EMRSystem.Patients.Dto
               .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
               .ForMember(dest => dest.BloodGroup, opt => opt.MapFrom(src => src.BloodGroup))
               .ForMember(dest => dest.EmergencyContactName, opt => opt.MapFrom(src => src.EmergencyContactName))
+              .ForMember(dest => dest.Discharge_Status, opt => opt.MapFrom(src => src._PatientDischarge.Select(x=>x.DischargeStatus).FirstOrDefault()))
               .ForMember(d => d.AssignedDoctorId,
                opt => opt.MapFrom(s => s.Admissions
                    .OrderByDescending(a => a.AdmissionDateTime)

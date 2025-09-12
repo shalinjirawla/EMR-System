@@ -23,5 +23,6 @@ namespace EMRSystem.Pharmacists
         public DateTime LicenseExpiryDate { get; set; }
         public long AbpUserId { get; set; }
         public virtual User AbpUser { get; set; }
+        public virtual ICollection<EMRSystem.PatientDischarge.PatientDischarge> _PatientDischarge { get; set; }
     }
 }

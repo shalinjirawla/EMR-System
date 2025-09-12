@@ -1,0 +1,17 @@
+::ng-deep p-avatar img {
+    border-radius: 5px !important;
+}
+
+::ng-deep .profile-dropdown {
+    position: absolute;
+    inset: 0px 0px auto auto;
+    margin: 0px;
+    transform: translate(0px, 54px);
+    width: 220px;
+    border: none;
+    background-color: #e3f2ff;
+}
+
+::ng-deep .user-bg {
+    background-color: white;
+}

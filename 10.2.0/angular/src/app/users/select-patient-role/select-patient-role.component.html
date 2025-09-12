@@ -16,7 +16,7 @@
     <label class="col-md-3 col-form-label" for="dob">Date of Birth</label>
     <div class="col-md-9">
       <input type="date" id="dob" name="dob" class="form-control" required [(ngModel)]="patient.dateOfBirth"
-        (ngModelChange)="onInputChange()" #dobModel="ngModel" #dobEl>
+        (ngModelChange)="onInputChange()" #dobModel="ngModel" #dobEl [max]="maxDate">
       <abp-validation-summary [control]="dobModel" [controlEl]="dobEl"></abp-validation-summary>
     </div>
   </div>
@@ -60,7 +60,7 @@
     <div class="col-md-9">
       <input type="text" id="emergencyNumber" name="emergencyNumber" class="form-control" required
         [(ngModel)]="patient.emergencyContactNumber" (ngModelChange)="onInputChange()" #emergencyNumberModel="ngModel"
-        #emergencyNumberEl>
+        #emergencyNumberEl pattern="^[0-9]{10}$" maxlength="10" minlength="10">
       <abp-validation-summary [control]="emergencyNumberModel" [controlEl]="emergencyNumberEl"></abp-validation-summary>
     </div>
   </div>

@@ -1,0 +1,32 @@
+::ng-deep .p-breadcrumb {
+  background: none !important;
+  padding: 0 !important;
+}
+
+.next-btn {
+  background-color: #1F6DB2 !important;
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+::ng-deep .p-steplist {
+  flex-direction: column !important;
+  align-items: start !important;
+}
+
+::ng-deep .p-step-number {
+  display: none !important;
+}
+
+::ng-deep .p-step-active .p-step-title {
+  color: white !important;
+}
+
+::ng-deep .p-step-active{
+  background-color: #1F6DB2 !important;
+}
+
+::ng-deep .p-stepper-separator {
+  display: none !important;
+}

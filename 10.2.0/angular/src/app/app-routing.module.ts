@@ -99,6 +99,12 @@ import { AppComponent } from './app.component';
                         canActivate: [AppRouteGuard],
                     },
                     {
+                        path: 'patient-discharge',
+                        loadChildren: () => import('./patient-discharge/patient-discharge.module').then((m) => m.PatientDischargeModule),
+                        // data: { permission: 'Pages.Pharmacist' },
+                        canActivate: [AppRouteGuard],
+                    },
+                    {
                         path: 'roles',
                         loadChildren: () => import('./roles/roles.module').then((m) => m.RolesModule),
                         data: { permission: 'Pages.Roles' },

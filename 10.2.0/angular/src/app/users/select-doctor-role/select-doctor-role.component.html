@@ -1,83 +1,73 @@
 <form #doctorForm="ngForm">
-  <!-- Gender -->
-  <div class="form-group row required">
-    <label class="col-md-3 col-form-label">Gender</label>
-    <div class="col-md-9">
-      <div *ngFor="let gender of genders" class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" name="gender" [id]="'gender_' + gender" [value]="gender"
-          [(ngModel)]="doctorData.gender" (ngModelChange)="onInputChange()" required #genderModel="ngModel" #genderEl />
-        <label class="form-check-label" [for]="'gender_' + gender">{{ gender }}</label>
-      </div>
-    </div>
-  </div>
-
-  <!-- Specialization -->
-  <div class="form-group row required">
-    <label class="col-md-3 col-form-label" for="specialization">Specialization</label>
-    <div class="col-md-9">
-      <input type="text" id="specialization" name="specialization" class="form-control" pInputText required
-        [(ngModel)]="doctorData.specialization" (ngModelChange)="onInputChange()" #specializationModel="ngModel"
-        #specializationEl />
+  <div class="form-group row required mb-0">
+    <div class="col-md-4">
+      <!-- Specialization -->
+      <label class="col-form-label" for="specialization">Specialization</label>
+      <input class="w-100" type="text" name="specialization" pInputText required [(ngModel)]="doctorData.specialization"
+        (ngModelChange)="onInputChange()" #specializationModel="ngModel" #specializationEl
+        placeholder="Enter specialization" />
       <abp-validation-summary [control]="specializationModel" [controlEl]="specializationEl"></abp-validation-summary>
     </div>
-  </div>
-
-  <!-- Qualification -->
-  <div class="form-group row required">
-    <label class="col-md-3 col-form-label" for="qualification">Qualification</label>
-    <div class="col-md-9">
-      <input type="text" id="qualification" name="qualification" class="form-control" pInputText required
+    <div class="col-md-4">
+      <!-- Qualification -->
+      <label class="col-form-label" for="qualification">Qualification</label>
+      <input class="w-100" type="text" id="qualification" name="qualification" pInputText required
         [(ngModel)]="doctorData.qualification" (ngModelChange)="onInputChange()" #qualificationModel="ngModel"
-        #qualificationEl />
+        #qualificationEl placeholder="Enter qualification" />
       <abp-validation-summary [control]="qualificationModel" [controlEl]="qualificationEl"></abp-validation-summary>
     </div>
-  </div>
-
-  <!-- Years of Experience -->
-  <div class="form-group row required">
-    <label class="col-md-3 col-form-label" for="experience">Years of Experience</label>
-    <div class="col-md-9">
-      <input type="number" id="experience" name="experience" class="form-control" required min="0"
-        [(ngModel)]="doctorData.yearsOfExperience" (ngModelChange)="onInputChange()" #expModel="ngModel" #expEl />
+    <div class="col-md-4">
+      <!-- Years of Experience -->
+      <label class="col-form-label" for="experience">Years of Experience</label>
+      <p-inputnumber class="w-100" inputId="integeronly" name="experience" required min="0"
+        [(ngModel)]="doctorData.yearsOfExperience" (ngModelChange)="onInputChange()" #expModel="ngModel" #expEl
+        placeholder="Enter experience" />
       <abp-validation-summary [control]="expModel" [controlEl]="expEl"></abp-validation-summary>
     </div>
   </div>
-  <div class="form-group row">
-    <label class="col-md-3 col-form-label" for="experience">Is EmergencyDoctor?</label>
-    <div class="col-md-9">
-      <p-checkbox [(ngModel)]="doctorData.isEmergencyDoctor" name="isEmergencyDoctor" [binary]="true" (onChange)="OnCheckIsEmergencyDoctor($event)" />
-    </div>
-  </div>
-  <!-- Department (dropdown loaded from backend) -->
-  <div class="form-group row required" *ngIf="!isEmergencyDoctor">
-    <label class="col-md-3 col-form-label" for="department">Department</label>
-    <div class="col-md-9">
-      <select id="department" name="departmentId" class="form-control" required [(ngModel)]="doctorData.departmentId"
-        (ngModelChange)="onInputChange()" #departmentModel="ngModel" #departmentEl>
-        <option [ngValue]="null" disabled selected>-- Select Department --</option>
-        <option *ngFor="let dept of departments" [ngValue]="dept.id">{{ dept.name }}</option>
-      </select>
-      <abp-validation-summary [control]="departmentModel" [controlEl]="departmentEl"></abp-validation-summary>
-    </div>
-  </div>
 
-  <!-- Registration Number -->
-  <div class="form-group row required">
-    <label class="col-md-3 col-form-label" for="registration">Registration Number</label>
-    <div class="col-md-9">
-      <input type="text" id="registration" name="registrationNumber" class="form-control" pInputText required
-        [(ngModel)]="doctorData.registrationNumber" (ngModelChange)="onInputChange()" #regModel="ngModel" #regEl />
+  <div class="form-group row required mb-0">
+    <div class="col-md-4">
+      <label class="col-form-label">Gender</label>
+      <div class="d-flex flex-row">
+        <div *ngFor="let gender of genders" class=" mr-2">
+          <p-radiobutton name="gender" [value]="gender" [(ngModel)]="doctorData.gender"
+            (ngModelChange)="onInputChange()" #genderEl required #genderModel="ngModel" size="small" class="mr-2" />
+          <label class="m-0" [for]="'gender_' + gender">{{ gender }}</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4 d-flex flex-column">
+      <label class="col-form-label">Date of Birth</label>
+      <p-datepicker [(ngModel)]="doctorData.dateOfBirth" name="dateOfBirth" [showIcon]="true" [maxDate]="today"
+        placeholder="Select birth date" (ngModelChange)="onInputChange()" #dobEl #dobModel="ngModel" required>
+      </p-datepicker>
+      <abp-validation-summary [control]="dobModel" [controlEl]="dobEl"></abp-validation-summary>
+    </div>
+    <div class="col-md-4 d-flex flex-column">
+      <label class="col-form-label" for="registration">Registration Number</label>
+      <input type="text" id="registration" name="registrationNumber" pInputText required
+        [(ngModel)]="doctorData.registrationNumber" (ngModelChange)="onInputChange()" #regModel="ngModel" #regEl
+        placeholder="Enter registrationNumber" />
       <abp-validation-summary [control]="regModel" [controlEl]="regEl"></abp-validation-summary>
     </div>
   </div>
 
-  <!-- Date of Birth -->
-  <div class="form-group row required">
-    <label class="col-md-3 col-form-label" for="dob">Date of Birth</label>
-    <div class="col-md-9">
-      <input type="date" id="dob" name="dateOfBirth" class="form-control" required [max]="maxDate"
-        [(ngModel)]="doctorData.dateOfBirth" (ngModelChange)="onInputChange()" #dobModel="ngModel" #dobEl />
-      <abp-validation-summary [control]="dobModel" [controlEl]="dobEl"></abp-validation-summary>
+  <div class="form-group row required mb-0">
+    <div class="col-md-4 d-flex flex-column">
+      <label class="col-form-label">Is EmergencyDoctor?</label>
+      <p-checkbox (onChange)="OnCheckIsEmergencyDoctor($event)" [(ngModel)]="doctorData.isEmergencyDoctor"
+        name="isEmergencyDoctor" [binary]="true" class="ml-2" />
+    </div>
+    <div class="col-md-8" *ngIf="!isEmergencyDoctor">
+      <label class="col-form-label" for="department">Department</label>
+      <p-select [options]="departments" placeholder="Select department" optionLabel="name"
+        (ngModelChange)="onInputChange()" #departmentModel="ngModel" #departmentEl optionValue="id"
+        [(ngModel)]="doctorData.departmentId" name="emergencyCaseId" class="w-100" required>
+      </p-select>
+      <abp-validation-summary [control]="departmentModel" [controlEl]="departmentEl"></abp-validation-summary>
     </div>
   </div>
+
 </form>

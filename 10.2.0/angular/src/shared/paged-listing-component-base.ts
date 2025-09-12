@@ -1,7 +1,6 @@
 import { AppComponentBase } from 'shared/app-component-base';
 import { Component, Injector, ChangeDetectorRef } from '@angular/core';
 import { LazyLoadEvent } from 'primeng/api';
-
 export class EntityDto {
     id: number;
 }

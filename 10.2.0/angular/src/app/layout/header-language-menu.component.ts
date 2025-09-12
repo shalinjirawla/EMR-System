@@ -3,13 +3,16 @@ import { AppComponentBase } from '@shared/app-component-base';
 import { UserServiceProxy, ChangeUserLanguageDto } from '@shared/service-proxies/service-proxies';
 import { filter as _filter } from 'lodash-es';
 import { BsDropdownDirective, BsDropdownToggleDirective, BsDropdownMenuDirective } from 'ngx-bootstrap/dropdown';
-
+import { MenuModule } from 'primeng/menu';
+import { AvatarModule } from 'primeng/avatar';
+import { AvatarGroupModule } from 'primeng/avatargroup';
 @Component({
     selector: 'header-language-menu',
     templateUrl: './header-language-menu.component.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: [BsDropdownDirective, BsDropdownToggleDirective, BsDropdownMenuDirective],
+    styleUrl: './header-language-menu.component.css',
+    imports: [BsDropdownDirective,AvatarModule,AvatarGroupModule, BsDropdownToggleDirective, BsDropdownMenuDirective, MenuModule],
 })
 export class HeaderLanguageMenuComponent extends AppComponentBase implements OnInit {
     languages: abp.localization.ILanguageInfo[];

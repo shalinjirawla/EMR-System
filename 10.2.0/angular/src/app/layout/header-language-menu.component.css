@@ -1,0 +1,8 @@
+::ng-deep .menu-border {
+    position: absolute;
+    inset: 0px 0px auto auto;
+    margin: 0px;
+    transform: translate(0px, 54px);
+    border: none;
+    background-color: #e3f2ff;
+}

@@ -1,5 +1,7 @@
 ﻿using Abp.Application.Services.Dto;
 using EMRSystem.Invoices;
+using EMRSystem.Patient_Discharge.Dto;
+using EMRSystem.PatientDischarge;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,6 +32,7 @@ namespace EMRSystem.Patients.Dto
         public DateTime? AdmissionDate { get; set; }
         public BillingMethod BillingMethod { get; set; }
         public PaymentMethod? PaymentMethod { get; set; }
+        public DischargeStatus Discharge_Status { get; set; }
         //public DateTime? DischargeDate { get; set; }
         //public string? InsuranceProvider { get; set; }
         //public string? InsurancePolicyNumber { get; set; }

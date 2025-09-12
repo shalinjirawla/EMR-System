@@ -67,7 +67,7 @@ const bootstrap = () => {
             provideHttpClient(withInterceptorsFromDi()),
             providePrimeNG({
                 theme: {
-                    preset: MyPreset,
+                    preset: Lara,
                 },
             }),
         ],

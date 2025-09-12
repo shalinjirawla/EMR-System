@@ -3,65 +3,64 @@
     </abp-modal-header>
 
     <div class="modal-body">
-
-        <!-- Role Dropdown -->
-        <div class="form-group row required">
-            <label class="col-md-3 col-form-label">{{ 'Role' | localize }}</label>
-            <div class="col-md-9">
-                <select class="form-control" [(ngModel)]="selectedRole" name="selectedRole" required
-                    (change)="onRoleChange(selectedRole)">
-                    <option [ngValue]="null" disabled>{{ 'SelectRole' | localize }}</option>
-                    <option *ngFor="let role of roles" [ngValue]="role.normalizedName">
-                        {{ role.displayName }}
-                    </option>
-                </select>
+        <div class="d-flex justify-content-end">
+            <div>
+                <label>{{ 'IsActive' | localize }}</label>
+            </div>
+            <div class="ml-2">
+                <p-checkbox [(ngModel)]="user.isActive" [binary]="true" name="isActive" />
             </div>
         </div>
-        <!-- Name -->
-        <div class="form-group row required">
-            <label class="col-md-3 col-form-label" for="name">{{ 'Name' | localize }}</label>
-            <div class="col-md-9">
-                <input type="text" class="form-control" id="name" name="name" required maxlength="64"
-                    [(ngModel)]="user.name" #nameModel="ngModel" #nameEl />
+
+        <!-- Role Selection -->
+        <div class="form-group row required mb-0">
+            <div class="col-md-12">
+                <label class="col-form-label" for="userRole">
+                    {{ 'Role' | localize }}
+                </label>
+                <p-select [options]="roles" placeholder="Select role" optionLabel="displayName"
+                    optionValue="normalizedName" [(ngModel)]="selectedRole" name="userRole" class="w-100" required
+                    #roleModel="ngModel" (change)="onRoleChange(selectedRole)" placeholder="Select role">
+                </p-select>
+            </div>
+        </div>
+        <div class="form-group row required mb-0">
+            <div class="col-md-6 d-flex flex-column">
+                <label class="col-form-label" for="name">
+                    {{ 'Name' | localize }}
+                </label>
+                <input type="text" pInputText name="name" id="name" required maxlength="64" [(ngModel)]="user.name"
+                    #nameModel="ngModel" #nameEl placeholder="Enter name" />
                 <abp-validation-summary [control]="nameModel" [controlEl]="nameEl"></abp-validation-summary>
             </div>
-        </div>
-        <!-- Surname -->
-        <div class="form-group row required">
-            <label class="col-md-3 col-form-label" for="surname">{{ 'Surname' | localize }}</label>
-            <div class="col-md-9">
-                <input type="text" class="form-control" id="surname" name="surname" required maxlength="64"
-                    [(ngModel)]="user.surname" #surnameModel="ngModel" #surnameEl />
+            <div class="col-md-6 d-flex flex-column">
+                <label class="col-form-label" for="surname">
+                    {{ 'Surname' | localize }}
+                </label>
+                <input type="text" pInputText name="surname" id="surname" required maxlength="64"
+                    [(ngModel)]="user.surname" #surnameModel="ngModel" #surnameEl placeholder="Enter surname" />
                 <abp-validation-summary [control]="surnameModel" [controlEl]="surnameEl"></abp-validation-summary>
             </div>
         </div>
-        <!-- UserName -->
-        <div class="form-group row required">
-            <label class="col-md-3 col-form-label" for="userName">{{ 'UserName' | localize }}</label>
-            <div class="col-md-9">
-                <input type="text" class="form-control" id="userName" name="userName" required maxlength="256"
-                    [(ngModel)]="user.userName" #userNameModel="ngModel" #userNameEl />
+
+        <div class="form-group row required mb-0">
+            <div class="col-md-6 d-flex flex-column">
+                <label class="col-form-label" for="userName">
+                    {{ 'UserName' | localize }}
+                </label>
+                <input type="text" pInputText name="userName" id="userName" required minlength="2" maxlength="256"
+                    [(ngModel)]="user.userName" #userNameModel="ngModel" #userNameEl placeholder="Enter username" />
                 <abp-validation-summary [control]="userNameModel" [controlEl]="userNameEl"></abp-validation-summary>
             </div>
-        </div>
-        <!-- Email -->
-        <div class="form-group row required">
-            <label class="col-md-3 col-form-label" for="emailAddress">{{ 'EmailAddress' | localize }}</label>
-            <div class="col-md-9">
-                <input type="email" class="form-control" id="emailAddress" name="emailAddress" required maxlength="256"
-                    [(ngModel)]="user.emailAddress" #emailModel="ngModel" #emailEl />
-                <abp-validation-summary [control]="emailModel" [controlEl]="emailEl"></abp-validation-summary>
-            </div>
-        </div>
-        <!-- IsActive -->
-        <div class="form-group row">
-            <label class="col-md-3 col-form-label">{{ 'IsActive' | localize }}</label>
-            <div class="col-md-9">
-                <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" id="isActive" name="isActive"
-                        [(ngModel)]="user.isActive" />
-                    <label class="custom-control-label mt-2" for="isActive"></label>
-                </div>
+            <div class="col-md-6 d-flex flex-column">
+                <label class="col-form-label" for="emailAddress">
+                    {{ 'EmailAddress' | localize }}
+                </label>
+                <input type="email" pInputText name="emailAddress" id="emailAddress" required maxlength="256"
+                    pattern="^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{1,})+$" [(ngModel)]="user.emailAddress"
+                    placeholder="Enter email address" #emailAddressModel="ngModel" #emailAddressEl />
+                <abp-validation-summary [control]="emailAddressModel"
+                    [controlEl]="emailAddressEl"></abp-validation-summary>
             </div>
         </div>
 
@@ -80,8 +79,8 @@
         <app-edit-patients *ngIf="selectedRole==='PATIENT'" [patientData]="patientData"
             (patientDataChange)="onPatientDataChange($event)">
         </app-edit-patients>
-
     </div>
+
     <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="!isFormValid || saving"
         (onCancelClick)="bsModalRef.hide()">
     </abp-modal-footer>

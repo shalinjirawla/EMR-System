@@ -11,6 +11,7 @@ import { CollapseDirective } from 'ngx-bootstrap/collapse';
     selector: 'sidebar-menu',
     templateUrl: './sidebar-menu.component.html',
     standalone: true,
+    styleUrl: './sidebar-menu.component.css',
     imports: [NgTemplateOutlet, RouterLink, CollapseDirective],
 })
 export class SidebarMenuComponent extends AppComponentBase implements OnInit {
@@ -173,6 +174,7 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
                 new MenuItem(this.l('Prescription Fulfillment'), '/app/pharmacist/pharmacist-prescriptions', 'fas fa-prescription-bottle-alt', 'Pages.Pharmacist.Prescriptions.View'),
             ]),
 
+            new MenuItem(this.l('Create Patient Discharge'), '/app/patient-discharge/create', 'fas fa-file-medical-alt', 'Pages.Users'),
             // Master Section
             new MenuItem(this.l('Masters'), '', 'fas fa-cogs', 'Pages.Users', [
 
@@ -206,6 +208,7 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
         items.forEach((item: MenuItem, index: number) => {
 
             item.id = parentId ? Number(parentId + '' + (index + 1)) : index + 1;
+            item.isCollapsed = true;
             if (parentId) {
                 item.parentId = parentId;
             }

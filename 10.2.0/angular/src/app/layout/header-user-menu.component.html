@@ -1,15 +1,24 @@
 <li class="nav-item dropdown nav-user-menu" dropdown>
-    <a href="javascript:;" class="nav-link" dropdownToggle>
-        <img class="user-image img-circle elevation-2" src="assets/img/user.png" alt="User Image" />
-    </a>
-    <div class="dropdown-menu dropdown-menu-right" *dropdownMenu>
-        <a class="dropdown-item" [routerLink]="['update-password']">
-            <i class="fas fa-user-edit"></i>
-            {{ 'UpdatePassword' | localize }}
+    <p-overlay-badge severity="success" class="inline-flex nav-link p-1" dropdownToggle>
+        <p-avatar class="p-overlay-badge" image="assets/img/user.png" size="small" />
+    </p-overlay-badge>
+    <div class="dropdown-menu dropdown-menu-right dropdown-menu-md p-2 profile-dropdown" *dropdownMenu
+        data-popper-placement="bottom-end">
+        <div class="d-flex align-items-center user-bg rounded p-2 mb-2">
+            <p-avatar image="assets/img/user.png" class="mr-2" size="small" shape="circle" />
+            <div class="ms-2">
+                <p class="fw-medium text-dark mb-0">{{ shownLoginName }}
+            </div>
+        </div>
+        <a class="dropdown-item d-flex align-items-center" [routerLink]="['update-password']">
+            <i class="pi pi-user-edit"></i>
+            <span class="ml-2">{{ 'UpdatePassword' | localize }}</span>
         </a>
-        <a class="dropdown-item" href="javascript:;" (click)="logout()">
-            <i class="fas fa-sign-out-alt"></i>
-            {{ 'Logout' | localize }}
-        </a>
+        <div class="pt-2 mt-2 border-top">
+            <a class="dropdown-item text-danger" href="javascript:;" (click)="logout()">
+                <i class="ti ti-logout me-1 fs-17 align-middle"></i>
+                <span class="align-middle">{{ 'Logout' | localize }}</span>
+            </a>
+        </div>
     </div>
 </li>

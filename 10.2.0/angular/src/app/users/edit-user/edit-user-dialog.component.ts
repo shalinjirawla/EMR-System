@@ -14,14 +14,16 @@ import { EditNurseComponent } from '@app/nurse/edit-nurse/edit-nurse.component';
 import { EditLabTechnicianComponent } from '@app/lab-technician/edit-lab-technician/edit-lab-technician.component';
 import { EditPatientsComponent } from '../../patient/edit-patients/edit-patients.component'
 import { forkJoin } from 'rxjs';
-
+import { CheckboxModule } from 'primeng/checkbox';
+import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
 
 
 @Component({
     templateUrl: './edit-user-dialog.component.html',
     standalone: true,
     imports: [
-        FormsModule,
+        FormsModule,CheckboxModule,InputTextModule,SelectModule,
         AbpModalHeaderComponent,
         AbpValidationSummaryComponent,
         AbpModalFooterComponent,
