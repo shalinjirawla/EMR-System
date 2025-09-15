@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using EMRSystem.Appointments;
+using EMRSystem.Patient_Discharge.Dto;
 using EMRSystem.Prescriptions;
 using EMRSystem.Vitals;
 using System;
@@ -17,7 +18,7 @@ namespace EMRSystem.Patients.Dto
             CreateMap<Patient, PatientDropDownDto>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName))
-                .ForMember(dest => dest.IsAdmitted,opt =>opt.MapFrom(src => src.IsAdmitted));
+                .ForMember(dest => dest.IsAdmitted, opt => opt.MapFrom(src => src.IsAdmitted));
 
             CreateMap<Patient, PatientDto>().ReverseMap();
             CreateMap<Patient, CreateUpdatePatientDto>().ReverseMap();
@@ -33,7 +34,7 @@ namespace EMRSystem.Patients.Dto
               .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
               .ForMember(dest => dest.BloodGroup, opt => opt.MapFrom(src => src.BloodGroup))
               .ForMember(dest => dest.EmergencyContactName, opt => opt.MapFrom(src => src.EmergencyContactName))
-              .ForMember(dest => dest.Discharge_Status, opt => opt.MapFrom(src => src._PatientDischarge.Select(x=>x.DischargeStatus).FirstOrDefault()))
+              .ForMember(dest => dest.Discharge_Status, opt => opt.MapFrom(src => src._PatientDischarge.Select(x => x.DischargeStatus).FirstOrDefault()))
               .ForMember(d => d.AssignedDoctorId,
                opt => opt.MapFrom(s => s.Admissions
                    .OrderByDescending(a => a.AdmissionDateTime)
@@ -147,6 +148,20 @@ namespace EMRSystem.Patients.Dto
                   .ForMember(dest => dest.Frequency, opt => opt.MapFrom(src => src.Frequency))
                   .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
                   .ForMember(dest => dest.PrescriptionId, opt => opt.MapFrom(src => src.PrescriptionId));
+
+
+            //CreateMap<Vital, TreatmentSummaryForDischargeSummaryDto>()
+            //.ForMember(dest => dest.LastVitalDateRecorded, opt => opt.MapFrom(src => src.DateRecorded))
+            //.ForMember(dest => dest.BloodPressure, opt => opt.MapFrom(src => src.BloodPressure))
+            //.ForMember(dest => dest.HeartRate, opt => opt.MapFrom(src => src.HeartRate))
+            //.ForMember(dest => dest.RespirationRate, opt => opt.MapFrom(src => src.RespirationRate))
+            //.ForMember(dest => dest.Temperature, opt => opt.MapFrom(src => src.Temperature))
+            //.ForMember(dest => dest.OxygenSaturation, opt => opt.MapFrom(src => src.OxygenSaturation))
+            //.ForMember(dest => dest.Height, opt => opt.MapFrom(src => src.Height))
+            //.ForMember(dest => dest.Weight, opt => opt.MapFrom(src => src.Weight))
+            //.ForMember(dest => dest.BMI, opt => opt.MapFrom(src => src.BMI))
+            //.ForMember(dest => dest.VitalNotes, opt => opt.MapFrom(src => src.Notes));
+
         }
     }
 }

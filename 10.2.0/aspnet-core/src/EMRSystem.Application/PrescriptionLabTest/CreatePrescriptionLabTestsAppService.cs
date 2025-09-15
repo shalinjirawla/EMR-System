@@ -10,6 +10,7 @@ using EMRSystem.LabReport.Dto;
 using EMRSystem.LabReports;
 using EMRSystem.LabTestReceipt;
 using EMRSystem.Patients;
+using EMRSystem.Patients.Dto;
 using EMRSystem.PrescriptionLabTest.Dto;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -27,9 +28,9 @@ using PaymentMethod = EMRSystem.Invoices.PaymentMethod;
 
 namespace EMRSystem.PrescriptionLabTest
 {
-   
-    public class CreatePrescriptionLabTestsAppService : AsyncCrudAppService<EMRSystem.LabReports.PrescriptionLabTest, 
-        PrescriptionLabTestDto, long, PagedAndSortedResultRequestDto, CreateUpdatePrescriptionLabTestDto, 
+
+    public class CreatePrescriptionLabTestsAppService : AsyncCrudAppService<EMRSystem.LabReports.PrescriptionLabTest,
+        PrescriptionLabTestDto, long, PagedAndSortedResultRequestDto, CreateUpdatePrescriptionLabTestDto,
         CreateUpdatePrescriptionLabTestDto>, ICreatePrescriptionLabTestsAppService
     {
         private readonly IRepository<Patient, long> _patientRepository;
@@ -268,6 +269,28 @@ namespace EMRSystem.PrescriptionLabTest
 
             data.TestStatus = LabTestStatus.InProgress;
             await Repository.UpdateAsync(data);
+        }
+
+        public async Task<List<PrescriptionLabTestDto>> GetPrescriptionLabTestByPatientId(long patientID)
+        {
+            var getList = await Repository
+                .GetAll()
+                .IgnoreQueryFilters()
+                .Include(x => x.Patient)
+                .Include(x => x.LabReportsType)
+                .Where(x => x.PatientId == patientID)
+                .ToListAsync();
+            
+            var entity = ObjectMapper.Map<List<PrescriptionLabTestDto>>(getList);
+            if (entity.Count > 0)
+            {
+                for (int i = 0; i < entity.Count; i++)
+                {
+                    entity[i].PatientName = ObjectMapper.Map<PatientDto>(getList[i].Patient).FullName;
+                }
+
+            }
+            return entity;
         }
     }
 }

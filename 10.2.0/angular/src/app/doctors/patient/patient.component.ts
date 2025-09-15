@@ -24,7 +24,7 @@ import { CreatePrescriptionsComponent } from '../create-prescriptions/create-pre
 import { Router } from '@angular/router';
 @Component({
     selector: 'app-patient',
-    imports: [FormsModule, TableModule, ButtonModule, ConfirmDialogModule, TagModule, ConfirmDialog, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, OverlayPanelModule, MenuModule],
+    imports: [FormsModule, TableModule, ButtonModule, ConfirmDialogModule, TagModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, OverlayPanelModule, MenuModule],
     animations: [appModuleAnimation()],
     templateUrl: './patient.component.html',
     styleUrl: './patient.component.css',
