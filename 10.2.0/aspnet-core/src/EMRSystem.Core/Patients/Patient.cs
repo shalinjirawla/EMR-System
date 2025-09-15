@@ -16,6 +16,7 @@ using EMRSystem.Vitals;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -37,8 +38,9 @@ namespace EMRSystem.Patients
         public string EmergencyContactNumber { get; set; }
         public DateTime DateOfBirth { get; set; }
         public DateTime? LastBillingDate { get; set; }
+        [ForeignKey(nameof(AbpUserId))]
         public virtual User AbpUser { get; set; }
-        public ICollection<Prescription> Prescriptions { get; set; }
+        public virtual ICollection<Prescription> Prescriptions { get; set; }
         public virtual ICollection<EMRSystem.Admission.Admission> Admissions { get; set; }
         public virtual ICollection<PatientDeposit> PatientDeposits { get; set; }
         public ICollection<Vital> Vitals { get; set; }

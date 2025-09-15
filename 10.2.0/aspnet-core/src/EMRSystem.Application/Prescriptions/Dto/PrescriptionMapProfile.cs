@@ -2,6 +2,7 @@
 using EMRSystem.Doctor.Dto;
 using EMRSystem.EmergencyProcedure.Dto;
 using EMRSystem.LabTechnician.Dto;
+using EMRSystem.Patient_Discharge.Dto;
 using EMRSystem.PrescriptionLabTest.Dto;
 using EMRSystem.Prescriptions.Dto;
 using EMRSystem.Vitals;
@@ -65,6 +66,13 @@ namespace EMRSystem.Prescriptions.Dto
             // 🟢 Missing mappings
             CreateMap<Doctors.ConsultationRequests, CreateUpdateConsultationRequestsDto>().ReverseMap();
             CreateMap<EmergencyProcedure.SelectedEmergencyProcedures, CreateUpdateSelectedEmergencyProceduresDto>().ReverseMap();
+
+            CreateMap<EMRSystem.Prescriptions.Prescription, ViewPrescriptionSummary>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Diagnosis, opt => opt.MapFrom(src => src.Diagnosis))
+                .ForMember(dest => dest.IssueDate, opt => opt.MapFrom(src => src.IssueDate))
+                .ForMember(dest => dest.PrescribedBy, opt => opt.MapFrom(src => src.Doctor != null ? src.Doctor.FullName : null))
+                ;
         }
     }
 

@@ -17,6 +17,15 @@ using EMRSystem.Users.Dto;
 using Abp.Collections.Extensions;
 using Microsoft.EntityFrameworkCore;
 using EMRSystem.PatientDischarge;
+using System.Security.Cryptography.X509Certificates;
+using Abp.Authorization.Users;
+using EMRSystem.Patients;
+using static Castle.MicroKernel.ModelBuilder.Descriptors.InterceptorDescriptor;
+using EMRSystem.Appointments;
+using EMRSystem.Prescriptions;
+using Abp.Domain.Uow;
+using EMRSystem.Vitals.Dto;
+using EMRSystem.Prescriptions.Dto;
 
 namespace EMRSystem.Patient_Discharge
 {
@@ -49,6 +58,29 @@ namespace EMRSystem.Patient_Discharge
             {
                 throw new UserFriendlyException("No Patient Data found");
             }
+        }
+
+        [HttpGet]
+        public async Task<DischargeSummaryDto> PatientDischargeSummaryAsync(long patientID)
+        {
+            var data = await Repository
+            .GetAll()
+            .IgnoreQueryFilters()
+            .Include(x => x.Patient).ThenInclude(x => x.AbpUser)
+            .Include(x => x.Patient).ThenInclude(x => x.Vitals).ThenInclude(x => x.Nurse)
+            .FirstOrDefaultAsync(x => x.PatientId == patientID);
+            var res = ObjectMapper.Map<DischargeSummaryDto>(data);
+
+            if (data.Patient.Vitals != null && data.Patient.Vitals.Count > 0)
+            {
+                res.Vitals = ObjectMapper.Map<List<VitalDto>>(data.Patient.Vitals);
+            }
+            //if (data.Patient.Prescriptions != null && data.Patient.Prescriptions.Count > 0)
+            //{
+            //    res.Prescriptions = ObjectMapper.Map<List<ViewPrescriptionSummary>>(data.Patient.Prescriptions);
+            //}
+            return res;
+
         }
     }
 }

@@ -3187,6 +3187,69 @@ export class CreatePrescriptionLabTestsServiceProxy {
     }
 
     /**
+     * @param patientID (optional) 
+     * @return OK
+     */
+    getPrescriptionLabTestByPatientId(patientID: number | undefined): Observable<PrescriptionLabTestDto[]> {
+        let url_ = this.baseUrl + "/api/services/app/CreatePrescriptionLabTests/GetPrescriptionLabTestByPatientId?";
+        if (patientID === null)
+            throw new Error("The parameter 'patientID' cannot be null.");
+        else if (patientID !== undefined)
+            url_ += "patientID=" + encodeURIComponent("" + patientID) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetPrescriptionLabTestByPatientId(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetPrescriptionLabTestByPatientId(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PrescriptionLabTestDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PrescriptionLabTestDto[]>;
+        }));
+    }
+
+    protected processGetPrescriptionLabTestByPatientId(response: HttpResponseBase): Observable<PrescriptionLabTestDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200.push(PrescriptionLabTestDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * @param id (optional) 
      * @return OK
      */
@@ -13087,6 +13150,62 @@ export class PatientDischargeServiceProxy {
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param patientID (optional) 
+     * @return OK
+     */
+    patientDischargeSummary(patientID: number | undefined): Observable<DischargeSummaryDto> {
+        let url_ = this.baseUrl + "/api/services/app/PatientDischarge/PatientDischargeSummary?";
+        if (patientID === null)
+            throw new Error("The parameter 'patientID' cannot be null.");
+        else if (patientID !== undefined)
+            url_ += "patientID=" + encodeURIComponent("" + patientID) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processPatientDischargeSummary(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processPatientDischargeSummary(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<DischargeSummaryDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<DischargeSummaryDto>;
+        }));
+    }
+
+    protected processPatientDischargeSummary(response: HttpResponseBase): Observable<DischargeSummaryDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DischargeSummaryDto.fromJS(resultData200);
+            return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -28741,6 +28860,61 @@ export enum DischargeStatus {
     _7 = 7,
 }
 
+export class DischargeSummaryDto implements IDischargeSummaryDto {
+    patientDetails: PatientDetailsFordischargeSummaryDto;
+    vitals: VitalDto[] | undefined;
+
+    constructor(data?: IDischargeSummaryDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.patientDetails = _data["patientDetails"] ? PatientDetailsFordischargeSummaryDto.fromJS(_data["patientDetails"]) : <any>undefined;
+            if (Array.isArray(_data["vitals"])) {
+                this.vitals = [] as any;
+                for (let item of _data["vitals"])
+                    this.vitals.push(VitalDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): DischargeSummaryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new DischargeSummaryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["patientDetails"] = this.patientDetails ? this.patientDetails.toJSON() : <any>undefined;
+        if (Array.isArray(this.vitals)) {
+            data["vitals"] = [];
+            for (let item of this.vitals)
+                data["vitals"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): DischargeSummaryDto {
+        const json = this.toJSON();
+        let result = new DischargeSummaryDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IDischargeSummaryDto {
+    patientDetails: PatientDetailsFordischargeSummaryDto;
+    vitals: VitalDto[] | undefined;
+}
+
 export class Doctor implements IDoctor {
     id: number;
     tenantId: number;
@@ -35515,6 +35689,97 @@ export interface IPatientDetailsAndMedicalHistoryDto {
     patientVitalsDetails: PatientVitalsDetailsDto;
     patientAppointmentHistory: PatientAppointmentHistoryDto[] | undefined;
     patientPrescriptionsHistory: PatientPrescriptionsHistoryDto[] | undefined;
+}
+
+export class PatientDetailsFordischargeSummaryDto implements IPatientDetailsFordischargeSummaryDto {
+    patientId: number;
+    firstName: string | undefined;
+    lastName: string | undefined;
+    userName: string | undefined;
+    emailAddress: string | undefined;
+    gender: string | undefined;
+    dob: moment.Moment;
+    age: number;
+    bloodGroup: string | undefined;
+    mobileNumber: string | undefined;
+    emergencyNumber: string | undefined;
+    emergencyPersonName: string | undefined;
+    address: string | undefined;
+
+    constructor(data?: IPatientDetailsFordischargeSummaryDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.patientId = _data["patientId"];
+            this.firstName = _data["firstName"];
+            this.lastName = _data["lastName"];
+            this.userName = _data["userName"];
+            this.emailAddress = _data["emailAddress"];
+            this.gender = _data["gender"];
+            this.dob = _data["dob"] ? moment(_data["dob"].toString()) : <any>undefined;
+            this.age = _data["age"];
+            this.bloodGroup = _data["bloodGroup"];
+            this.mobileNumber = _data["mobileNumber"];
+            this.emergencyNumber = _data["emergencyNumber"];
+            this.emergencyPersonName = _data["emergencyPersonName"];
+            this.address = _data["address"];
+        }
+    }
+
+    static fromJS(data: any): PatientDetailsFordischargeSummaryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PatientDetailsFordischargeSummaryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["patientId"] = this.patientId;
+        data["firstName"] = this.firstName;
+        data["lastName"] = this.lastName;
+        data["userName"] = this.userName;
+        data["emailAddress"] = this.emailAddress;
+        data["gender"] = this.gender;
+        data["dob"] = this.dob ? this.dob.toISOString() : <any>undefined;
+        data["age"] = this.age;
+        data["bloodGroup"] = this.bloodGroup;
+        data["mobileNumber"] = this.mobileNumber;
+        data["emergencyNumber"] = this.emergencyNumber;
+        data["emergencyPersonName"] = this.emergencyPersonName;
+        data["address"] = this.address;
+        return data;
+    }
+
+    clone(): PatientDetailsFordischargeSummaryDto {
+        const json = this.toJSON();
+        let result = new PatientDetailsFordischargeSummaryDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IPatientDetailsFordischargeSummaryDto {
+    patientId: number;
+    firstName: string | undefined;
+    lastName: string | undefined;
+    userName: string | undefined;
+    emailAddress: string | undefined;
+    gender: string | undefined;
+    dob: moment.Moment;
+    age: number;
+    bloodGroup: string | undefined;
+    mobileNumber: string | undefined;
+    emergencyNumber: string | undefined;
+    emergencyPersonName: string | undefined;
+    address: string | undefined;
 }
 
 export class PatientDischarge implements IPatientDischarge {
