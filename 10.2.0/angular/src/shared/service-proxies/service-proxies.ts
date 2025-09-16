@@ -11131,6 +11131,721 @@ export class MeasureUnitServiceProxy {
 }
 
 @Injectable()
+export class MedicineFormMasterServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    createBulk(body: CreateUpdateMedicineFormMasterDto[] | undefined): Observable<MedicineFormMasterDto[]> {
+        let url_ = this.baseUrl + "/api/services/app/MedicineFormMaster/CreateBulk";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreateBulk(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreateBulk(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<MedicineFormMasterDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<MedicineFormMasterDto[]>;
+        }));
+    }
+
+    protected processCreateBulk(response: HttpResponseBase): Observable<MedicineFormMasterDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200.push(MedicineFormMasterDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param tenantId (optional) 
+     * @return OK
+     */
+    getAlldicineFormByTenantId(tenantId: number | undefined): Observable<MedicineFormMasterDtoListResultDto> {
+        let url_ = this.baseUrl + "/api/services/app/MedicineFormMaster/GetAlldicineFormByTenantId?";
+        if (tenantId === null)
+            throw new Error("The parameter 'tenantId' cannot be null.");
+        else if (tenantId !== undefined)
+            url_ += "tenantId=" + encodeURIComponent("" + tenantId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAlldicineFormByTenantId(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAlldicineFormByTenantId(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<MedicineFormMasterDtoListResultDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<MedicineFormMasterDtoListResultDto>;
+        }));
+    }
+
+    protected processGetAlldicineFormByTenantId(response: HttpResponseBase): Observable<MedicineFormMasterDtoListResultDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = MedicineFormMasterDtoListResultDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    get(id: number | undefined): Observable<MedicineFormMasterDto> {
+        let url_ = this.baseUrl + "/api/services/app/MedicineFormMaster/Get?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGet(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<MedicineFormMasterDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<MedicineFormMasterDto>;
+        }));
+    }
+
+    protected processGet(response: HttpResponseBase): Observable<MedicineFormMasterDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = MedicineFormMasterDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param sorting (optional) 
+     * @param skipCount (optional) 
+     * @param maxResultCount (optional) 
+     * @return OK
+     */
+    getAll(sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<MedicineFormMasterDtoPagedResultDto> {
+        let url_ = this.baseUrl + "/api/services/app/MedicineFormMaster/GetAll?";
+        if (sorting === null)
+            throw new Error("The parameter 'sorting' cannot be null.");
+        else if (sorting !== undefined)
+            url_ += "Sorting=" + encodeURIComponent("" + sorting) + "&";
+        if (skipCount === null)
+            throw new Error("The parameter 'skipCount' cannot be null.");
+        else if (skipCount !== undefined)
+            url_ += "SkipCount=" + encodeURIComponent("" + skipCount) + "&";
+        if (maxResultCount === null)
+            throw new Error("The parameter 'maxResultCount' cannot be null.");
+        else if (maxResultCount !== undefined)
+            url_ += "MaxResultCount=" + encodeURIComponent("" + maxResultCount) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAll(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAll(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<MedicineFormMasterDtoPagedResultDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<MedicineFormMasterDtoPagedResultDto>;
+        }));
+    }
+
+    protected processGetAll(response: HttpResponseBase): Observable<MedicineFormMasterDtoPagedResultDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = MedicineFormMasterDtoPagedResultDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    create(body: CreateUpdateMedicineFormMasterDto | undefined): Observable<MedicineFormMasterDto> {
+        let url_ = this.baseUrl + "/api/services/app/MedicineFormMaster/Create";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<MedicineFormMasterDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<MedicineFormMasterDto>;
+        }));
+    }
+
+    protected processCreate(response: HttpResponseBase): Observable<MedicineFormMasterDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = MedicineFormMasterDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    update(body: CreateUpdateMedicineFormMasterDto | undefined): Observable<MedicineFormMasterDto> {
+        let url_ = this.baseUrl + "/api/services/app/MedicineFormMaster/Update";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<MedicineFormMasterDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<MedicineFormMasterDto>;
+        }));
+    }
+
+    protected processUpdate(response: HttpResponseBase): Observable<MedicineFormMasterDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = MedicineFormMasterDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    delete(id: number | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/MedicineFormMaster/Delete?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDelete(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDelete(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDelete(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
+export class MedicineMasterServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    get(id: number | undefined): Observable<MedicineMasterDto> {
+        let url_ = this.baseUrl + "/api/services/app/MedicineMaster/Get?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGet(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<MedicineMasterDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<MedicineMasterDto>;
+        }));
+    }
+
+    protected processGet(response: HttpResponseBase): Observable<MedicineMasterDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = MedicineMasterDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param sorting (optional) 
+     * @param skipCount (optional) 
+     * @param maxResultCount (optional) 
+     * @return OK
+     */
+    getAll(sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<MedicineMasterDtoPagedResultDto> {
+        let url_ = this.baseUrl + "/api/services/app/MedicineMaster/GetAll?";
+        if (sorting === null)
+            throw new Error("The parameter 'sorting' cannot be null.");
+        else if (sorting !== undefined)
+            url_ += "Sorting=" + encodeURIComponent("" + sorting) + "&";
+        if (skipCount === null)
+            throw new Error("The parameter 'skipCount' cannot be null.");
+        else if (skipCount !== undefined)
+            url_ += "SkipCount=" + encodeURIComponent("" + skipCount) + "&";
+        if (maxResultCount === null)
+            throw new Error("The parameter 'maxResultCount' cannot be null.");
+        else if (maxResultCount !== undefined)
+            url_ += "MaxResultCount=" + encodeURIComponent("" + maxResultCount) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAll(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAll(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<MedicineMasterDtoPagedResultDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<MedicineMasterDtoPagedResultDto>;
+        }));
+    }
+
+    protected processGetAll(response: HttpResponseBase): Observable<MedicineMasterDtoPagedResultDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = MedicineMasterDtoPagedResultDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    create(body: CreateUpdateMedicineMasterDto | undefined): Observable<MedicineMasterDto> {
+        let url_ = this.baseUrl + "/api/services/app/MedicineMaster/Create";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<MedicineMasterDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<MedicineMasterDto>;
+        }));
+    }
+
+    protected processCreate(response: HttpResponseBase): Observable<MedicineMasterDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = MedicineMasterDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    update(body: CreateUpdateMedicineMasterDto | undefined): Observable<MedicineMasterDto> {
+        let url_ = this.baseUrl + "/api/services/app/MedicineMaster/Update";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<MedicineMasterDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<MedicineMasterDto>;
+        }));
+    }
+
+    protected processUpdate(response: HttpResponseBase): Observable<MedicineMasterDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = MedicineMasterDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    delete(id: number | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/MedicineMaster/Delete?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDelete(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDelete(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDelete(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
 export class MedicineOrderServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -11541,6 +12256,304 @@ export class MedicineOrderServiceProxy {
      */
     delete(id: number | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/services/app/MedicineOrder/Delete?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDelete(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDelete(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDelete(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
+export class MedicineStockServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    get(id: number | undefined): Observable<MedicineStockDto> {
+        let url_ = this.baseUrl + "/api/services/app/MedicineStock/Get?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGet(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<MedicineStockDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<MedicineStockDto>;
+        }));
+    }
+
+    protected processGet(response: HttpResponseBase): Observable<MedicineStockDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = MedicineStockDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param sorting (optional) 
+     * @param skipCount (optional) 
+     * @param maxResultCount (optional) 
+     * @return OK
+     */
+    getAll(sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<MedicineStockDtoPagedResultDto> {
+        let url_ = this.baseUrl + "/api/services/app/MedicineStock/GetAll?";
+        if (sorting === null)
+            throw new Error("The parameter 'sorting' cannot be null.");
+        else if (sorting !== undefined)
+            url_ += "Sorting=" + encodeURIComponent("" + sorting) + "&";
+        if (skipCount === null)
+            throw new Error("The parameter 'skipCount' cannot be null.");
+        else if (skipCount !== undefined)
+            url_ += "SkipCount=" + encodeURIComponent("" + skipCount) + "&";
+        if (maxResultCount === null)
+            throw new Error("The parameter 'maxResultCount' cannot be null.");
+        else if (maxResultCount !== undefined)
+            url_ += "MaxResultCount=" + encodeURIComponent("" + maxResultCount) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAll(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAll(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<MedicineStockDtoPagedResultDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<MedicineStockDtoPagedResultDto>;
+        }));
+    }
+
+    protected processGetAll(response: HttpResponseBase): Observable<MedicineStockDtoPagedResultDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = MedicineStockDtoPagedResultDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    create(body: CreateUpdateMedicineStockDto | undefined): Observable<MedicineStockDto> {
+        let url_ = this.baseUrl + "/api/services/app/MedicineStock/Create";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<MedicineStockDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<MedicineStockDto>;
+        }));
+    }
+
+    protected processCreate(response: HttpResponseBase): Observable<MedicineStockDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = MedicineStockDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    update(body: CreateUpdateMedicineStockDto | undefined): Observable<MedicineStockDto> {
+        let url_ = this.baseUrl + "/api/services/app/MedicineStock/Update";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<MedicineStockDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<MedicineStockDto>;
+        }));
+    }
+
+    protected processUpdate(response: HttpResponseBase): Observable<MedicineStockDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = MedicineStockDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    delete(id: number | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/MedicineStock/Delete?";
         if (id === null)
             throw new Error("The parameter 'id' cannot be null.");
         else if (id !== undefined)
@@ -20015,6 +21028,423 @@ export class SessionServiceProxy {
 }
 
 @Injectable()
+export class StrengthUnitMasterServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    createBulk(body: CreateUpdateStrengthUnitMasterDto[] | undefined): Observable<StrengthUnitMasterDto[]> {
+        let url_ = this.baseUrl + "/api/services/app/StrengthUnitMaster/CreateBulk";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreateBulk(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreateBulk(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<StrengthUnitMasterDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<StrengthUnitMasterDto[]>;
+        }));
+    }
+
+    protected processCreateBulk(response: HttpResponseBase): Observable<StrengthUnitMasterDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200.push(StrengthUnitMasterDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param tenantId (optional) 
+     * @return OK
+     */
+    getAllStrengthUnitsByTenantId(tenantId: number | undefined): Observable<StrengthUnitMasterDtoListResultDto> {
+        let url_ = this.baseUrl + "/api/services/app/StrengthUnitMaster/GetAllStrengthUnitsByTenantId?";
+        if (tenantId === null)
+            throw new Error("The parameter 'tenantId' cannot be null.");
+        else if (tenantId !== undefined)
+            url_ += "tenantId=" + encodeURIComponent("" + tenantId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAllStrengthUnitsByTenantId(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAllStrengthUnitsByTenantId(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<StrengthUnitMasterDtoListResultDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<StrengthUnitMasterDtoListResultDto>;
+        }));
+    }
+
+    protected processGetAllStrengthUnitsByTenantId(response: HttpResponseBase): Observable<StrengthUnitMasterDtoListResultDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = StrengthUnitMasterDtoListResultDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    get(id: number | undefined): Observable<StrengthUnitMasterDto> {
+        let url_ = this.baseUrl + "/api/services/app/StrengthUnitMaster/Get?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGet(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<StrengthUnitMasterDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<StrengthUnitMasterDto>;
+        }));
+    }
+
+    protected processGet(response: HttpResponseBase): Observable<StrengthUnitMasterDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = StrengthUnitMasterDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param sorting (optional) 
+     * @param skipCount (optional) 
+     * @param maxResultCount (optional) 
+     * @return OK
+     */
+    getAll(sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<StrengthUnitMasterDtoPagedResultDto> {
+        let url_ = this.baseUrl + "/api/services/app/StrengthUnitMaster/GetAll?";
+        if (sorting === null)
+            throw new Error("The parameter 'sorting' cannot be null.");
+        else if (sorting !== undefined)
+            url_ += "Sorting=" + encodeURIComponent("" + sorting) + "&";
+        if (skipCount === null)
+            throw new Error("The parameter 'skipCount' cannot be null.");
+        else if (skipCount !== undefined)
+            url_ += "SkipCount=" + encodeURIComponent("" + skipCount) + "&";
+        if (maxResultCount === null)
+            throw new Error("The parameter 'maxResultCount' cannot be null.");
+        else if (maxResultCount !== undefined)
+            url_ += "MaxResultCount=" + encodeURIComponent("" + maxResultCount) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAll(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAll(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<StrengthUnitMasterDtoPagedResultDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<StrengthUnitMasterDtoPagedResultDto>;
+        }));
+    }
+
+    protected processGetAll(response: HttpResponseBase): Observable<StrengthUnitMasterDtoPagedResultDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = StrengthUnitMasterDtoPagedResultDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    create(body: CreateUpdateStrengthUnitMasterDto | undefined): Observable<StrengthUnitMasterDto> {
+        let url_ = this.baseUrl + "/api/services/app/StrengthUnitMaster/Create";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<StrengthUnitMasterDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<StrengthUnitMasterDto>;
+        }));
+    }
+
+    protected processCreate(response: HttpResponseBase): Observable<StrengthUnitMasterDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = StrengthUnitMasterDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    update(body: CreateUpdateStrengthUnitMasterDto | undefined): Observable<StrengthUnitMasterDto> {
+        let url_ = this.baseUrl + "/api/services/app/StrengthUnitMaster/Update";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<StrengthUnitMasterDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<StrengthUnitMasterDto>;
+        }));
+    }
+
+    protected processUpdate(response: HttpResponseBase): Observable<StrengthUnitMasterDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = StrengthUnitMasterDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    delete(id: number | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/StrengthUnitMaster/Delete?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDelete(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDelete(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDelete(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
 export class StripeServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -26882,6 +28312,136 @@ export interface ICreateUpdateMeasureUnitDto {
     isActive: boolean;
 }
 
+export class CreateUpdateMedicineFormMasterDto implements ICreateUpdateMedicineFormMasterDto {
+    id: number;
+    tenantId: number;
+    name: string;
+    isActive: boolean;
+
+    constructor(data?: ICreateUpdateMedicineFormMasterDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.name = _data["name"];
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): CreateUpdateMedicineFormMasterDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateUpdateMedicineFormMasterDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["name"] = this.name;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+
+    clone(): CreateUpdateMedicineFormMasterDto {
+        const json = this.toJSON();
+        let result = new CreateUpdateMedicineFormMasterDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ICreateUpdateMedicineFormMasterDto {
+    id: number;
+    tenantId: number;
+    name: string;
+    isActive: boolean;
+}
+
+export class CreateUpdateMedicineMasterDto implements ICreateUpdateMedicineMasterDto {
+    id: number;
+    tenantId: number;
+    name: string | undefined;
+    medicineFormId: number;
+    strength: number | undefined;
+    strengthUnitId: number | undefined;
+    minimumStock: number;
+    description: string | undefined;
+    isAvailable: boolean;
+
+    constructor(data?: ICreateUpdateMedicineMasterDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.name = _data["name"];
+            this.medicineFormId = _data["medicineFormId"];
+            this.strength = _data["strength"];
+            this.strengthUnitId = _data["strengthUnitId"];
+            this.minimumStock = _data["minimumStock"];
+            this.description = _data["description"];
+            this.isAvailable = _data["isAvailable"];
+        }
+    }
+
+    static fromJS(data: any): CreateUpdateMedicineMasterDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateUpdateMedicineMasterDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["name"] = this.name;
+        data["medicineFormId"] = this.medicineFormId;
+        data["strength"] = this.strength;
+        data["strengthUnitId"] = this.strengthUnitId;
+        data["minimumStock"] = this.minimumStock;
+        data["description"] = this.description;
+        data["isAvailable"] = this.isAvailable;
+        return data;
+    }
+
+    clone(): CreateUpdateMedicineMasterDto {
+        const json = this.toJSON();
+        let result = new CreateUpdateMedicineMasterDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ICreateUpdateMedicineMasterDto {
+    id: number;
+    tenantId: number;
+    name: string | undefined;
+    medicineFormId: number;
+    strength: number | undefined;
+    strengthUnitId: number | undefined;
+    minimumStock: number;
+    description: string | undefined;
+    isAvailable: boolean;
+}
+
 export class CreateUpdateMedicineOrderDto implements ICreateUpdateMedicineOrderDto {
     id: number;
     tenantId: number;
@@ -27014,6 +28574,81 @@ export interface ICreateUpdateMedicineOrderItemDto {
     medicineId: number;
     quantity: number;
     dosage: string | undefined;
+}
+
+export class CreateUpdateMedicineStockDto implements ICreateUpdateMedicineStockDto {
+    id: number;
+    medicineMasterId: number;
+    batchNo: string | undefined;
+    purchaseDate: moment.Moment;
+    expiryDate: moment.Moment | undefined;
+    quantity: number;
+    purchasePrice: number;
+    sellingPrice: number;
+    isExpire: boolean;
+
+    constructor(data?: ICreateUpdateMedicineStockDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.medicineMasterId = _data["medicineMasterId"];
+            this.batchNo = _data["batchNo"];
+            this.purchaseDate = _data["purchaseDate"] ? moment(_data["purchaseDate"].toString()) : <any>undefined;
+            this.expiryDate = _data["expiryDate"] ? moment(_data["expiryDate"].toString()) : <any>undefined;
+            this.quantity = _data["quantity"];
+            this.purchasePrice = _data["purchasePrice"];
+            this.sellingPrice = _data["sellingPrice"];
+            this.isExpire = _data["isExpire"];
+        }
+    }
+
+    static fromJS(data: any): CreateUpdateMedicineStockDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateUpdateMedicineStockDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["medicineMasterId"] = this.medicineMasterId;
+        data["batchNo"] = this.batchNo;
+        data["purchaseDate"] = this.purchaseDate ? this.purchaseDate.toISOString() : <any>undefined;
+        data["expiryDate"] = this.expiryDate ? this.expiryDate.toISOString() : <any>undefined;
+        data["quantity"] = this.quantity;
+        data["purchasePrice"] = this.purchasePrice;
+        data["sellingPrice"] = this.sellingPrice;
+        data["isExpire"] = this.isExpire;
+        return data;
+    }
+
+    clone(): CreateUpdateMedicineStockDto {
+        const json = this.toJSON();
+        let result = new CreateUpdateMedicineStockDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ICreateUpdateMedicineStockDto {
+    id: number;
+    medicineMasterId: number;
+    batchNo: string | undefined;
+    purchaseDate: moment.Moment;
+    expiryDate: moment.Moment | undefined;
+    quantity: number;
+    purchasePrice: number;
+    sellingPrice: number;
+    isExpire: boolean;
 }
 
 export class CreateUpdateNurseDto implements ICreateUpdateNurseDto {
@@ -28183,6 +29818,61 @@ export interface ICreateUpdateSelectedEmergencyProceduresDto {
     prescriptionId: number;
     isPaid: boolean;
     status: EmergencyProcedureStatus;
+}
+
+export class CreateUpdateStrengthUnitMasterDto implements ICreateUpdateStrengthUnitMasterDto {
+    id: number;
+    tenantId: number;
+    name: string;
+    isActive: boolean;
+
+    constructor(data?: ICreateUpdateStrengthUnitMasterDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.name = _data["name"];
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): CreateUpdateStrengthUnitMasterDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateUpdateStrengthUnitMasterDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["name"] = this.name;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+
+    clone(): CreateUpdateStrengthUnitMasterDto {
+        const json = this.toJSON();
+        let result = new CreateUpdateStrengthUnitMasterDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ICreateUpdateStrengthUnitMasterDto {
+    id: number;
+    tenantId: number;
+    name: string;
+    isActive: boolean;
 }
 
 export class CreateUpdateTestResultLimitDto implements ICreateUpdateTestResultLimitDto {
@@ -34461,6 +36151,305 @@ export interface IMedicineDetailDto {
     quantity: number;
 }
 
+export class MedicineFormMasterDto implements IMedicineFormMasterDto {
+    id: number;
+    tenantId: number;
+    name: string;
+    isActive: boolean;
+
+    constructor(data?: IMedicineFormMasterDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.name = _data["name"];
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): MedicineFormMasterDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new MedicineFormMasterDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["name"] = this.name;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+
+    clone(): MedicineFormMasterDto {
+        const json = this.toJSON();
+        let result = new MedicineFormMasterDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IMedicineFormMasterDto {
+    id: number;
+    tenantId: number;
+    name: string;
+    isActive: boolean;
+}
+
+export class MedicineFormMasterDtoListResultDto implements IMedicineFormMasterDtoListResultDto {
+    items: MedicineFormMasterDto[] | undefined;
+
+    constructor(data?: IMedicineFormMasterDtoListResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(MedicineFormMasterDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): MedicineFormMasterDtoListResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new MedicineFormMasterDtoListResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): MedicineFormMasterDtoListResultDto {
+        const json = this.toJSON();
+        let result = new MedicineFormMasterDtoListResultDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IMedicineFormMasterDtoListResultDto {
+    items: MedicineFormMasterDto[] | undefined;
+}
+
+export class MedicineFormMasterDtoPagedResultDto implements IMedicineFormMasterDtoPagedResultDto {
+    items: MedicineFormMasterDto[] | undefined;
+    totalCount: number;
+
+    constructor(data?: IMedicineFormMasterDtoPagedResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(MedicineFormMasterDto.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): MedicineFormMasterDtoPagedResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new MedicineFormMasterDtoPagedResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+
+    clone(): MedicineFormMasterDtoPagedResultDto {
+        const json = this.toJSON();
+        let result = new MedicineFormMasterDtoPagedResultDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IMedicineFormMasterDtoPagedResultDto {
+    items: MedicineFormMasterDto[] | undefined;
+    totalCount: number;
+}
+
+export class MedicineMasterDto implements IMedicineMasterDto {
+    id: number;
+    tenantId: number;
+    name: string | undefined;
+    medicineFormId: number;
+    formName: string | undefined;
+    strength: number | undefined;
+    strengthUnitId: number | undefined;
+    strengthUnitName: string | undefined;
+    minimumStock: number;
+    description: string | undefined;
+    isAvailable: boolean;
+
+    constructor(data?: IMedicineMasterDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.name = _data["name"];
+            this.medicineFormId = _data["medicineFormId"];
+            this.formName = _data["formName"];
+            this.strength = _data["strength"];
+            this.strengthUnitId = _data["strengthUnitId"];
+            this.strengthUnitName = _data["strengthUnitName"];
+            this.minimumStock = _data["minimumStock"];
+            this.description = _data["description"];
+            this.isAvailable = _data["isAvailable"];
+        }
+    }
+
+    static fromJS(data: any): MedicineMasterDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new MedicineMasterDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["name"] = this.name;
+        data["medicineFormId"] = this.medicineFormId;
+        data["formName"] = this.formName;
+        data["strength"] = this.strength;
+        data["strengthUnitId"] = this.strengthUnitId;
+        data["strengthUnitName"] = this.strengthUnitName;
+        data["minimumStock"] = this.minimumStock;
+        data["description"] = this.description;
+        data["isAvailable"] = this.isAvailable;
+        return data;
+    }
+
+    clone(): MedicineMasterDto {
+        const json = this.toJSON();
+        let result = new MedicineMasterDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IMedicineMasterDto {
+    id: number;
+    tenantId: number;
+    name: string | undefined;
+    medicineFormId: number;
+    formName: string | undefined;
+    strength: number | undefined;
+    strengthUnitId: number | undefined;
+    strengthUnitName: string | undefined;
+    minimumStock: number;
+    description: string | undefined;
+    isAvailable: boolean;
+}
+
+export class MedicineMasterDtoPagedResultDto implements IMedicineMasterDtoPagedResultDto {
+    items: MedicineMasterDto[] | undefined;
+    totalCount: number;
+
+    constructor(data?: IMedicineMasterDtoPagedResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(MedicineMasterDto.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): MedicineMasterDtoPagedResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new MedicineMasterDtoPagedResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+
+    clone(): MedicineMasterDtoPagedResultDto {
+        const json = this.toJSON();
+        let result = new MedicineMasterDtoPagedResultDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IMedicineMasterDtoPagedResultDto {
+    items: MedicineMasterDto[] | undefined;
+    totalCount: number;
+}
+
 export class MedicineOrder implements IMedicineOrder {
     id: number;
     tenantId: number;
@@ -34869,6 +36858,144 @@ export class MedicineStatusResult implements IMedicineStatusResult {
 export interface IMedicineStatusResult {
     isValid: boolean;
     message: string | undefined;
+}
+
+export class MedicineStockDto implements IMedicineStockDto {
+    id: number;
+    tenantId: number;
+    medicineMasterId: number;
+    medicineName: string | undefined;
+    batchNo: string | undefined;
+    purchaseDate: moment.Moment;
+    expiryDate: moment.Moment | undefined;
+    quantity: number;
+    purchasePrice: number;
+    sellingPrice: number;
+    isExpire: boolean;
+
+    constructor(data?: IMedicineStockDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.medicineMasterId = _data["medicineMasterId"];
+            this.medicineName = _data["medicineName"];
+            this.batchNo = _data["batchNo"];
+            this.purchaseDate = _data["purchaseDate"] ? moment(_data["purchaseDate"].toString()) : <any>undefined;
+            this.expiryDate = _data["expiryDate"] ? moment(_data["expiryDate"].toString()) : <any>undefined;
+            this.quantity = _data["quantity"];
+            this.purchasePrice = _data["purchasePrice"];
+            this.sellingPrice = _data["sellingPrice"];
+            this.isExpire = _data["isExpire"];
+        }
+    }
+
+    static fromJS(data: any): MedicineStockDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new MedicineStockDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["medicineMasterId"] = this.medicineMasterId;
+        data["medicineName"] = this.medicineName;
+        data["batchNo"] = this.batchNo;
+        data["purchaseDate"] = this.purchaseDate ? this.purchaseDate.toISOString() : <any>undefined;
+        data["expiryDate"] = this.expiryDate ? this.expiryDate.toISOString() : <any>undefined;
+        data["quantity"] = this.quantity;
+        data["purchasePrice"] = this.purchasePrice;
+        data["sellingPrice"] = this.sellingPrice;
+        data["isExpire"] = this.isExpire;
+        return data;
+    }
+
+    clone(): MedicineStockDto {
+        const json = this.toJSON();
+        let result = new MedicineStockDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IMedicineStockDto {
+    id: number;
+    tenantId: number;
+    medicineMasterId: number;
+    medicineName: string | undefined;
+    batchNo: string | undefined;
+    purchaseDate: moment.Moment;
+    expiryDate: moment.Moment | undefined;
+    quantity: number;
+    purchasePrice: number;
+    sellingPrice: number;
+    isExpire: boolean;
+}
+
+export class MedicineStockDtoPagedResultDto implements IMedicineStockDtoPagedResultDto {
+    items: MedicineStockDto[] | undefined;
+    totalCount: number;
+
+    constructor(data?: IMedicineStockDtoPagedResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(MedicineStockDto.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): MedicineStockDtoPagedResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new MedicineStockDtoPagedResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+
+    clone(): MedicineStockDtoPagedResultDto {
+        const json = this.toJSON();
+        let result = new MedicineStockDtoPagedResultDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IMedicineStockDtoPagedResultDto {
+    items: MedicineStockDto[] | undefined;
+    totalCount: number;
 }
 
 export enum ModeOfArrival {
@@ -40934,6 +43061,167 @@ export enum Status {
     _0 = 0,
     _1 = 1,
     _2 = 2,
+}
+
+export class StrengthUnitMasterDto implements IStrengthUnitMasterDto {
+    id: number;
+    tenantId: number;
+    name: string;
+    isActive: boolean;
+
+    constructor(data?: IStrengthUnitMasterDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.name = _data["name"];
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): StrengthUnitMasterDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new StrengthUnitMasterDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["name"] = this.name;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+
+    clone(): StrengthUnitMasterDto {
+        const json = this.toJSON();
+        let result = new StrengthUnitMasterDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IStrengthUnitMasterDto {
+    id: number;
+    tenantId: number;
+    name: string;
+    isActive: boolean;
+}
+
+export class StrengthUnitMasterDtoListResultDto implements IStrengthUnitMasterDtoListResultDto {
+    items: StrengthUnitMasterDto[] | undefined;
+
+    constructor(data?: IStrengthUnitMasterDtoListResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(StrengthUnitMasterDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): StrengthUnitMasterDtoListResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new StrengthUnitMasterDtoListResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): StrengthUnitMasterDtoListResultDto {
+        const json = this.toJSON();
+        let result = new StrengthUnitMasterDtoListResultDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IStrengthUnitMasterDtoListResultDto {
+    items: StrengthUnitMasterDto[] | undefined;
+}
+
+export class StrengthUnitMasterDtoPagedResultDto implements IStrengthUnitMasterDtoPagedResultDto {
+    items: StrengthUnitMasterDto[] | undefined;
+    totalCount: number;
+
+    constructor(data?: IStrengthUnitMasterDtoPagedResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(StrengthUnitMasterDto.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): StrengthUnitMasterDtoPagedResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new StrengthUnitMasterDtoPagedResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+
+    clone(): StrengthUnitMasterDtoPagedResultDto {
+        const json = this.toJSON();
+        let result = new StrengthUnitMasterDtoPagedResultDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IStrengthUnitMasterDtoPagedResultDto {
+    items: StrengthUnitMasterDto[] | undefined;
+    totalCount: number;
 }
 
 export enum TenantAvailabilityState {

@@ -88,6 +88,10 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
 
     public DbSet<ProcedureReceipt> ProcedureReceipts { get; set; }
     public DbSet<EMRSystem.PatientDischarge.PatientDischarge> PatientDischarges { get; set; }
+    public DbSet<EMRSystem.Medicines.MedicineMaster> MedicineMasters { get; set; }
+    public DbSet<EMRSystem.Medicines.MedicineStock> MedicineStocks { get; set; }
+    public DbSet<EMRSystem.MedicineFormMaster.MedicineFormMaster> MedicineFormMasters { get; set; }
+    public DbSet<EMRSystem.StrengthUnitMaster.StrengthUnitMaster> StrengthUnitMasters { get; set; }
 
 
 
@@ -899,6 +903,53 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
             //  .OnDelete(DeleteBehavior.Restrict);
 
         });
+        modelBuilder.Entity<EMRSystem.Medicines.MedicineMaster>(b =>
+        {
+            b.ToTable("MedicineMasters");
+
+            b.Property(x => x.MinimumStock).IsRequired();
+
+            b.HasOne(m => m.Form)
+             .WithMany()
+             .HasForeignKey(m => m.MedicineFormId)
+             .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(m => m.StrengthUnit)
+             .WithMany()
+             .HasForeignKey(m => m.StrengthUnitId)
+             .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasMany(m => m.Stocks)
+             .WithOne(s => s.MedicineMaster)
+             .HasForeignKey(s => s.MedicineMasterId)
+             .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<EMRSystem.Medicines.MedicineStock>(b =>
+        {
+            b.ToTable("MedicineStocks");
+
+            b.Property(x => x.PurchasePrice).HasColumnType("decimal(18,2)");
+            b.Property(x => x.SellingPrice).HasColumnType("decimal(18,2)");
+
+            b.HasOne(s => s.MedicineMaster)
+             .WithMany(m => m.Stocks)
+             .HasForeignKey(s => s.MedicineMasterId)
+             .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<EMRSystem.MedicineFormMaster.MedicineFormMaster>(b =>
+        {
+            b.ToTable("MedicineFormMasters");
+            b.HasIndex(x => new { x.TenantId, x.Name }).IsUnique();
+        });
+
+        modelBuilder.Entity<EMRSystem.StrengthUnitMaster.StrengthUnitMaster>(b =>
+        {
+            b.ToTable("StrengthUnitMasters");
+            b.HasIndex(x => new { x.TenantId, x.Name }).IsUnique();
+        });
+
 
     }
 }
