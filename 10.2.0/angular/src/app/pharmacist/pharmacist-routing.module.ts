@@ -4,6 +4,7 @@ import { PharmacistComponent } from './pharmacist.component';
 import { AppRouteGuard } from '../../shared/auth/auth-route-guard';
 import { PharmacistPrescriptionsComponent } from './pharmacist-prescriptions/pharmacist-prescriptions.component';
 import { PharmacistInventoryComponent } from './pharmacist-inventory/pharmacist-inventory.component';
+import {MedicineListComponent} from './medicine-list/medicine-list.component'
 
 
 
@@ -20,6 +21,10 @@ const routes: Routes = [
             {
                 path: 'pharmacist-inventory',
                 component: PharmacistInventoryComponent,
+            },
+            {
+                path:'medicine-list',
+                component: MedicineListComponent
             },
             {
                 path: '',

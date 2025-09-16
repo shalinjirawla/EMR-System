@@ -1,0 +1,57 @@
+<form class="form-horizontal" autocomplete="off" #strengthTypeForm="ngForm" (ngSubmit)="save()">
+  <abp-modal-header
+    [title]="id ? 'Edit Medicine Strength Type' : 'Create Medicine Strength Types'"
+    (onCloseClick)="bsModalRef.hide()"
+  ></abp-modal-header>
+
+  <div class="modal-body">
+    <!-- Bulk create mode -->
+    <div class="form-group" *ngIf="!id">
+      <label><b>Strength Type Names *</b></label>
+      <p-autoComplete
+        [(ngModel)]="selectedStrengthTypeNames"
+        name="strengthTypeNames"
+        [suggestions]="filteredStrengthTypeNames"
+        (completeMethod)="filterStrengthTypeNames($event)"
+        [multiple]="true"
+        [typeahead]="false"
+        placeholder="Enter or select multiple strength type names"
+        class="w-100"
+        required
+      ></p-autoComplete>
+    </div>
+
+    <!-- Single update mode -->
+    <div class="form-group" *ngIf="id">
+      <label for="strengthTypeName"><b>Name *</b></label>
+      <input
+        pInputText
+        type="text"
+        id="strengthTypeName"
+        name="strengthTypeName"
+        class="form-control"
+        [(ngModel)]="strengthType.name"
+        required
+        maxlength="100"
+        placeholder="Enter strength type name"
+      />
+    </div>
+
+    <!-- Active checkbox -->
+    <div class="form-group">
+      <label for="isActive"><b>Active</b></label>
+      <p-checkbox
+        inputId="isActive"
+        name="isActive"
+        [(ngModel)]="isActive"
+        binary="true"
+      ></p-checkbox>
+    </div>
+  </div>
+
+  <abp-modal-footer
+    [cancelDisabled]="saving"
+    [saveDisabled]="!isFormValid || saving"
+    (onCancelClick)="bsModalRef.hide()"
+  ></abp-modal-footer>
+</form>
