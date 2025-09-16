@@ -15,8 +15,8 @@ namespace EMRSystem.Patient_Discharge.Dto
                 .ForMember(dest => dest.Admission, opt => opt.MapFrom(src => src.Admission))
                 .ForMember(dest => dest.Patient, opt => opt.MapFrom(src => src.Patient))
                 .ForMember(dest => dest.Doctor, opt => opt.MapFrom(src => src.Doctor))
-                .ForMember(dest => dest.BillingStaff, opt => opt.MapFrom(src => src.BillingStaff))
-                .ForMember(dest => dest.PharmacistStaff, opt => opt.MapFrom(src => src.PharmacistStaff))
+                //.ForMember(dest => dest.BillingStaff, opt => opt.MapFrom(src => src.BillingStaff))
+                //.ForMember(dest => dest.PharmacistStaff, opt => opt.MapFrom(src => src.PharmacistStaff))
                 .ForMember(dest => dest.DischargeDate, opt => opt.MapFrom(src => src.DischargeDate))
                 .ForMember(dest => dest.DischargeSummary, opt => opt.MapFrom(src => src.DischargeSummary))
                 .ForMember(dest => dest.DischargeStatus, opt => opt.MapFrom(src => src.DischargeStatus))
@@ -31,8 +31,8 @@ namespace EMRSystem.Patient_Discharge.Dto
                 .ForMember(dest => dest.DischargeSummary, opt => opt.MapFrom(src => src.DischargeSummary))
                 .ForMember(dest => dest.DischargeStatus, opt => opt.MapFrom(src => src.DischargeStatus))
                 .ForMember(dest => dest.DoctorId, opt => opt.MapFrom(src => src.Doctor != null ? src.Doctor.Id : (long?)null))
-                .ForMember(dest => dest.BillingStaffId, opt => opt.MapFrom(src => src.BillingStaffId))
-                .ForMember(dest => dest.PharmacyStaffId, opt => opt.MapFrom(src => src.PharmacyStaffId))
+                //.ForMember(dest => dest.BillingStaffId, opt => opt.MapFrom(src => src.BillingStaffId))
+                //.ForMember(dest => dest.PharmacyStaffId, opt => opt.MapFrom(src => src.PharmacyStaffId))
                 .ReverseMap();
 
 
@@ -49,7 +49,13 @@ namespace EMRSystem.Patient_Discharge.Dto
                         BloodGroup = src.Patient.BloodGroup,
                         MobileNumber = src.Patient.AbpUser != null ? src.Patient.AbpUser.PhoneNumber : string.Empty,
                         EmergencyNumber = src.Patient.EmergencyContactNumber,
-                        EmergencyPersonName = src.Patient.EmergencyContactName
+                        EmergencyPersonName = src.Patient.EmergencyContactName,
+                        Address=src.Patient.Address
+                    }))
+                    .ForMember(dest => dest.PatientDischarge, opt => opt.MapFrom(src => new PatientDischargeDto
+                    {
+                        DischargeStatus = src.DischargeStatus,
+                        DischargeSummary=src.DischargeSummary,
                     }));
 
         }

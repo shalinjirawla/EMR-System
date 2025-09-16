@@ -19,6 +19,7 @@ namespace EMRSystem.EmergencyProcedure
         >
     {
         Task MarkAsCompleteAsync(long id);
+        Task<List<SelectedEmergencyProceduresDto>> GetSelectedProceduresByPatientID(long patientID);
 
     }
 }

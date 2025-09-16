@@ -14,5 +14,6 @@ namespace EMRSystem.PrescriptionLabTest
         //Task<LabTestCreationResultDto> CreateLabTestAsync(CreateUpdatePrescriptionLabTestDto input);
         Task MakeInprogressReport(long id);
         Task<string> InitiatePaymentForLabTest(long labTestId);
+        Task<List<PrescriptionLabTestDto>> GetPrescriptionLabTestByPatientId(long patientID);
     }
 }
