@@ -497,8 +497,8 @@ namespace EMRSystem.Invoice
         {
             var invoice = await Repository
                 .GetAll()
-                .Include(x => x.Items)            
-                .Include(x => x.Patient)          
+                .Include(x => x.Items)
+                .Include(x => x.Patient)
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             if (invoice == null)
@@ -554,6 +554,13 @@ namespace EMRSystem.Invoice
             {
                 throw new UserFriendlyException("Stripe checkout creation failed: " + e.Message);
             }
+        }
+
+        public async Task<List<InvoiceDto>> GetInvoicesByPatientID(long patientID)
+        {
+            var list = await Repository.GetAll().Where(x => x.PatientId == patientID).ToListAsync();
+            var mappedList = ObjectMapper.Map<List<InvoiceDto>>(list);
+            return mappedList;
         }
     }
 }

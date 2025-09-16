@@ -17,7 +17,8 @@
                 </label>
                 <p-select [options]="roles" placeholder="Select role" optionLabel="normalizedName"
                     optionValue="normalizedName" [(ngModel)]="selectedRole" name="userRole" class="w-100" required
-                    [disabled]="disableRoleSelection" #roleModel="ngModel" (ngModelChange)="onRoleChange()" placeholder="Select role">
+                    [disabled]="disableRoleSelection" #roleModel="ngModel" (ngModelChange)="onRoleChange()"
+                    placeholder="Select role">
                 </p-select>
             </div>
         </div>
@@ -27,7 +28,7 @@
                     {{ 'Name' | localize }}
                 </label>
                 <input type="text" pInputText name="name" id="name" required maxlength="64" [(ngModel)]="user.name"
-                    #nameModel="ngModel" #nameEl placeholder="Enter name"/>
+                    #nameModel="ngModel" #nameEl placeholder="Enter name" />
                 <abp-validation-summary [control]="nameModel" [controlEl]="nameEl"></abp-validation-summary>
             </div>
             <div class="col-md-6 d-flex flex-column">
@@ -41,23 +42,32 @@
         </div>
 
         <div class="form-group row required mb-0">
-            <div class="col-md-6 d-flex flex-column">
+            <div class="col-md-4 d-flex flex-column">
                 <label class="col-form-label" for="userName">
                     {{ 'UserName' | localize }}
                 </label>
                 <input type="text" pInputText name="userName" id="userName" required minlength="2" maxlength="256"
-                    [(ngModel)]="user.userName" #userNameModel="ngModel" #userNameEl placeholder="Enter username"/>
+                    [(ngModel)]="user.userName" #userNameModel="ngModel" #userNameEl placeholder="Enter username" />
                 <abp-validation-summary [control]="userNameModel" [controlEl]="userNameEl"></abp-validation-summary>
             </div>
-            <div class="col-md-6 d-flex flex-column">
+            <div class="col-md-4 d-flex flex-column">
                 <label class="col-form-label" for="emailAddress">
                     {{ 'EmailAddress' | localize }}
                 </label>
                 <input type="email" pInputText name="emailAddress" id="emailAddress" required maxlength="256"
-                    pattern="^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{1,})+$" [(ngModel)]="user.emailAddress" placeholder="Enter email address"
-                    #emailAddressModel="ngModel" #emailAddressEl />
+                    pattern="^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{1,})+$" [(ngModel)]="user.emailAddress"
+                    placeholder="Enter email address" #emailAddressModel="ngModel" #emailAddressEl />
                 <abp-validation-summary [control]="emailAddressModel"
                     [controlEl]="emailAddressEl"></abp-validation-summary>
+            </div>
+            <div class="col-md-4 d-flex flex-column">
+                <label class="col-form-label" for="phoneNumber">Phone Number</label>
+                <input type="text" pInputText id="phoneNumber" name="phoneNumber" required
+                    [(ngModel)]="user.phoneNumber" placeholder="Enter phone number"
+                    #phoneNumberModel="ngModel" #phoneNumberEl pattern="^[0-9]{10}$" maxlength="10"
+                    minlength="10">
+                <abp-validation-summary [control]="phoneNumberModel"
+                    [controlEl]="phoneNumberEl"></abp-validation-summary>
             </div>
         </div>
 
@@ -79,8 +89,8 @@
                     {{ 'ConfirmPassword' | localize }}
                 </label>
                 <input type="password" pInputText name="confirmPassword" id="confirmPassword" required maxlength="32"
-                    validateEqual="password" reverse="false" [(ngModel)]="confirmPassword" placeholder="Enter confirmPassword"
-                    #confirmPasswordModel="ngModel" #confirmPasswordEl />
+                    validateEqual="password" reverse="false" [(ngModel)]="confirmPassword"
+                    placeholder="Enter confirmPassword" #confirmPasswordModel="ngModel" #confirmPasswordEl />
                 <abp-validation-summary [control]="confirmPasswordModel" [controlEl]="confirmPasswordEl"
                     [customValidationErrors]="confirmPasswordValidationErrors"></abp-validation-summary>
             </div>

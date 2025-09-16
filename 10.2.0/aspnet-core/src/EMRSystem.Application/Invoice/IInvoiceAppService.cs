@@ -21,6 +21,7 @@ namespace EMRSystem.Invoice
         Task<List<IpdChargeEntryDto>> GetChargesByPatientAsync(long patientId, InvoiceType invoiceType);
 
         public Task<string> CreateStripeCheckoutSession(long invoiceId, decimal amount, string successUrl, string cancelUrl);
+        Task<List<InvoiceDto>> GetInvoicesByPatientID(long patientID);
     }
 
 }

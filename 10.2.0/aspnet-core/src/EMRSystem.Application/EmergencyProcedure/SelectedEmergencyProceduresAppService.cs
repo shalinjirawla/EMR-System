@@ -42,5 +42,16 @@ namespace EMRSystem.EmergencyProcedure
             await Repository.UpdateAsync(procedure);
         }
 
+        public async Task<List<SelectedEmergencyProceduresDto>> GetSelectedProceduresByPatientID(long patientID)
+        {
+            var list = await Repository.GetAll()
+                .Include(x => x.EmergencyProcedures)
+                .Include(x => x.Prescriptions)
+                    .ThenInclude(p => p.Patient)
+                .Where(x => x.Prescriptions.PatientId == patientID).ToListAsync();
+
+            var mappedRes = ObjectMapper.Map<List<SelectedEmergencyProceduresDto>>(list);
+            return mappedRes;
+        }
     }
 }

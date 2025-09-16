@@ -264,7 +264,7 @@ namespace EMRSystem.Patients
                 query = query.Where(i => i.TenantId == AbpSession.TenantId.Value);
             }
 
-            var patients = query.ToList();
+            var patients = query.ToList().OrderByDescending(x=>x.Id);
             var mapped = ObjectMapper.Map<List<PatientDropDownDto>>(patients);
             return mapped;
         }

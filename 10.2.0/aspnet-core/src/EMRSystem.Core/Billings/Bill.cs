@@ -22,7 +22,7 @@ namespace EMRSystem.Billings
         public ICollection<BillItem> Items { get; set; }
         public long AbpUserId { get; set; }
         public virtual User AbpUser { get; set; }
-        public virtual ICollection<EMRSystem.PatientDischarge.PatientDischarge> _PatientDischarge { get; set; }
+        //public virtual ICollection<EMRSystem.PatientDischarge.PatientDischarge> _PatientDischarge { get; set; }
     }
     public enum PaymentStatus
     {

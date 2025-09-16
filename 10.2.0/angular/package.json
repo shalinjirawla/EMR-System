@@ -42,6 +42,7 @@
     "primeicons": "^7.0.0",
     "primeng": "^19.1.4",
     "push.js": "1.0.12",
+    "quill": "^2.0.3",
     "rtl-detect": "^1.1.2",
     "rxjs": "^7.8.2",
     "sweetalert2": "^11.17.2",

@@ -13,5 +13,6 @@ namespace EMRSystem.Vitals
     public interface IVitalAppService : IAsyncCrudAppService<
     VitalDto, long, PagedVitalResultRequestDto, CreateUpdateVitalDto, CreateUpdateVitalDto>
     {
+        Task<List<VitalDto>> GetVitalsByPatientID(long patientID);
     }
 }

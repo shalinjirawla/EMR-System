@@ -14,5 +14,6 @@ namespace EMRSystem.Prescriptions
     PrescriptionDto, long, PagedPrescriptionResultRequestDto, CreateUpdatePrescriptionDto, CreateUpdatePrescriptionDto>
     {
         Task<PrescriptionDto> CreateAsync(CreateUpdatePrescriptionDto input);
+        Task<ListResultDto<PrescriptionDto>> GetPrescriptionsByPatient(long patientId);
     }
 }

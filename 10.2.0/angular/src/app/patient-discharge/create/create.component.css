@@ -10,6 +10,13 @@
   font-weight: 600;
 }
 
+.create-btn {
+  background-color: #e3f2ff !important;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+}
+
 ::ng-deep .p-steplist {
   flex-direction: column !important;
   align-items: start !important;
@@ -23,10 +30,15 @@
   color: white !important;
 }
 
-::ng-deep .p-step-active{
+::ng-deep .p-step-active {
   background-color: #1F6DB2 !important;
 }
 
 ::ng-deep .p-stepper-separator {
   display: none !important;
+}
+
+::ng-deep .final-approved-cls .p-button {
+  height: 1.5rem !important;
+  width: 1.5rem !important;
 }

@@ -4,6 +4,7 @@ using EMRSystem.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EMRSystem.Migrations
 {
     [DbContext(typeof(EMRSystemDbContext))]
-    partial class EMRSystemDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250916113821_removeBillPharmafromdischarge")]
+    partial class removeBillPharmafromdischarge
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3077,6 +3080,9 @@ namespace EMRSystem.Migrations
                     b.Property<long>("AdmissionId")
                         .HasColumnType("bigint");
 
+                    b.Property<long?>("BillId")
+                        .HasColumnType("bigint");
+
                     b.Property<DateTime?>("DischargeDate")
                         .HasColumnType("datetime2");
 
@@ -3092,6 +3098,9 @@ namespace EMRSystem.Migrations
                     b.Property<long>("PatientId")
                         .HasColumnType("bigint");
 
+                    b.Property<long?>("PharmacistId")
+                        .HasColumnType("bigint");
+
                     b.Property<int>("TenantId")
                         .HasColumnType("int");
 
@@ -3100,9 +3109,13 @@ namespace EMRSystem.Migrations
                     b.HasIndex("AdmissionId")
                         .IsUnique();
 
+                    b.HasIndex("BillId");
+
                     b.HasIndex("DoctorId");
 
                     b.HasIndex("PatientId");
+
+                    b.HasIndex("PharmacistId");
 
                     b.ToTable("PatientDischarges", (string)null);
                 });
@@ -4521,6 +4534,10 @@ namespace EMRSystem.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("EMRSystem.Billings.Bill", null)
+                        .WithMany("_PatientDischarge")
+                        .HasForeignKey("BillId");
+
                     b.HasOne("EMRSystem.Doctors.Doctor", "Doctor")
                         .WithMany("_PatientDischarge")
                         .HasForeignKey("DoctorId")
@@ -4531,6 +4548,10 @@ namespace EMRSystem.Migrations
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("EMRSystem.Pharmacists.Pharmacist", null)
+                        .WithMany("_PatientDischarge")
+                        .HasForeignKey("PharmacistId");
 
                     b.Navigation("Admission");
 
@@ -4846,6 +4867,8 @@ namespace EMRSystem.Migrations
             modelBuilder.Entity("EMRSystem.Billings.Bill", b =>
                 {
                     b.Navigation("Items");
+
+                    b.Navigation("_PatientDischarge");
                 });
 
             modelBuilder.Entity("EMRSystem.Departments.Department", b =>
@@ -4998,6 +5021,11 @@ namespace EMRSystem.Migrations
 
                     b.Navigation("Vitals");
 
+                    b.Navigation("_PatientDischarge");
+                });
+
+            modelBuilder.Entity("EMRSystem.Pharmacists.Pharmacist", b =>
+                {
                     b.Navigation("_PatientDischarge");
                 });
 

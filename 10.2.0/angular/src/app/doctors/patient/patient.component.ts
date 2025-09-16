@@ -41,14 +41,13 @@ export class PatientComponent extends PagedListingComponentBase<PatientDto> impl
     showDoctorColumn: boolean = false;
     showNurseColumn: boolean = false;
     statusOptions = [
-        { label: 'Discharge Pending', value: DischargeStatus._0 },
-        { label: 'Discharge Initiated', value: DischargeStatus._1 },
-        { label: 'Doctor Summary', value: DischargeStatus._2 },
+        { label: 'Pending', value: DischargeStatus._0 },
+        { label: 'Initiated', value: DischargeStatus._1 },
+        { label: 'Sent To LabTechnician', value: DischargeStatus._2 },
         { label: 'Sent To Billing', value: DischargeStatus._3 },
         { label: 'Billing Completed', value: DischargeStatus._4 },
-        { label: 'Pharmacy Completed', value: DischargeStatus._5 },
-        { label: 'Final Approval', value: DischargeStatus._6 },
-        { label: 'Discharged', value: DischargeStatus._7 },
+        { label: 'Final Approval', value: DischargeStatus._5 },
+        { label: 'Discharged', value: DischargeStatus._6 },
     ];
     constructor(
         injector: Injector,
@@ -190,17 +189,16 @@ export class PatientComponent extends PagedListingComponentBase<PatientDto> impl
     getStatusSeverity(value: number) {
         switch (value) {
             case DischargeStatus._0: return 'warn';
-            case DischargeStatus._1: return 'success';
+            case DischargeStatus._1: return 'warn';
             case DischargeStatus._2: return 'warn';
             case DischargeStatus._3: return 'warn';
             case DischargeStatus._4: return 'warn';
             case DischargeStatus._5: return 'warn';
-            case DischargeStatus._6: return 'warn';
-            case DischargeStatus._7: return 'success';
+            case DischargeStatus._6: return 'success';
             default: return 'warn';
         }
     }
     gotoDischargeSummaryPage(id: number): void {
-        this.router.navigate(['app/patient-discharge/create',id],);
+        this.router.navigate(['app/patient-discharge/create', id],);
     }
 }
