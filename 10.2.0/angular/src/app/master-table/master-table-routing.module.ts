@@ -15,7 +15,8 @@ import { BedsComponent } from './beds/beds.component';
 import { EmergencyChargesComponent } from './emergency-charges/emergency-charges.component';
 import {DepartmentComponent} from './department/department.component'
 import {EmergencyProcedureComponent} from './emergency-procedure/emergency-procedure.component'
-
+import {  MedicineFormTypeComponent} from './medicine-form-type/medicine-form-type.component';
+import { MedicineStrengthTypeComponent } from './medicine-strength-type/medicine-strength-type.component';
 const routes: Routes = [
     {
         path: '',
@@ -77,6 +78,14 @@ const routes: Routes = [
     {
         path:'emergency-procedure',
         component:EmergencyProcedureComponent
+    },
+    {
+        path:'medicine-form-type',
+        component:MedicineFormTypeComponent
+    },
+    {
+        path:'medicine-strength-type',
+        component:MedicineStrengthTypeComponent
     }
 ];
 

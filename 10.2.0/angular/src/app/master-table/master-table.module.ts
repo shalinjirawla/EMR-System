@@ -15,7 +15,8 @@ import { HealthPackageComponent } from './health-package/health-package.componen
 import {BedsComponent} from './beds/beds.component'
 import { DepartmentComponent } from './department/department.component';
 import { EmergencyProcedureComponent } from './emergency-procedure/emergency-procedure.component';
-
+import { MedicineFormTypeComponent } from './medicine-form-type/medicine-form-type.component';
+import {MedicineStrengthTypeComponent} from './medicine-strength-type/medicine-strength-type.component'
 
 @NgModule({
     imports: [
@@ -34,7 +35,9 @@ import { EmergencyProcedureComponent } from './emergency-procedure/emergency-pro
         HealthPackageComponent,
         BedsComponent,
         DepartmentComponent,
-        EmergencyProcedureComponent
+        EmergencyProcedureComponent,
+        MedicineFormTypeComponent,
+        MedicineStrengthTypeComponent
     ],
 })
 export class MasterTableModule {}

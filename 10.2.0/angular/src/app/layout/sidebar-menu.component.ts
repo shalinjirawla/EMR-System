@@ -170,6 +170,7 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
 
             // Pharmacist Section
             new MenuItem(this.l('Pharmacy Portal'), '', 'fas fa-clinic-medical', 'Pages.Pharmacist', [
+                new MenuItem(this.l('Medicine List'), '/app/pharmacist/medicine-list', 'fas fa-capsules', 'Pages.Pharmacist.Inventory.View'),
                 new MenuItem(this.l('Drug Inventory'), '/app/pharmacist/pharmacist-inventory', 'fas fa-capsules', 'Pages.Pharmacist.Inventory.View'),
                 new MenuItem(this.l('Prescription Fulfillment'), '/app/pharmacist/pharmacist-prescriptions', 'fas fa-prescription-bottle-alt', 'Pages.Pharmacist.Prescriptions.View'),
             ]),
@@ -193,6 +194,11 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
                     new MenuItem(this.l('Rooms'), '/app/room', 'fas fa-door-open', 'Pages.Users'),
                     new MenuItem(this.l('Beds'), '/app/master/beds', 'fas fa-procedures', 'Pages.Users'),
                 ]),
+                new MenuItem(this.l('Medicine Module'), '', 'fas fa-capsules', 'Pages.Users', [
+                    new MenuItem(this.l('Medicine Form Type'), '/app/master/medicine-form-type', 'fas fa-prescription-bottle-alt', 'Pages.Users'),
+                    new MenuItem(this.l('Medicine Unit Type'), '/app/master/medicine-strength-type', 'fas fa-ruler-combined', 'Pages.Users'),
+                ]),
+
                 new MenuItem(this.l('Procedure Types'), '/app/master/emergency-procedure', 'fas fa-fas fa-syringe', 'Pages.Users'),
                 new MenuItem(this.l('Departments Types'), '/app/master/department', 'fas fa-sitemap', 'Pages.Users'),
                 new MenuItem(this.l('Doctor Master Data'), '/app/master/doctor-master', 'fas fa-user-md', 'Pages.Users'),

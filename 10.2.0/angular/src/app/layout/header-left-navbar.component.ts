@@ -8,7 +8,7 @@ import { LocalizePipe } from '@shared/pipes/localize.pipe';
     templateUrl: './header-left-navbar.component.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: [RouterLink, LocalizePipe],
+    imports: [RouterLink],
 })
 export class HeaderLeftNavbarComponent implements OnInit {
     sidebarExpanded: boolean;
