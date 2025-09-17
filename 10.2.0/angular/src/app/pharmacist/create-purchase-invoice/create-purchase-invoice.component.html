@@ -1,0 +1,77 @@
+<form class="form-horizontal" autocomplete="off" #purchaseInvoiceForm="ngForm" (ngSubmit)="save()">
+  <abp-modal-header title="Add Purchase Invoice" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
+
+  <div class="modal-body">
+    <!-- Invoice Info -->
+    <div class="row">
+      <div class="col-md-6 d-flex flex-column">
+        <label for="invoiceNo">Invoice No</label>
+        <input pInputText [(ngModel)]="invoice.invoiceNo" name="invoiceNo"
+               placeholder="Enter invoice number" class="w-100" required />
+      </div>
+      <div class="col-md-6 d-flex flex-column">
+        <label for="invoiceDate">Invoice Date</label>
+        <p-datepicker [(ngModel)]="invoice.invoiceDate" name="invoiceDate"
+                    [maxDate]="today" dateFormat="yy-mm-dd"
+                    placeholder="Select invoice date"  required>
+        </p-datepicker>
+      </div>
+    </div>
+
+    <div class="row mt-3">
+      <div class="col-md-12 d-flex flex-column">
+        <label for="supplierName">Supplier Name</label>
+        <input pInputText [(ngModel)]="invoice.supplierName" name="supplierName"
+               placeholder="Enter supplier name" class="w-100" required />
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- Purchase Items -->
+    <div class="row mt-2">
+      <div class="col-md-12 d-flex justify-content-between align-items-center">
+        <h5>Purchase Items</h5>
+        <button type="button" pButton label="Add Item" icon="pi pi-plus" (click)="addItem()"></button>
+      </div>
+    </div>
+
+    <div *ngFor="let item of invoice.items; let i = index" class="row mt-2">
+      <div class="col-md-3 d-flex flex-column">
+        <label>Medicine</label>
+        <p-dropdown [(ngModel)]="item.medicineMasterId" name="medicineMasterId{{i}}" [options]="medicineOptions"
+                    optionLabel="name" optionValue="id" placeholder="Select medicine" [filter]="true" required>
+        </p-dropdown>
+      </div>
+      <div class="col-md-2 d-flex flex-column">
+        <label>Batch No</label>
+        <input pInputText [(ngModel)]="item.batchNo" name="batchNo{{i}}" placeholder="Enter batch no" required />
+      </div>
+      <div class="col-md-2 d-flex flex-column">
+        <label>Expiry Date</label>
+        <p-datepicker [(ngModel)]="item.expiryDate" name="expiryDate{{i}}"
+                    [minDate]="today" dateFormat="yy-mm-dd"
+                    placeholder="Select expiry date"></p-datepicker>
+      </div>
+      <br>
+      <div class="col-md-1 d-flex flex-column">
+        <label>Qty</label>
+        <p-inputNumber [(ngModel)]="item.quantity" name="quantity{{i}}" [min]="1" [max]="10000" required></p-inputNumber>
+      </div>
+      <div class="col-md-2 d-flex flex-column">
+        <label>Purchase Price</label>
+        <p-inputNumber [(ngModel)]="item.purchasePrice" name="purchasePrice{{i}}" [min]="0" [mode]="'decimal'" required></p-inputNumber>
+      </div>
+      <div class="col-md-2 d-flex flex-column">
+        <label>Selling Price</label>
+        <p-inputNumber [(ngModel)]="item.sellingPrice" name="sellingPrice{{i}}" [min]="0" [mode]="'decimal'" required></p-inputNumber>
+      </div>
+      <div class="col-md-12 d-flex justify-content-end mt-1">
+        <button type="button" pButton icon="pi pi-trash" class="p-button-danger" (click)="removeItem(i)"></button>
+      </div>
+    </div>
+  </div>
+
+  <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="!isFormValid || saving"
+                    (onCancelClick)="bsModalRef.hide()"></abp-modal-footer>
+</form>

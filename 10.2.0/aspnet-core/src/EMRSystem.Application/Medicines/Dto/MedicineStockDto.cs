@@ -13,7 +13,6 @@ namespace EMRSystem.Medicines.Dto
         public long MedicineMasterId { get; set; }
         public string MedicineName { get; set; }
         public string BatchNo { get; set; }
-        public DateTime PurchaseDate { get; set; }
         public DateTime? ExpiryDate { get; set; }
         public int Quantity { get; set; }
         public decimal PurchasePrice { get; set; }

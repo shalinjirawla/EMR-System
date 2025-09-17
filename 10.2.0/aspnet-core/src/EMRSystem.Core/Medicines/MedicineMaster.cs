@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace EMRSystem.Medicines
 {
-    public class MedicineMaster : Entity<long>
+    public class MedicineMaster : Entity<long>, IMustHaveTenant
     {
         public int TenantId { get; set; }
 
@@ -16,6 +16,7 @@ namespace EMRSystem.Medicines
 
         public long MedicineFormId { get; set; }
         public virtual EMRSystem.MedicineFormMaster.MedicineFormMaster Form { get; set; }
+
         public decimal? Strength { get; set; }
         public long? StrengthUnitId { get; set; }
         public virtual EMRSystem.StrengthUnitMaster.StrengthUnitMaster StrengthUnit { get; set; }
