@@ -894,15 +894,15 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
               .HasForeignKey(c => c.DoctorId)
               .OnDelete(DeleteBehavior.Restrict);
 
-            b.HasOne(d => d.PharmacistStaff)
-              .WithMany(dep => dep._PatientDischarge)
-              .HasForeignKey(c => c.PharmacyStaffId)
-              .OnDelete(DeleteBehavior.Restrict);
+            //b.HasOne(d => d.PharmacistStaff)
+            //  .WithMany(dep => dep._PatientDischarge)
+            //  .HasForeignKey(c => c.PharmacyStaffId)
+            //  .OnDelete(DeleteBehavior.Restrict);
 
-            b.HasOne(d => d.BillingStaff)
-              .WithMany(dep => dep._PatientDischarge)
-              .HasForeignKey(c => c.BillingStaffId)
-              .OnDelete(DeleteBehavior.Restrict);
+            //b.HasOne(d => d.BillingStaff)
+            //  .WithMany(dep => dep._PatientDischarge)
+            //  .HasForeignKey(c => c.BillingStaffId)
+            //  .OnDelete(DeleteBehavior.Restrict);
 
         });
         modelBuilder.Entity<EMRSystem.Medicines.MedicineMaster>(b =>

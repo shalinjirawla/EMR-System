@@ -19,8 +19,6 @@ namespace EMRSystem.Patient_Discharge.Dto
         public AdmissionDto Admission { get; set; }
         public PatientDto Patient { get; set; }
         public DoctorDto Doctor { get; set; }
-        public BillingDto BillingStaff { get; set; }
-        public PharmacistDto PharmacistStaff { get; set; }
         public DateTime? DischargeDate { get; set; }
         public string DischargeSummary { get; set; }
         public DischargeStatus DischargeStatus { get; set; }

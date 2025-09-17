@@ -35,7 +35,7 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
   @ViewChild('prescriptionForm', { static: true }) prescriptionForm: NgForm;
   @Output() onSave = new EventEmitter<void>();
   @Input() selectedPatient: PatientDto | undefined;   // <-- patient preselect
-
+  @Input() dischargePatientID: number = 0;
   procedures: any[] = [];
   selectedProcedures: number[] = [];
   saving = false;
@@ -117,6 +117,11 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
       } else {
         this.LoadAppoinments();
       }
+    }
+    if (this.dischargePatientID > 0) {
+      this.prescription.patientId = this.dischargePatientID;  
+      this.prescription.appointmentId = null;
+      this.showAddPatientButton = false;
     }
   }
   loadProcedures() {
@@ -338,7 +343,7 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
           ...item,
           duration: `${(item as any).durationValue} ${(item as any).durationUnit}`,
           medicineId: item.medicineId,
-          isPrescribe:true
+          isPrescribe: true
         });
         return dtoItem;
       });
@@ -355,7 +360,7 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
         });
         return dto;
       });
-      debugger
+    debugger
     this._prescriptionService.createPrescriptionWithItem(input).subscribe({
       next: (res) => {
         this.notify.info(this.l('SavedSuccessfully'));

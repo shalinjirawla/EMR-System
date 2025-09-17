@@ -7152,6 +7152,69 @@ export class InvoiceServiceProxy {
     }
 
     /**
+     * @param patientID (optional) 
+     * @return OK
+     */
+    getInvoicesByPatientID(patientID: number | undefined): Observable<InvoiceDto[]> {
+        let url_ = this.baseUrl + "/api/services/app/Invoice/GetInvoicesByPatientID?";
+        if (patientID === null)
+            throw new Error("The parameter 'patientID' cannot be null.");
+        else if (patientID !== undefined)
+            url_ += "patientID=" + encodeURIComponent("" + patientID) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetInvoicesByPatientID(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetInvoicesByPatientID(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<InvoiceDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<InvoiceDto[]>;
+        }));
+    }
+
+    protected processGetInvoicesByPatientID(response: HttpResponseBase): Observable<InvoiceDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200.push(InvoiceDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * @param id (optional) 
      * @return OK
      */
@@ -14121,30 +14184,35 @@ export class PatientDischargeServiceProxy {
     }
 
     /**
-     * @param dischargeId (optional) 
+     * @param patientID (optional) 
+     * @param body (optional) 
      * @return OK
      */
-    initiateDischarge(dischargeId: number | undefined): Observable<void> {
-        let url_ = this.baseUrl + "/api/services/app/PatientDischarge/InitiateDischarge?";
-        if (dischargeId === null)
-            throw new Error("The parameter 'dischargeId' cannot be null.");
-        else if (dischargeId !== undefined)
-            url_ += "dischargeId=" + encodeURIComponent("" + dischargeId) + "&";
+    dischargeStatusChange(patientID: number | undefined, body: DischargeStatus | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/PatientDischarge/DischargeStatusChange?";
+        if (patientID === null)
+            throw new Error("The parameter 'patientID' cannot be null.");
+        else if (patientID !== undefined)
+            url_ += "patientID=" + encodeURIComponent("" + patientID) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(body);
+
         let options_ : any = {
+            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
+                "Content-Type": "application/json",
             })
         };
 
         return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processInitiateDischarge(response_);
+            return this.processDischargeStatusChange(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processInitiateDischarge(response_ as any);
+                    return this.processDischargeStatusChange(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<void>;
                 }
@@ -14153,7 +14221,7 @@ export class PatientDischargeServiceProxy {
         }));
     }
 
-    protected processInitiateDischarge(response: HttpResponseBase): Observable<void> {
+    protected processDischargeStatusChange(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -14219,6 +14287,120 @@ export class PatientDischargeServiceProxy {
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = DischargeSummaryDto.fromJS(resultData200);
             return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param summary (optional) 
+     * @param patientID (optional) 
+     * @param doctorID (optional) 
+     * @return OK
+     */
+    finalApproval(summary: string | undefined, patientID: number | undefined, doctorID: number | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/PatientDischarge/FinalApproval?";
+        if (summary === null)
+            throw new Error("The parameter 'summary' cannot be null.");
+        else if (summary !== undefined)
+            url_ += "summary=" + encodeURIComponent("" + summary) + "&";
+        if (patientID === null)
+            throw new Error("The parameter 'patientID' cannot be null.");
+        else if (patientID !== undefined)
+            url_ += "patientID=" + encodeURIComponent("" + patientID) + "&";
+        if (doctorID === null)
+            throw new Error("The parameter 'doctorID' cannot be null.");
+        else if (doctorID !== undefined)
+            url_ += "doctorID=" + encodeURIComponent("" + doctorID) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processFinalApproval(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processFinalApproval(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processFinalApproval(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param patientID (optional) 
+     * @return OK
+     */
+    finalDischarge(patientID: number | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/PatientDischarge/FinalDischarge?";
+        if (patientID === null)
+            throw new Error("The parameter 'patientID' cannot be null.");
+        else if (patientID !== undefined)
+            url_ += "patientID=" + encodeURIComponent("" + patientID) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processFinalDischarge(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processFinalDischarge(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processFinalDischarge(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -20433,6 +20615,69 @@ export class SelectedEmergencyProceduresServiceProxy {
     }
 
     /**
+     * @param patientID (optional) 
+     * @return OK
+     */
+    getSelectedProceduresByPatientID(patientID: number | undefined): Observable<SelectedEmergencyProceduresDto[]> {
+        let url_ = this.baseUrl + "/api/services/app/SelectedEmergencyProcedures/GetSelectedProceduresByPatientID?";
+        if (patientID === null)
+            throw new Error("The parameter 'patientID' cannot be null.");
+        else if (patientID !== undefined)
+            url_ += "patientID=" + encodeURIComponent("" + patientID) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetSelectedProceduresByPatientID(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetSelectedProceduresByPatientID(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SelectedEmergencyProceduresDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SelectedEmergencyProceduresDto[]>;
+        }));
+    }
+
+    protected processGetSelectedProceduresByPatientID(response: HttpResponseBase): Observable<SelectedEmergencyProceduresDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200.push(SelectedEmergencyProceduresDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * @param id (optional) 
      * @return OK
      */
@@ -23517,6 +23762,69 @@ export class VitalServiceProxy {
     }
 
     /**
+     * @param patientID (optional) 
+     * @return OK
+     */
+    getVitalsByPatientID(patientID: number | undefined): Observable<VitalDto[]> {
+        let url_ = this.baseUrl + "/api/services/app/Vital/GetVitalsByPatientID?";
+        if (patientID === null)
+            throw new Error("The parameter 'patientID' cannot be null.");
+        else if (patientID !== undefined)
+            url_ += "patientID=" + encodeURIComponent("" + patientID) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetVitalsByPatientID(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetVitalsByPatientID(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<VitalDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<VitalDto[]>;
+        }));
+    }
+
+    protected processGetVitalsByPatientID(response: HttpResponseBase): Observable<VitalDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200.push(VitalDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * @param id (optional) 
      * @return OK
      */
@@ -25214,7 +25522,6 @@ export class Bill implements IBill {
     items: BillItem[] | undefined;
     abpUserId: number;
     abpUser: User;
-    _PatientDischarge: PatientDischarge[] | undefined;
 
     constructor(data?: IBill) {
         if (data) {
@@ -25243,11 +25550,6 @@ export class Bill implements IBill {
             }
             this.abpUserId = _data["abpUserId"];
             this.abpUser = _data["abpUser"] ? User.fromJS(_data["abpUser"]) : <any>undefined;
-            if (Array.isArray(_data["_PatientDischarge"])) {
-                this._PatientDischarge = [] as any;
-                for (let item of _data["_PatientDischarge"])
-                    this._PatientDischarge.push(PatientDischarge.fromJS(item));
-            }
         }
     }
 
@@ -25276,11 +25578,6 @@ export class Bill implements IBill {
         }
         data["abpUserId"] = this.abpUserId;
         data["abpUser"] = this.abpUser ? this.abpUser.toJSON() : <any>undefined;
-        if (Array.isArray(this._PatientDischarge)) {
-            data["_PatientDischarge"] = [];
-            for (let item of this._PatientDischarge)
-                data["_PatientDischarge"].push(item.toJSON());
-        }
         return data;
     }
 
@@ -25305,7 +25602,6 @@ export interface IBill {
     items: BillItem[] | undefined;
     abpUserId: number;
     abpUser: User;
-    _PatientDischarge: PatientDischarge[] | undefined;
 }
 
 export class BillItem implements IBillItem {
@@ -28491,8 +28787,6 @@ export class CreateUpdatePatientDischargeDto implements ICreateUpdatePatientDisc
     admissionId: number;
     patientId: number;
     doctorId: number | undefined;
-    billingStaffId: number | undefined;
-    pharmacyStaffId: number | undefined;
     dischargeDate: moment.Moment | undefined;
     dischargeSummary: string | undefined;
     dischargeStatus: DischargeStatus;
@@ -28513,8 +28807,6 @@ export class CreateUpdatePatientDischargeDto implements ICreateUpdatePatientDisc
             this.admissionId = _data["admissionId"];
             this.patientId = _data["patientId"];
             this.doctorId = _data["doctorId"];
-            this.billingStaffId = _data["billingStaffId"];
-            this.pharmacyStaffId = _data["pharmacyStaffId"];
             this.dischargeDate = _data["dischargeDate"] ? moment(_data["dischargeDate"].toString()) : <any>undefined;
             this.dischargeSummary = _data["dischargeSummary"];
             this.dischargeStatus = _data["dischargeStatus"];
@@ -28535,8 +28827,6 @@ export class CreateUpdatePatientDischargeDto implements ICreateUpdatePatientDisc
         data["admissionId"] = this.admissionId;
         data["patientId"] = this.patientId;
         data["doctorId"] = this.doctorId;
-        data["billingStaffId"] = this.billingStaffId;
-        data["pharmacyStaffId"] = this.pharmacyStaffId;
         data["dischargeDate"] = this.dischargeDate ? this.dischargeDate.toISOString() : <any>undefined;
         data["dischargeSummary"] = this.dischargeSummary;
         data["dischargeStatus"] = this.dischargeStatus;
@@ -28557,8 +28847,6 @@ export interface ICreateUpdatePatientDischargeDto {
     admissionId: number;
     patientId: number;
     doctorId: number | undefined;
-    billingStaffId: number | undefined;
-    pharmacyStaffId: number | undefined;
     dischargeDate: moment.Moment | undefined;
     dischargeSummary: string | undefined;
     dischargeStatus: DischargeStatus;
@@ -29919,6 +30207,7 @@ export class CreateUserDto implements ICreateUserDto {
     isActive: boolean;
     roleNames: string[] | undefined;
     password: string;
+    phoneNumber: string;
 
     constructor(data?: ICreateUserDto) {
         if (data) {
@@ -29942,6 +30231,7 @@ export class CreateUserDto implements ICreateUserDto {
                     this.roleNames.push(item);
             }
             this.password = _data["password"];
+            this.phoneNumber = _data["phoneNumber"];
         }
     }
 
@@ -29965,6 +30255,7 @@ export class CreateUserDto implements ICreateUserDto {
                 data["roleNames"].push(item);
         }
         data["password"] = this.password;
+        data["phoneNumber"] = this.phoneNumber;
         return data;
     }
 
@@ -29984,6 +30275,7 @@ export interface ICreateUserDto {
     isActive: boolean;
     roleNames: string[] | undefined;
     password: string;
+    phoneNumber: string;
 }
 
 export class Department implements IDepartment {
@@ -30547,12 +30839,16 @@ export enum DischargeStatus {
     _4 = 4,
     _5 = 5,
     _6 = 6,
-    _7 = 7,
 }
 
 export class DischargeSummaryDto implements IDischargeSummaryDto {
+    patientDischarge: PatientDischargeDto;
     patientDetails: PatientDetailsFordischargeSummaryDto;
     vitals: VitalDto[] | undefined;
+    prescriptions: PrescriptionDto[] | undefined;
+    prescriptionLabTests: PrescriptionLabTestDto[] | undefined;
+    selectedEmergencyProcedures: SelectedEmergencyProceduresDto[] | undefined;
+    invoices: InvoiceDto[] | undefined;
 
     constructor(data?: IDischargeSummaryDto) {
         if (data) {
@@ -30565,11 +30861,32 @@ export class DischargeSummaryDto implements IDischargeSummaryDto {
 
     init(_data?: any) {
         if (_data) {
+            this.patientDischarge = _data["patientDischarge"] ? PatientDischargeDto.fromJS(_data["patientDischarge"]) : <any>undefined;
             this.patientDetails = _data["patientDetails"] ? PatientDetailsFordischargeSummaryDto.fromJS(_data["patientDetails"]) : <any>undefined;
             if (Array.isArray(_data["vitals"])) {
                 this.vitals = [] as any;
                 for (let item of _data["vitals"])
                     this.vitals.push(VitalDto.fromJS(item));
+            }
+            if (Array.isArray(_data["prescriptions"])) {
+                this.prescriptions = [] as any;
+                for (let item of _data["prescriptions"])
+                    this.prescriptions.push(PrescriptionDto.fromJS(item));
+            }
+            if (Array.isArray(_data["prescriptionLabTests"])) {
+                this.prescriptionLabTests = [] as any;
+                for (let item of _data["prescriptionLabTests"])
+                    this.prescriptionLabTests.push(PrescriptionLabTestDto.fromJS(item));
+            }
+            if (Array.isArray(_data["selectedEmergencyProcedures"])) {
+                this.selectedEmergencyProcedures = [] as any;
+                for (let item of _data["selectedEmergencyProcedures"])
+                    this.selectedEmergencyProcedures.push(SelectedEmergencyProceduresDto.fromJS(item));
+            }
+            if (Array.isArray(_data["invoices"])) {
+                this.invoices = [] as any;
+                for (let item of _data["invoices"])
+                    this.invoices.push(InvoiceDto.fromJS(item));
             }
         }
     }
@@ -30583,11 +30900,32 @@ export class DischargeSummaryDto implements IDischargeSummaryDto {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["patientDischarge"] = this.patientDischarge ? this.patientDischarge.toJSON() : <any>undefined;
         data["patientDetails"] = this.patientDetails ? this.patientDetails.toJSON() : <any>undefined;
         if (Array.isArray(this.vitals)) {
             data["vitals"] = [];
             for (let item of this.vitals)
                 data["vitals"].push(item.toJSON());
+        }
+        if (Array.isArray(this.prescriptions)) {
+            data["prescriptions"] = [];
+            for (let item of this.prescriptions)
+                data["prescriptions"].push(item.toJSON());
+        }
+        if (Array.isArray(this.prescriptionLabTests)) {
+            data["prescriptionLabTests"] = [];
+            for (let item of this.prescriptionLabTests)
+                data["prescriptionLabTests"].push(item.toJSON());
+        }
+        if (Array.isArray(this.selectedEmergencyProcedures)) {
+            data["selectedEmergencyProcedures"] = [];
+            for (let item of this.selectedEmergencyProcedures)
+                data["selectedEmergencyProcedures"].push(item.toJSON());
+        }
+        if (Array.isArray(this.invoices)) {
+            data["invoices"] = [];
+            for (let item of this.invoices)
+                data["invoices"].push(item.toJSON());
         }
         return data;
     }
@@ -30601,8 +30939,13 @@ export class DischargeSummaryDto implements IDischargeSummaryDto {
 }
 
 export interface IDischargeSummaryDto {
+    patientDischarge: PatientDischargeDto;
     patientDetails: PatientDetailsFordischargeSummaryDto;
     vitals: VitalDto[] | undefined;
+    prescriptions: PrescriptionDto[] | undefined;
+    prescriptionLabTests: PrescriptionLabTestDto[] | undefined;
+    selectedEmergencyProcedures: SelectedEmergencyProceduresDto[] | undefined;
+    invoices: InvoiceDto[] | undefined;
 }
 
 export class Doctor implements IDoctor {
@@ -37915,16 +38258,12 @@ export class PatientDischarge implements IPatientDischarge {
     admissionId: number;
     patientId: number;
     doctorId: number | undefined;
-    billingStaffId: number | undefined;
-    pharmacyStaffId: number | undefined;
     dischargeDate: moment.Moment | undefined;
     dischargeSummary: string | undefined;
     dischargeStatus: DischargeStatus;
     admission: Admission;
     patient: Patient;
     doctor: Doctor;
-    pharmacistStaff: Pharmacist;
-    billingStaff: Bill;
 
     constructor(data?: IPatientDischarge) {
         if (data) {
@@ -37942,16 +38281,12 @@ export class PatientDischarge implements IPatientDischarge {
             this.admissionId = _data["admissionId"];
             this.patientId = _data["patientId"];
             this.doctorId = _data["doctorId"];
-            this.billingStaffId = _data["billingStaffId"];
-            this.pharmacyStaffId = _data["pharmacyStaffId"];
             this.dischargeDate = _data["dischargeDate"] ? moment(_data["dischargeDate"].toString()) : <any>undefined;
             this.dischargeSummary = _data["dischargeSummary"];
             this.dischargeStatus = _data["dischargeStatus"];
             this.admission = _data["admission"] ? Admission.fromJS(_data["admission"]) : <any>undefined;
             this.patient = _data["patient"] ? Patient.fromJS(_data["patient"]) : <any>undefined;
             this.doctor = _data["doctor"] ? Doctor.fromJS(_data["doctor"]) : <any>undefined;
-            this.pharmacistStaff = _data["pharmacistStaff"] ? Pharmacist.fromJS(_data["pharmacistStaff"]) : <any>undefined;
-            this.billingStaff = _data["billingStaff"] ? Bill.fromJS(_data["billingStaff"]) : <any>undefined;
         }
     }
 
@@ -37969,16 +38304,12 @@ export class PatientDischarge implements IPatientDischarge {
         data["admissionId"] = this.admissionId;
         data["patientId"] = this.patientId;
         data["doctorId"] = this.doctorId;
-        data["billingStaffId"] = this.billingStaffId;
-        data["pharmacyStaffId"] = this.pharmacyStaffId;
         data["dischargeDate"] = this.dischargeDate ? this.dischargeDate.toISOString() : <any>undefined;
         data["dischargeSummary"] = this.dischargeSummary;
         data["dischargeStatus"] = this.dischargeStatus;
         data["admission"] = this.admission ? this.admission.toJSON() : <any>undefined;
         data["patient"] = this.patient ? this.patient.toJSON() : <any>undefined;
         data["doctor"] = this.doctor ? this.doctor.toJSON() : <any>undefined;
-        data["pharmacistStaff"] = this.pharmacistStaff ? this.pharmacistStaff.toJSON() : <any>undefined;
-        data["billingStaff"] = this.billingStaff ? this.billingStaff.toJSON() : <any>undefined;
         return data;
     }
 
@@ -37996,16 +38327,12 @@ export interface IPatientDischarge {
     admissionId: number;
     patientId: number;
     doctorId: number | undefined;
-    billingStaffId: number | undefined;
-    pharmacyStaffId: number | undefined;
     dischargeDate: moment.Moment | undefined;
     dischargeSummary: string | undefined;
     dischargeStatus: DischargeStatus;
     admission: Admission;
     patient: Patient;
     doctor: Doctor;
-    pharmacistStaff: Pharmacist;
-    billingStaff: Bill;
 }
 
 export class PatientDischargeDto implements IPatientDischargeDto {
@@ -38014,8 +38341,6 @@ export class PatientDischargeDto implements IPatientDischargeDto {
     admission: AdmissionDto;
     patient: PatientDto;
     doctor: DoctorDto;
-    billingStaff: BillingDto;
-    pharmacistStaff: PharmacistDto;
     dischargeDate: moment.Moment | undefined;
     dischargeSummary: string | undefined;
     dischargeStatus: DischargeStatus;
@@ -38036,8 +38361,6 @@ export class PatientDischargeDto implements IPatientDischargeDto {
             this.admission = _data["admission"] ? AdmissionDto.fromJS(_data["admission"]) : <any>undefined;
             this.patient = _data["patient"] ? PatientDto.fromJS(_data["patient"]) : <any>undefined;
             this.doctor = _data["doctor"] ? DoctorDto.fromJS(_data["doctor"]) : <any>undefined;
-            this.billingStaff = _data["billingStaff"] ? BillingDto.fromJS(_data["billingStaff"]) : <any>undefined;
-            this.pharmacistStaff = _data["pharmacistStaff"] ? PharmacistDto.fromJS(_data["pharmacistStaff"]) : <any>undefined;
             this.dischargeDate = _data["dischargeDate"] ? moment(_data["dischargeDate"].toString()) : <any>undefined;
             this.dischargeSummary = _data["dischargeSummary"];
             this.dischargeStatus = _data["dischargeStatus"];
@@ -38058,8 +38381,6 @@ export class PatientDischargeDto implements IPatientDischargeDto {
         data["admission"] = this.admission ? this.admission.toJSON() : <any>undefined;
         data["patient"] = this.patient ? this.patient.toJSON() : <any>undefined;
         data["doctor"] = this.doctor ? this.doctor.toJSON() : <any>undefined;
-        data["billingStaff"] = this.billingStaff ? this.billingStaff.toJSON() : <any>undefined;
-        data["pharmacistStaff"] = this.pharmacistStaff ? this.pharmacistStaff.toJSON() : <any>undefined;
         data["dischargeDate"] = this.dischargeDate ? this.dischargeDate.toISOString() : <any>undefined;
         data["dischargeSummary"] = this.dischargeSummary;
         data["dischargeStatus"] = this.dischargeStatus;
@@ -38080,8 +38401,6 @@ export interface IPatientDischargeDto {
     admission: AdmissionDto;
     patient: PatientDto;
     doctor: DoctorDto;
-    billingStaff: BillingDto;
-    pharmacistStaff: PharmacistDto;
     dischargeDate: moment.Moment | undefined;
     dischargeSummary: string | undefined;
     dischargeStatus: DischargeStatus;
@@ -38856,7 +39175,6 @@ export class Pharmacist implements IPharmacist {
     licenseExpiryDate: moment.Moment;
     abpUserId: number;
     abpUser: User;
-    _PatientDischarge: PatientDischarge[] | undefined;
 
     constructor(data?: IPharmacist) {
         if (data) {
@@ -38879,11 +39197,6 @@ export class Pharmacist implements IPharmacist {
             this.licenseExpiryDate = _data["licenseExpiryDate"] ? moment(_data["licenseExpiryDate"].toString()) : <any>undefined;
             this.abpUserId = _data["abpUserId"];
             this.abpUser = _data["abpUser"] ? User.fromJS(_data["abpUser"]) : <any>undefined;
-            if (Array.isArray(_data["_PatientDischarge"])) {
-                this._PatientDischarge = [] as any;
-                for (let item of _data["_PatientDischarge"])
-                    this._PatientDischarge.push(PatientDischarge.fromJS(item));
-            }
         }
     }
 
@@ -38906,11 +39219,6 @@ export class Pharmacist implements IPharmacist {
         data["licenseExpiryDate"] = this.licenseExpiryDate ? this.licenseExpiryDate.toISOString() : <any>undefined;
         data["abpUserId"] = this.abpUserId;
         data["abpUser"] = this.abpUser ? this.abpUser.toJSON() : <any>undefined;
-        if (Array.isArray(this._PatientDischarge)) {
-            data["_PatientDischarge"] = [];
-            for (let item of this._PatientDischarge)
-                data["_PatientDischarge"].push(item.toJSON());
-        }
         return data;
     }
 
@@ -38933,7 +39241,6 @@ export interface IPharmacist {
     licenseExpiryDate: moment.Moment;
     abpUserId: number;
     abpUser: User;
-    _PatientDischarge: PatientDischarge[] | undefined;
 }
 
 export class PharmacistDto implements IPharmacistDto {

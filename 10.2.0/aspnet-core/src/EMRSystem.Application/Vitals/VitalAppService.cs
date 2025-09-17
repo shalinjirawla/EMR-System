@@ -89,5 +89,13 @@ namespace EMRSystem.Vitals
             var roles = await _userManager.GetRolesAsync(user);
             return roles.ToList();
         }
+
+        [HttpGet]
+        public async Task<List<VitalDto>> GetVitalsByPatientID(long patientID)
+        {
+            var list = await Repository.GetAllIncluding(x=>x.Nurse,x=>x.Patient).Where(x => x.PatientId == patientID).ToListAsync();
+            var mappedList = ObjectMapper.Map<List<VitalDto>>(list);
+            return mappedList;
+        }
     }
 }

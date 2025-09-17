@@ -38,12 +38,11 @@ export class AssignedPatientsComponent extends PagedListingComponentBase<Patient
   statusOptions = [
     { label: 'Pending', value: DischargeStatus._0 },
     { label: 'Initiated', value: DischargeStatus._1 },
-    { label: 'Doctor Summary', value: DischargeStatus._2 },
+    { label: 'Sent To LabTechnician', value: DischargeStatus._2 },
     { label: 'Sent To Billing', value: DischargeStatus._3 },
     { label: 'Billing Completed', value: DischargeStatus._4 },
-    { label: 'Pharmacy Completed', value: DischargeStatus._5 },
-    { label: 'Final Approval', value: DischargeStatus._6 },
-    { label: 'Discharged', value: DischargeStatus._7 },
+    { label: 'Final Approval', value: DischargeStatus._5 },
+    { label: 'Discharged', value: DischargeStatus._6 },
   ];
   constructor(
     injector: Injector,
@@ -130,7 +129,7 @@ export class AssignedPatientsComponent extends PagedListingComponentBase<Patient
   }
   initiateDischarge(record: any) {
     this._patientDischargeService
-      .initiateDischarge(record.id)
+      .dischargeStatusChange(record.id, DischargeStatus._1)
       .subscribe(() => {
         abp.notify.success("Discharge initiated successfully.");
         this.refresh(); // Refresh table
@@ -151,7 +150,7 @@ export class AssignedPatientsComponent extends PagedListingComponentBase<Patient
     const dataa = status ? status.label : '';
     return dataa;
   }
-  getStatusSeverity(value: number){
+  getStatusSeverity(value: number) {
     switch (value) {
       case DischargeStatus._0: return 'warn';
       case DischargeStatus._1: return 'warn';
@@ -159,8 +158,7 @@ export class AssignedPatientsComponent extends PagedListingComponentBase<Patient
       case DischargeStatus._3: return 'warn';
       case DischargeStatus._4: return 'warn';
       case DischargeStatus._5: return 'warn';
-      case DischargeStatus._6: return 'warn';
-      case DischargeStatus._7: return 'success';
+      case DischargeStatus._6: return 'success';
       default: return 'warn';
     }
   }

@@ -12,12 +12,13 @@
             (onClick)="showCreatePatientDialog()" />
         </div>
         <p-select [(ngModel)]="prescription.patientId" name="patientId" [options]="patients" [optionValue]="'id'"
-          optionLabel="fullName" placeholder="Select a patient" class="w-100" required (onChange)="LoadAppoinments()" />
+          [disabled]="dischargePatientID>0" optionLabel="fullName" placeholder="Select a patient" class="w-100" required
+          (onChange)="LoadAppoinments()" />
       </div>
     </div>
 
     <!-- Appointment Selection -->
-    <div class="row mt-3"  *ngIf="!isPatientAdmitted()">
+    <div class="row mt-3" *ngIf="!isPatientAdmitted()">
       <div class="col-md-12">
         <label><b>Appointment</b></label>
         <p-select [(ngModel)]="prescription.appointmentId" name="appointmentId" [options]="appointments"
@@ -108,7 +109,7 @@
           <div class="d-flex align-items-center">
             <!-- Medicine Dropdown -->
             <p-dropdown appendTo="self" [(ngModel)]="item.medicineId" [options]="medicineOptions" optionLabel="label"
-              optionValue="value"  placeholder="Select Medicine" class="w-25 mr-2" name="itemMedicine{{i}}"
+              optionValue="value" placeholder="Select Medicine" class="w-25 mr-2" name="itemMedicine{{i}}"
               (onChange)="onMedicineChange(item, i)">
             </p-dropdown>
             <!-- Dosage Dropdown -->

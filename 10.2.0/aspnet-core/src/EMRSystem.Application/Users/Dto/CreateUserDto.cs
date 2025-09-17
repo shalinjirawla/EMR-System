@@ -36,6 +36,10 @@ public class CreateUserDto : IShouldNormalize
     [DisableAuditing]
     public string Password { get; set; }
 
+    [Required]
+    [Phone]
+    [StringLength(AbpUserBase.MaxPhoneNumberLength)]
+    public string PhoneNumber { get; set; }
     public void Normalize()
     {
         if (RoleNames == null)

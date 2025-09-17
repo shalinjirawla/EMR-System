@@ -26,15 +26,37 @@ using EMRSystem.Prescriptions;
 using Abp.Domain.Uow;
 using EMRSystem.Vitals.Dto;
 using EMRSystem.Prescriptions.Dto;
+using EMRSystem.LabTechnician;
+using EMRSystem.PrescriptionLabTest;
+using EMRSystem.EmergencyProcedure;
+using EMRSystem.Vitals;
+using EMRSystem.Invoice;
+using EMRSystem.Doctors;
 
 namespace EMRSystem.Patient_Discharge
 {
     public class PatientDischargeAppService : AsyncCrudAppService<EMRSystem.PatientDischarge.PatientDischarge, PatientDischargeDto, long, PagedAndSortedResultRequestDto, CreateUpdatePatientDischargeDto, CreateUpdatePatientDischargeDto>,
    IPatientDischargeAppService
     {
-        public PatientDischargeAppService(IRepository<EMRSystem.PatientDischarge.PatientDischarge, long> repository
+        private readonly IPrescriptionAppService _prescriptionAppService;
+        private readonly ICreatePrescriptionLabTestsAppService _createPrescriptionLabTestAppService;
+        private readonly ISelectedEmergencyProceduresAppService _selectedEmergencyProceduresAppService;
+        private readonly IVitalAppService _vitalAppService;
+        private readonly IInvoiceAppService _invoiceAppService;
+        private readonly IRepository<EMRSystem.Admission.Admission, long> _admissionAppService;
+        public PatientDischargeAppService(IRepository<EMRSystem.PatientDischarge.PatientDischarge, long> repository,
+            IPrescriptionAppService prescriptionAppService, ICreatePrescriptionLabTestsAppService createPrescriptionLabTestAppService,
+            ISelectedEmergencyProceduresAppService selectedEmergencyProceduresAppService,
+            IVitalAppService vitalAppService, IInvoiceAppService invoiceAppService,
+            IRepository<EMRSystem.Admission.Admission, long> admissionAppService
             ) : base(repository)
         {
+            _prescriptionAppService = prescriptionAppService;
+            _createPrescriptionLabTestAppService = createPrescriptionLabTestAppService;
+            _selectedEmergencyProceduresAppService = selectedEmergencyProceduresAppService;
+            _vitalAppService = vitalAppService;
+            _invoiceAppService = invoiceAppService;
+            _admissionAppService = admissionAppService;
         }
 
         protected override IQueryable<EMRSystem.PatientDischarge.PatientDischarge> CreateFilteredQuery(PagedAndSortedResultRequestDto input)
@@ -42,16 +64,12 @@ namespace EMRSystem.Patient_Discharge
             var data = Repository.GetAllIncluding(x => x.Admission, x => x.Admission.Room, x => x.Admission.Room.RoomTypeMaster, x => x.Admission.Bed, x => x.Patient, x => x.Doctor);
             return data;
         }
-        public async Task InitiateDischarge(long dischargeId)
+        public async Task DischargeStatusChange(long patientID, DischargeStatus status)
         {
             try
             {
-                var discharge = await Repository.GetAllIncluding(x => x.Patient).FirstOrDefaultAsync(x => x.PatientId == dischargeId);
-
-                if (discharge?.DischargeStatus != DischargeStatus.Pending)
-                    throw new UserFriendlyException("Discharge already initiated or processed.");
-
-                discharge.DischargeStatus = DischargeStatus.Initiated;
+                var discharge = await Repository.GetAllIncluding(x => x.Patient).FirstOrDefaultAsync(x => x.PatientId == patientID);
+                discharge.DischargeStatus = status;
                 await Repository.UpdateAsync(discharge);
             }
             catch (Exception ex)
@@ -64,23 +82,73 @@ namespace EMRSystem.Patient_Discharge
         public async Task<DischargeSummaryDto> PatientDischargeSummaryAsync(long patientID)
         {
             var data = await Repository
-            .GetAll()
-            .IgnoreQueryFilters()
+            .GetAll().IgnoreQueryFilters()
             .Include(x => x.Patient).ThenInclude(x => x.AbpUser)
-            .Include(x => x.Patient).ThenInclude(x => x.Vitals).ThenInclude(x => x.Nurse)
             .FirstOrDefaultAsync(x => x.PatientId == patientID);
+
+            var vitalsList = await _vitalAppService.GetVitalsByPatientID(patientID);
+            var precriptionList = await _prescriptionAppService.GetPrescriptionsByPatient(patientID);
+            var precriptionLabTestList = await _createPrescriptionLabTestAppService.GetPrescriptionLabTestByPatientId(patientID);
+            var selectedEmergencyProcedures = await _selectedEmergencyProceduresAppService.GetSelectedProceduresByPatientID(patientID);
+            var invoiceList = await _invoiceAppService.GetInvoicesByPatientID(patientID);
             var res = ObjectMapper.Map<DischargeSummaryDto>(data);
 
-            if (data.Patient.Vitals != null && data.Patient.Vitals.Count > 0)
+            if (vitalsList != null && vitalsList.Count > 0)
             {
-                res.Vitals = ObjectMapper.Map<List<VitalDto>>(data.Patient.Vitals);
+                res.Vitals = vitalsList;
             }
-            //if (data.Patient.Prescriptions != null && data.Patient.Prescriptions.Count > 0)
-            //{
-            //    res.Prescriptions = ObjectMapper.Map<List<ViewPrescriptionSummary>>(data.Patient.Prescriptions);
-            //}
+            if (precriptionList.Items.Count > 0)
+            {
+                res.Prescriptions = precriptionList.Items.ToList();
+            }
+            if (precriptionLabTestList != null && precriptionLabTestList.Count > 0)
+            {
+                res.PrescriptionLabTests = precriptionLabTestList;
+            }
+            if (selectedEmergencyProcedures != null && selectedEmergencyProcedures.Count > 0)
+            {
+                res.SelectedEmergencyProcedures = selectedEmergencyProcedures;
+            }
+            if (invoiceList != null && invoiceList.Count > 0)
+            {
+                res.Invoices = invoiceList;
+            }
             return res;
 
+        }
+
+        [HttpPost]
+        public async Task FinalApproval(string summary, long patientID, long doctorID)
+        {
+            var discharge = await Repository.GetAll().FirstOrDefaultAsync(x => x.PatientId == patientID);
+            if (discharge != null)
+            {
+                discharge.DischargeStatus = DischargeStatus.FinalApproval;
+                discharge.DoctorId = 1;//doctorID;     change when assign role and permission.
+                discharge.DischargeSummary = summary?.Trim();
+                await Repository.UpdateAsync(discharge);
+            }
+        }
+
+        [HttpPost]
+        public async Task FinalDischarge(long patientID)
+        {
+            var discharge = await Repository.GetAll().FirstOrDefaultAsync(x => x.PatientId == patientID);
+            if (discharge != null)
+            {
+                discharge.DischargeStatus = DischargeStatus.Discharged;
+                await Repository.UpdateAsync(discharge);
+
+                var getAdmission = await _admissionAppService.GetAll().Where(x => x.PatientId == patientID).ToListAsync();
+                if (getAdmission.Count > 0)
+                {
+                    getAdmission.ForEach(async x =>
+                    {
+                        x.IsDischarged = true;
+                        await _admissionAppService.UpdateAsync(x);
+                    });
+                }
+            }
         }
     }
 }

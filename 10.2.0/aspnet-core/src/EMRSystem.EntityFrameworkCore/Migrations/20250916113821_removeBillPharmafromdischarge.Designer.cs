@@ -4,6 +4,7 @@ using EMRSystem.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,13 +12,15 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EMRSystem.Migrations
 {
     [DbContext(typeof(EMRSystemDbContext))]
-    partial class EMRSystemDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250916113821_removeBillPharmafromdischarge")]
+    partial class removeBillPharmafromdischarge
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.9")
+                .HasAnnotation("ProductVersion", "9.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -2893,33 +2896,6 @@ namespace EMRSystem.Migrations
                     b.ToTable("LabTestReceipts", (string)null);
                 });
 
-            modelBuilder.Entity("EMRSystem.MedicineFormMaster.MedicineFormMaster", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TenantId", "Name")
-                        .IsUnique();
-
-                    b.ToTable("MedicineFormMasters", (string)null);
-                });
-
             modelBuilder.Entity("EMRSystem.MedicineOrder.MedicineOrder", b =>
                 {
                     b.Property<long>("Id")
@@ -2985,163 +2961,6 @@ namespace EMRSystem.Migrations
                     b.HasIndex("MedicineOrderId");
 
                     b.ToTable("MedicineOrderItems");
-                });
-
-            modelBuilder.Entity("EMRSystem.Medicines.MedicineMaster", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsAvailable")
-                        .HasColumnType("bit");
-
-                    b.Property<long>("MedicineFormId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("MinimumStock")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<decimal?>("Strength")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<long?>("StrengthUnitId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MedicineFormId");
-
-                    b.HasIndex("StrengthUnitId");
-
-                    b.HasIndex("TenantId", "Name", "MedicineFormId", "Strength", "StrengthUnitId")
-                        .IsUnique()
-                        .HasFilter("[Name] IS NOT NULL AND [Strength] IS NOT NULL AND [StrengthUnitId] IS NOT NULL");
-
-                    b.ToTable("MedicineMasters", (string)null);
-                });
-
-            modelBuilder.Entity("EMRSystem.Medicines.MedicineStock", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("BatchNo")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("ExpiryDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsExpire")
-                        .HasColumnType("bit");
-
-                    b.Property<long>("MedicineMasterId")
-                        .HasColumnType("bigint");
-
-                    b.Property<decimal>("PurchasePrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("SellingPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MedicineMasterId");
-
-                    b.ToTable("MedicineStocks", (string)null);
-                });
-
-            modelBuilder.Entity("EMRSystem.Medicines.PurchaseInvoice", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTime>("InvoiceDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("InvoiceNo")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("SupplierName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("TotalAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TenantId", "InvoiceNo")
-                        .IsUnique()
-                        .HasFilter("[InvoiceNo] IS NOT NULL");
-
-                    b.ToTable("PurchaseInvoices", (string)null);
-                });
-
-            modelBuilder.Entity("EMRSystem.Medicines.PurchaseInvoiceItem", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("BatchNo")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("ExpiryDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long>("MedicineMasterId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("PurchaseInvoiceId")
-                        .HasColumnType("bigint");
-
-                    b.Property<decimal>("PurchasePrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("SellingPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MedicineMasterId");
-
-                    b.HasIndex("PurchaseInvoiceId");
-
-                    b.ToTable("PurchaseInvoiceItems", (string)null);
                 });
 
             modelBuilder.Entity("EMRSystem.MultiTenancy.Tenant", b =>
@@ -3261,6 +3080,9 @@ namespace EMRSystem.Migrations
                     b.Property<long>("AdmissionId")
                         .HasColumnType("bigint");
 
+                    b.Property<long?>("BillId")
+                        .HasColumnType("bigint");
+
                     b.Property<DateTime?>("DischargeDate")
                         .HasColumnType("datetime2");
 
@@ -3276,6 +3098,9 @@ namespace EMRSystem.Migrations
                     b.Property<long>("PatientId")
                         .HasColumnType("bigint");
 
+                    b.Property<long?>("PharmacistId")
+                        .HasColumnType("bigint");
+
                     b.Property<int>("TenantId")
                         .HasColumnType("int");
 
@@ -3284,9 +3109,13 @@ namespace EMRSystem.Migrations
                     b.HasIndex("AdmissionId")
                         .IsUnique();
 
+                    b.HasIndex("BillId");
+
                     b.HasIndex("DoctorId");
 
                     b.HasIndex("PatientId");
+
+                    b.HasIndex("PharmacistId");
 
                     b.ToTable("PatientDischarges", (string)null);
                 });
@@ -3792,33 +3621,6 @@ namespace EMRSystem.Migrations
                         .IsUnique();
 
                     b.ToTable("RoomTypeMasters", (string)null);
-                });
-
-            modelBuilder.Entity("EMRSystem.StrengthUnitMaster.StrengthUnitMaster", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TenantId", "Name")
-                        .IsUnique();
-
-                    b.ToTable("StrengthUnitMasters", (string)null);
                 });
 
             modelBuilder.Entity("EMRSystem.Visits.Visit", b =>
@@ -4686,54 +4488,6 @@ namespace EMRSystem.Migrations
                     b.Navigation("MedicineOrder");
                 });
 
-            modelBuilder.Entity("EMRSystem.Medicines.MedicineMaster", b =>
-                {
-                    b.HasOne("EMRSystem.MedicineFormMaster.MedicineFormMaster", "Form")
-                        .WithMany()
-                        .HasForeignKey("MedicineFormId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("EMRSystem.StrengthUnitMaster.StrengthUnitMaster", "StrengthUnit")
-                        .WithMany()
-                        .HasForeignKey("StrengthUnitId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Form");
-
-                    b.Navigation("StrengthUnit");
-                });
-
-            modelBuilder.Entity("EMRSystem.Medicines.MedicineStock", b =>
-                {
-                    b.HasOne("EMRSystem.Medicines.MedicineMaster", "MedicineMaster")
-                        .WithMany("Stocks")
-                        .HasForeignKey("MedicineMasterId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("MedicineMaster");
-                });
-
-            modelBuilder.Entity("EMRSystem.Medicines.PurchaseInvoiceItem", b =>
-                {
-                    b.HasOne("EMRSystem.Medicines.MedicineMaster", "MedicineMaster")
-                        .WithMany()
-                        .HasForeignKey("MedicineMasterId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("EMRSystem.Medicines.PurchaseInvoice", "PurchaseInvoice")
-                        .WithMany("Items")
-                        .HasForeignKey("PurchaseInvoiceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("MedicineMaster");
-
-                    b.Navigation("PurchaseInvoice");
-                });
-
             modelBuilder.Entity("EMRSystem.MultiTenancy.Tenant", b =>
                 {
                     b.HasOne("EMRSystem.Authorization.Users.User", "CreatorUser")
@@ -4780,6 +4534,10 @@ namespace EMRSystem.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("EMRSystem.Billings.Bill", null)
+                        .WithMany("_PatientDischarge")
+                        .HasForeignKey("BillId");
+
                     b.HasOne("EMRSystem.Doctors.Doctor", "Doctor")
                         .WithMany("_PatientDischarge")
                         .HasForeignKey("DoctorId")
@@ -4790,6 +4548,10 @@ namespace EMRSystem.Migrations
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("EMRSystem.Pharmacists.Pharmacist", null)
+                        .WithMany("_PatientDischarge")
+                        .HasForeignKey("PharmacistId");
 
                     b.Navigation("Admission");
 
@@ -5105,6 +4867,8 @@ namespace EMRSystem.Migrations
             modelBuilder.Entity("EMRSystem.Billings.Bill", b =>
                 {
                     b.Navigation("Items");
+
+                    b.Navigation("_PatientDischarge");
                 });
 
             modelBuilder.Entity("EMRSystem.Departments.Department", b =>
@@ -5210,16 +4974,6 @@ namespace EMRSystem.Migrations
                     b.Navigation("Items");
                 });
 
-            modelBuilder.Entity("EMRSystem.Medicines.MedicineMaster", b =>
-                {
-                    b.Navigation("Stocks");
-                });
-
-            modelBuilder.Entity("EMRSystem.Medicines.PurchaseInvoice", b =>
-                {
-                    b.Navigation("Items");
-                });
-
             modelBuilder.Entity("EMRSystem.Nurses.Nurse", b =>
                 {
                     b.Navigation("Admissions");
@@ -5267,6 +5021,11 @@ namespace EMRSystem.Migrations
 
                     b.Navigation("Vitals");
 
+                    b.Navigation("_PatientDischarge");
+                });
+
+            modelBuilder.Entity("EMRSystem.Pharmacists.Pharmacist", b =>
+                {
                     b.Navigation("_PatientDischarge");
                 });
 
