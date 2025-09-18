@@ -184,7 +184,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="card-body">
-                                                    <p-table [value]="data?.vitals">
+                                                    <p-table [value]="data?.vitals" [paginator]="true" [rows]="5" [rowsPerPageOptions]="[5, 10, 20]">
                                                         <ng-template #header>
                                                             <tr>
                                                                 <th>Nurse Name</th>
@@ -225,7 +225,7 @@
                                                         <button class="btn btn-sm create-btn"
                                                             (click)="showCreatePrescriptionDialog()">Create New</button>
                                                     </div>
-                                                    <p-table [value]="data?.prescriptions">
+                                                    <p-table [value]="data?.prescriptions" [paginator]="true" [rows]="5" [rowsPerPageOptions]="[5, 10, 20]">
                                                         <ng-template #header>
                                                             <tr>
                                                                 <th>Diagnosis</th>
@@ -262,7 +262,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="card-body" *ngIf="data?.selectedEmergencyProcedures">
-                                                    <p-table [value]="data?.selectedEmergencyProcedures">
+                                                    <p-table [value]="data?.selectedEmergencyProcedures" [paginator]="true" [rows]="5" [rowsPerPageOptions]="[5, 10, 20]">
                                                         <ng-template #header>
                                                             <tr>
                                                                 <th>Procedure Name</th>
@@ -324,7 +324,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="card-body">
-                                                    <p-table [value]="data?.prescriptionLabTests">
+                                                    <p-table [value]="data?.prescriptionLabTests" [paginator]="true" [rows]="5" [rowsPerPageOptions]="[5, 10, 20]">
                                                         <ng-template #header>
                                                             <tr>
                                                                 <th>Test ID</th>
@@ -394,7 +394,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="card-body">
-                                                    <p-table [value]="data?.invoices" *ngIf="data?.invoices?.length>0">
+                                                    <p-table [value]="data?.invoices" *ngIf="data?.invoices?.length>0" [paginator]="true" [rows]="5" [rowsPerPageOptions]="[5, 10, 20]">
                                                         <ng-template #header>
                                                             <tr>
                                                                 <th>Invoice No</th>

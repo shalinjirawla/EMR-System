@@ -17,7 +17,7 @@ import {PurchaseInvoiceListComponent} from './purchase-invoice-list/purchase-inv
         PharmacistInventoryComponent,
         PharmacistPrescriptionsComponent,
         MedicineListComponent,
-        PurchaseInvoiceListComponent
+        PurchaseInvoiceListComponent,
 
       
     ],
