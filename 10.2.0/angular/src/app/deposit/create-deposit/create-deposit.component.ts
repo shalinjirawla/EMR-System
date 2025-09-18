@@ -49,8 +49,6 @@ export class CreateDepositComponent extends AppComponentBase implements OnInit {
   }
   ngOnInit(): void {
     if (this.depositId) {
-      console.log("Collect Deposit clicked for ID:", this.depositId);
-      console.log("Patient ID:", this.patientId);
       this.deposit.patientDepositId = this.depositId;
     }
   }
@@ -69,7 +67,6 @@ export class CreateDepositComponent extends AppComponentBase implements OnInit {
   input.patientDepositId = this.depositId!;
   input.amount = this.amount;
   input.paymentMethod = this.paymentMethod;
-debugger
   this._depositTransactionService
     .createDepositTransaction(input)
     .subscribe({

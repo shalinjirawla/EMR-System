@@ -12,6 +12,7 @@ namespace EMRSystem.Admissions.Dto
         public AdmissionMapProfile()
         {
             CreateMap<EMRSystem.Admission.Admission, AdmissionDto>()
+                    .ForMember(dest => dest.IsDischarged,opt => opt.MapFrom(src => src.IsDischarged))
                     .ForMember(dest => dest.PatientName,
                         opt => opt.MapFrom(src => src.Patient != null ? src.Patient.FullName : null))
                     .ForMember(dest => dest.DoctorName,

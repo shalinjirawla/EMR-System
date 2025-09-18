@@ -123,7 +123,6 @@ export class CreateupdateMeasureUnitComponent extends AppComponentBase implement
         dto.isActive = this.isActive;
         return dto;
       });
-debugger
       this._unitService.createBulk(inputs).subscribe({
         next: () => {
           this.notify.success(this.l('SavedSuccessfully'));

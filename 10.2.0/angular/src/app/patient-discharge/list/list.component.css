@@ -1,0 +1,24 @@
+::ng-deep .p-breadcrumb {
+  background: none !important;
+  padding: 0 !important;
+}
+
+::ng-deep .p-card-header {
+  border-bottom: 1px solid #E2E8F0;
+}
+
+::ng-deep .p-card {
+  border-radius: 5px;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+::ng-deep .search-bar-text {
+  padding: 5px !important;
+}
+
+
+
+::ng-deep .p-datatable {
+  border: 1px solid #E2E8F0;
+}

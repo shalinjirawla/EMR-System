@@ -7,11 +7,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using EMRSystem.Patient_Discharge.Dto;
+using EMRSystem.Users.Dto;
 
 namespace EMRSystem.Patient_Discharge
 {
     public interface IPatientDischargeAppService : IAsyncCrudAppService<
-    PatientDischargeDto, long, PagedAndSortedResultRequestDto, CreateUpdatePatientDischargeDto, CreateUpdatePatientDischargeDto>
+    PatientDischargeDto, long, PagedPatientDischargeResultRequestDto, CreateUpdatePatientDischargeDto, CreateUpdatePatientDischargeDto>
     {
     }
 }

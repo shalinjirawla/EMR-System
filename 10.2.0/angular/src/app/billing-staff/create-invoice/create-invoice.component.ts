@@ -218,7 +218,6 @@ calculateSubtotal(): number {
       gstAmount: this.calculateGst(),
       totalAmount: this.calculateTotal()
     });
-    debugger
     this._invoiceService.create(input).subscribe({
       next: (createdInvoice) => {
         this.createdInvoice = createdInvoice;

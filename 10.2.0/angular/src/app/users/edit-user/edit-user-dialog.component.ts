@@ -79,7 +79,6 @@ export class EditUserDialogComponent extends AppComponentBase implements OnInit 
             this.fillUserInfo(userRes);
             this.cd.detectChanges();
 
-            console.log(userRes)
         });
     }
 
@@ -157,7 +156,6 @@ export class EditUserDialogComponent extends AppComponentBase implements OnInit 
     }
 
     private setLabTechnicianData(data: any): void {
-        debugger
         const tech = data.labTechnicians?.[0];
         if (!tech) return;
 

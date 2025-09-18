@@ -103,7 +103,6 @@ export class AddRoomComponent extends AppComponentBase implements OnInit {
   // }
 
   save(): void {
-    debugger
     if (
       !this.selectedRoomNos.length ||
       !this.room.floor ||
@@ -125,7 +124,6 @@ export class AddRoomComponent extends AppComponentBase implements OnInit {
           tenantId: abp.session.tenantId
         } as CreateUpdateRoomDto)
     );
-    debugger;
     this._roomSvc.createBulkRooms(bulkRooms).subscribe({
       next: () => {
         this.notify.success(this.l('SavedSuccessfully'));

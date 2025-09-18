@@ -170,7 +170,6 @@ getPaymentMethodString(method: number): string {
     //   }
   
       createOrEditUserDialog.content.onSave.subscribe(() => {
-        debugger
        this.refresh();
       });
     }

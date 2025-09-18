@@ -41,7 +41,6 @@ export class ViewInvoiceComponent implements OnInit {
   downloadPDF(): void {
     // Implement PDF download functionality here
     // You might use libraries like jspdf or pdfmake
-    console.log('Downloading PDF...');
   }
 
 }

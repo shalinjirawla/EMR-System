@@ -124,7 +124,6 @@ export class CreateupdateLabTestItemsComponent extends AppComponentBase implemen
         dto.isActive = this.isActive;
         return dto;
       });
-debugger
       this._labReportTypeItemService.createBulk(inputs).subscribe({
         next: () => {
           this.notify.success(this.l('SavedSuccessfully'));

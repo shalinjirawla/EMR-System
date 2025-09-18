@@ -128,7 +128,6 @@ export class PharmacistPrescriptionsComponent extends PagedListingComponentBase<
         });
     }
     ViewPharmacistPrescriptions(prescriptionId: number, pharmacistPrescriptionId: number) {
-        debugger
         let createDialog: BsModalRef;
         createDialog = this._modalService.show(ViewPharmacistPrescriptionComponent, {
             class: 'modal-lg',

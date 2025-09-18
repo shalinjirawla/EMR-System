@@ -126,7 +126,6 @@ export class DepositComponent extends PagedListingComponentBase<PatientDepositDt
   });
 }
 viewTransactions(dto: PatientDepositDto): void {
-  debugger
   const modalRef: BsModalRef = this._modalService.show(ViewDepositTransactionComponent, {
     class: 'modal-xl',   // thoda bada modal transactions ke liye
     initialState: {

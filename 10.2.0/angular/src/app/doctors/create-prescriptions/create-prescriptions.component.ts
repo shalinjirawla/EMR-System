@@ -223,7 +223,6 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
 
     this._appointmentService.getPatientAppointment(patientId, doctorId).subscribe({
       next: (res) => {
-        debugger
         // Filter out completed (status == 2)
         this.appointments = res.items.filter(app => app.status == 0 || app.status == 1);
 
@@ -360,7 +359,6 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
         });
         return dto;
       });
-    debugger
     this._prescriptionService.createPrescriptionWithItem(input).subscribe({
       next: (res) => {
         this.notify.info(this.l('SavedSuccessfully'));

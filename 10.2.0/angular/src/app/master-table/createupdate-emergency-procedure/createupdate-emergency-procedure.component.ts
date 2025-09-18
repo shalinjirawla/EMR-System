@@ -140,7 +140,6 @@ export class CreateupdateEmergencyProcedureComponent extends AppComponentBase im
         dto.isActive = this.isActive;
         return dto;
       });
-      debugger
       this.procedureService.createBulk(input).subscribe({
         next: () => {
           this.notify.success(this.l('SavedSuccessfully'));

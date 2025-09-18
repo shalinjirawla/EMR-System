@@ -175,7 +175,7 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
                 new MenuItem(this.l('Prescription Fulfillment'), '/app/pharmacist/pharmacist-prescriptions', 'fas fa-prescription-bottle-alt', 'Pages.Pharmacist.Prescriptions.View'),
             ]),
 
-            new MenuItem(this.l('Create Patient Discharge'), '/app/patient-discharge/create', 'fas fa-file-medical-alt', 'Pages.Users'),
+            new MenuItem(this.l('Discharged Patient'), '/app/patient-discharge/list', 'fas fa-file-medical-alt', 'Pages.Users'),
             // Master Section
             new MenuItem(this.l('Masters'), '', 'fas fa-cogs', 'Pages.Users', [
 

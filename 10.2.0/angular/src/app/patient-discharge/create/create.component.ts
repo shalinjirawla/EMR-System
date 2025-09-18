@@ -5,7 +5,7 @@ import { AvatarModule } from 'primeng/avatar';
 import { Component, Injector, ChangeDetectorRef, ViewChild, OnInit } from '@angular/core';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
 import { Table, TableModule } from 'primeng/table';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Paginator, PaginatorModule } from 'primeng/paginator';
 import { FormsModule } from '@angular/forms';
 import { MenuModule } from 'primeng/menu';
@@ -40,7 +40,7 @@ import { ToastModule } from 'primeng/toast';
   templateUrl: './create.component.html',
   styleUrl: './create.component.css',
   providers: [PatientDischargeServiceProxy, PrescriptionServiceProxy, CreatePrescriptionLabTestsServiceProxy, MessageService],
-  imports: [StepperModule, FormsModule, EditorModule, AccordionModule, DialogModule, StepsModule, TextareaModule, InputGroupModule, InputGroupAddonModule, CommonModule, TableModule, AvatarModule, BadgeModule, TabsModule, PaginatorModule, CheckboxModule,
+  imports: [StepperModule, FormsModule, EditorModule, RouterLink, AccordionModule, DialogModule, StepsModule, TextareaModule, InputGroupModule, InputGroupAddonModule, CommonModule, TableModule, AvatarModule, BadgeModule, TabsModule, PaginatorModule, CheckboxModule,
     BreadcrumbModule, TooltipModule, ToastModule, CardModule, TagModule, SelectModule, InputTextModule, MenuModule, ButtonModule],
 })
 export class CreateComponent implements OnInit {
@@ -79,49 +79,73 @@ export class CreateComponent implements OnInit {
     ];
     this.GetSummaryDetails();
   }
-  gotList() {
-    this.router.navigate(['app/doctors/patients'],);
-  }
-  calculateAge(dob: string | Date): number {
-    const birthDate = new Date(dob);
-    const today = new Date();
 
-    let age = today.getFullYear() - birthDate.getFullYear();
-
-    const hasBirthdayPassedThisYear =
-      today.getMonth() > birthDate.getMonth() ||
-      (today.getMonth() === birthDate.getMonth() && today.getDate() >= birthDate.getDate());
-
-    if (!hasBirthdayPassedThisYear) {
-      age--;
-    }
-
-    return age;
-  }
+  // ----listing----
   GetSummaryDetails() {
     this._summaryService.patientDischargeSummary(this.patientId).subscribe({
       next: (res) => {
         this.data = res;
-        if (this.data.patientDischarge.dischargeStatus < 5) {
-          this.currentStep = this.data.patientDischarge.dischargeStatus + 1;
-        }
-        else {
-          this.currentStep = 5;
-        }
+        this.currentStep = this.getStepFromStatus(this.data?.patientDischarge?.dischargeStatus);
         this.cd.detectChanges();
       }, error: (err) => {
 
       }
     })
   }
-  DisplayVitalDetails(recordId: any) {
-    this.visible = true;
-    this.showVitalDetails = this.data.vitals.find(x => x.id == recordId);
+
+  // ---- post -----
+  FinalApproval() {
+    const rawSummary = this.data.patientDischarge.dischargeSummary || '';
+    const plainText = rawSummary
+      .replace(/<[^>]*>/g, '')  // remove HTML tags
+      .replace(/&nbsp;/g, '')   // remove non-breaking spaces
+      .trim();
+
+    if (!plainText) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Validation Error',
+        detail: 'Discharge summary cannot be empty.'
+      });
+      return;
+    }
+
+    this._summaryService.finalApproval(rawSummary, this.patientId, 1).subscribe({
+      next: (res) => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Discharge Approved',
+          detail: 'The patient has been successfully approved for discharge.'
+        });
+        this.GetSummaryDetails();
+        this.cd.detectChanges();
+      }, error: (err) => {
+
+      }
+    })
   }
-  onclose() {
-    this.visible = false;
-    this.showVitalDetails = null
+  Discharge() {
+    this._summaryService.finalDischarge(this.patientId).subscribe({
+      next: (res) => {
+        this.router.navigate(['app/patient-discharge/list'],);
+        this.cd.detectChanges();
+      }, error: (err) => {
+
+      }
+    })
   }
+  ChangeStatus(status: DischargeStatus) {
+    this._summaryService.dischargeStatusChange(this.patientId, status)
+      .subscribe({
+        next: () => {
+          this.data.patientDischarge.dischargeStatus = status;
+          this.GetSummaryDetails();
+          this.cd.detectChanges();
+        }
+      });
+  }
+
+  // ---- view/create -----
   showViewPrescriptionDialog(id: number): void {
     const viewPrescriptionDialog: BsModalRef = this._modalService.show(
       ViewPrescriptionComponent,
@@ -132,18 +156,6 @@ export class CreateComponent implements OnInit {
         }
       }
     );
-  }
-  getStatusLabel(value: number): string {
-    const status = this.testStatus.find(s => s.value === value);
-    return status ? status.label : '';
-  }
-  getStatusSeverity(value: number): 'info' | 'warn' | 'success' | 'danger' | 'secondary' | 'contrast' {
-    switch (value) {
-      case LabTestStatus._0: return 'info';        // Pending
-      case LabTestStatus._1: return 'secondary';   // In Progress
-      case LabTestStatus._2: return 'success';     // Completed
-      default: return 'contrast';
-    }
   }
   ViewLabReport(id?: number) {
     let viewReportDialog: BsModalRef;
@@ -177,6 +189,66 @@ export class CreateComponent implements OnInit {
       },
     });
   }
+  DisplayVitalDetails(recordId: any) {
+    this.visible = true;
+    this.showVitalDetails = this.data.vitals.find(x => x.id == recordId);
+  }
+  calculateAge(dob: string | Date): number {
+    const birthDate = new Date(dob);
+    const today = new Date();
+
+    let age = today.getFullYear() - birthDate.getFullYear();
+
+    const hasBirthdayPassedThisYear =
+      today.getMonth() > birthDate.getMonth() ||
+      (today.getMonth() === birthDate.getMonth() && today.getDate() >= birthDate.getDate());
+
+    if (!hasBirthdayPassedThisYear) {
+      age--;
+    }
+
+    return age;
+  }
+  getStepFromStatus(status: DischargeStatus): number {
+    switch (status) {
+      case DischargeStatus._0:
+        return 1; // Step 1 active
+      case DischargeStatus._1:
+        return 2; // Step 1 completed, move to 2
+      case DischargeStatus._2:
+        return 2; // Step 2 active
+      case DischargeStatus._3:
+        return 3; // Step 2 completed, move to 3
+      case DischargeStatus._4:
+        return 3; // Step 3 active
+      case DischargeStatus._5:
+        return 4; // Step 3 completed, move to 4
+      case DischargeStatus._6:
+        return 4; // Step 4 active
+      case DischargeStatus._7:
+        return 5; // Step 4 completed, move to 5
+      case DischargeStatus._8:
+        return 5; // Step 5 active
+      case DischargeStatus._9:
+        return 6; // Step 5 completed, optionally disable next
+      default:
+        return 1;
+    }
+  }
+
+  /// ------display ---
+  getStatusLabel(value: number): string {
+    const status = this.testStatus.find(s => s.value === value);
+    return status ? status.label : '';
+  }
+  getStatusSeverity(value: number): 'info' | 'warn' | 'success' | 'danger' | 'secondary' | 'contrast' {
+    switch (value) {
+      case LabTestStatus._0: return 'info';        // Pending
+      case LabTestStatus._1: return 'secondary';   // In Progress
+      case LabTestStatus._2: return 'success';     // Completed
+      default: return 'contrast';
+    }
+  }
   getStatusLabelForProcedure(value: number): string {
     const status = this.procedureStatus.find((s) => s.value === value);
     return status ? status.label : '';
@@ -191,61 +263,25 @@ export class CreateComponent implements OnInit {
         return 'secondary';
     }
   }
-  markAsComplete(status: DischargeStatus) {
-    this._summaryService.dischargeStatusChange(this.patientId, status)
-      .subscribe({
-        next: () => {
-          this.data.patientDischarge.dischargeStatus = status;
-        }
-      });
+
+  /// check for validation
+  checkForDoctorNotify(): boolean {
+    if (!this.data?.prescriptions || this.data.prescriptions.length === 0) {
+      return true;
+    }
+    const pendingProcedure = this.data?.selectedEmergencyProcedures
+      ?.filter(x => x.status === EmergencyProcedureStatus._0) ?? [];
+
+    if (pendingProcedure.length > 0) {
+      return true;
+    }
+    return false;
   }
   checkForLabTechnicianNotify(): boolean {
-    const filteredList = this.data.prescriptionLabTests.filter(x => x.testStatus != 2)
-    if (filteredList.length > 0) {
-      return true;
-    }
+    const pendingTests = this.data.prescriptionLabTests?.filter(x => x.testStatus !== LabTestStatus._2) || [];
+    return pendingTests.length > 0;
   }
   checkForBillStaffNotify(): boolean {
-    if (this.data.invoices.length <= 0) {
-      return true;
-    }
-  }
-  FinalApproval() {
-    const rawSummary = this.data.patientDischarge.dischargeSummary || '';
-    const plainText = rawSummary
-      .replace(/<[^>]*>/g, '')  // remove HTML tags
-      .replace(/&nbsp;/g, '')   // remove non-breaking spaces
-      .trim();
-
-    if (!plainText) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Validation Error',
-        detail: 'Discharge summary cannot be empty.'
-      });
-      return;
-    }
-
-    this._summaryService.finalApproval(plainText, this.patientId, 1).subscribe({
-      next: (res) => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Discharge Approved',
-          detail: 'The patient has been successfully approved for discharge.'
-        });
-        this.GetSummaryDetails();
-      }, error: (err) => {
-
-      }
-    })
-  }
-  Discharge() {
-    this._summaryService.finalDischarge(this.patientId).subscribe({
-      next: (res) => {
-        this.router.navigate(['app/doctors/patients'],);
-      }, error: (err) => {
-
-      }
-    })
+    return !(this.data.invoices && this.data.invoices.length > 0);
   }
 }

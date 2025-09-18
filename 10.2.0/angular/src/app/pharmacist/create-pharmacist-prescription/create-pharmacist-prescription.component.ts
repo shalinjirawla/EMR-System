@@ -181,7 +181,6 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
     }
     this.pharmacistPrescriptionService.handlePharmacistPrescriptionPayment(resBody).subscribe({
     next: (result: any) => {
-      debugger
       if (this.paymentMethod === PaymentMethod._0) {
         // ✅ Cash → normal success
         this.notify.success('Created successfully!');

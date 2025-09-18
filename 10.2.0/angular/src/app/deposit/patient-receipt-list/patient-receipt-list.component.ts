@@ -37,7 +37,6 @@ export class PatientReceiptListComponent implements OnInit {
 
 
   viewReceipt(receipt: DepositTransactionDto): void {
-    debugger
     this._modalService.show(ReceiptDetailComponent, {
       class: 'modal-md',
       initialState: {

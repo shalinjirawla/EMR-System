@@ -14467,17 +14467,17 @@ export class PatientDischargeServiceProxy {
     }
 
     /**
-     * @param sorting (optional) 
+     * @param keyword (optional) 
      * @param skipCount (optional) 
      * @param maxResultCount (optional) 
      * @return OK
      */
-    getAll(sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<PatientDischargeDtoPagedResultDto> {
+    getAll(keyword: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<PatientDischargeDtoPagedResultDto> {
         let url_ = this.baseUrl + "/api/services/app/PatientDischarge/GetAll?";
-        if (sorting === null)
-            throw new Error("The parameter 'sorting' cannot be null.");
-        else if (sorting !== undefined)
-            url_ += "Sorting=" + encodeURIComponent("" + sorting) + "&";
+        if (keyword === null)
+            throw new Error("The parameter 'keyword' cannot be null.");
+        else if (keyword !== undefined)
+            url_ += "Keyword=" + encodeURIComponent("" + keyword) + "&";
         if (skipCount === null)
             throw new Error("The parameter 'skipCount' cannot be null.");
         else if (skipCount !== undefined)
@@ -24227,6 +24227,7 @@ export class AdmissionDto implements IAdmissionDto {
     roomNumber: string | undefined;
     roomTypeName: string | undefined;
     roomTypePricePerDay: number | undefined;
+    isDischarged: boolean;
     admissionType: AdmissionType;
 
     constructor(data?: IAdmissionDto) {
@@ -24255,6 +24256,7 @@ export class AdmissionDto implements IAdmissionDto {
             this.roomNumber = _data["roomNumber"];
             this.roomTypeName = _data["roomTypeName"];
             this.roomTypePricePerDay = _data["roomTypePricePerDay"];
+            this.isDischarged = _data["isDischarged"];
             this.admissionType = _data["admissionType"];
         }
     }
@@ -24283,6 +24285,7 @@ export class AdmissionDto implements IAdmissionDto {
         data["roomNumber"] = this.roomNumber;
         data["roomTypeName"] = this.roomTypeName;
         data["roomTypePricePerDay"] = this.roomTypePricePerDay;
+        data["isDischarged"] = this.isDischarged;
         data["admissionType"] = this.admissionType;
         return data;
     }
@@ -24311,6 +24314,7 @@ export interface IAdmissionDto {
     roomNumber: string | undefined;
     roomTypeName: string | undefined;
     roomTypePricePerDay: number | undefined;
+    isDischarged: boolean;
     admissionType: AdmissionType;
 }
 
@@ -30839,6 +30843,9 @@ export enum DischargeStatus {
     _4 = 4,
     _5 = 5,
     _6 = 6,
+    _7 = 7,
+    _8 = 8,
+    _9 = 9,
 }
 
 export class DischargeSummaryDto implements IDischargeSummaryDto {

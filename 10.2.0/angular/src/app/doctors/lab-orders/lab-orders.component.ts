@@ -115,7 +115,6 @@ export class LabOrdersComponent extends PagedListingComponentBase<PrescriptionLa
     }
   }
   CreateReport(record: LabRequestListDto): void {
-    debugger//1
     let createReportDialog: BsModalRef;
     if (record.id) {
       createReportDialog = this._modalService.show(GenerateLabReportComponent, {
@@ -165,7 +164,6 @@ export class LabOrdersComponent extends PagedListingComponentBase<PrescriptionLa
     this._prescriptionLabTests.getCurrentUserRoles().subscribe(res => {
       this.showDoctorColumn = false;
       this.showNurseColumn = false;
-      debugger
       if (res && Array.isArray(res)) {
         if (res.includes('Admin')) {
           this.showDoctorColumn = true;

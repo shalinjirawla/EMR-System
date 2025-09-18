@@ -32,10 +32,12 @@ using EMRSystem.EmergencyProcedure;
 using EMRSystem.Vitals;
 using EMRSystem.Invoice;
 using EMRSystem.Doctors;
+using Abp.Linq.Extensions;
+using Abp.Extensions;
 
 namespace EMRSystem.Patient_Discharge
 {
-    public class PatientDischargeAppService : AsyncCrudAppService<EMRSystem.PatientDischarge.PatientDischarge, PatientDischargeDto, long, PagedAndSortedResultRequestDto, CreateUpdatePatientDischargeDto, CreateUpdatePatientDischargeDto>,
+    public class PatientDischargeAppService : AsyncCrudAppService<EMRSystem.PatientDischarge.PatientDischarge, PatientDischargeDto, long, PagedPatientDischargeResultRequestDto, CreateUpdatePatientDischargeDto, CreateUpdatePatientDischargeDto>,
    IPatientDischargeAppService
     {
         private readonly IPrescriptionAppService _prescriptionAppService;
@@ -59,9 +61,17 @@ namespace EMRSystem.Patient_Discharge
             _admissionAppService = admissionAppService;
         }
 
-        protected override IQueryable<EMRSystem.PatientDischarge.PatientDischarge> CreateFilteredQuery(PagedAndSortedResultRequestDto input)
+        protected override IQueryable<EMRSystem.PatientDischarge.PatientDischarge> CreateFilteredQuery(PagedPatientDischargeResultRequestDto input)
         {
-            var data = Repository.GetAllIncluding(x => x.Admission, x => x.Admission.Room, x => x.Admission.Room.RoomTypeMaster, x => x.Admission.Bed, x => x.Patient, x => x.Doctor);
+            var data = Repository.GetAllIncluding(
+                x => x.Admission,
+                x => x.Admission.Room,
+                x => x.Admission.Room.RoomTypeMaster,
+                x => x.Admission.Bed,
+                x => x.Patient,
+                x => x.Doctor)
+                .WhereIf(!input.Keyword.IsNullOrWhiteSpace(), x => x.Patient.FullName.Contains(input.Keyword))
+                .Where(x => x.Admission.IsDischarged == true);
             return data;
         }
         public async Task DischargeStatusChange(long patientID, DischargeStatus status)
@@ -69,8 +79,11 @@ namespace EMRSystem.Patient_Discharge
             try
             {
                 var discharge = await Repository.GetAllIncluding(x => x.Patient).FirstOrDefaultAsync(x => x.PatientId == patientID);
-                discharge.DischargeStatus = status;
-                await Repository.UpdateAsync(discharge);
+                if (discharge.DischargeStatus != status)
+                {
+                    discharge.DischargeStatus = status;
+                    await Repository.UpdateAsync(discharge);
+                }
             }
             catch (Exception ex)
             {
@@ -137,6 +150,7 @@ namespace EMRSystem.Patient_Discharge
             if (discharge != null)
             {
                 discharge.DischargeStatus = DischargeStatus.Discharged;
+                discharge.DischargeDate = DateTime.Now;
                 await Repository.UpdateAsync(discharge);
 
                 var getAdmission = await _admissionAppService.GetAll().Where(x => x.PatientId == patientID).ToListAsync();
