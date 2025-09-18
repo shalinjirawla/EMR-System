@@ -13,6 +13,7 @@ import { LazyLoadEvent } from 'primeng/api';
 import { finalize } from 'rxjs/operators';
 import { CreatePurchaseInvoiceComponent } from '../create-purchase-invoice/create-purchase-invoice.component';
 import { EditPurchaseInvoiceComponent } from '../edit-purchase-invoice/edit-purchase-invoice.component';
+import { ViewPurchaseInvoiceComponent } from '../view-purchase-invoice/view-purchase-invoice.component';
 import { LocalizePipe } from '../../../shared/pipes/localize.pipe';
 import { FormsModule } from '@angular/forms';
 import { NgIf, DatePipe, DecimalPipe, CommonModule } from '@angular/common';
@@ -48,8 +49,7 @@ import { TableModule } from 'primeng/table';
 })
 export class PurchaseInvoiceListComponent
   extends PagedListingComponentBase<PurchaseInvoiceDto>
-  implements OnInit
-{
+  implements OnInit {
   @ViewChild('dataTable', { static: true }) dataTable: Table;
   @ViewChild('paginator', { static: true }) paginator: Paginator;
 
@@ -69,7 +69,7 @@ export class PurchaseInvoiceListComponent
     this.keyword = this._activatedRoute.snapshot.queryParams['filterText'] || '';
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void { }
 
   clearFilters(): void {
     this.keyword = '';
@@ -96,7 +96,6 @@ export class PurchaseInvoiceListComponent
       )
       .pipe(finalize(() => this.primengTableHelper.hideLoadingIndicator()))
       .subscribe((result: PurchaseInvoiceDtoPagedResultDto) => {
-        debugger
         this.primengTableHelper.records = result.items;
         this.primengTableHelper.totalRecordsCount = result.totalCount;
         this.cd.detectChanges();
@@ -124,6 +123,12 @@ export class PurchaseInvoiceListComponent
 
   editInvoice(dto: PurchaseInvoiceDto): void {
     this.showCreateOrEditInvoice(dto.id);
+  }
+  viewInvoice(dto: PurchaseInvoiceDto): void {
+    const dialog: BsModalRef = this._modalService.show(ViewPurchaseInvoiceComponent, {
+      class: 'modal-xl',
+      initialState: { invoiceId: dto.id }
+    });
   }
 
   showCreateOrEditInvoice(id?: number): void {

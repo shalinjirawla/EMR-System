@@ -18725,6 +18725,62 @@ export class PurchaseInvoiceServiceProxy {
     }
 
     /**
+     * @param id (optional) 
+     * @return OK
+     */
+    get(id: number | undefined): Observable<PurchaseInvoiceDto> {
+        let url_ = this.baseUrl + "/api/services/app/PurchaseInvoice/Get?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGet(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PurchaseInvoiceDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PurchaseInvoiceDto>;
+        }));
+    }
+
+    protected processGet(response: HttpResponseBase): Observable<PurchaseInvoiceDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PurchaseInvoiceDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * @param body (optional) 
      * @return OK
      */
@@ -18781,31 +18837,31 @@ export class PurchaseInvoiceServiceProxy {
     }
 
     /**
-     * @param id (optional) 
+     * @param body (optional) 
      * @return OK
      */
-    get(id: number | undefined): Observable<PurchaseInvoiceDto> {
-        let url_ = this.baseUrl + "/api/services/app/PurchaseInvoice/Get?";
-        if (id === null)
-            throw new Error("The parameter 'id' cannot be null.");
-        else if (id !== undefined)
-            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+    update(body: CreateUpdatePurchaseInvoiceDto | undefined): Observable<PurchaseInvoiceDto> {
+        let url_ = this.baseUrl + "/api/services/app/PurchaseInvoice/Update";
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(body);
+
         let options_ : any = {
+            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
+                "Content-Type": "application/json",
                 "Accept": "text/plain"
             })
         };
 
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGet(response_);
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdate(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processGet(response_ as any);
+                    return this.processUpdate(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<PurchaseInvoiceDto>;
                 }
@@ -18814,7 +18870,7 @@ export class PurchaseInvoiceServiceProxy {
         }));
     }
 
-    protected processGet(response: HttpResponseBase): Observable<PurchaseInvoiceDto> {
+    protected processUpdate(response: HttpResponseBase): Observable<PurchaseInvoiceDto> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -18892,62 +18948,6 @@ export class PurchaseInvoiceServiceProxy {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = PurchaseInvoiceDtoPagedResultDto.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    /**
-     * @param body (optional) 
-     * @return OK
-     */
-    update(body: CreateUpdatePurchaseInvoiceDto | undefined): Observable<PurchaseInvoiceDto> {
-        let url_ = this.baseUrl + "/api/services/app/PurchaseInvoice/Update";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(body);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-                "Accept": "text/plain"
-            })
-        };
-
-        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processUpdate(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processUpdate(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<PurchaseInvoiceDto>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<PurchaseInvoiceDto>;
-        }));
-    }
-
-    protected processUpdate(response: HttpResponseBase): Observable<PurchaseInvoiceDto> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = PurchaseInvoiceDto.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -42366,6 +42366,7 @@ export class PurchaseInvoiceItemDto implements IPurchaseInvoiceItemDto {
     tenantId: number;
     purchaseInvoiceId: number;
     medicineMasterId: number;
+    medicineName: string | undefined;
     batchNo: string | undefined;
     expiryDate: moment.Moment | undefined;
     quantity: number;
@@ -42387,6 +42388,7 @@ export class PurchaseInvoiceItemDto implements IPurchaseInvoiceItemDto {
             this.tenantId = _data["tenantId"];
             this.purchaseInvoiceId = _data["purchaseInvoiceId"];
             this.medicineMasterId = _data["medicineMasterId"];
+            this.medicineName = _data["medicineName"];
             this.batchNo = _data["batchNo"];
             this.expiryDate = _data["expiryDate"] ? moment(_data["expiryDate"].toString()) : <any>undefined;
             this.quantity = _data["quantity"];
@@ -42408,6 +42410,7 @@ export class PurchaseInvoiceItemDto implements IPurchaseInvoiceItemDto {
         data["tenantId"] = this.tenantId;
         data["purchaseInvoiceId"] = this.purchaseInvoiceId;
         data["medicineMasterId"] = this.medicineMasterId;
+        data["medicineName"] = this.medicineName;
         data["batchNo"] = this.batchNo;
         data["expiryDate"] = this.expiryDate ? this.expiryDate.toISOString() : <any>undefined;
         data["quantity"] = this.quantity;
@@ -42429,6 +42432,7 @@ export interface IPurchaseInvoiceItemDto {
     tenantId: number;
     purchaseInvoiceId: number;
     medicineMasterId: number;
+    medicineName: string | undefined;
     batchNo: string | undefined;
     expiryDate: moment.Moment | undefined;
     quantity: number;
