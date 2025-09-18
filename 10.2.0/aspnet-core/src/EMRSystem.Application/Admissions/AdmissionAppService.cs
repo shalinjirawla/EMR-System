@@ -60,6 +60,7 @@ namespace EMRSystem.Admissions
                 .Include(x => x.Bed)
                 .Include(x => x.Room)
                     .ThenInclude(r => r.RoomTypeMaster)
+                .Where(x => x.IsDischarged == false)
                 .WhereIf(!input.Keyword.IsNullOrWhiteSpace(),
                     x => x.Patient.FullName.Contains(input.Keyword));
         }

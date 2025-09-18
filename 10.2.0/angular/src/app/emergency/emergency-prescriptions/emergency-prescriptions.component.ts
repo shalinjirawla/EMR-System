@@ -6,7 +6,7 @@ import { PaginatorModule, Paginator } from "primeng/paginator";
 import { TableModule, Table } from "primeng/table";
 import { appModuleAnimation } from "../../../shared/animations/routerTransition";
 import { LocalizePipe } from "../../../shared/pipes/localize.pipe";
-import { PrescriptionServiceProxy, PrescriptionDto, PrescriptionDtoPagedResultDto } from "../../../shared/service-proxies/service-proxies";
+import { PrescriptionServiceProxy, PrescriptionDto, PrescriptionDtoPagedResultDto, EmergencyStatus } from "../../../shared/service-proxies/service-proxies";
 import { CreateUpdateEmergencyPrescriptionsComponent } from "../create-update-emergency-prescriptions/create-update-emergency-prescriptions.component";
 import { PagedListingComponentBase } from "@shared/paged-listing-component-base";
 import { LazyLoadEvent, PrimeTemplate } from 'primeng/api';
@@ -81,8 +81,8 @@ export class EmergencyPrescriptionsComponent extends PagedListingComponentBase<P
         this.primengTableHelper.hideLoadingIndicator();
       }))
       .subscribe((result: PrescriptionDtoPagedResultDto) => {
-        const filteredList = result.items;
-        this.primengTableHelper.records = filteredList.filter(x => x.isEmergencyPrescription == true);
+        const filteredList = result.items.filter(x => x.isEmergencyPrescription == true);
+        this.primengTableHelper.records = filteredList;
         this.primengTableHelper.totalRecordsCount = filteredList.length;
         this.cd.detectChanges();
       });
@@ -154,5 +154,10 @@ export class EmergencyPrescriptionsComponent extends PagedListingComponentBase<P
       }
       this.cd.detectChanges();
     });
+  }
+
+  idDischarged(status: any) {
+    const idDischarged = status === EmergencyStatus._5;
+    return idDischarged
   }
 }

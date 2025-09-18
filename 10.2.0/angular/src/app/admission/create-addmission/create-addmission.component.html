@@ -42,11 +42,6 @@
                 <p-select [(ngModel)]="admission.admissionType" name="admissionType" [options]="admissionTypeOptions"
                     optionLabel="label" optionValue="value" placeholder="Select admission type" class="w-100" required />
             </div>
-            <div class="col-md-6 d-flex flex-column">
-                <label>Admission Date & Time</label>
-                <p-datepicker [(ngModel)]="admission.admissionDateTime" name="admissionDateTime" [showIcon]="true"
-                    placeholder="Select admission date & time" showTime="true" required />
-            </div>
         </div>
     </div>
     <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="!createAdmissionForm.form.valid || saving"

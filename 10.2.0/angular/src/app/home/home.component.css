@@ -1,0 +1,56 @@
+::ng-deep .patient-icon-btn {
+    background-color: #1F6DB2 !important;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+::ng-deep .patient-icon-btn:hover {
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+::ng-deep .badge-soft-primary {
+    color: #1F6DB2;
+    background-color: #EBF2F9;
+}
+
+::ng-deep .badge-soft-success {
+    color: #09800F;
+    background-color: #EEF9F1;
+}
+
+::ng-deep .badge-soft-warning {
+    color: #FDAF22;
+    background-color: #FFF8EF;
+}
+
+::ng-deep .badge-soft-danger {
+    color: #B71C1C;
+    background-color: #FBECEA;
+}
+
+::ng-deep .badge-soft-purple {
+    color: #6A1B9A;
+    background-color: #F1EBF7;
+}
+
+::ng-deep .badge-soft-teal {
+    color: #00796B;
+    background-color: #EBF2F1;
+}
+
+::ng-deep .icon-txt {
+    font-size: 2rem;
+}
+
+::ng-deep .all-btn {
+    background-color: #fff;
+    border: 1px solid #E2E8F0;
+    color: #0F172A;
+    font-weight: 500;
+    font-size: 13px;
+    border-radius: 5px;
+    padding: 6px 10px;
+}

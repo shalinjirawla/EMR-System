@@ -6833,6 +6833,69 @@ export class HealthPackageServiceProxy {
 }
 
 @Injectable()
+export class HomeServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @return OK
+     */
+    getSummary(): Observable<DashboardSummaryDto> {
+        let url_ = this.baseUrl + "/api/services/app/Home/GetSummary";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetSummary(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetSummary(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<DashboardSummaryDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<DashboardSummaryDto>;
+        }));
+    }
+
+    protected processGetSummary(response: HttpResponseBase): Observable<DashboardSummaryDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DashboardSummaryDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
 export class InvoiceServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -26699,6 +26762,53 @@ export enum ChargeType {
     _6 = 6,
 }
 
+export class ChartDataDto implements IChartDataDto {
+    label: string | undefined;
+    value: number;
+
+    constructor(data?: IChartDataDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.label = _data["label"];
+            this.value = _data["value"];
+        }
+    }
+
+    static fromJS(data: any): ChartDataDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ChartDataDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["label"] = this.label;
+        data["value"] = this.value;
+        return data;
+    }
+
+    clone(): ChartDataDto {
+        const json = this.toJSON();
+        let result = new ChartDataDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IChartDataDto {
+    label: string | undefined;
+    value: number;
+}
+
 export enum CollectionStatus {
     _0 = 0,
     _1 = 1,
@@ -31080,6 +31190,169 @@ export interface ICreateUserDto {
     roleNames: string[] | undefined;
     password: string;
     phoneNumber: string;
+}
+
+export class DashboardSummaryDto implements IDashboardSummaryDto {
+    totalAppointments: number;
+    totalPatients: number;
+    totalDoctors: number;
+    totalNurses: number;
+    patientsChart: ChartDataDto[] | undefined;
+    appointmentsChart: ChartDataDto[] | undefined;
+    doctorsChart: ChartDataDto[] | undefined;
+    nursesChart: ChartDataDto[] | undefined;
+    departmentWiseAppointments: ChartDataDto[] | undefined;
+    totalAppointmentList: AppointmentDto[] | undefined;
+    totalPatientList: PatientDto[] | undefined;
+    totalDoctorList: DoctorDto[] | undefined;
+    totalMedicineList: PharmacistInventoryDto[] | undefined;
+
+    constructor(data?: IDashboardSummaryDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.totalAppointments = _data["totalAppointments"];
+            this.totalPatients = _data["totalPatients"];
+            this.totalDoctors = _data["totalDoctors"];
+            this.totalNurses = _data["totalNurses"];
+            if (Array.isArray(_data["patientsChart"])) {
+                this.patientsChart = [] as any;
+                for (let item of _data["patientsChart"])
+                    this.patientsChart.push(ChartDataDto.fromJS(item));
+            }
+            if (Array.isArray(_data["appointmentsChart"])) {
+                this.appointmentsChart = [] as any;
+                for (let item of _data["appointmentsChart"])
+                    this.appointmentsChart.push(ChartDataDto.fromJS(item));
+            }
+            if (Array.isArray(_data["doctorsChart"])) {
+                this.doctorsChart = [] as any;
+                for (let item of _data["doctorsChart"])
+                    this.doctorsChart.push(ChartDataDto.fromJS(item));
+            }
+            if (Array.isArray(_data["nursesChart"])) {
+                this.nursesChart = [] as any;
+                for (let item of _data["nursesChart"])
+                    this.nursesChart.push(ChartDataDto.fromJS(item));
+            }
+            if (Array.isArray(_data["departmentWiseAppointments"])) {
+                this.departmentWiseAppointments = [] as any;
+                for (let item of _data["departmentWiseAppointments"])
+                    this.departmentWiseAppointments.push(ChartDataDto.fromJS(item));
+            }
+            if (Array.isArray(_data["totalAppointmentList"])) {
+                this.totalAppointmentList = [] as any;
+                for (let item of _data["totalAppointmentList"])
+                    this.totalAppointmentList.push(AppointmentDto.fromJS(item));
+            }
+            if (Array.isArray(_data["totalPatientList"])) {
+                this.totalPatientList = [] as any;
+                for (let item of _data["totalPatientList"])
+                    this.totalPatientList.push(PatientDto.fromJS(item));
+            }
+            if (Array.isArray(_data["totalDoctorList"])) {
+                this.totalDoctorList = [] as any;
+                for (let item of _data["totalDoctorList"])
+                    this.totalDoctorList.push(DoctorDto.fromJS(item));
+            }
+            if (Array.isArray(_data["totalMedicineList"])) {
+                this.totalMedicineList = [] as any;
+                for (let item of _data["totalMedicineList"])
+                    this.totalMedicineList.push(PharmacistInventoryDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): DashboardSummaryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new DashboardSummaryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["totalAppointments"] = this.totalAppointments;
+        data["totalPatients"] = this.totalPatients;
+        data["totalDoctors"] = this.totalDoctors;
+        data["totalNurses"] = this.totalNurses;
+        if (Array.isArray(this.patientsChart)) {
+            data["patientsChart"] = [];
+            for (let item of this.patientsChart)
+                data["patientsChart"].push(item.toJSON());
+        }
+        if (Array.isArray(this.appointmentsChart)) {
+            data["appointmentsChart"] = [];
+            for (let item of this.appointmentsChart)
+                data["appointmentsChart"].push(item.toJSON());
+        }
+        if (Array.isArray(this.doctorsChart)) {
+            data["doctorsChart"] = [];
+            for (let item of this.doctorsChart)
+                data["doctorsChart"].push(item.toJSON());
+        }
+        if (Array.isArray(this.nursesChart)) {
+            data["nursesChart"] = [];
+            for (let item of this.nursesChart)
+                data["nursesChart"].push(item.toJSON());
+        }
+        if (Array.isArray(this.departmentWiseAppointments)) {
+            data["departmentWiseAppointments"] = [];
+            for (let item of this.departmentWiseAppointments)
+                data["departmentWiseAppointments"].push(item.toJSON());
+        }
+        if (Array.isArray(this.totalAppointmentList)) {
+            data["totalAppointmentList"] = [];
+            for (let item of this.totalAppointmentList)
+                data["totalAppointmentList"].push(item.toJSON());
+        }
+        if (Array.isArray(this.totalPatientList)) {
+            data["totalPatientList"] = [];
+            for (let item of this.totalPatientList)
+                data["totalPatientList"].push(item.toJSON());
+        }
+        if (Array.isArray(this.totalDoctorList)) {
+            data["totalDoctorList"] = [];
+            for (let item of this.totalDoctorList)
+                data["totalDoctorList"].push(item.toJSON());
+        }
+        if (Array.isArray(this.totalMedicineList)) {
+            data["totalMedicineList"] = [];
+            for (let item of this.totalMedicineList)
+                data["totalMedicineList"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): DashboardSummaryDto {
+        const json = this.toJSON();
+        let result = new DashboardSummaryDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IDashboardSummaryDto {
+    totalAppointments: number;
+    totalPatients: number;
+    totalDoctors: number;
+    totalNurses: number;
+    patientsChart: ChartDataDto[] | undefined;
+    appointmentsChart: ChartDataDto[] | undefined;
+    doctorsChart: ChartDataDto[] | undefined;
+    nursesChart: ChartDataDto[] | undefined;
+    departmentWiseAppointments: ChartDataDto[] | undefined;
+    totalAppointmentList: AppointmentDto[] | undefined;
+    totalPatientList: PatientDto[] | undefined;
+    totalDoctorList: DoctorDto[] | undefined;
+    totalMedicineList: PharmacistInventoryDto[] | undefined;
 }
 
 export class Department implements IDepartment {

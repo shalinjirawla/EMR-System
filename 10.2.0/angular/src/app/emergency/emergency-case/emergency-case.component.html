@@ -77,7 +77,7 @@
                   </td>
                   <td>
                     <button type="button" pButton icon="pi pi-ellipsis-v" class="p-button-text"
-                      (click)="rowMenu.toggle($event); selectedRecord = record">
+                      (click)="rowMenu.toggle($event); selectedRecord = record" *ngIf="!idDischarged(record.status)">
                     </button>
                     <p-overlayPanel #rowMenu class="custom-overlay" [dismissable]="true">
                       <ul class="custom-overlay-menu">
