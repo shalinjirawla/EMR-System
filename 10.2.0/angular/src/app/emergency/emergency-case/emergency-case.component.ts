@@ -177,8 +177,12 @@ export class EmergencyCaseComponent extends PagedListingComponentBase<EmergencyC
       default: return 'info';
     }
   }
-  idAdmitted(status:any){
+  idAdmitted(status: any) {
     const isAdmitted = status === EmergencyStatus._4;
     return isAdmitted
+  }
+  idDischarged(status: any) {
+    const idDischarged = status === EmergencyStatus._5;
+    return idDischarged
   }
 }

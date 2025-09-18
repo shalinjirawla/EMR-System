@@ -3,7 +3,7 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
-                    <h1>{{ 'HomePage' | localize }}</h1>
+                    <h1>Welcome, {{shownLoginName}}</h1>
                 </div>
             </div>
         </div>
@@ -11,268 +11,286 @@
     <section class="content px-2">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-12">
-                    <div class="alert alert-info alert-dismissible">
-                        <h6>
-                            <i class="icon fa fa-info"></i>
-                            This is a sample Dashboard which doesn't show any server side data. However, you can develop
-                            your own dashboard inspired by this one and its source code.
-                        </h6>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-3 col-6">
-                    <div class="small-box bg-success">
-                        <div class="inner">
-                            <h3>8.2k+</h3>
-                            <p>Stargazers</p>
-                        </div>
-                        <div class="icon">
-                            <i class="fas fa-star"></i>
-                        </div>
-                        <a
-                            href="https://github.com/aspnetboilerplate/aspnetboilerplate/stargazers"
-                            class="small-box-footer"
-                            target="_blank">
-                            More info
-                            <i class="fas fa-arrow-circle-right"></i>
-                        </a>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-6">
-                    <div class="small-box bg-info">
-                        <div class="inner">
-                            <h3>140+</h3>
-                            <p>Contributors</p>
-                        </div>
-                        <div class="icon">
-                            <i class="fas fa-users"></i>
-                        </div>
-                        <a
-                            href="https://github.com/aspnetboilerplate/aspnetboilerplate/graphs/contributors"
-                            class="small-box-footer"
-                            target="_blank">
-                            More info
-                            <i class="fas fa-arrow-circle-right"></i>
-                        </a>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-6">
-                    <div class="small-box bg-warning">
-                        <div class="inner">
-                            <h3>1.6k+</h3>
-                            <p>Used / Dependents</p>
-                        </div>
-                        <div class="icon">
-                            <i class="fas fa-tools"></i>
-                        </div>
-                        <a
-                            href="https://github.com/aspnetboilerplate/aspnetboilerplate/network/dependents"
-                            class="small-box-footer"
-                            target="_blank">
-                            More info
-                            <i class="fas fa-arrow-circle-right"></i>
-                        </a>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-6">
-                    <div class="small-box bg-primary">
-                        <div class="inner">
-                            <h3>3.1k+</h3>
-                            <p>Forks</p>
-                        </div>
-                        <div class="icon">
-                            <i class="fas fa-code"></i>
-                        </div>
-                        <a
-                            href="https://github.com/aspnetboilerplate/aspnetboilerplate/network/members"
-                            class="small-box-footer"
-                            target="_blank">
-                            More info
-                            <i class="fas fa-arrow-circle-right"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-12 col-sm-6 col-md-3">
-                    <div class="info-box">
-                        <span class="info-box-icon bg-primary elevation-1">
-                            <i class="fas fa-plus-circle"></i>
-                        </span>
-                        <div class="info-box-content">
-                            <span class="info-box-text">Commits</span>
-                            <span class="info-box-number">6,350+</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12 col-sm-6 col-md-3">
-                    <div class="info-box mb-3">
-                        <span class="info-box-icon bg-warning elevation-1">
-                            <i class="fas fa-exclamation-triangle"></i>
-                        </span>
-                        <div class="info-box-content">
-                            <span class="info-box-text">Issues</span>
-                            <span class="info-box-number">170+</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="clearfix hidden-md-up"></div>
-                <div class="col-12 col-sm-6 col-md-3">
-                    <div class="info-box mb-3">
-                        <span class="info-box-icon bg-info elevation-1">
-                            <i class="fas fa-tag"></i>
-                        </span>
-                        <div class="info-box-content">
-                            <span class="info-box-text">Releases</span>
-                            <span class="info-box-number">200+</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12 col-sm-6 col-md-3">
-                    <div class="info-box mb-3">
-                        <span class="info-box-icon bg-success elevation-1">
-                            <i class="fas fa-eye"></i>
-                        </span>
-                        <div class="info-box-content">
-                            <span class="info-box-text">Watching by</span>
-                            <span class="info-box-number">810+</span>
+                <div class="col-xl-3 col-md-6" *ngFor="let card of [
+                {label:'Patients', value: summaryData?.totalPatients, chart: patientsChartData, color:'info'},
+                {label:'Appointments', value: summaryData?.totalAppointments, chart: appointmentsChartData, color:'success'},
+                {label:'Doctors', value: summaryData?.totalDoctors, chart: doctorsChartData, color:'warning'},
+                {label:'Nurses', value: summaryData?.totalNurses, chart: nursesChartData, color:'danger'}
+                ]">
+                    <div class="card" *ngIf="card.value>0">
+                        <div class="card-body d-flex flex-column">
+                            <!-- Header: Icon + Label + Value -->
+                            <div class="d-flex align-items-center overflow-hidden mb-2">
+                                <p-button [icon]="'pi pi-user'" [rounded]="true" [severity]="card.color"></p-button>
+                                <div class="ml-2 overflow-hidden">
+                                    <p class="mb-1 text-truncate">{{card.label}}</p>
+                                    <h5 class="mb-0">{{card.value}}</h5>
+                                </div>
+                            </div>
+
+                            <!-- Chart -->
+                            <div *ngIf="card.chart">
+                                <p-chart type="line" [data]="card.chart" [options]="chartOptions"></p-chart>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-6">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">Open Issues</h3>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h6><b>Appointment Request</b></h6>
+                                <div class="all-btn" [routerLink]="['/app/doctors/view-appointments']">All Appointments
+                                </div>
+                            </div>
                         </div>
-                        <div class="card-body table-responsive p-0">
-                            <table class="table table-hover text-nowrap">
-                                <thead class="bg-light">
-                                    <tr>
-                                        <th>Id</th>
-                                        <th class="w-25">Title</th>
-                                        <th class="w-25">Labels</th>
-                                        <th>Date</th>
-                                        <th>Opened by</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            <a
-                                                href="https://github.com/aspnetboilerplate/aspnetboilerplate/issues/5452"
-                                                target="_blank">
-                                                5452
-                                            </a>
-                                        </td>
-                                        <td>Angular UI migration to AdminLTE 3</td>
-                                        <td>
-                                            <span class="badge badge-secondary mx-1">module-zero-core-template</span>
-                                            <span class="badge badge-primary mx-1">feature</span>
-                                        </td>
-                                        <td>11 days ago</td>
-                                        <td>iyilm4z</td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <a
-                                                href="https://github.com/aspnetboilerplate/aspnetboilerplate/issues/5391"
-                                                target="_blank">
-                                                5391
-                                            </a>
-                                        </td>
-                                        <td>AbpCacheBase should lock the same object for sync and async</td>
-                                        <td>
-                                            <span class="badge badge-danger mx-1">bug</span>
-                                            <span class="badge badge-success mx-1">pull request candidate</span>
-                                        </td>
-                                        <td>26 days ago</td>
-                                        <td>acjh</td>
-                                    </tr>
+                        <div class="card-body">
+                            <!-- <div *ngFor="let x of summaryData?.totalAppointmentList">
+                                <div class="row">
+                                    <div class="col-md-10">
+                                        <div class="row">
+                                            <div class="col-sm-2">
+                                                <p-avatar [label]="getShortName(x.patient.fullName)" size="large" />
+                                            </div>
+                                            <div class="col-sm-10">
+                                                <div class="row">
+                                                    <div class="col-12">
+                                                        <h6><b>{{x.patient.fullName}}</b></h6>
+                                                    </div>
+                                                    <div class="col-12 d-flex align-items-center"
+                                                        style="font-size: 0.8rem;">
+                                                        <span class="pi-calendar-clock pi mr-2"></span>
+                                                        <span>{{x.appointmentDate |date}}</span>
+                                                        <span class="pi pi-clock ml-3 mr-2"></span>
+                                                        <span>{{x.appointmentDate|date : ' hh:mm a'}}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 d-flex align-items-center">
+                                        <span class="badge badge-soft-success">{{x.department?.departmentName}}</span>
+                                    </div>
+                                </div>
+                                <hr>
+                            </div> -->
+                            <p-table [value]="summaryData?.totalAppointmentList">
+                                <ng-template #body let-product>
                                     <tr>
                                         <td>
-                                            <a
-                                                href="https://github.com/aspnetboilerplate/aspnetboilerplate/issues/5390"
-                                                target="_blank">
-                                                5390
-                                            </a>
+                                            <div class="d-flex align-items-center">
+                                                <div>
+                                                    <p-avatar [label]="getShortName(product.patient.fullName)"
+                                                        size="large" />
+                                                </div>
+                                                <div class="ml-2 d-flex flex-column">
+                                                    <div><b>{{ product.patient.fullName }}</b></div>
+                                                    <div style="font-size: 0.8rem;">
+                                                        <span class="pi-calendar-clock pi mr-2"></span>
+                                                        <span>{{product.appointmentDate |date}}</span>
+                                                        <span class="pi pi-clock ml-3 mr-2"></span>
+                                                        <span>{{product.appointmentDate|date : ' hh:mm a'}}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </td>
-                                        <td>AbpCache sliding/absolute expire time</td>
                                         <td>
-                                            <span class="badge badge-warning mx-1">breaking-change</span>
-                                            <span class="badge badge-info mx-1">enhancement</span>
+                                            <span
+                                                class="badge badge-soft-success">{{product?.department?.departmentName}}</span>
                                         </td>
-                                        <td>27 days ago</td>
-                                        <td>ryancyq</td>
                                     </tr>
-                                </tbody>
-                            </table>
+                                </ng-template>
+                            </p-table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h6><b>Patient Record</b></h6>
+                                <div class="all-btn" [routerLink]="['/app/doctors/patients']">View All</div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p-table [value]="summaryData?.totalPatientList">
+                                <ng-template #header>
+                                    <tr>
+                                        <th>Patient Name</th>
+                                        <th>DOB</th>
+                                        <th>Gender</th>
+                                        <th>Active</th>
+                                    </tr>
+                                </ng-template>
+                                <ng-template #body let-product>
+                                    <tr>
+                                        <td>{{ product.fullName }}</td>
+                                        <td>{{ product.dateOfBirth |date :"dd/MM/yy"}}</td>
+                                        <td>{{ getShortName(product.gender) }}</td>
+                                        <td>
+                                            <span class="badge badge-soft-success">{{product.abpUser.isActive}}</span>
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-xl-2 col-md-4 col-sm-6">
+                    <a class="card">
+                        <div class="card-body text-center">
+                            <span
+                                class="badge-soft-primary icon-txt rounded w-100 d-flex p-4 justify-content-center fs-32 mb-2">
+                                <i class="fa-solid fa-users"></i>
+                            </span>
+                            <h6 class="fs-14 fw-semibold text-truncate mb-0">All Patient</h6>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-xl-2 col-md-4 col-sm-6">
+                    <a class="card">
+                        <div class="card-body text-center">
+                            <span
+                                class="badge-soft-success icon-txt rounded w-100 d-flex p-4 justify-content-center fs-32 mb-2 icon-txt">
+                                <i class="fa-solid fa-user-doctor"></i>
+                            </span>
+                            <h6 class="fs-14 fw-semibold text-truncate mb-0">Doctors</h6>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-xl-2 col-md-4 col-sm-6">
+                    <a class="card">
+                        <div class="card-body text-center">
+                            <span
+                                class="badge-soft-warning icon-txt rounded w-100 d-flex p-4 justify-content-center fs-32 mb-2">
+                                <i class="fa-solid fa-vials"></i>
+                            </span>
+                            <h6 class="fs-14 fw-semibold text-truncate mb-0">Labs Results</h6>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-xl-2 col-md-4 col-sm-6">
+                    <a class="card">
+                        <div class="card-body text-center">
+                            <span
+                                class="badge-soft-danger icon-txt rounded w-100 d-flex p-4 justify-content-center fs-32 mb-2">
+                                <i class="fa-solid fa-prescription-bottle-medical"></i>
+                            </span>
+                            <h6 class="fs-14 fw-semibold text-truncate mb-0">Prescriptions</h6>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-xl-2 col-md-4 col-sm-6">
+                    <a class="card">
+                        <div class="card-body text-center">
+                            <span
+                                class="badge-soft-purple icon-txt rounded w-100 d-flex p-4 justify-content-center fs-32 mb-2">
+                                <i class="fa-solid fa-user-nurse"></i>
+                            </span>
+                            <h6 class="fs-14 fw-semibold text-truncate mb-0">Nurses</h6>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-xl-2 col-md-4 col-sm-6">
+                    <a class="card">
+                        <div class="card-body text-center">
+                            <span
+                                class="badge-soft-teal icon-txt rounded w-100 d-flex p-4 justify-content-center fs-32 mb-2">
+                                <i class="fa-solid fa-file"></i>
+                            </span>
+                            <h6 class="fs-14 fw-semibold text-truncate mb-0">Medical Results</h6>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">Closed Pull Requests</h3>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h6><b>Top Departments</b></h6>
+                                <div class="all-btn" [routerLink]="['/app/master/department']">View All</div>
+                            </div>
                         </div>
-                        <div class="card-body table-responsive p-0">
-                            <table class="table table-hover text-nowrap">
-                                <thead class="bg-light">
-                                    <tr>
-                                        <th>Id</th>
-                                        <th class="w-25">Title</th>
-                                        <th class="w-25">Milestone</th>
-                                        <th>Date</th>
-                                        <th>Made by</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            <a
-                                                href="https://github.com/aspnetboilerplate/aspnetboilerplate/pull/5430"
-                                                target="_blank">
-                                                5430
-                                            </a>
-                                        </td>
-                                        <td>Added Dynamic-Parameter-System doc to documentation menu</td>
-                                        <td>v5.6</td>
-                                        <td>18 days ago</td>
-                                        <td>maliming</td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <a
-                                                href="https://github.com/aspnetboilerplate/aspnetboilerplate/pull/5362"
-                                                target="_blank">
-                                                5362
-                                            </a>
-                                        </td>
-                                        <td>Dynamic Parameter Module</td>
-                                        <td>v5.4</td>
-                                        <td>25 days ago</td>
-                                        <td>demirmusa</td>
-                                    </tr>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-center position-relative">
+                                <p-chart type="doughnut" [data]="departmentChartData" [options]="departmentChartOptions"
+                                    style="width: 250px;"></p-chart>
+
+                                <!-- Center overlay -->
+                                <div class="position-absolute d-flex flex-column justify-content-center align-items-center"
+                                    style="top: 100px; left: 57px;">
+                                    <h6 class="mb-1">Appointments</h6>
+                                    <h3 class="fw-bold">{{ summaryData?.totalAppointments }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h6><b>Doctors</b></h6>
+                                <div class="all-btn">View All</div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p-table [value]="summaryData?.totalDoctorList">
+                                <ng-template #body let-product>
                                     <tr>
                                         <td>
-                                            <a
-                                                href="https://github.com/aspnetboilerplate/aspnetboilerplate/pull/4924"
-                                                target="_blank">
-                                                4924
-                                            </a>
+                                            <div class="d-flex align-items-center">
+                                                <div>
+                                                    <p-avatar [label]="getShortName(product.fullName)" size="large" />
+                                                </div>
+                                                <div class="ml-2 d-flex flex-column">
+                                                    <span><b>Dr. {{ product.fullName }}</b></span>
+                                                    <span *ngIf="product?.department" style="font-size: 13px;">{{
+                                                        product?.department?.departmentName }}</span>
+                                                    <span *ngIf="!product?.department"
+                                                        style="font-size: 13px;">Emergency</span>
+                                                </div>
+                                            </div>
                                         </td>
-                                        <td>ASP.NET Core 3.0 Upgrade</td>
-                                        <td>v5.0</td>
-                                        <td>Oct 15</td>
-                                        <td>ismcagdas</td>
+                                        <td>
+                                            <span class="badge badge-soft-success"
+                                                *ngIf="product.abpUser.isActive">Available</span>
+                                            <span class="badge badge-soft-danger"
+                                                *ngIf="!product.abpUser.isActive">UnAvailable</span>
+                                        </td>
                                     </tr>
-                                </tbody>
-                            </table>
+                                </ng-template>
+                            </p-table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h6><b>Medicines</b></h6>
+                                <div class="all-btn" [routerLink]="['/app/pharmacist/medicine-list']">View All</div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p-table [value]="summaryData?.totalMedicineList">
+                                <ng-template #body let-product>
+                                    <tr>
+                                        <td>
+                                            <span><b>{{ product.medicineName }}</b></span>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-soft-success"
+                                                *ngIf="product.isAvailable">Available</span>
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
                         </div>
                     </div>
                 </div>

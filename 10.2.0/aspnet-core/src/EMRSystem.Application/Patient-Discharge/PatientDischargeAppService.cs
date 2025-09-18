@@ -46,11 +46,13 @@ namespace EMRSystem.Patient_Discharge
         private readonly IVitalAppService _vitalAppService;
         private readonly IInvoiceAppService _invoiceAppService;
         private readonly IRepository<EMRSystem.Admission.Admission, long> _admissionAppService;
+        private readonly IRepository<EMRSystem.Emergency.EmergencyCase.EmergencyCase, long> _emergencyCaseAppService;
         public PatientDischargeAppService(IRepository<EMRSystem.PatientDischarge.PatientDischarge, long> repository,
             IPrescriptionAppService prescriptionAppService, ICreatePrescriptionLabTestsAppService createPrescriptionLabTestAppService,
             ISelectedEmergencyProceduresAppService selectedEmergencyProceduresAppService,
             IVitalAppService vitalAppService, IInvoiceAppService invoiceAppService,
-            IRepository<EMRSystem.Admission.Admission, long> admissionAppService
+            IRepository<EMRSystem.Admission.Admission, long> admissionAppService,
+            IRepository<EMRSystem.Emergency.EmergencyCase.EmergencyCase, long> emergencyCaseAppService
             ) : base(repository)
         {
             _prescriptionAppService = prescriptionAppService;
@@ -59,6 +61,7 @@ namespace EMRSystem.Patient_Discharge
             _vitalAppService = vitalAppService;
             _invoiceAppService = invoiceAppService;
             _admissionAppService = admissionAppService;
+            _emergencyCaseAppService = emergencyCaseAppService;
         }
 
         protected override IQueryable<EMRSystem.PatientDischarge.PatientDischarge> CreateFilteredQuery(PagedPatientDischargeResultRequestDto input)
@@ -159,7 +162,18 @@ namespace EMRSystem.Patient_Discharge
                     getAdmission.ForEach(async x =>
                     {
                         x.IsDischarged = true;
+                        x.DischargeDateTime = discharge.DischargeDate;
                         await _admissionAppService.UpdateAsync(x);
+                    });
+                }
+                var emergencyCase=await _emergencyCaseAppService.GetAll().Where(x => x.PatientId == patientID).ToListAsync();
+                if (emergencyCase.Count > 0)
+                {
+                    emergencyCase.ForEach(async x =>
+                    {
+                        x.Status = Emergency.EmergencyCase.EmergencyStatus.Discharged;
+                        x.DischargeTime = discharge.DischargeDate;
+                        await _emergencyCaseAppService.UpdateAsync(x);
                     });
                 }
             }

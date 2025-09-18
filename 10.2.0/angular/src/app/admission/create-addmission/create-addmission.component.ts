@@ -8,6 +8,7 @@ import { AbpModalHeaderComponent } from '../../../shared/components/modal/abp-mo
 import { AbpModalFooterComponent } from '../../../shared/components/modal/abp-modal-footer.component';
 import { SelectModule } from 'primeng/select';
 import { DatePickerModule } from 'primeng/datepicker';
+import moment from 'moment';
 
 @Component({
   selector: 'app-create-addmission',
@@ -140,7 +141,7 @@ export class CreateAddmissionComponent extends AppComponentBase implements OnIni
     const input = new CreateUpdateAdmissionDto();
     input.tenantId = this.admission.tenantId;
     input.patientId = this.admission.patientId;
-    input.admissionDateTime = this.admission.admissionDateTime;
+    input.admissionDateTime = moment();
     input.doctorId = this.admission.doctorId;
     input.nurseId = this.admission.nurseId;
     input.roomId = this.admission.roomId;
