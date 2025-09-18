@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace EMRSystem.Medicines
 {
-    public class MedicineStock : Entity<long>
+    public class MedicineStock : Entity<long>, IMustHaveTenant
     {
         public int TenantId { get; set; }
 
@@ -15,8 +15,6 @@ namespace EMRSystem.Medicines
         public virtual MedicineMaster MedicineMaster { get; set; }
 
         public string BatchNo { get; set; }
-
-        public DateTime PurchaseDate { get; set; }
         public DateTime? ExpiryDate { get; set; }
 
         public int Quantity { get; set; }

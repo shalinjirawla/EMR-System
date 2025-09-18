@@ -11,17 +11,21 @@ namespace EMRSystem.Medicines.Dto
     {
         public MedicineMappingProfile()
         {
-            // MedicineMaster
-            CreateMap<MedicineMaster, MedicineMasterDto>()
-                .ForMember(dest => dest.FormName, opt => opt.MapFrom(src => src.Form.Name))
-                .ForMember(dest => dest.StrengthUnitName, opt => opt.MapFrom(src => src.StrengthUnit.Name));
-
+            CreateMap<MedicineMaster, MedicineMasterDto>();
+            CreateMap<MedicineMasterDto, MedicineMaster>();
             CreateMap<CreateUpdateMedicineMasterDto, MedicineMaster>();
 
-            // MedicineStock
-            CreateMap<MedicineStock, MedicineStockDto>()
-                .ForMember(dest => dest.MedicineName, opt => opt.MapFrom(src => src.MedicineMaster.Name));
+            CreateMap<PurchaseInvoice, PurchaseInvoiceDto>();
+            CreateMap<PurchaseInvoiceDto, PurchaseInvoice>();
+            CreateMap<CreateUpdatePurchaseInvoiceDto, PurchaseInvoice>()
+                .ForMember(dest => dest.Items, opt => opt.Ignore());
 
+            CreateMap<PurchaseInvoiceItem, PurchaseInvoiceItemDto>();
+            CreateMap<PurchaseInvoiceItemDto, PurchaseInvoiceItem>();
+            CreateMap<CreateUpdatePurchaseInvoiceItemDto, PurchaseInvoiceItem>();
+
+            CreateMap<MedicineStock, MedicineStockDto>();
+            CreateMap<MedicineStockDto, MedicineStock>();
             CreateMap<CreateUpdateMedicineStockDto, MedicineStock>();
         }
     }

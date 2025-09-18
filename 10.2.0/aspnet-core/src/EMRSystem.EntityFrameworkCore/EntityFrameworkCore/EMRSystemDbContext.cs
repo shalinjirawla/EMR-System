@@ -90,6 +90,8 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
     public DbSet<EMRSystem.PatientDischarge.PatientDischarge> PatientDischarges { get; set; }
     public DbSet<EMRSystem.Medicines.MedicineMaster> MedicineMasters { get; set; }
     public DbSet<EMRSystem.Medicines.MedicineStock> MedicineStocks { get; set; }
+    public DbSet<EMRSystem.Medicines.PurchaseInvoice> PurchaseInvoices { get; set; }
+    public DbSet<EMRSystem.Medicines.PurchaseInvoiceItem> PurchaseInvoiceItems { get; set; }
     public DbSet<EMRSystem.MedicineFormMaster.MedicineFormMaster> MedicineFormMasters { get; set; }
     public DbSet<EMRSystem.StrengthUnitMaster.StrengthUnitMaster> StrengthUnitMasters { get; set; }
 
@@ -909,20 +911,27 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
 
             b.Property(x => x.MinimumStock).IsRequired();
 
+            // Relation with Form
             b.HasOne(m => m.Form)
              .WithMany()
              .HasForeignKey(m => m.MedicineFormId)
              .OnDelete(DeleteBehavior.Restrict);
 
+            // Relation with StrengthUnit
             b.HasOne(m => m.StrengthUnit)
              .WithMany()
              .HasForeignKey(m => m.StrengthUnitId)
              .OnDelete(DeleteBehavior.Restrict);
 
+            // Relation with Stocks
             b.HasMany(m => m.Stocks)
              .WithOne(s => s.MedicineMaster)
              .HasForeignKey(s => s.MedicineMasterId)
              .OnDelete(DeleteBehavior.Cascade);
+
+            // Optional: Unique Medicine combination per tenant
+            b.HasIndex(x => new { x.TenantId, x.Name, x.MedicineFormId, x.Strength, x.StrengthUnitId })
+             .IsUnique();
         });
 
         modelBuilder.Entity<EMRSystem.Medicines.MedicineStock>(b =>
@@ -948,6 +957,31 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
         {
             b.ToTable("StrengthUnitMasters");
             b.HasIndex(x => new { x.TenantId, x.Name }).IsUnique();
+        });
+        modelBuilder.Entity<EMRSystem.Medicines.PurchaseInvoice>(b =>
+        {
+            b.ToTable("PurchaseInvoices");
+
+            b.HasIndex(x => new { x.TenantId, x.InvoiceNo }).IsUnique();
+
+            b.Property(x => x.TotalAmount).HasColumnType("decimal(18,2)");
+        });
+        modelBuilder.Entity<EMRSystem.Medicines.PurchaseInvoiceItem>(b =>
+        {
+            b.ToTable("PurchaseInvoiceItems");
+
+            b.Property(x => x.PurchasePrice).HasColumnType("decimal(18,2)");
+            b.Property(x => x.SellingPrice).HasColumnType("decimal(18,2)");
+
+            b.HasOne(pii => pii.PurchaseInvoice)
+             .WithMany(pi => pi.Items)
+             .HasForeignKey(pii => pii.PurchaseInvoiceId)
+             .OnDelete(DeleteBehavior.Cascade);
+
+            b.HasOne(pii => pii.MedicineMaster)
+             .WithMany()
+             .HasForeignKey(pii => pii.MedicineMasterId)
+             .OnDelete(DeleteBehavior.Restrict);
         });
 
 

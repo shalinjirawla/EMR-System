@@ -7,15 +7,18 @@ using System.Threading.Tasks;
 
 namespace EMRSystem.Medicines.Dto
 {
-    public class CreateUpdateMedicineStockDto : EntityDto<long>
+    public class PurchaseInvoiceItemDto : EntityDto<long>
     {
         public int TenantId { get; set; }
+
+        public long PurchaseInvoiceId { get; set; }
         public long MedicineMasterId { get; set; }
+
         public string BatchNo { get; set; }
         public DateTime? ExpiryDate { get; set; }
+
         public int Quantity { get; set; }
         public decimal PurchasePrice { get; set; }
         public decimal SellingPrice { get; set; }
-        public bool IsExpire { get; set; } = false;
     }
 }
