@@ -12,6 +12,7 @@ import { AbpModalFooterComponent } from '../../../shared/components/modal/abp-mo
 import { AppComponentBase } from '@shared/app-component-base';
 import { PurchaseInvoiceServiceProxy, CreateUpdatePurchaseInvoiceDto, CreateUpdatePurchaseInvoiceItemDto, MedicineMasterServiceProxy, MedicineMasterDto } from '@shared/service-proxies/service-proxies';
 import { DatePickerModule } from 'primeng/datepicker';
+import moment from 'moment';
 
 @Component({
   selector: 'app-create-purchase-invoice',
@@ -76,26 +77,67 @@ export class CreatePurchaseInvoiceComponent extends AppComponentBase implements 
     this.invoice.items.splice(index, 1);
   }
 
-  get isFormValid(): boolean {
-    return this.purchaseInvoiceForm?.form?.valid && this.invoice.items.length > 0;
+ get isFormValid(): boolean {
+  if (!(this.purchaseInvoiceForm?.form?.valid && this.invoice.items.length > 0)) {
+    return false;
   }
 
-  save(): void {
-    if (!this.isFormValid) {
-      this.message.warn("Please complete the form properly and add at least one item.");
-      return;
+  // Custom validations
+  for (let item of this.invoice.items) {
+    if (!item.purchasePrice || !item.sellingPrice || item.purchasePrice <= 0 || item.sellingPrice <= 0) {
+      return false;
     }
-
-    this.saving = true;
-    debugger
-    this._invoiceService.create(this.invoice).subscribe({
-      next: () => {
-        this.notify.info(this.l('SavedSuccessfully'));
-        this.bsModalRef.hide();
-        this.onSave.emit();
-
-      },
-      error: () => this.saving = false
-    });
+    if (item.sellingPrice < item.purchasePrice) {
+      return false;
+    }
   }
+  return true;
+}
+isExpiryInvalid(item: CreateUpdatePurchaseInvoiceItemDto): boolean {
+  if (!item.expiryDate) {
+    return true;
+  }
+
+  // Agar moment object hai to toDate() se Date banalo
+  let exp: Date;
+  if (moment.isMoment(item.expiryDate)) {
+    exp = item.expiryDate.toDate();
+  } else {
+    exp = new Date(item.expiryDate as any);
+  }
+
+  return exp < this.today;
+}
+// Per item total calculate karke return karo (DTO me property nahi hai)
+calculateItemTotal(item: CreateUpdatePurchaseInvoiceItemDto): number {
+  return (item.quantity || 0) * (item.purchasePrice || 0);
+}
+
+// Grand total calculate karke invoice.TotalAmount set karo
+updateInvoiceTotal() {
+  this.invoice.totalAmount = this.invoice.items
+    .reduce((sum, it) => sum + this.calculateItemTotal(it), 0);
+}
+
+save(): void {
+  if (!this.isFormValid) {
+    this.message.warn("Please complete the form properly and add at least one valid item.");
+    return;
+  }
+
+  this.saving = true;
+
+  // Grand total calculate before sending
+  this.updateInvoiceTotal();
+debugger
+  this._invoiceService.create(this.invoice).subscribe({
+    next: () => {
+      this.notify.info(this.l('SavedSuccessfully'));
+      this.bsModalRef.hide();
+      this.onSave.emit();
+    },
+    error: () => this.saving = false
+  });
+}
+
 }

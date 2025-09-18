@@ -17,10 +17,11 @@ namespace EMRSystem.Medicines.Dto
 
             CreateMap<PurchaseInvoice, PurchaseInvoiceDto>();
             CreateMap<PurchaseInvoiceDto, PurchaseInvoice>();
-            CreateMap<CreateUpdatePurchaseInvoiceDto, PurchaseInvoice>()
-                .ForMember(dest => dest.Items, opt => opt.Ignore());
+            CreateMap<CreateUpdatePurchaseInvoiceDto, PurchaseInvoice>();
 
-            CreateMap<PurchaseInvoiceItem, PurchaseInvoiceItemDto>();
+            CreateMap<PurchaseInvoiceItem, PurchaseInvoiceItemDto>()
+    .ForMember(dest => dest.MedicineName, opt => opt.MapFrom(src => src.MedicineMaster.Name));
+
             CreateMap<PurchaseInvoiceItemDto, PurchaseInvoiceItem>();
             CreateMap<CreateUpdatePurchaseInvoiceItemDto, PurchaseInvoiceItem>();
 
