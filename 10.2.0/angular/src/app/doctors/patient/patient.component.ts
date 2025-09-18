@@ -43,11 +43,14 @@ export class PatientComponent extends PagedListingComponentBase<PatientDto> impl
     statusOptions = [
         { label: 'Pending', value: DischargeStatus._0 },
         { label: 'Initiated', value: DischargeStatus._1 },
-        { label: 'Sent To LabTechnician', value: DischargeStatus._2 },
-        { label: 'Sent To Billing', value: DischargeStatus._3 },
-        { label: 'Billing Completed', value: DischargeStatus._4 },
-        { label: 'Final Approval', value: DischargeStatus._5 },
-        { label: 'Discharged', value: DischargeStatus._6 },
+        { label: 'Sent To Doctor', value: DischargeStatus._2 },
+        { label: 'Doctor Verified', value: DischargeStatus._3 },
+        { label: 'Sent To LabTechnician', value: DischargeStatus._4 },
+        { label: 'LabTechnician Completed', value: DischargeStatus._5 },
+        { label: 'Sent To Billing', value: DischargeStatus._6 },
+        { label: 'Billing Completed', value: DischargeStatus._7 },
+        { label: 'Final Approval', value: DischargeStatus._8 },
+        { label: 'Discharged', value: DischargeStatus._9 },
     ];
     constructor(
         injector: Injector,
@@ -194,7 +197,10 @@ export class PatientComponent extends PagedListingComponentBase<PatientDto> impl
             case DischargeStatus._3: return 'warn';
             case DischargeStatus._4: return 'warn';
             case DischargeStatus._5: return 'warn';
-            case DischargeStatus._6: return 'success';
+            case DischargeStatus._6: return 'warn';
+            case DischargeStatus._7: return 'warn';
+            case DischargeStatus._8: return 'success';
+            case DischargeStatus._9: return 'success';
             default: return 'warn';
         }
     }

@@ -162,7 +162,7 @@
                                         </button>
                                         <p-overlayPanel #rowMenu class="custom-overlay" [dismissable]="true">
                                             <ul class="custom-overlay-menu">
-                                                <li *ngIf="record.discharge_Status!=0"
+                                                <li *ngIf="record.discharge_Status !== 0 && record.discharge_Status < 5"
                                                     (click)="gotoDischargeSummaryPage(selectedRecord.id)">
                                                     <i class="fa-solid fa-right-from-bracket"></i>Discharge Process
                                                 </li>

@@ -91,7 +91,6 @@ export class ProcedureReceiptComponent extends PagedListingComponentBase<Procedu
   }
 
   viewReceipt(id: number): void {
-    debugger
     const dialog: BsModalRef = this.modalService.show(
       ViewProcedureReceiptComponent,
       {

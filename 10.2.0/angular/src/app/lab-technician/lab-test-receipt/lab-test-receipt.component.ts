@@ -103,10 +103,8 @@ export class LabTestReceiptComponent extends PagedListingComponentBase<LabTestRe
 }
 
 ViewLabReport(id: number): void {
-  debugger
   // Example navigation or modal open
   // this.modalService.show(ViewLabReportComponent, { class: 'modal-lg', initialState: { reportId: id } });
-  console.log('Viewing lab report', id);
 }
 
   deleteReceipt(receipt: LabTestReceiptDto): void {

@@ -81,7 +81,6 @@ export class EmergencyPrescriptionsComponent extends PagedListingComponentBase<P
         this.primengTableHelper.hideLoadingIndicator();
       }))
       .subscribe((result: PrescriptionDtoPagedResultDto) => {
-        debugger
         const filteredList = result.items;
         this.primengTableHelper.records = filteredList.filter(x => x.isEmergencyPrescription == true);
         this.primengTableHelper.totalRecordsCount = filteredList.length;

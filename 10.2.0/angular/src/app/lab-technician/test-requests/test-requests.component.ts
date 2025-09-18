@@ -119,7 +119,6 @@ export class TestRequestsComponent extends PagedListingComponentBase<Prescriptio
     //         });
     // }
     // pay(record: PrescriptionLabTestDto, method: PaymentMethod): void {
-    //     debugger
     //     abp.ui.setBusy();
 
     //     if (method === PaymentMethod._1) {
@@ -189,7 +188,6 @@ export class TestRequestsComponent extends PagedListingComponentBase<Prescriptio
         });
     }
     CreateReport(record: LabRequestListDto): void {
-        debugger//3
         let createReportDialog: BsModalRef;
         if (record.labReportsTypeId) {
             createReportDialog = this._modalService.show(GenerateLabReportComponent, {

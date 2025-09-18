@@ -89,7 +89,6 @@ export class CreateAddmissionComponent extends AppComponentBase implements OnIni
     if (this.selectedNurseId>0) {
       this.admission.nurseId = this.selectedNurseId;
     }
-    debugger
     if (this.admissionType>0) {
       this.admission.admissionType=AdmissionType._2;
     }

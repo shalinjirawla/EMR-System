@@ -73,7 +73,6 @@ export class CreateUpdateTriageComponent extends AppComponentBase implements OnI
   }
   loadTriage(id: number) {
     this._triageService.get(id).subscribe(res => {
-      debugger;
       this.triage = {
         tenantId: res.tenantId,
         emergencyCaseId: res.emergencyCaseId,

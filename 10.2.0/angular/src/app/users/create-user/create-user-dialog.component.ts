@@ -99,12 +99,10 @@ export class CreateUserDialogComponent extends AppComponentBase implements OnIni
     loadRoles(): void {
         this._userService.getRoles().subscribe(result => {
             this.roles = result.items;
-            debugger
             this.cd.detectChanges();
         });
     }
     onRoleChange() {
-        console.log('Selected Role:', this.selectedRole);
         this.cd.detectChanges();
     }
 

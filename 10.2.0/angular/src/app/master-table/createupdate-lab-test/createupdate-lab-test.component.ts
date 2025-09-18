@@ -135,7 +135,6 @@ selectedUnitId?: number;
         dto.measureUnitId = this.selectedUnitId!;
         return dto;
       });
-debugger
       this._labTestService.createBulk(inputs).subscribe({
         next: () => {
           this.notify.success(this.l('SavedSuccessfully'));

@@ -9,7 +9,8 @@
                     </div>
                 </div>
                 <div>
-                    <a (click)="gotList()" style="cursor: pointer;"><span class="pi pi-arrow-left mr-2"></span>Back to
+                    <a [routerLink]="['/app/doctors/patients']" style="cursor: pointer;"><span
+                            class="pi pi-arrow-left mr-2"></span>Back to
                         list</a>
                 </div>
             </div>
@@ -19,7 +20,7 @@
         <div class="container-fluid">
             <div class="card mb-0 table-wrapper">
                 <div class="card-body">
-                    <p-stepper [value]="currentStep">
+                    <p-stepper [value]="currentStep" [linear]="true">
                         <div class="row">
                             <div class="col-md-3">
                                 <p-step-list>
@@ -33,23 +34,23 @@
                                         <i class="fa fa-clinic-medical mr-3"></i>
                                         Treatment Summary
                                         <i class="pi pi-check ml-3"
-                                            *ngIf="data?.patientDischarge?.dischargeStatus >= 2"></i>
+                                            *ngIf="data?.patientDischarge?.dischargeStatus >= 3"></i>
                                     </p-step>
                                     <p-step [value]="3" class="mt-2 mb-2 border rounded  w-100"> <i
                                             class="fa-vial fas nav-icon mr-3"></i> Lab Results
                                         <i class="pi pi-check ml-3"
-                                            *ngIf="data?.patientDischarge?.dischargeStatus >= 3"></i>
+                                            *ngIf="data?.patientDischarge?.dischargeStatus >=5"></i>
                                     </p-step>
                                     <p-step [value]="4" class="mt-2 mb-2 border rounded w-100"> <i
                                             class="fa-file-invoice-dollar fas nav-icon mr-3"></i> Billing
                                         Summary
                                         <i class="pi pi-check ml-3"
-                                            *ngIf="data?.patientDischarge?.dischargeStatus >= 4"></i>
+                                            *ngIf="data?.patientDischarge?.dischargeStatus >=7"></i>
                                     </p-step>
                                     <p-step [value]="5" class="mt-2 mb-2 border rounded w-100"> <i
                                             class="pi pi-sign-out mr-3"></i> Discharge Instructions
                                         <i class="pi pi-check ml-3"
-                                            *ngIf="data?.patientDischarge?.dischargeStatus >= 5"></i>
+                                            *ngIf="data?.patientDischarge?.dischargeStatus>=9"></i>
                                     </p-step>
                                 </p-step-list>
                             </div>
@@ -161,7 +162,8 @@
                                                 </div>
                                             </div>
                                             <div class="d-flex justify-content-end">
-                                                <button class="btn btn-sm next-btn " (click)="activateCallback(2)">
+                                                <button class="btn btn-sm next-btn " (click)="activateCallback(2)"
+                                                    [disabled]="data?.patientDischarge?.dischargeStatus < 1">
                                                     Next
                                                 </button>
                                             </div>
@@ -169,7 +171,7 @@
                                     </p-step-panel>
                                     <p-step-panel [value]="2">
                                         <ng-template #content let-activateCallback="activateCallback">
-                                            <div class="card">
+                                            <div class="card" *ngIf="data?.vitals?.length>0">
                                                 <div class="card-header">
                                                     <div class="d-flex justify-content-between">
                                                         <div>
@@ -206,7 +208,7 @@
                                                     </p-table>
                                                 </div>
                                             </div>
-                                            <div class="card  mt-2">
+                                            <div class="card" *ngIf="data?.prescriptions?.length>0">
                                                 <div class="card-header">
                                                     <div class="d-flex justify-content-between">
                                                         <div>
@@ -247,7 +249,7 @@
                                                     </p-table>
                                                 </div>
                                             </div>
-                                            <div class="card  mt-2">
+                                            <div class="card" *ngIf="data?.selectedEmergencyProcedures?.length>0">
                                                 <div class="card-header">
                                                     <div class="d-flex justify-content-between">
                                                         <div>
@@ -285,15 +287,25 @@
                                                     </p-table>
                                                 </div>
                                             </div>
-                                            <div class="d-flex justify-content-end">
-                                                <button class="btn btn-sm btn-success mr-2"
-                                                    *ngIf="data?.patientDischarge?.dischargeStatus < 2"
-                                                    (click)="markAsComplete(2)">
-                                                    Sent To LabTechnician
+                                            <div class="d-flex justify-content-between">
+                                                <button class="btn btn-sm next-btn " (click)="activateCallback(1)">
+                                                    Back
                                                 </button>
-                                                <button class="btn btn-sm next-btn " (click)="activateCallback(3)">
-                                                    Next
-                                                </button>
+                                                <div class="d-flex justify-content-end">
+                                                    <button class="btn btn-sm btn-success mr-2"
+                                                        *ngIf="!checkForDoctorNotify() && data?.patientDischarge?.dischargeStatus<3"
+                                                        (click)="ChangeStatus(3)">
+                                                        Mark As Complete
+                                                    </button>
+                                                    <button class="btn btn-sm mr-2 btn-warning"
+                                                        (click)="ChangeStatus(2)" *ngIf="checkForDoctorNotify()">
+                                                        Notify Doctor
+                                                    </button>
+                                                    <button class="btn btn-sm next-btn " (click)="activateCallback(3)"
+                                                        [disabled]="checkForDoctorNotify()">
+                                                        Next
+                                                    </button>
+                                                </div>
                                             </div>
                                         </ng-template>
                                     </p-step-panel>
@@ -343,18 +355,27 @@
                                                     </p-table>
                                                 </div>
                                             </div>
-                                            <div class="d-flex justify-content-end">
-                                                <button class="btn btn-sm mr-2 btn-success" (click)="markAsComplete(3)"
-                                                    *ngIf="data?.patientDischarge?.dischargeStatus < 3 && !checkForLabTechnicianNotify()">
-                                                    Mark As Completed
-                                                </button>
-                                                <button class="btn btn-sm mr-2 btn-warning"
-                                                    *ngIf="checkForLabTechnicianNotify()">
-                                                    Notify Lab Technician
-                                                </button>
-                                                <button class="btn btn-sm next-btn " (click)="activateCallback(4)">
-                                                    Next
-                                                </button>
+                                            <div class="d-flex justify-content-between">
+                                                <div>
+                                                    <button class="btn btn-sm next-btn " (click)="activateCallback(2)">
+                                                        Back
+                                                    </button>
+                                                </div>
+                                                <div class="d-flex justify-content-end">
+                                                    <button class="btn btn-sm mr-2 btn-success"
+                                                        (click)="ChangeStatus(5)"
+                                                        *ngIf="!checkForLabTechnicianNotify() && data?.patientDischarge?.dischargeStatus<5">
+                                                        Mark As Completed
+                                                    </button>
+                                                    <button class="btn btn-sm mr-2 btn-warning"
+                                                        (click)="ChangeStatus(4)" *ngIf="checkForLabTechnicianNotify()">
+                                                        Notify Lab Technician
+                                                    </button>
+                                                    <button class="btn btn-sm next-btn " (click)="activateCallback(4)"
+                                                        [disabled]="data?.patientDischarge?.dischargeStatus < 3">
+                                                        Next
+                                                    </button>
+                                                </div>
                                             </div>
                                         </ng-template>
                                     </p-step-panel>
@@ -373,7 +394,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="card-body">
-                                                    <p-table [value]="data?.invoices">
+                                                    <p-table [value]="data?.invoices" *ngIf="data?.invoices?.length>0">
                                                         <ng-template #header>
                                                             <tr>
                                                                 <th>Invoice No</th>
@@ -387,7 +408,9 @@
                                                             <tr>
                                                                 <td>{{ product3.invoiceNo }}</td>
                                                                 <td>{{ product3.invoiceType }}</td>
-                                                                <td>{{ product3.invoiceDate }}</td>
+                                                                <td>{{ product3.invoiceDate | date:'dd/MM/yyyy hh:mm a'
+                                                                    }}
+                                                                </td>
                                                                 <td>{{ product3.totalAmount }}</td>
                                                                 <td>
                                                                     <div>
@@ -398,20 +421,33 @@
                                                             </tr>
                                                         </ng-template>
                                                     </p-table>
+                                                    <p class="text-center fw-bold" *ngIf="data?.invoices?.length<=0">
+                                                        No Invoice found
+                                                    </p>
                                                 </div>
                                             </div>
-                                            <div class="d-flex justify-content-end">
-                                                <button class="btn btn-sm mr-2 btn-success" (click)="markAsComplete(4)"
-                                                    *ngIf="data?.patientDischarge?.dischargeStatus < 4 && !checkForBillStaffNotify()">
-                                                    Mark As Completed
-                                                </button>
-                                                <button class="btn btn-sm mr-2 btn-warning"
-                                                    *ngIf="checkForBillStaffNotify()">
-                                                    Notify Billing Staff
-                                                </button>
-                                                <button class="btn btn-sm next-btn " (click)="activateCallback(5)">
-                                                    Next
-                                                </button>
+
+                                            <div class="d-flex justify-content-between">
+                                                <div>
+                                                    <button class="btn btn-sm next-btn " (click)="activateCallback(3)">
+                                                        Back
+                                                    </button>
+                                                </div>
+                                                <div class="d-flex justify-content-end">
+                                                    <button class="btn btn-sm mr-2 btn-success"
+                                                        (click)="ChangeStatus(7)"
+                                                        *ngIf="!checkForBillStaffNotify() && data?.patientDischarge?.dischargeStatus<7">
+                                                        Mark As Completed
+                                                    </button>
+                                                    <button class="btn btn-sm mr-2 btn-warning"
+                                                        (click)="ChangeStatus(6)" *ngIf="checkForBillStaffNotify()">
+                                                        Notify Billing Staff
+                                                    </button>
+                                                    <button class="btn btn-sm next-btn " (click)="activateCallback(5)"
+                                                        [disabled]="data?.patientDischarge?.dischargeStatus < 4">
+                                                        Next
+                                                    </button>
+                                                </div>
                                             </div>
                                         </ng-template>
                                     </p-step-panel>
@@ -423,7 +459,7 @@
                                                         <div>
                                                             <b>Final Approval</b>
                                                         </div>
-                                                        <div *ngIf="data?.patientDischarge?.dischargeStatus ==5"
+                                                        <div *ngIf="data?.patientDischarge?.dischargeStatus ==8"
                                                             class="final-approved-cls">
                                                             <p-button icon="pi pi-check" [rounded]="true"
                                                                 severity="success" />
@@ -435,15 +471,22 @@
                                                         [style]="{ height: '130px' }" required />
                                                 </div>
                                             </div>
-                                            <div class="d-flex justify-content-end">
-                                                <button class="btn btn-sm btn-success " (click)="FinalApproval()"
-                                                    *ngIf="data?.patientDischarge?.dischargeStatus ==4">
-                                                    <span class="pi pi-check mr-2"></span>Final Approval
-                                                </button>
-                                                <button class="btn btn-sm btn-danger" (click)="Discharge()"
-                                                    *ngIf="data?.patientDischarge?.dischargeStatus ==5">Discharge
-                                                    Patient
-                                                </button>
+                                            <div class="d-flex justify-content-between">
+                                                <div>
+                                                    <button class="btn btn-sm next-btn " (click)="activateCallback(4)">
+                                                        Back
+                                                    </button>
+                                                </div>
+                                                <div class="d-flex justify-content-end">
+                                                    <button class="btn btn-sm btn-success " (click)="FinalApproval()"
+                                                        *ngIf="data?.patientDischarge?.dischargeStatus ==7">
+                                                        <span class="pi pi-check mr-2"></span>Final Approval
+                                                    </button>
+                                                    <button class="btn btn-sm btn-danger" (click)="Discharge()"
+                                                        *ngIf="data?.patientDischarge?.dischargeStatus ==8">Discharge
+                                                        Patient
+                                                    </button>
+                                                </div>
                                             </div>
                                         </ng-template>
                                     </p-step-panel>

@@ -150,10 +150,8 @@ const input = new CreateUpdateMedicineOrderDto();
   });
   return dtoItem;
 });
-debugger
     this._orderService.createMedicineOrderWithItem(input).subscribe({
       next: (res) => {
-       console.log("Saved order:", this.order);
     this.notify.success("Order placed");
     this.bsModalRef.hide();
     this.onSave.emit();

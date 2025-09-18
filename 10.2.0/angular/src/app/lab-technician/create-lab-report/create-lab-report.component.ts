@@ -215,7 +215,6 @@ save() {
     this.labReceiptService.createStripeCheckoutSession(input).subscribe({
       
       next: (sessionUrl) => {
-        debugger
         window.location.href = sessionUrl; // redirect to Stripe
       },
       error: () => this.isSaving = false

@@ -83,7 +83,6 @@ export class CreateupdateDepartmentComponent extends AppComponentBase implements
 
   ngOnInit(): void {
     if (this.id) {
-      debugger
       this._departmentService.get(this.id).subscribe((res) => {
         this.department = res;
         this.isActive = res.isActive!;
@@ -110,7 +109,6 @@ export class CreateupdateDepartmentComponent extends AppComponentBase implements
       input.departmentName = this.department.departmentName!;
       input.isActive = this.isActive;
       input.departmentType = this.department.departmentType!;
-debugger
       this._departmentService.update(input).subscribe({
         next: () => {
           this.notify.success(this.l('SavedSuccessfully'));
@@ -130,7 +128,6 @@ debugger
         dto.departmentType = this.department.departmentType!;
         return dto;
       });
-debugger
       this._departmentService.createBulk(inputs).subscribe({
         next: () => {
           this.notify.success(this.l('SavedSuccessfully'));

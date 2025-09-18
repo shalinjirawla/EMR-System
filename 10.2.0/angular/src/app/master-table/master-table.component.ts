@@ -66,7 +66,6 @@ export class MasterTableComponent implements OnInit {
   }
   private refresh(): void {
     // Implement your refresh logic here
-    console.log('Refreshing data...');
   }
   private capitalizeFirstLetter(string: string): string {
     return string.charAt(0).toUpperCase() + string.slice(1);
@@ -79,7 +78,6 @@ export class MasterTableComponent implements OnInit {
         this.cd.detectChanges();
       },
       error: (err) => {
-        console.log('Could not load lab tests');
       }
     });
   }
@@ -90,7 +88,6 @@ export class MasterTableComponent implements OnInit {
   //       this.cd.detectChanges();
   //     },
   //     error: (err) => {
-  //       console.log('Could not load lab tests');
   //     }
   //   });
   // }

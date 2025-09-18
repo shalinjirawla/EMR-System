@@ -26,12 +26,15 @@ namespace EMRSystem.PatientDischarge
     }
     public enum DischargeStatus
     {
-        Pending = 0,           // Created when patient admitted
-        Initiated = 1,    // Nurse clicked "Initiate Discharge"
-        SentToLabTechnician=2,
-        SentToBilling = 3,     // Sent for billing
-        BillingCompleted =4,  // Billing done (paid/insurance approved)
-        FinalApproval = 5,     // Doctor/Admin approved
-        Discharged = 6
+        Pending = 0,
+        Initiated = 1,
+        SentToDoctor = 2,
+        DoctorVerified = 3,
+        SentToLabTechnician = 4,
+        LabTechnicianCompleted = 5,
+        SentToBilling = 6,
+        BillingCompleted = 7,
+        FinalApproval = 8,
+        Discharged = 9,
     }
 }

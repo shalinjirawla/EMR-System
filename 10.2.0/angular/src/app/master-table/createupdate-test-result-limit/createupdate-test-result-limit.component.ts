@@ -101,7 +101,6 @@ export class CreateupdateTestResultLimitComponent extends AppComponentBase imple
     }
 
     this.saving = true;
-debugger
     if (this.id) {
       // 🔁 Edit mode: single record update
       const item = this.testLimits[0];

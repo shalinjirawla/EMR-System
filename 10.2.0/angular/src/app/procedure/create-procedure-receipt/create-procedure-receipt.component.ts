@@ -118,7 +118,6 @@ save() {
 
   if (this.paymentMethod === PaymentMethod._0) {
     // Cash
-    debugger
     this.procedureReceiptService.createProcedureReceipt(dto).subscribe({
       next: () => {
         this.notify.success('Procedure receipt created successfully!');

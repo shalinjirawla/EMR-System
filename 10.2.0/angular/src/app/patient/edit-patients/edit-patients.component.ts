@@ -77,7 +77,6 @@ export class EditPatientsComponent implements OnInit {
   //     next: ({ doctors, nurses }) => {
   //       this.doctorList = doctors.items;
   //       this.nurseList = nurses.items;
-  //       console.log(this.doctorList, this.nurseList)
 
   //       if (!this.doctorList.find(d => d.id === this.patientData.assignedDoctorId)) {
   //         this.patientData.assignedDoctorId = null;

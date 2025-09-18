@@ -126,7 +126,6 @@ export class CreateupdateBedsComponent extends AppComponentBase implements OnIni
         dto.roomId = this.selectedRoomId!;
         return dto;
       });
-debugger
       this._bedService.createBulkBeds(inputs).subscribe({
         next: () => {
           this.notify.success(this.l('SavedSuccessfully'));
