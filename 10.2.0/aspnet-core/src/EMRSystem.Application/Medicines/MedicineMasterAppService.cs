@@ -43,6 +43,30 @@ namespace EMRSystem.Medicines
             var itemDtos = ObjectMapper.Map<List<MedicineMasterDto>>(list);
             return itemDtos;
         }
+
+        public async Task<List<MedicineLookupDto>> GetMedicinesByFormIdAsync(long formId)
+        {
+            var tenantId = AbpSession.TenantId ?? 0;
+
+            var query = Repository.GetAll()
+                .Include(x => x.StrengthUnit) // strength unit fetch karna hai
+                .Where(x => x.TenantId == tenantId && x.MedicineFormId == formId);
+
+            var medicines = await query.ToListAsync();
+
+            var result = medicines.Select(m => new MedicineLookupDto
+            {
+                Id = m.Id,
+                MedicineName = m.Name,
+                MedicineFormId = m.MedicineFormId,
+                DosageOption = m.Strength.HasValue? $"{m.Strength.Value.ToString("0.##")} {m.StrengthUnit.Name}": $"N/A {m.StrengthUnit.Name}"
+
+            }).ToList();
+
+
+            return result;
+        }
+
     }
 
 }

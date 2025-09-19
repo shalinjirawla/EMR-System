@@ -20,7 +20,7 @@ namespace EMRSystem.Medicines.Dto
             CreateMap<CreateUpdatePurchaseInvoiceDto, PurchaseInvoice>();
 
             CreateMap<PurchaseInvoiceItem, PurchaseInvoiceItemDto>()
-    .ForMember(dest => dest.MedicineName, opt => opt.MapFrom(src => src.MedicineMaster.Name));
+                .ForMember(dest => dest.MedicineName, opt => opt.MapFrom(src => src.MedicineMaster.Name));
 
             CreateMap<PurchaseInvoiceItemDto, PurchaseInvoiceItem>();
             CreateMap<CreateUpdatePurchaseInvoiceItemDto, PurchaseInvoiceItem>();
@@ -28,6 +28,9 @@ namespace EMRSystem.Medicines.Dto
             CreateMap<MedicineStock, MedicineStockDto>();
             CreateMap<MedicineStockDto, MedicineStock>();
             CreateMap<CreateUpdateMedicineStockDto, MedicineStock>();
+            CreateMap<MedicineMaster, MedicineLookupDto>()
+                .ForMember(d => d.DosageOption,
+                    opt => opt.MapFrom(s => s.Strength + " " + s.StrengthUnit.Name));
         }
     }
 }
