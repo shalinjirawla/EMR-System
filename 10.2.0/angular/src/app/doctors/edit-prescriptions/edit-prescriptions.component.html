@@ -90,75 +90,70 @@
     </div>
 
     <!-- Prescription Items -->
-    <div class="row mt-4">
-      <div class="col-md-12">
-        <div class="d-flex justify-content-between align-items-center">
-          <div><b>Prescription Items</b></div>
-          <div>
-            <p-button label="Add Item" variant="text" severity="info"
-                      (click)="addItem()" icon="fa-solid fa-plus" />
-          </div>
+   <!-- Replace the entire prescription items section with this -->
+<div class="row mt-4">
+  <div class="col-12">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="mb-0"><b>Prescription Items</b></h5>
+      <p-button label="Add Item" icon="fa-solid fa-plus" severity="info" (click)="addItem()"></p-button>
+    </div>
+
+    <!-- Prescription Items -->
+    <div *ngFor="let item of prescription.items; let i = index" class="border rounded p-3 mb-3">
+      <div class="row">
+        <div class="col-12 d-flex justify-content-end mb-2">
+          <button type="button" class="btn btn-danger" (click)="removeItem(i)">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+      <!-- Row 1 -->
+      <div class="row mb-2">
+        <div class="col-md-4">
+          <p-dropdown appendTo="self" [(ngModel)]="item.medicineFormId" name="medicineForm{{i}}"
+            [options]="medicineForms" optionLabel="label" optionValue="value" class="w-100"
+            placeholder="Medicine Type" (onChange)="onMedicineFormChange(item, i)">
+          </p-dropdown>
         </div>
 
-        <div class="d-flex" *ngIf="prescription.items.length>0">
-          <p class="w-25 m-0">Medicine</p>
-          <p class="w-25 m-0">Dosage</p>
-          <p class="w-25 m-0">Frequency</p>
-          <p class="w-25 m-0">Duration</p>
-          <p class="w-25 m-0">Instructions</p>
+        <div class="col-md-4">
+          <p-dropdown appendTo="self" class="w-100" [(ngModel)]="item.medicineId" name="medicine{{i}}"
+            [options]="item.filteredMedicines || []" optionLabel="label" optionValue="value"
+            placeholder="Select Medicine" (onChange)="onMedicineChange(item, i)">
+          </p-dropdown>
         </div>
 
-        <div *ngFor="let item of prescription.items; let i = index" class="mt-2">
-          <div class="d-flex align-items-center">
-            <!-- Medicine Dropdown -->
-            <p-dropdown [(ngModel)]="item.medicineId"
-                        [options]="medicineOptions" optionLabel="label" optionValue="value"
-                        placeholder="Select Medicine" class="w-25 mr-2"
-                        name="itemMedicine{{i}}" (onChange)="onMedicineChange(item, i)">
-            </p-dropdown>
+        <div class="col-md-4">
+          <input type="text" [(ngModel)]="item.dosage" name="dosage{{i}}" class="form-control" placeholder="Dosage"
+            readonly>
+        </div>
+      </div>
 
-            <!-- Dosage Dropdown -->
-            <p-dropdown *ngIf="item.medicineName && medicineDosageOptions[item.medicineName]"
-                        [(ngModel)]="item.dosage"
-                        [options]="getDosageOptions(item.medicineName)"
-                        optionLabel="label" optionValue="value"
-                        placeholder="Dosage" class="w-25 mr-2"
-                        name="itemDosage{{i}}">
-            </p-dropdown>
-            <input *ngIf="!item.medicineName || !medicineDosageOptions[item.medicineName]"
-                   type="text" pInputText [(ngModel)]="item.dosage"
-                   name="itemDosage{{i}}" class="w-25 mr-2"
-                   placeholder="Dosage" />
+      <!-- Row 2 -->
+      <div class="row mb-2">
+        <div class="col-md-4">
+          <p-dropdown appendTo="self" class="w-100" [(ngModel)]="item.frequency" name="frequency{{i}}"
+            [options]="frequencyOptions" optionLabel="label" optionValue="value" placeholder="Frequency">
+          </p-dropdown>
+        </div>
 
-            <!-- Frequency Dropdown -->
-            <p-dropdown [(ngModel)]="item.frequency"
-                        [options]="frequencyOptions" optionLabel="label"
-                        optionValue="value" placeholder="Frequency"
-                        class="w-25 mr-2" name="itemFrequency{{i}}">
-            </p-dropdown>
+        <div class="col-md-4 d-flex">
+          <input type="number" pInputText [(ngModel)]="item.durationValue" name="durationValue{{i}}"
+            placeholder="Duration" min="1" class="form-control me-1">
+          <p-dropdown appendTo="self" [(ngModel)]="item.durationUnit" name="durationUnit{{i}}"
+            [options]="durationUnits" optionLabel="label" optionValue="value">
+          </p-dropdown>
+        </div>
 
-            <!-- Duration (Input + Dropdown) -->
-            <div class="d-flex w-25 mr-2">
-              <input type="number" pInputText [(ngModel)]="item.durationValue"
-                     placeholder="Duration" class="w-50 mr-1" min="1"
-                     required name="durationValue{{i}}">
-              <p-dropdown [(ngModel)]="item.durationUnit"
-                          [options]="durationUnits" optionLabel="label" optionValue="value"
-                          class="w-50" name="itemDurationUnit{{i}}" required>
-              </p-dropdown>
-            </div>
-
-            <!-- Instructions Textarea -->
-            <textarea pInputText [(ngModel)]="item.instructions"
-                      name="itemInstructions{{i}}" class="w-25 mr-2"
-                      placeholder="Instructions" rows="1"></textarea>
-
-            <p-button variant="text" severity="danger"
-                      (click)="removeItem(i)" icon="fa-solid fa-xmark" />
-          </div>
+        <div class="col-md-4">
+          <textarea pInputText [(ngModel)]="item.instructions" class="form-control" name="instructions{{i}}"
+            placeholder="Instructions" rows="1"></textarea>
         </div>
       </div>
     </div>
+  </div>
+</div>
   </div>
 
   <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="isSaveDisabled()"

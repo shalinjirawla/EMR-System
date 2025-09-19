@@ -501,7 +501,7 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
     });
   }
   loadDepartments(): void {
-    this._departmentService.getAllDepartmentForDropdown().subscribe({
+    this._departmentService.getAllDepartmentForDoctor().subscribe({
       next: (res: any) => {
         this.departmentList = res.items;
         this.cd.detectChanges();

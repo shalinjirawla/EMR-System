@@ -3,9 +3,13 @@ using Abp.Application.Services;
 using Abp.Application.Services.Dto;
 using Abp.Domain.Repositories;
 using Abp.Domain.Uow;
+using Abp.EntityFrameworkCore.Repositories;
+using Abp.UI;
+using EFCore.BulkExtensions;
 using EMRSystem.Medicines.Dto;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -29,73 +33,80 @@ namespace EMRSystem.Medicines
         }
         public override async Task<PurchaseInvoiceDto> GetAsync(EntityDto<long> input)
         {
-            // Invoice fetch with items and MedicineMaster included
             var invoice = await Repository.GetAll()
                 .Include(i => i.Items)
-                .ThenInclude(item => item.MedicineMaster)  // nested property
+                .ThenInclude(item => item.MedicineMaster)
                 .FirstOrDefaultAsync(i => i.Id == input.Id);
 
             if (invoice == null)
                 throw new AbpException("Invoice not found");
 
-            // AutoMapper se mapping
             var invoiceDto = ObjectMapper.Map<PurchaseInvoiceDto>(invoice);
 
             return invoiceDto;
         }
 
-
-
         [UnitOfWork]
         public override async Task<PurchaseInvoiceDto> CreateAsync(CreateUpdatePurchaseInvoiceDto input)
         {
-            // 1️⃣ Invoice save karo
+            try { 
+            
+           
             var invoice = ObjectMapper.Map<PurchaseInvoice>(input);
             await Repository.InsertAsync(invoice);
-            await CurrentUnitOfWork.SaveChangesAsync(); // invoice.Id chahiye
+            await CurrentUnitOfWork.SaveChangesAsync();
 
-            // 2️⃣ Distinct InvoiceItems
             var distinctInvoiceItems = input.Items
-                 .GroupBy(x => new
-                 {
-                     x.MedicineMasterId,
-                     x.BatchNo,
-                     ExpiryDate = x.ExpiryDate.HasValue ? x.ExpiryDate.Value.Date : (DateTime?)null,
-                     x.SellingPrice
-                 })
-                 .Select(g => new CreateUpdatePurchaseInvoiceItemDto
-                 {
-                     TenantId = g.First().TenantId,
-                     MedicineMasterId = g.Key.MedicineMasterId,
-                     BatchNo = g.Key.BatchNo,
-                     ExpiryDate = g.Key.ExpiryDate,
-                     Quantity = g.Sum(x => x.Quantity),
-                     PurchasePrice = g.First().PurchasePrice,
-                     SellingPrice = g.Key.SellingPrice
-                 }).ToList();
+                .GroupBy(x => new
+                {
+                    x.MedicineMasterId,
+                    x.BatchNo,
+                    ExpiryDate = x.ExpiryDate?.Date,
+                    x.SellingPrice
+                })
+                .Select(g => new CreateUpdatePurchaseInvoiceItemDto
+                {
+                    TenantId = g.First().TenantId,
+                    MedicineMasterId = g.Key.MedicineMasterId,
+                    BatchNo = g.Key.BatchNo,
+                    ExpiryDate = g.Key.ExpiryDate,
+                    Quantity = g.Sum(x => x.Quantity),
+                    PurchasePrice = g.First().PurchasePrice,
+                    SellingPrice = g.Key.SellingPrice
+                })
+                .ToList();
 
+            var existingStocks = _stockRepository.GetAll()
+                     .ToList() 
+                     .Join(
+                         distinctInvoiceItems, 
+                         stock => new { stock.MedicineMasterId, stock.BatchNo, stock.ExpiryDate, stock.SellingPrice },
+                         item => new { item.MedicineMasterId, item.BatchNo, item.ExpiryDate, item.SellingPrice },
+                         (stock, item) => stock
+                     )
+                     .ToList();
+
+            var stockDict = existingStocks.ToDictionary(
+                s => (s.MedicineMasterId, s.BatchNo, s.ExpiryDate, s.SellingPrice),
+                s => s
+            );
+
+            var newStocks = new List<MedicineStock>();
+            var updateStocks = new List<MedicineStock>();
+
+            // 4️⃣ Split into update/new
             foreach (var item in distinctInvoiceItems)
             {
+                var key = (item.MedicineMasterId, item.BatchNo, item.ExpiryDate, item.SellingPrice);
 
-                // Stock merge
-                var existingStock = await _stockRepository.GetAll()
-                    .Where(s =>
-                        s.TenantId == item.TenantId &&
-                        s.MedicineMasterId == item.MedicineMasterId &&
-                        s.BatchNo == item.BatchNo &&
-                        s.ExpiryDate == item.ExpiryDate &&
-                        s.SellingPrice == item.SellingPrice
-                    )
-                    .FirstOrDefaultAsync();
-
-                if (existingStock != null)
+                if (stockDict.TryGetValue(key, out var stock))
                 {
-                    existingStock.Quantity += item.Quantity;
-                    await _stockRepository.UpdateAsync(existingStock);
+                    stock.Quantity += item.Quantity;
+                    updateStocks.Add(stock);
                 }
                 else
                 {
-                    var newStock = new MedicineStock
+                    newStocks.Add(new MedicineStock
                     {
                         TenantId = item.TenantId,
                         MedicineMasterId = item.MedicineMasterId,
@@ -105,26 +116,40 @@ namespace EMRSystem.Medicines
                         PurchasePrice = item.PurchasePrice,
                         SellingPrice = item.SellingPrice,
                         IsExpire = false
-                    };
-                    await _stockRepository.InsertAsync(newStock);
+                    });
                 }
             }
 
-            await CurrentUnitOfWork.SaveChangesAsync();
-            return MapToEntityDto(invoice);
+                var db = _stockRepository.GetDbContext();
+
+                if (updateStocks.Any())
+                    await db.BulkUpdateAsync(updateStocks);
+
+                if (newStocks.Any())
+                    await db.BulkInsertAsync(newStocks);
+
+                await CurrentUnitOfWork.SaveChangesAsync();
+
+                return MapToEntityDto(invoice);
+
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Error while creating Purchase Invoice", ex);
+                throw new UserFriendlyException("Invoice creation failed. Please try again.");
+            }
         }
+
         [UnitOfWork]
         public override async Task<PurchaseInvoiceDto> UpdateAsync(CreateUpdatePurchaseInvoiceDto input)
         {
-            // 1️⃣ Existing invoice fetch karo with items
             var invoice = await Repository.GetAllIncluding(i => i.Items)
                 .FirstOrDefaultAsync(i => i.Id == input.Id);
 
             if (invoice == null)
                 throw new AbpException("Invoice not found");
 
-            // 2️⃣ Old items rollback karo stock me
-            foreach (var oldItem in invoice.Items.ToList()) // ToList to avoid collection modification issues
+            foreach (var oldItem in invoice.Items.ToList()) 
             {
                 var stock = await _stockRepository
                     .GetAll()
@@ -142,12 +167,10 @@ namespace EMRSystem.Medicines
                     stock.Quantity -= oldItem.Quantity;
                     if (stock.Quantity <= 0)
                     {
-                        // EF will track this deletion
                         _stockRepository.Delete(stock);
                     }
                     else
                     {
-                        // EF will track this update
                         _stockRepository.Update(stock);
                     }
                 }
@@ -155,15 +178,13 @@ namespace EMRSystem.Medicines
                 _invoiceItemRepository.Delete(oldItem);
             }
 
-            // 3️⃣ Map invoice properties from input (without items)
             invoice.InvoiceNo = input.InvoiceNo;
             invoice.InvoiceDate = input.InvoiceDate;
             invoice.SupplierName = input.SupplierName;
             invoice.TotalAmount = input.TotalAmount;
 
-            Repository.Update(invoice); // EF tracks this
+            Repository.Update(invoice); 
 
-            // 4️⃣ Group new items to merge duplicates
             var distinctInvoiceItems = input.Items
                 .GroupBy(x => new
                 {
@@ -184,7 +205,6 @@ namespace EMRSystem.Medicines
                 })
                 .ToList();
 
-            // 5️⃣ Add new items and update/insert stock
             foreach (var item in distinctInvoiceItems)
             {
                 var invoiceItem = ObjectMapper.Map<PurchaseInvoiceItem>(item);
@@ -225,11 +245,79 @@ namespace EMRSystem.Medicines
                 }
             }
 
-            // 6️⃣ Save everything in **single SaveChangesAsync** to avoid concurrency errors
             await CurrentUnitOfWork.SaveChangesAsync();
 
             return MapToEntityDto(invoice);
         }
+
+        //[UnitOfWork]
+        //public override async Task<PurchaseInvoiceDto> CreateAsync(CreateUpdatePurchaseInvoiceDto input)
+        //{
+        //    // 1️⃣ Invoice save karo
+        //    var invoice = ObjectMapper.Map<PurchaseInvoice>(input);
+        //    await Repository.InsertAsync(invoice);
+        //    await CurrentUnitOfWork.SaveChangesAsync(); // invoice.Id chahiye
+
+        //    // 2️⃣ Distinct InvoiceItems
+        //    var distinctInvoiceItems = input.Items
+        //         .GroupBy(x => new
+        //         {
+        //             x.MedicineMasterId,
+        //             x.BatchNo,
+        //             ExpiryDate = x.ExpiryDate.HasValue ? x.ExpiryDate.Value.Date : (DateTime?)null,
+        //             x.SellingPrice
+        //         })
+        //         .Select(g => new CreateUpdatePurchaseInvoiceItemDto
+        //         {
+        //             TenantId = g.First().TenantId,
+        //             MedicineMasterId = g.Key.MedicineMasterId,
+        //             BatchNo = g.Key.BatchNo,
+        //             ExpiryDate = g.Key.ExpiryDate,
+        //             Quantity = g.Sum(x => x.Quantity),
+        //             PurchasePrice = g.First().PurchasePrice,
+        //             SellingPrice = g.Key.SellingPrice
+        //         }).ToList();
+
+        //    foreach (var item in distinctInvoiceItems)
+        //    {
+
+        //        // Stock merge
+        //        var existingStock = await _stockRepository.GetAll()
+        //            .Where(s =>
+        //                s.TenantId == item.TenantId &&
+        //                s.MedicineMasterId == item.MedicineMasterId &&
+        //                s.BatchNo == item.BatchNo &&
+        //                s.ExpiryDate == item.ExpiryDate &&
+        //                s.SellingPrice == item.SellingPrice
+        //            )
+        //            .FirstOrDefaultAsync();
+
+        //        if (existingStock != null)
+        //        {
+        //            existingStock.Quantity += item.Quantity;
+        //            await _stockRepository.UpdateAsync(existingStock);
+        //        }
+        //        else
+        //        {
+        //            var newStock = new MedicineStock
+        //            {
+        //                TenantId = item.TenantId,
+        //                MedicineMasterId = item.MedicineMasterId,
+        //                BatchNo = item.BatchNo,
+        //                ExpiryDate = item.ExpiryDate,
+        //                Quantity = item.Quantity,
+        //                PurchasePrice = item.PurchasePrice,
+        //                SellingPrice = item.SellingPrice,
+        //                IsExpire = false
+        //            };
+        //            await _stockRepository.InsertAsync(newStock);
+        //        }
+        //    }
+
+        //    await CurrentUnitOfWork.SaveChangesAsync();
+        //    return MapToEntityDto(invoice);
+        //}
+
 
     }
 }
