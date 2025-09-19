@@ -20,7 +20,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { CheckboxModule } from 'primeng/checkbox';
 import { StepperModule } from 'primeng/stepper';
 import { StepsModule } from 'primeng/steps';
-import { CreatePrescriptionLabTestsServiceProxy, DischargeStatus, DischargeSummaryDto, EmergencyProcedureStatus, InvoiceDto, LabTestStatus, PatientDischargeServiceProxy, PrescriptionDto, PrescriptionLabTestDto, PrescriptionLabTestServiceProxy, PrescriptionServiceProxy, SelectedEmergencyProcedures, SelectedEmergencyProceduresDto, SelectedEmergencyProceduresServiceProxy, VitalDto } from '@shared/service-proxies/service-proxies';
+import { CollectionStatus, CreatePrescriptionLabTestsServiceProxy, DischargeStatus, DischargeSummaryDto, EmergencyProcedureStatus, InvoiceDto, LabTestStatus, PatientDischargeServiceProxy, PrescriptionDto, PrescriptionLabTestDto, PrescriptionLabTestServiceProxy, PrescriptionServiceProxy, SelectedEmergencyProcedures, SelectedEmergencyProceduresDto, SelectedEmergencyProceduresServiceProxy, VitalDto } from '@shared/service-proxies/service-proxies';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { TextareaModule } from 'primeng/textarea';
@@ -61,6 +61,10 @@ export class CreateComponent implements OnInit {
     { label: 'Pending', value: EmergencyProcedureStatus._0 },
     { label: 'Completed', value: EmergencyProcedureStatus._1 },
   ];
+  collectionStatusOptions = [
+    { label: 'Not PickedUp', value: CollectionStatus._0 },
+    { label: 'Picked Up', value: CollectionStatus._1 },
+  ];
   constructor(
     private _activatedRoute: ActivatedRoute,
     private cd: ChangeDetectorRef, private router: Router,
@@ -85,6 +89,7 @@ export class CreateComponent implements OnInit {
     this._summaryService.patientDischargeSummary(this.patientId).subscribe({
       next: (res) => {
         this.data = res;
+        console.log("1111111111:", res)
         this.currentStep = this.getStepFromStatus(this.data?.patientDischarge?.dischargeStatus);
         this.cd.detectChanges();
       }, error: (err) => {
@@ -178,6 +183,9 @@ export class CreateComponent implements OnInit {
     createPrescriptionDialog.content.onSave.subscribe(() => {
       this.GetSummaryDetails();
     });
+    createPrescriptionDialog.onHide.subscribe(() => {
+      this.GetSummaryDetails();
+    });
   }
   viewInvoice(invoiceId: number): void {
     let viewInvoiceDialog: BsModalRef;
@@ -263,10 +271,30 @@ export class CreateComponent implements OnInit {
         return 'secondary';
     }
   }
-
+  getShortName(fullName: string): string {
+    if (!fullName) return '';
+    const words = fullName.trim().split(' ');
+    const firstInitial = words[0].charAt(0).toUpperCase();
+    const lastInitial = words.length > 1 ? words[words.length - 1].charAt(0).toUpperCase() : '';
+    return firstInitial + lastInitial;
+  }
+  getCollectionStatusLabel(value: number): string {
+    const status = this.collectionStatusOptions.find(s => s.value === value);
+    const dataa = status ? status.label : '';
+    return dataa;
+  }
+  getCollectionStatusSeverity(value: number): 'info' | 'warn' | 'success' {
+    switch (value) {
+      case CollectionStatus._0: return 'warn';        // Pending
+      case CollectionStatus._1: return 'success';   // In_review
+      default: return 'info';
+    }
+  }
   /// check for validation
   checkForDoctorNotify(): boolean {
-    if (!this.data?.prescriptions || this.data.prescriptions.length === 0) {
+    const pendingPrescriptions = this.data?.prescriptions
+      ?.filter(x => x.collectionStatus === CollectionStatus._0) ?? []
+    if (pendingPrescriptions.length > 0) {
       return true;
     }
     const pendingProcedure = this.data?.selectedEmergencyProcedures

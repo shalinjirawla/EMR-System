@@ -27,11 +27,6 @@ import { AvatarGroupModule } from 'primeng/avatargroup';
 import { SelectModule } from 'primeng/select';
 import { InputTextModule } from 'primeng/inputtext';
 import { CheckboxModule } from 'primeng/checkbox';
-interface FilterOption {
-    label: string;
-    value: any;
-    checked: boolean;
-}
 @Component({
     templateUrl: './users.component.html',
     styleUrl: './users.component.css',
@@ -45,7 +40,7 @@ export class UsersComponent extends PagedListingComponentBase<UserDto> implement
     items: MenuItem[] | undefined;
     @ViewChild('dataTable', { static: true }) dataTable: Table;
     @ViewChild('paginator', { static: true }) paginator: Paginator;
-
+    editDeleteMenus: MenuItem[] | undefined;
     users: UserDto[] = [];
     keyword = '';
     isActive: boolean | null;
@@ -56,6 +51,7 @@ export class UsersComponent extends PagedListingComponentBase<UserDto> implement
         isNotActive: false,
         all: true
     };
+    selectedRecord: UserDto;
     constructor(
         injector: Injector,
         private _userService: UserServiceProxy,
@@ -70,6 +66,23 @@ export class UsersComponent extends PagedListingComponentBase<UserDto> implement
         this.items = [
             { label: 'Home', routerLink: '/' },
             { label: 'Users' },
+        ];
+        this.editDeleteMenus = [
+            {
+                label: 'Edit',
+                icon: 'pi pi-pencil',
+                command: () => this.editUser(this.selectedRecord)  // call edit
+            },
+            {
+                label: 'Delete',
+                icon: 'pi pi-trash',
+                command: () => this.delete(this.selectedRecord)  // call delete
+            },
+            {
+                label: 'ResetPassword',
+                icon: 'fas fa-lock',
+                command: () => this.resetPassword(this.selectedRecord)  // call resetPassword
+            }
         ];
     }
     createUser(): void {

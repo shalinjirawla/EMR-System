@@ -63,9 +63,8 @@
                                                     <b>Basic Information</b>
                                                 </div>
                                                 <div class="card-body">
-                                                    <p-avatar class="p-overlay-badge"
-                                                        image="https://primefaces.org/cdn/primeng/images/demo/avatar/walter.jpg"
-                                                        size="xlarge" />
+                                                    <p-avatar [label]="getShortName(data?.patientDetails?.firstName)"
+                                                        class="mr-1" size="xlarge" />
                                                     <div class="row">
                                                         <div class="col-md-2 d-flex flex-column">
                                                             <label>ID</label>
@@ -171,7 +170,7 @@
                                     </p-step-panel>
                                     <p-step-panel [value]="2">
                                         <ng-template #content let-activateCallback="activateCallback">
-                                            <div class="card" *ngIf="data?.vitals?.length>0">
+                                            <div class="card">
                                                 <div class="card-header">
                                                     <div class="d-flex justify-content-between">
                                                         <div>
@@ -184,7 +183,9 @@
                                                     </div>
                                                 </div>
                                                 <div class="card-body">
-                                                    <p-table [value]="data?.vitals" [paginator]="true" [rows]="5" [rowsPerPageOptions]="[5, 10, 20]">
+                                                    <p-table [value]="data?.vitals" [paginator]="true" [rows]="5"
+                                                        [rowsPerPageOptions]="[5, 10, 20]"
+                                                        *ngIf="data?.vitals?.length>0">
                                                         <ng-template #header>
                                                             <tr>
                                                                 <th>Nurse Name</th>
@@ -206,9 +207,11 @@
                                                             </tr>
                                                         </ng-template>
                                                     </p-table>
+                                                    <div *ngIf="data?.vitals?.length<=0" class="text-center">No records
+                                                        are found</div>
                                                 </div>
                                             </div>
-                                            <div class="card" *ngIf="data?.prescriptions?.length>0">
+                                            <div class="card">
                                                 <div class="card-header">
                                                     <div class="d-flex justify-content-between">
                                                         <div>
@@ -220,36 +223,44 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="card-body" *ngIf="data?.prescriptions">
-                                                    <div class="d-flex justify-content-end mb-2">
-                                                        <button class="btn btn-sm create-btn"
-                                                            (click)="showCreatePrescriptionDialog()">Create New</button>
-                                                    </div>
-                                                    <p-table [value]="data?.prescriptions" [paginator]="true" [rows]="5" [rowsPerPageOptions]="[5, 10, 20]">
+                                                <div class="card-body">
+                                                    <p-table [value]="data?.prescriptions" [paginator]="true" [rows]="5"
+                                                        [rowsPerPageOptions]="[5, 10, 20]"
+                                                        *ngIf="data?.prescriptions?.length>0">
                                                         <ng-template #header>
                                                             <tr>
-                                                                <th>Diagnosis</th>
+                                                                <th>Prescription ID</th>
                                                                 <th>Prescribed By</th>
+                                                                <th>Collection Status</th>
                                                                 <th>Issue Date</th>
                                                                 <th></th>
                                                             </tr>
                                                         </ng-template>
                                                         <ng-template #body let-product1>
                                                             <tr>
-                                                                <td>{{ product1.diagnosis }}</td>
-                                                                <td>{{ product1.doctor.fullName }}</td>
+                                                                <td>#{{ product1.prescriptionId}}</td>
+                                                                <td>Dr.{{ product1.doctorName}}</td>
+                                                                <td>
+                                                                    <p-tag
+                                                                        [value]="getCollectionStatusLabel(product1.collectionStatus)"
+                                                                        [severity]="getCollectionStatusSeverity(product1.collectionStatus)"
+                                                                        [rounded]="true">
+                                                                    </p-tag>
+                                                                </td>
                                                                 <td>{{ product1.issueDate |date:'dd/MM/yyyy hh:mm a' }}
                                                                 </td>
                                                                 <td>
                                                                     <span class="pi pi-eye"
-                                                                        (click)="showViewPrescriptionDialog(product1.id)"></span>
+                                                                        (click)="showViewPrescriptionDialog(product1.prescriptionId)"></span>
                                                                 </td>
                                                             </tr>
                                                         </ng-template>
                                                     </p-table>
+                                                    <div *ngIf="data?.prescriptions?.length<=0" class="text-center">No
+                                                        records are found</div>
                                                 </div>
                                             </div>
-                                            <div class="card" *ngIf="data?.selectedEmergencyProcedures?.length>0">
+                                            <div class="card">
                                                 <div class="card-header">
                                                     <div class="d-flex justify-content-between">
                                                         <div>
@@ -261,8 +272,10 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="card-body" *ngIf="data?.selectedEmergencyProcedures">
-                                                    <p-table [value]="data?.selectedEmergencyProcedures" [paginator]="true" [rows]="5" [rowsPerPageOptions]="[5, 10, 20]">
+                                                <div class="card-body">
+                                                    <p-table [value]="data?.selectedEmergencyProcedures"
+                                                        [paginator]="true" [rows]="5" [rowsPerPageOptions]="[5, 10, 20]"
+                                                        *ngIf="data?.selectedEmergencyProcedures?.length>0">
                                                         <ng-template #header>
                                                             <tr>
                                                                 <th>Procedure Name</th>
@@ -285,6 +298,9 @@
                                                             </tr>
                                                         </ng-template>
                                                     </p-table>
+                                                    <div *ngIf="data?.selectedEmergencyProcedures?.length<=0"
+                                                        class="text-center">No records
+                                                        are found</div>
                                                 </div>
                                             </div>
                                             <div class="d-flex justify-content-between">
@@ -324,7 +340,8 @@
                                                     </div>
                                                 </div>
                                                 <div class="card-body">
-                                                    <p-table [value]="data?.prescriptionLabTests" [paginator]="true" [rows]="5" [rowsPerPageOptions]="[5, 10, 20]">
+                                                    <p-table [value]="data?.prescriptionLabTests" [paginator]="true"
+                                                        [rows]="5" [rowsPerPageOptions]="[5, 10, 20]">
                                                         <ng-template #header>
                                                             <tr>
                                                                 <th>Test ID</th>
@@ -394,7 +411,9 @@
                                                     </div>
                                                 </div>
                                                 <div class="card-body">
-                                                    <p-table [value]="data?.invoices" *ngIf="data?.invoices?.length>0" [paginator]="true" [rows]="5" [rowsPerPageOptions]="[5, 10, 20]">
+                                                    <p-table [value]="data?.invoices" *ngIf="data?.invoices?.length>0"
+                                                        [paginator]="true" [rows]="5"
+                                                        [rowsPerPageOptions]="[5, 10, 20]">
                                                         <ng-template #header>
                                                             <tr>
                                                                 <th>Invoice No</th>

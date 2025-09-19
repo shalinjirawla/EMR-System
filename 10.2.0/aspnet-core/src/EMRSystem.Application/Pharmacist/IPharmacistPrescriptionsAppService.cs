@@ -15,5 +15,6 @@ namespace EMRSystem.Pharmacist
         Task CreatePharmacistPrescriptionsWithItem(CreatePharmacistPrescriptionsWithItemDto withItemDto);
 
         Task<string> HandlePharmacistPrescriptionPayment(CreatePharmacistPrescriptionsWithItemDto withItemDto);
+        Task<List<PharmacistPrescriptionsDto>> GetPharmacistPrescriptionsByPatient(long patientID);
     }
 }

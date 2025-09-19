@@ -36,11 +36,11 @@
             </div>
         </div>
     </section>
-    <section class="content px-2 pb-3">
+    <section class="content px-2 pb-5">
         <div class="container-fluid">
-            <div class="card table-wrapper">
-                <div class="card-header">
-                    <div class="d-flex justify-content-between  align-items-center">
+            <div class="card mb-0 table-wrapper">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
                         <div class="ml-2 btn-group mr-1" role="group" aria-label="Second group" pTooltip="Filter"
                             tooltipPosition="top" (click)="rowMenu.toggle($event);">
                             <button type="button" class="btn btn-md refresh-btn">
@@ -68,103 +68,85 @@
                                 [placeholder]="'SearchWithThreeDot' | localize" (input)="list()" />
                         </div>
                     </div>
-                </div>
-                <div class="card-body">
-                    <div class="primeng-datatable-container">
-                        <p-table #dataTable sortMode="multiple" (onLazyLoad)="list($event)"
-                            [value]="primengTableHelper.records"
-                            rows="{{ primengTableHelper.defaultRecordsCountPerPage }}" [paginator]="false" [lazy]="true"
-                            [tableStyle]="{ 'min-width': '50rem' }">
-                            <ng-template pTemplate="header">
-                                <tr>
-                                    <th style="min-width: 150px" pSortableColumn="userName">
-                                        {{ 'UserName' | localize }}
-                                        <p-sortIcon field="userName"></p-sortIcon>
-                                    </th>
-                                    <th style="min-width: 150px" pSortableColumn="name">
-                                        {{ 'FullName' | localize }}
-                                        <p-sortIcon field="name"></p-sortIcon>
-                                    </th>
-                                    <th style="min-width: 150px" pSortableColumn="emailAddress">
-                                        {{ 'EmailAddress' | localize }}
-                                        <p-sortIcon field="emailAddress"></p-sortIcon>
-                                    </th>
-                                    <th style="min-width: 150px">
-                                        {{ 'Roles' | localize }}
-                                    </th>
-                                    <th style="min-width: 50px">
-                                        {{ 'IsActive' | localize }}
-                                    </th>
-                                    <th style="min-width: 130px">
-                                        {{ 'Actions' | localize }}
-                                    </th>
-                                </tr>
-                            </ng-template>
+                    <p-table #dataTable sortMode="multiple" (onLazyLoad)="list($event)"
+                        [value]="primengTableHelper.records" rows="{{ primengTableHelper.defaultRecordsCountPerPage }}"
+                        [paginator]="false" [lazy]="true" [tableStyle]="{ 'min-width': '50rem' }">
+                        <ng-template #header>
+                            <tr>
+                                <th pSortableColumn="userName">
+                                    {{ 'UserName' | localize }}
+                                    <p-sortIcon field="userName"></p-sortIcon>
+                                </th>
+                                <th pSortableColumn="name">
+                                    {{ 'FullName' | localize }}
+                                    <p-sortIcon field="name"></p-sortIcon>
+                                </th>
+                                <th pSortableColumn="emailAddress">
+                                    {{ 'EmailAddress' | localize }}
+                                    <p-sortIcon field="emailAddress"></p-sortIcon>
+                                </th>
+                                <th>
+                                    {{ 'Roles' | localize }}
+                                </th>
+                                <th>
+                                    {{ 'IsActive' | localize }}
+                                </th>
+                                <th>
+                                    {{ 'Actions' | localize }}
+                                </th>
+                            </tr>
+                        </ng-template>
 
-                            <ng-template pTemplate="body" let-record="$implicit">
-                                <tr>
-                                    <td>
-                                        <span>
-                                            {{ record.userName }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span>
-                                            {{ record.fullName }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span>
-                                            {{ record.emailAddress }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span>
-                                            {{ record.roleNames }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span>
-                                            {{ record.isActive }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <button type="button" pButton icon="pi pi-ellipsis-v" class="p-button-text"
-                                            (click)="rowMenu.toggle($event); selectedRecord = record">
-                                        </button>
-                                        <p-overlayPanel #rowMenu class="custom-overlay" [dismissable]="true">
-                                            <ul class="custom-overlay-menu">
-                                                <li (click)="editUser(selectedRecord)">
-                                                    <i class="pi pi-pencil"></i> Edit
-                                                </li>
-                                                <li (click)="delete(selectedRecord)">
-                                                    <i class="pi pi-trash"></i> Delete
-                                                </li>
-                                                <li (click)="resetPassword(selectedRecord)">
-                                                    <i class="fas fa-lock"></i> ResetPassword
-                                                </li>
-                                            </ul>
-                                        </p-overlayPanel>
-                                    </td>
-                                </tr>
-                            </ng-template>
-                        </p-table>
-                        <div class="primeng-no-data" *ngIf="primengTableHelper.totalRecordsCount == 0">
-                            {{ 'NoData' | localize }}
-                        </div>
+                        <ng-template pTemplate="body" let-record="$implicit">
+                            <tr>
+                                <td>
+                                    <span>
+                                        {{ record.userName }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span>
+                                        {{ record.fullName }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span>
+                                        {{ record.emailAddress }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span>
+                                        {{ record.roleNames }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span>
+                                        {{ record.isActive }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm border rounded-1 px-3" type="button"
+                                        style="background-color: #f8fafc;"
+                                        (click)="rowMenu.toggle($event); selectedRecord = record">
+                                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                                    </button>
+                                    <p-menu #rowMenu [popup]="true" [style]="{'min-width':'80px', 'max-width':'150px'}"
+                                        [model]="editDeleteMenus" appendTo="body"></p-menu>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                    <div class="primeng-no-data text-center" *ngIf="primengTableHelper.totalRecordsCount == 0">
+                        {{ 'NoData' | localize }}
                     </div>
                     <!--<Primeng-TurboTable-End>-->
                 </div>
-                <div class="card-footer table-card-footer bg-white border-top">
-                    <div class="primeng-paging-container">
-                        <p-paginator [rows]="primengTableHelper.defaultRecordsCountPerPage" #paginator
-                            (onPageChange)="list($event)" [totalRecords]="primengTableHelper.totalRecordsCount"
-                            [rowsPerPageOptions]="primengTableHelper.predefinedRecordsCountPerPage"
-                            [showCurrentPageReport]="true" [currentPageReportTemplate]="
+                <p-paginator [rows]="primengTableHelper.defaultRecordsCountPerPage" #paginator
+                    (onPageChange)="list($event)" [totalRecords]="primengTableHelper.totalRecordsCount"
+                    [rowsPerPageOptions]="primengTableHelper.predefinedRecordsCountPerPage"
+                    [showCurrentPageReport]="true" [currentPageReportTemplate]="
                                             'TotalRecordsCount' | localize: primengTableHelper.totalRecordsCount
                                         "></p-paginator>
-                    </div>
-                </div>
             </div>
         </div>
     </section>

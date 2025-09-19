@@ -322,16 +322,21 @@ export class AdmissionServiceProxy {
 
     /**
      * @param keyword (optional) 
+     * @param sorting (optional) 
      * @param skipCount (optional) 
      * @param maxResultCount (optional) 
      * @return OK
      */
-    getAll(keyword: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<AdmissionDtoPagedResultDto> {
+    getAll(keyword: string | undefined, sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<AdmissionDtoPagedResultDto> {
         let url_ = this.baseUrl + "/api/services/app/Admission/GetAll?";
         if (keyword === null)
             throw new Error("The parameter 'keyword' cannot be null.");
         else if (keyword !== undefined)
             url_ += "Keyword=" + encodeURIComponent("" + keyword) + "&";
+        if (sorting === null)
+            throw new Error("The parameter 'sorting' cannot be null.");
+        else if (sorting !== undefined)
+            url_ += "Sorting=" + encodeURIComponent("" + sorting) + "&";
         if (skipCount === null)
             throw new Error("The parameter 'skipCount' cannot be null.");
         else if (skipCount !== undefined)
@@ -16142,6 +16147,69 @@ export class PharmacistPrescriptionsServiceProxy {
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param patientID (optional) 
+     * @return OK
+     */
+    getPharmacistPrescriptionsByPatient(patientID: number | undefined): Observable<PharmacistPrescriptionsDto[]> {
+        let url_ = this.baseUrl + "/api/services/app/PharmacistPrescriptions/GetPharmacistPrescriptionsByPatient?";
+        if (patientID === null)
+            throw new Error("The parameter 'patientID' cannot be null.");
+        else if (patientID !== undefined)
+            url_ += "patientID=" + encodeURIComponent("" + patientID) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetPharmacistPrescriptionsByPatient(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetPharmacistPrescriptionsByPatient(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PharmacistPrescriptionsDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PharmacistPrescriptionsDto[]>;
+        }));
+    }
+
+    protected processGetPharmacistPrescriptionsByPatient(response: HttpResponseBase): Observable<PharmacistPrescriptionsDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200.push(PharmacistPrescriptionsDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -31992,7 +32060,7 @@ export class DischargeSummaryDto implements IDischargeSummaryDto {
     patientDischarge: PatientDischargeDto;
     patientDetails: PatientDetailsFordischargeSummaryDto;
     vitals: VitalDto[] | undefined;
-    prescriptions: PrescriptionDto[] | undefined;
+    prescriptions: PharmacistPrescriptionsDto[] | undefined;
     prescriptionLabTests: PrescriptionLabTestDto[] | undefined;
     selectedEmergencyProcedures: SelectedEmergencyProceduresDto[] | undefined;
     invoices: InvoiceDto[] | undefined;
@@ -32018,7 +32086,7 @@ export class DischargeSummaryDto implements IDischargeSummaryDto {
             if (Array.isArray(_data["prescriptions"])) {
                 this.prescriptions = [] as any;
                 for (let item of _data["prescriptions"])
-                    this.prescriptions.push(PrescriptionDto.fromJS(item));
+                    this.prescriptions.push(PharmacistPrescriptionsDto.fromJS(item));
             }
             if (Array.isArray(_data["prescriptionLabTests"])) {
                 this.prescriptionLabTests = [] as any;
@@ -32089,7 +32157,7 @@ export interface IDischargeSummaryDto {
     patientDischarge: PatientDischargeDto;
     patientDetails: PatientDetailsFordischargeSummaryDto;
     vitals: VitalDto[] | undefined;
-    prescriptions: PrescriptionDto[] | undefined;
+    prescriptions: PharmacistPrescriptionsDto[] | undefined;
     prescriptionLabTests: PrescriptionLabTestDto[] | undefined;
     selectedEmergencyProcedures: SelectedEmergencyProceduresDto[] | undefined;
     invoices: InvoiceDto[] | undefined;

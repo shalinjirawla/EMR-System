@@ -34,13 +34,14 @@ using EMRSystem.Invoice;
 using EMRSystem.Doctors;
 using Abp.Linq.Extensions;
 using Abp.Extensions;
+using EMRSystem.Pharmacist;
 
 namespace EMRSystem.Patient_Discharge
 {
     public class PatientDischargeAppService : AsyncCrudAppService<EMRSystem.PatientDischarge.PatientDischarge, PatientDischargeDto, long, PagedPatientDischargeResultRequestDto, CreateUpdatePatientDischargeDto, CreateUpdatePatientDischargeDto>,
    IPatientDischargeAppService
     {
-        private readonly IPrescriptionAppService _prescriptionAppService;
+        private readonly IPharmacistPrescriptionsAppService _prescriptionAppService;
         private readonly ICreatePrescriptionLabTestsAppService _createPrescriptionLabTestAppService;
         private readonly ISelectedEmergencyProceduresAppService _selectedEmergencyProceduresAppService;
         private readonly IVitalAppService _vitalAppService;
@@ -48,7 +49,7 @@ namespace EMRSystem.Patient_Discharge
         private readonly IRepository<EMRSystem.Admission.Admission, long> _admissionAppService;
         private readonly IRepository<EMRSystem.Emergency.EmergencyCase.EmergencyCase, long> _emergencyCaseAppService;
         public PatientDischargeAppService(IRepository<EMRSystem.PatientDischarge.PatientDischarge, long> repository,
-            IPrescriptionAppService prescriptionAppService, ICreatePrescriptionLabTestsAppService createPrescriptionLabTestAppService,
+            IPharmacistPrescriptionsAppService prescriptionAppService, ICreatePrescriptionLabTestsAppService createPrescriptionLabTestAppService,
             ISelectedEmergencyProceduresAppService selectedEmergencyProceduresAppService,
             IVitalAppService vitalAppService, IInvoiceAppService invoiceAppService,
             IRepository<EMRSystem.Admission.Admission, long> admissionAppService,
@@ -103,7 +104,7 @@ namespace EMRSystem.Patient_Discharge
             .FirstOrDefaultAsync(x => x.PatientId == patientID);
 
             var vitalsList = await _vitalAppService.GetVitalsByPatientID(patientID);
-            var precriptionList = await _prescriptionAppService.GetPrescriptionsByPatient(patientID);
+            var precriptionList = await _prescriptionAppService.GetPharmacistPrescriptionsByPatient(patientID);
             var precriptionLabTestList = await _createPrescriptionLabTestAppService.GetPrescriptionLabTestByPatientId(patientID);
             var selectedEmergencyProcedures = await _selectedEmergencyProceduresAppService.GetSelectedProceduresByPatientID(patientID);
             var invoiceList = await _invoiceAppService.GetInvoicesByPatientID(patientID);
@@ -113,9 +114,9 @@ namespace EMRSystem.Patient_Discharge
             {
                 res.Vitals = vitalsList;
             }
-            if (precriptionList.Items.Count > 0)
+            if (precriptionList.Count > 0)
             {
-                res.Prescriptions = precriptionList.Items.ToList();
+                res.Prescriptions = precriptionList.ToList();
             }
             if (precriptionLabTestList != null && precriptionLabTestList.Count > 0)
             {
@@ -166,7 +167,7 @@ namespace EMRSystem.Patient_Discharge
                         await _admissionAppService.UpdateAsync(x);
                     });
                 }
-                var emergencyCase=await _emergencyCaseAppService.GetAll().Where(x => x.PatientId == patientID).ToListAsync();
+                var emergencyCase = await _emergencyCaseAppService.GetAll().Where(x => x.PatientId == patientID).ToListAsync();
                 if (emergencyCase.Count > 0)
                 {
                     emergencyCase.ForEach(async x =>

@@ -109,9 +109,12 @@ export class HomeComponent extends AppComponentBase implements OnInit {
             console.log("totalAppointmentList : ", data.totalMedicineList)
         });
     }
-    getShortName(fullName: string) {
+  getShortName(fullName: string): string {
         if (!fullName) return '';
-        return fullName.trim().charAt(0).toUpperCase();
+        const words = fullName.trim().split(' ');
+        const firstInitial = words[0].charAt(0).toUpperCase();
+        const lastInitial = words.length > 1 ? words[words.length - 1].charAt(0).toUpperCase() : '';
+        return firstInitial + lastInitial;
     }
 
 }

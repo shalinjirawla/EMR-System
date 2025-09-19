@@ -1,4 +1,5 @@
 ﻿using Abp.Application.Services.Dto;
+using Abp.Runtime.Validation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,8 +8,27 @@ using System.Threading.Tasks;
 
 namespace EMRSystem.Admissions.Dto
 {
-    public class PagedAdmissionResultRequestDto : PagedResultRequestDto
+    public class PagedAdmissionResultRequestDto : PagedResultRequestDto, IShouldNormalize
     {
         public string Keyword { get; set; }
+        public string Sorting { get; set; }
+        public void Normalize()
+        {
+            if (!string.IsNullOrEmpty(Sorting))
+            {
+                Sorting = Sorting.ToLowerInvariant();
+                if (Sorting.Contains("patientname"))
+                {
+                    Sorting = Sorting.Replace("patientname", "Patient.FullName");
+                }
+                else if (Sorting.Contains("doctorName"))
+                {
+                    Sorting = Sorting.Replace("doctorName", "Doctor.FullName");
+                }
+                // Add more mappings as needed
+            }
+
+            Keyword = Keyword?.Trim();
+        }
     }
 }

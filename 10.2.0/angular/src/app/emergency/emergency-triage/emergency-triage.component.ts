@@ -14,11 +14,25 @@ import { CommonModule } from '@node_modules/@angular/common';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+
+import { MenuModule } from 'primeng/menu';
+import { MenuItem } from 'primeng/api';
+import { TooltipModule } from 'primeng/tooltip';
+import { CardModule } from 'primeng/card';
+import { AvatarModule } from 'primeng/avatar';
+import { AvatarGroupModule } from 'primeng/avatargroup';
+import { SelectModule } from 'primeng/select';
+import { InputTextModule } from 'primeng/inputtext';
+import { CheckboxModule } from 'primeng/checkbox';
+
 
 @Component({
   selector: 'app-emergency-triage',
-  imports: [Paginator, LocalizePipe,FormsModule,TagModule, TableModule, CommonModule, OverlayPanelModule, ButtonModule],
-  providers:[TriageServiceProxy],
+  imports: [Paginator, LocalizePipe, MenuModule, CardModule, AvatarModule, AvatarGroupModule, InputTextModule,
+    FormsModule, TagModule, BreadcrumbModule, TableModule, TooltipModule, SelectModule, CheckboxModule,
+    CommonModule, OverlayPanelModule, ButtonModule],
+  providers: [TriageServiceProxy],
   animations: [appModuleAnimation()],
   templateUrl: './emergency-triage.component.html',
   styleUrl: './emergency-triage.component.css'
@@ -26,6 +40,8 @@ import { TagModule } from 'primeng/tag';
 export class EmergencyTriageComponent extends PagedListingComponentBase<TriageDto> implements OnInit {
   @ViewChild('dataTable', { static: true }) dataTable: Table;
   @ViewChild('paginator', { static: true }) paginator: Paginator;
+  items: MenuItem[] | undefined;
+  editDeleteMenus: MenuItem[] | undefined;
   keyword = '';
   selectedRecord: TriageDto;
   severityOptions = [
@@ -42,7 +58,24 @@ export class EmergencyTriageComponent extends PagedListingComponentBase<TriageDt
     super(injector, cd);
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.items = [
+      { label: 'Home', routerLink: '/' },
+      { label: 'Emergency Triage' },
+    ];
+    this.editDeleteMenus = [
+      {
+        label: 'Edit',
+        icon: 'pi pi-pencil',
+        command: () => this.editTriage(this.selectedRecord)  // call edit
+      },
+      {
+        label: 'Delete',
+        icon: 'pi pi-trash',
+        command: () => this.delete(this.selectedRecord)  // call delete
+      }
+    ];
+  }
 
   list(event?: LazyLoadEvent): void {
     if (this.primengTableHelper.shouldResetPaging(event)) {
