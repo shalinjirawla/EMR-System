@@ -20,9 +20,22 @@ import { CreateEmergencyCaseComponent } from '../create-emergency-case/create-em
 import { EditEmergencyCaseComponent } from '../edit-emergency-case/edit-emergency-case.component';
 import { TagModule } from 'primeng/tag';
 
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { MenuItem } from 'primeng/api';
+import { TooltipModule } from 'primeng/tooltip';
+import { CardModule } from 'primeng/card';
+import { AvatarModule } from 'primeng/avatar';
+import { AvatarGroupModule } from 'primeng/avatargroup';
+import { InputTextModule } from 'primeng/inputtext';
+import { CheckboxModule } from 'primeng/checkbox';
+
+
 @Component({
   selector: 'app-emergency-case',
-  imports: [LocalizePipe, FormsModule, DatePipe, TagModule, NgIf, ButtonModule, PaginatorModule, TableModule, OverlayPanelModule],
+  imports: [LocalizePipe, FormsModule, DatePipe,
+    TagModule, NgIf, ButtonModule, PaginatorModule, TableModule, OverlayPanelModule,
+    BreadcrumbModule, TooltipModule, CardModule, AvatarModule, AvatarGroupModule, InputTextModule,
+    CheckboxModule],
   animations: [appModuleAnimation()],
   providers: [EmergencyServiceProxy],
   templateUrl: './emergency-case.component.html',
@@ -60,6 +73,7 @@ export class EmergencyCaseComponent extends PagedListingComponentBase<EmergencyC
     { label: 'Discharged', value: 5 }
   ];
 
+  items: MenuItem[] | undefined;
   constructor(
     injector: Injector,
     private _modalService: BsModalService,
@@ -71,7 +85,12 @@ export class EmergencyCaseComponent extends PagedListingComponentBase<EmergencyC
     this.keyword = this._activatedRoute.snapshot.queryParams['filterText'] || '';
   }
 
-  ngOnInit(): void { }
+  ngOnInit(): void {
+    this.items = [
+      { label: 'Home', routerLink: '/' },
+      { label: 'Emergency Cases' },
+    ];
+  }
 
   clearFilters(): void {
     this.keyword = '';
@@ -129,12 +148,12 @@ export class EmergencyCaseComponent extends PagedListingComponentBase<EmergencyC
     let createOrEditDialog: BsModalRef;
     if (!id) {
       createOrEditDialog = this._modalService.show(CreateEmergencyCaseComponent, {
-        class: 'modal-lg',
+        class: 'modal-md',
       });
     }
     else {
       createOrEditDialog = this._modalService.show(EditEmergencyCaseComponent, {
-        class: 'modal-lg',
+        class: 'modal-md',
         initialState: {
           id: id,
         },
@@ -184,5 +203,12 @@ export class EmergencyCaseComponent extends PagedListingComponentBase<EmergencyC
   idDischarged(status: any) {
     const idDischarged = status === EmergencyStatus._5;
     return idDischarged
+  }
+  getShortName(fullName: string | 'unknown'): string {
+    if (!fullName) return '';
+    const words = fullName.trim().split(' ');
+    const firstInitial = words[0].charAt(0).toUpperCase();
+    const lastInitial = words.length > 1 ? words[words.length - 1].charAt(0).toUpperCase() : '';
+    return firstInitial + lastInitial;
   }
 }

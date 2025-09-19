@@ -15,14 +15,14 @@ import { ButtonModule } from 'primeng/button';
 import { MenuItem } from 'primeng/api';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
-
+import { AvatarModule } from 'primeng/avatar';
 @Component({
   selector: 'app-list',
   templateUrl: './list.component.html',
   styleUrl: './list.component.css',
   animations: [appModuleAnimation()],
   standalone: true,
-  imports: [FormsModule, TableModule, PrimeTemplate, NgIf, PaginatorModule,
+  imports: [FormsModule, TableModule, PrimeTemplate, NgIf, PaginatorModule,AvatarModule,
     BreadcrumbModule, CardModule, InputTextModule, LocalizePipe, ButtonModule, DatePipe],
   providers: [PatientDischargeServiceProxy]
 })
@@ -78,4 +78,11 @@ export class ListComponent extends PagedListingComponentBase<PatientDischargeDto
   }
 
   delete() { }
+  getShortName(fullName: string): string {
+    if (!fullName) return '';
+    const words = fullName.trim().split(' ');
+    const firstInitial = words[0].charAt(0).toUpperCase();
+    const lastInitial = words.length > 1 ? words[words.length - 1].charAt(0).toUpperCase() : '';
+    return firstInitial + lastInitial;
+  }
 }

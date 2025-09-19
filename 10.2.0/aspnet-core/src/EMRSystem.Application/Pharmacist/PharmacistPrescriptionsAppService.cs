@@ -100,7 +100,7 @@ namespace EMRSystem.Pharmacist
                 throw new UserFriendlyException("Error in GetPrescriptionFulfillment", ex);
             }
         }
-        
+
         public async Task<string> GenerateReceiptNoAsync(int tenantId)
         {
             return await _numberingService.GenerateReceiptNumberAsync(
@@ -464,8 +464,8 @@ namespace EMRSystem.Pharmacist
             var prescription = details.Prescriptions;
 
             var prescriptionItems = await _prescriptionItemRepository.GetAll()
-                    .Where(i => 
-                        i.PharmacistPrescriptionId == _id || 
+                    .Where(i =>
+                        i.PharmacistPrescriptionId == _id ||
                         (i.PrescriptionId == prescription.Id && i.PharmacistPrescriptionId == null)
                     ).ToListAsync();
 
@@ -607,6 +607,14 @@ namespace EMRSystem.Pharmacist
 
                 await Repository.UpdateAsync(prescription);
             }
+        }
+
+        [HttpGet]
+        public async Task<List<PharmacistPrescriptionsDto>> GetPharmacistPrescriptionsByPatient(long patientID)
+        {
+            var list = await Repository.GetAllIncluding(x => x.Prescriptions.Doctor).Where(x => x.Prescriptions.PatientId == patientID).ToListAsync();
+            var mappedList = ObjectMapper.Map<List<PharmacistPrescriptionsDto>>(list);
+            return mappedList;
         }
     }
 }

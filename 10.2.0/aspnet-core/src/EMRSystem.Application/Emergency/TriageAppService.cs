@@ -24,9 +24,7 @@ namespace EMRSystem.Emergency.Triage
         {
             return Repository.GetAll()
                 .Include(x => x.EmergencyCase)
-                .WhereIf(!input.Keyword.IsNullOrWhiteSpace(),
-                    x => x.Notes.Contains(input.Keyword) ||
-                         x.EmergencyCase.EmergencyNumber.Contains(input.Keyword));
+                .WhereIf(!input.Keyword.IsNullOrWhiteSpace(),x => x.EmergencyCase.EmergencyNumber.Contains(input.Keyword));
         }
 
     }

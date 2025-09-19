@@ -19,10 +19,26 @@ import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
 import { ViewPrescriptionComponent } from '@app/doctors/view-prescription/view-prescription.component'
 import moment from 'moment';
+import { AvatarModule } from 'primeng/avatar';
+import { AvatarGroupModule } from 'primeng/avatargroup';
+
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { MenuItem } from 'primeng/api';
+import { TooltipModule } from 'primeng/tooltip';
+import { CardModule } from 'primeng/card';
+import { TagModule } from 'primeng/tag';
+import { SelectModule } from 'primeng/select';
+import { InputTextModule } from 'primeng/inputtext';
+import { CheckboxModule } from 'primeng/checkbox';
+
+
 @Component({
   selector: 'app-emergency-prescriptions',
   animations: [appModuleAnimation()],
-  imports: [FormsModule, TableModule, PrimeTemplate, CalendarModule, NgIf, PaginatorModule, ButtonModule, LocalizePipe, DatePipe, CommonModule, OverlayPanelModule, MenuModule],
+  imports: [FormsModule, TableModule, AvatarModule, BreadcrumbModule, CardModule, TooltipModule,
+    AvatarGroupModule, PrimeTemplate, CalendarModule, NgIf, PaginatorModule, TagModule, InputTextModule,
+    ButtonModule, LocalizePipe, DatePipe, CommonModule, OverlayPanelModule, SelectModule, CheckboxModule,
+    MenuModule],
   templateUrl: './emergency-prescriptions.component.html',
   styleUrl: './emergency-prescriptions.component.css',
   providers: [PrescriptionServiceProxy]
@@ -37,6 +53,9 @@ export class EmergencyPrescriptionsComponent extends PagedListingComponentBase<P
   advancedFiltersVisible = false;
   showDoctorColumn: boolean = false;
   showNurseColumn: boolean = false;
+  items: MenuItem[] | undefined;
+  editDeleteMenus: MenuItem[] | undefined;
+  selectedRecord: PrescriptionDto;
   constructor(
     injector: Injector,
     private _modalService: BsModalService,
@@ -49,6 +68,22 @@ export class EmergencyPrescriptionsComponent extends PagedListingComponentBase<P
   }
   ngOnInit(): void {
     this.GetLoggedInUserRole();
+    this.items = [
+      { label: 'Home', routerLink: '/' },
+      { label: 'Emergency Prescription' },
+    ];
+    this.editDeleteMenus = [
+      {
+        label: 'Edit',
+        icon: 'pi pi-pencil',
+        command: () => this.editPrescription(this.selectedRecord)  // call edit
+      },
+      {
+        label: 'Delete',
+        icon: 'pi pi-trash',
+        command: () => this.delete(this.selectedRecord)  // call delete
+      }
+    ];
   }
   clearFilters(): void {
     this.keyword = '';
@@ -159,5 +194,12 @@ export class EmergencyPrescriptionsComponent extends PagedListingComponentBase<P
   idDischarged(status: any) {
     const idDischarged = status === EmergencyStatus._5;
     return idDischarged
+  }
+  getShortName(fullName: string | 'unknown'): string {
+    if (!fullName) return '';
+    const words = fullName.trim().split(' ');
+    const firstInitial = words[0].charAt(0).toUpperCase();
+    const lastInitial = words.length > 1 ? words[words.length - 1].charAt(0).toUpperCase() : '';
+    return firstInitial + lastInitial;
   }
 }

@@ -140,7 +140,7 @@ namespace EMRSystem.Patients
                   .ThenInclude(a => a.Doctor)
                 .Include(p => p.Admissions)
                   .ThenInclude(a => a.Nurse)
-                .Where(p => p.IsAdmitted)
+                //.Where(p => p.IsAdmitted)
                 .WhereIf(!isAdmin && nurseID > 0, p => p.Admissions.Any(a => a.NurseId == nurseID))
                 //.WhereIf(nurseID > 0, i => i.AssignedNurseId == nurseID)
                 .WhereIf(!input.Keyword.IsNullOrWhiteSpace(),
@@ -190,7 +190,7 @@ namespace EMRSystem.Patients
                     .ThenInclude(a => a.Doctor)
                 .Include(p => p.Admissions)
                     .ThenInclude(a => a.Nurse)
-                .Where(p => p.IsAdmitted)
+                //.Where(p => p.IsAdmitted)
                 .WhereIf(!isAdmin && doctorID > 0, p => p.Admissions.Any(a => a.DoctorId == doctorID))
                 .WhereIf(!input.Keyword.IsNullOrWhiteSpace(),
                     x => x.FullName.Contains(input.Keyword) ||

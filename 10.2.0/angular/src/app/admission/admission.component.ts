@@ -18,102 +18,133 @@ import { ButtonModule } from 'primeng/button';
 import { AdmissionDto, AdmissionDtoPagedResultDto, AdmissionServiceProxy } from '@shared/service-proxies/service-proxies';
 import { CreateAddmissionComponent } from './create-addmission/create-addmission.component';
 import { EditAddmissionComponent } from './edit-addmission/edit-addmission.component';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { MenuItem } from 'primeng/api';
+import { TooltipModule } from 'primeng/tooltip';
+import { CardModule } from 'primeng/card';
+import { TagModule } from 'primeng/tag';
+import { AvatarModule } from 'primeng/avatar';
+import { AvatarGroupModule } from 'primeng/avatargroup';
+import { InputTextModule } from 'primeng/inputtext';
+import { CheckboxModule } from 'primeng/checkbox';
 @Component({
-  selector: 'app-admission',
-  imports: [LocalizePipe, TableModule, PaginatorModule, FormsModule, DatePipe, NgIf, PrimeTemplate, ChipModule, OverlayPanelModule, MenuModule, ButtonModule],
-  animations: [appModuleAnimation()],
-  providers: [AdmissionServiceProxy],
-  templateUrl: './admission.component.html',
-  styleUrl: './admission.component.css'
+    selector: 'app-admission',
+    imports: [LocalizePipe, TableModule, PaginatorModule, FormsModule, DatePipe, NgIf,
+        PrimeTemplate, ChipModule, OverlayPanelModule, MenuModule, ButtonModule,
+        BreadcrumbModule, CardModule, TooltipModule, TagModule, AvatarModule, AvatarGroupModule, InputTextModule, CheckboxModule,],
+    animations: [appModuleAnimation()],
+    providers: [AdmissionServiceProxy],
+    templateUrl: './admission.component.html',
+    styleUrl: './admission.component.css'
 })
 export class AdmissionComponent extends PagedListingComponentBase<AdmissionDto> implements OnInit {
-  @ViewChild('dataTable', { static: true }) dataTable: Table;
-  @ViewChild('paginator', { static: true }) paginator: Paginator;
-  admissions: AdmissionDto[] = [];
-  keyword = '';
-  status: number;
-  advancedFiltersVisible = false;
- 
-  appointmentStatus!: any;
-  constructor(
-      injector: Injector,
-      private _modalService: BsModalService,
-      private _activatedRoute: ActivatedRoute,
-      private _admissionService: AdmissionServiceProxy,
-      cd: ChangeDetectorRef,
-  ) {
-      super(injector, cd);
-      this.keyword = this._activatedRoute.snapshot.queryParams['filterText'] || '';
-  }
-  ngOnInit(): void {
-  }
-  clearFilters(): void {
-      this.keyword = '';
-      this.list();
-  }
+    @ViewChild('dataTable', { static: true }) dataTable: Table;
+    @ViewChild('paginator', { static: true }) paginator: Paginator;
+    admissions: AdmissionDto[] = [];
+    keyword = '';
+    status: number;
+    advancedFiltersVisible = false;
+    items: MenuItem[] | undefined;
+    appointmentStatus!: any;
+    editDeleteMenus: MenuItem[] | undefined;
+    selectedRecord: AdmissionDto;
+    constructor(
+        injector: Injector,
+        private _modalService: BsModalService,
+        private _activatedRoute: ActivatedRoute,
+        private _admissionService: AdmissionServiceProxy,
+        cd: ChangeDetectorRef,
+    ) {
+        super(injector, cd);
+        this.keyword = this._activatedRoute.snapshot.queryParams['filterText'] || '';
+    }
+    ngOnInit(): void {
+        this.items = [
+            { label: 'Home', routerLink: '/' },
+            { label: 'Admit Patient' },
+        ];
+        this.editDeleteMenus = [
+            {
+                label: 'Edit',
+                icon: 'pi pi-pencil',
+                command: () => this.editAdmission(this.selectedRecord)  // call edit
+            },
+        ];
+    }
+    clearFilters(): void {
+        this.keyword = '';
+        this.list();
+    }
 
-  list(event?: LazyLoadEvent): void {
-      if (this.primengTableHelper.shouldResetPaging(event)) {
-          this.paginator.changePage(0);
+    list(event?: LazyLoadEvent): void {
+        if (this.primengTableHelper.shouldResetPaging(event)) {
+            this.paginator.changePage(0);
 
-          if (this.primengTableHelper.records && this.primengTableHelper.records.length > 0) {
-              return;
-          }
-      }
-      this.primengTableHelper.showLoadingIndicator();
-      this._admissionService
-          .getAll(
-              this.primengTableHelper.getSorting(this.dataTable),
-              this.primengTableHelper.getSkipCount(this.paginator, event),
-              this.primengTableHelper.getMaxResultCount(this.paginator, event)
-          )
-          .pipe(
-              finalize(() => {
-                  this.primengTableHelper.hideLoadingIndicator();
-              })
-          )
-          .subscribe((result: AdmissionDtoPagedResultDto) => {
-              this.primengTableHelper.records = result.items;
-              this.primengTableHelper.totalRecordsCount = result.totalCount;
-              this.primengTableHelper.hideLoadingIndicator();
-              this.cd.detectChanges();
-          });
-  }
-  delete(admission: AdmissionDto): void {
-      abp.message.confirm(this.l('UserDeleteWarningMessage'), undefined, (result: boolean) => {
-          if (result) {
-              this._admissionService.delete(admission.id).subscribe(() => {
-                  abp.notify.success(this.l('SuccessfullyDeleted'));
-                  this.refresh();
-              });
-          }
-      });
-  }
-  createAdmission(): void {
-      this.showCreateOrEditAppoinmentDialog();
-  }
-  editAdmission(dto: AdmissionDto): void {
-      this.showCreateOrEditAppoinmentDialog(dto.id);
-  }
-  showCreateOrEditAppoinmentDialog(id?: number): void {
-      let createOrEditUserDialog: BsModalRef;
-      if (!id) {
-          createOrEditUserDialog = this._modalService.show(CreateAddmissionComponent, {
-              class: 'modal-lg',
-          });
-      }
-      else {
-          createOrEditUserDialog = this._modalService.show(EditAddmissionComponent, {
-              class: 'modal-lg',
-              initialState: {
-                  id: id,
-              },
-          });
-      }
+            if (this.primengTableHelper.records && this.primengTableHelper.records.length > 0) {
+                return;
+            }
+        }
+        this.primengTableHelper.showLoadingIndicator();
+        this._admissionService
+            .getAll(
+                this.keyword,
+                this.primengTableHelper.getSorting(this.dataTable),
+                this.primengTableHelper.getSkipCount(this.paginator, event),
+                this.primengTableHelper.getMaxResultCount(this.paginator, event)
+            )
+            .pipe(
+                finalize(() => {
+                    this.primengTableHelper.hideLoadingIndicator();
+                })
+            )
+            .subscribe((result: AdmissionDtoPagedResultDto) => {
+                this.primengTableHelper.records = result.items;
+                this.primengTableHelper.totalRecordsCount = result.totalCount;
+                this.primengTableHelper.hideLoadingIndicator();
+                this.cd.detectChanges();
+            });
+    }
+    delete(admission: AdmissionDto): void {
+        abp.message.confirm(this.l('UserDeleteWarningMessage'), undefined, (result: boolean) => {
+            if (result) {
+                this._admissionService.delete(admission.id).subscribe(() => {
+                    abp.notify.success(this.l('SuccessfullyDeleted'));
+                    this.refresh();
+                });
+            }
+        });
+    }
+    createAdmission(): void {
+        this.showCreateOrEditAppoinmentDialog();
+    }
+    editAdmission(dto: AdmissionDto): void {
+        this.showCreateOrEditAppoinmentDialog(dto.id);
+    }
+    showCreateOrEditAppoinmentDialog(id?: number): void {
+        let createOrEditUserDialog: BsModalRef;
+        if (!id) {
+            createOrEditUserDialog = this._modalService.show(CreateAddmissionComponent, {
+                class: 'modal-md',
+            });
+        }
+        else {
+            createOrEditUserDialog = this._modalService.show(EditAddmissionComponent, {
+                class: 'modal-md',
+                initialState: {
+                    id: id,
+                },
+            });
+        }
 
-      createOrEditUserDialog.content.onSave.subscribe(() => {
-          this.refresh();
-      });
-  }
- 
+        createOrEditUserDialog.content.onSave.subscribe(() => {
+            this.refresh();
+        });
+    }
+    getShortName(fullName: string): string {
+        if (!fullName) return '';
+        const words = fullName.trim().split(' ');
+        const firstInitial = words[0].charAt(0).toUpperCase();
+        const lastInitial = words.length > 1 ? words[words.length - 1].charAt(0).toUpperCase() : '';
+        return firstInitial + lastInitial;
+    }
 }

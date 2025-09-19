@@ -22,9 +22,21 @@ import { TagModule } from 'primeng/tag';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { CreatePrescriptionsComponent } from '../create-prescriptions/create-prescriptions.component';
 import { Router } from '@angular/router';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { MenuItem } from 'primeng/api';
+import { TooltipModule } from 'primeng/tooltip';
+import { CardModule } from 'primeng/card';
+import { AvatarModule } from 'primeng/avatar';
+import { AvatarGroupModule } from 'primeng/avatargroup';
+import { SelectModule } from 'primeng/select';
+import { InputTextModule } from 'primeng/inputtext';
+import { CheckboxModule } from 'primeng/checkbox';
 @Component({
     selector: 'app-patient',
-    imports: [FormsModule, TableModule, ButtonModule, ConfirmDialogModule, TagModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, OverlayPanelModule, MenuModule],
+    imports: [FormsModule, TableModule, ButtonModule, BreadcrumbModule, TooltipModule,
+        ConfirmDialogModule, TagModule, PrimeTemplate, NgIf, CardModule, AvatarModule, CheckboxModule,
+        PaginatorModule, LocalizePipe, OverlayPanelModule, AvatarGroupModule, SelectModule, InputTextModule,
+        MenuModule],
     animations: [appModuleAnimation()],
     templateUrl: './patient.component.html',
     styleUrl: './patient.component.css',
@@ -33,13 +45,15 @@ import { Router } from '@angular/router';
 export class PatientComponent extends PagedListingComponentBase<PatientDto> implements OnInit {
     @ViewChild('dataTable', { static: true }) dataTable: Table;
     @ViewChild('paginator', { static: true }) paginator: Paginator;
-
+    items: MenuItem[] | undefined;
+    editDeleteMenus: MenuItem[] | undefined;
     patients: PatientDto[] = [];
     keyword = '';
     isActive: boolean | null;
     advancedFiltersVisible = false;
     showDoctorColumn: boolean = false;
     showNurseColumn: boolean = false;
+    selectedRecord: PatientDto;
     statusOptions = [
         { label: 'Pending', value: DischargeStatus._0 },
         { label: 'Initiated', value: DischargeStatus._1 },
@@ -66,6 +80,27 @@ export class PatientComponent extends PagedListingComponentBase<PatientDto> impl
     }
     ngOnInit(): void {
         this.GetLoggedInUserRole();
+        this.items = [
+            { label: 'Home', routerLink: '/' },
+            { label: 'Users' },
+        ];
+        // this.editDeleteMenus = [
+        //     {
+        //         label: 'Edit',
+        //         icon: 'pi pi-pencil',
+        //         command: () => this.edi(this.selectedRecord)  // call edit
+        //     },
+        //     {
+        //         label: 'Delete',
+        //         icon: 'pi pi-trash',
+        //         command: () => this.delete(this.selectedRecord)  // call delete
+        //     },
+        //     {
+        //         label: 'ResetPassword',
+        //         icon: 'fas fa-lock',
+        //         command: () => this.resetPassword(this.selectedRecord)  // call resetPassword
+        //     }
+        // ];
     }
     clearFilters(): void {
         this.keyword = '';
@@ -95,6 +130,7 @@ export class PatientComponent extends PagedListingComponentBase<PatientDto> impl
             )
             .subscribe((result: PatientsForDoctorAndNurseDtoPagedResultDto) => {
                 this.primengTableHelper.records = result.items;
+                console.log("result.items ", result.items);
                 this.primengTableHelper.totalRecordsCount = result.totalCount;
                 this.primengTableHelper.hideLoadingIndicator();
                 this.cd.detectChanges();

@@ -19,19 +19,31 @@ import { EditLabReportComponent } from '@app/lab-technician/edit-lab-report/edit
 import { GenerateLabReportComponent } from '@app/lab-technician/generate-lab-report/generate-lab-report.component';
 import { ViewLabReportComponent } from '@app/lab-technician/view-lab-report/view-lab-report.component';
 import { TagModule } from 'primeng/tag';
-
+import { AvatarModule } from 'primeng/avatar';
+import { AvatarGroupModule } from 'primeng/avatargroup';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { MenuItem } from 'primeng/api';
+import { TooltipModule } from 'primeng/tooltip';
+import { CardModule } from 'primeng/card';
+import { SelectModule } from 'primeng/select';
+import { InputTextModule } from 'primeng/inputtext';
+import { CheckboxModule } from 'primeng/checkbox';
 @Component({
   selector: 'app-emergency-lab-orders',
   templateUrl: './emergency-lab-orders.component.html',
   styleUrl: './emergency-lab-orders.component.css',
   animations: [appModuleAnimation()],
-  imports: [FormsModule, TableModule,TagModule, CommonModule, PrimeTemplate, OverlayPanelModule, MenuModule, ButtonModule, NgIf, PaginatorModule, ChipModule, LocalizePipe],
+  imports: [FormsModule, TableModule, TagModule, AvatarModule, BreadcrumbModule, CheckboxModule,
+    AvatarGroupModule, CommonModule, PrimeTemplate, TooltipModule, InputTextModule,
+    OverlayPanelModule, MenuModule, ButtonModule, NgIf, CardModule, SelectModule,
+    PaginatorModule, ChipModule, LocalizePipe],
   providers: [PrescriptionLabTestServiceProxy]
 })
 export class EmergencyLabOrdersComponent extends PagedListingComponentBase<PrescriptionLabTestDto> implements OnInit {
   @ViewChild('dataTable', { static: true }) dataTable: Table;
   @ViewChild('paginator', { static: true }) paginator: Paginator;
-
+  items: MenuItem[] | undefined;
+  editDeleteMenus: MenuItem[] | undefined;
   keyword = '';
   isActive: boolean | null;
   advancedFiltersVisible = false;
@@ -42,6 +54,7 @@ export class EmergencyLabOrdersComponent extends PagedListingComponentBase<Presc
   ];
   showDoctorColumn: boolean = false;
   showNurseColumn: boolean = false;
+  selectedRecord: PrescriptionLabTestDto;
   constructor(
     injector: Injector,
     private _modalService: BsModalService,
@@ -54,6 +67,17 @@ export class EmergencyLabOrdersComponent extends PagedListingComponentBase<Presc
   }
   ngOnInit(): void {
     this.GetLoggedInUserRole();
+    this.items = [
+      { label: 'Home', routerLink: '/' },
+      { label: 'Emergency Lab Orders' },
+    ];
+    this.editDeleteMenus = [
+      {
+        label: 'View',
+        icon: 'pi pi-eye',
+        command: () => this.ViewLabReport(this.selectedRecord.id)  // call edit
+      }
+    ];
   }
   clearFilters(): void {
     this.keyword = '';
@@ -77,9 +101,9 @@ export class EmergencyLabOrdersComponent extends PagedListingComponentBase<Presc
       .pipe(finalize(() => {
         this.primengTableHelper.hideLoadingIndicator();
       }))
-      .subscribe((result:LabOrderListDtoPagedResultDto) => {
-        const filterList=result.items
-        this.primengTableHelper.records = filterList.filter(x=>x.isEmergencyPrescription==true)
+      .subscribe((result: LabOrderListDtoPagedResultDto) => {
+        const filterList = result.items.filter(x => x.isEmergencyPrescription == true);
+        this.primengTableHelper.records = filterList;
         this.primengTableHelper.totalRecordsCount = filterList.length;
         this.cd.detectChanges();
       });
@@ -123,8 +147,8 @@ export class EmergencyLabOrdersComponent extends PagedListingComponentBase<Presc
           id: record.id,
           testName: record.labReportTypeName,
           patientName: record.patientName,
-          isEmergencyCase:record.isEmergencyPrescription,
-          emergencyCaseId:record.emergencyCaseId,
+          isEmergencyCase: record.isEmergencyPrescription,
+          emergencyCaseId: record.emergencyCaseId,
         },
       });
     }
@@ -132,22 +156,7 @@ export class EmergencyLabOrdersComponent extends PagedListingComponentBase<Presc
       this.refresh();
     });
   }
-  EditReport(record: LabRequestListDto): void {
-    let editReportDialog: BsModalRef;
-    if (record.id) {
-      editReportDialog = this._modalService.show(EditLabReportComponent, {
-        class: 'modal-xl',
-        initialState: {
-          id: record.id,
-          testName: record.labReportTypeName,
-          patientName: record.patientName
-        },
-      });
-    }
-    editReportDialog.content.onSave.subscribe(() => {
-      this.refresh();
-    });
-  }
+
   ViewLabReport(id?: number) {
     let viewReportDialog: BsModalRef;
     viewReportDialog = this._modalService.show(ViewLabReportComponent, {
@@ -156,9 +165,6 @@ export class EmergencyLabOrdersComponent extends PagedListingComponentBase<Presc
         id: id,
       },
     });
-    // editReportDialog.content.onSave.subscribe(() => {
-    //     this.refresh();
-    // });
   }
   GetLoggedInUserRole() {
     this._prescriptionLabTests.getCurrentUserRoles().subscribe(res => {
@@ -176,5 +182,12 @@ export class EmergencyLabOrdersComponent extends PagedListingComponentBase<Presc
       }
       this.cd.detectChanges();
     });
+  }
+   getShortName(fullName: string | 'unknown'): string {
+    if (!fullName) return '';
+    const words = fullName.trim().split(' ');
+    const firstInitial = words[0].charAt(0).toUpperCase();
+    const lastInitial = words.length > 1 ? words[words.length - 1].charAt(0).toUpperCase() : '';
+    return firstInitial + lastInitial;
   }
 }

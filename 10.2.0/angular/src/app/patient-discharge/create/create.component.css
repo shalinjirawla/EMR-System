@@ -42,3 +42,7 @@
   height: 1.5rem !important;
   width: 1.5rem !important;
 }
+
+::ng-deep .p-avatar-text {
+  font-size: 2.5rem !important;
+}
