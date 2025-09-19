@@ -16,7 +16,7 @@
     border-radius: 4px;
   }
   .p-dropdown-panel {
-    z-index: 1051 !important; /* above modal body, below ABP modal backdrop */
+    z-index: 1051 !important; 
   }
     
     

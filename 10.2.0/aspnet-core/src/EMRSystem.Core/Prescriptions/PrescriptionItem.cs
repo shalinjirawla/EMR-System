@@ -17,6 +17,7 @@ namespace EMRSystem.Prescriptions
         public string Instructions { get; set; }
         public long? PrescriptionId { get; set; }
         public int MedicineId { get; set; }
+        public long MedicineFormId { get; set; }
         public int Qty { get; set; }
         public virtual Prescription Prescription { get; set; }
         public decimal UnitPrice { get; set; }

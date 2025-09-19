@@ -14,24 +14,6 @@ using System.Text;
 using System.Threading.Tasks;
 namespace EMRSystem.Prescriptions.Dto
 {
-    //class PrescriptionMapProfile : Profile
-    //{
-    //    public PrescriptionMapProfile()
-    //    {
-    //        CreateMap<Prescription, PrescriptionDto>().ReverseMap();
-    //        CreateMap<CreateUpdatePrescriptionDto, Prescription>();
-    //        CreateMap<Prescription, CreateUpdatePrescriptionDto>()
-    //           .ForMember(dest => dest.AppointmentId, opt => opt.MapFrom(src => src.Appointment.Id))
-    //           .ForMember(dest => dest.DoctorId, opt => opt.MapFrom(src => src.Doctor.Id))
-    //           .ForMember(dest => dest.PatientId, opt => opt.MapFrom(src => src.Patient.Id));
-
-    //        CreateMap<PrescriptionItem, PrescriptionItemDto>().ReverseMap();
-    //        CreateMap<PrescriptionItem, CreateUpdatePrescriptionItemDto>().ReverseMap();
-    //        CreateMap<EMRSystem.PrescriptionLabTests.PrescriptionLabTest, PrescriptionLabTestDto>()
-    //            .ForMember(dest => dest.ReportTypeName, opt => opt.MapFrom(src => src.LabReportsType.ReportType))
-    //            .ReverseMap();
-    //    }
-    //}
     public class PrescriptionMapProfile : Profile
     {
         public PrescriptionMapProfile()

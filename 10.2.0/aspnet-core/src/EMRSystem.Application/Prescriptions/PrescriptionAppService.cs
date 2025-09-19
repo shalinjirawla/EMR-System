@@ -14,6 +14,7 @@ using EMRSystem.EmergencyProcedure;
 using EMRSystem.EmergencyProcedure.Dto;
 using EMRSystem.IpdChargeEntry;
 using EMRSystem.LabReports;
+using EMRSystem.Medicines;
 using EMRSystem.NumberingService;
 using EMRSystem.Patients;
 using EMRSystem.Patients.Dto;
@@ -37,7 +38,9 @@ namespace EMRSystem.Prescriptions
     {
         private readonly IDoctorAppService _doctorAppService;
         private readonly IRepository<Appointment, long> _appointmentRepository;
+        private readonly IRepository<PrescriptionItem, long> _prescriptionItemRepository;
         private readonly IRepository<Patient, long> _patientRepository;
+        private readonly IRepository<MedicineStock, long> _medicineStockRepository;
         private readonly IRepository<EMRSystem.LabReports.PrescriptionLabTest, long> _prescriptionLabTestRepository;
         private readonly IRepository<EMRSystem.EmergencyChargeEntries.EmergencyChargeEntry, long> _emergencyChargeEntriesRepository;
         private readonly IRepository<EMRSystem.DoctorMaster.DoctorMaster, long> _doctorMasterRepository;
@@ -54,6 +57,8 @@ namespace EMRSystem.Prescriptions
             IRepository<Prescription, long> repository,
             IRepository<EMRSystem.Admission.Admission, long> admissionRepository,
             IRepository<EMRSystem.IpdChargeEntry.IpdChargeEntry, long> ipdChargeEntryRepository,
+            IRepository<PrescriptionItem, long> prescriptionItemRepository,
+            IRepository<MedicineStock, long> medicineStockRepository,
             INumberingService numberingService,
             IDoctorAppService doctorAppService, UserManager userManager,
             IRepository<Appointment, long> appointmentRepository,
@@ -70,6 +75,7 @@ namespace EMRSystem.Prescriptions
             _doctorAppService = doctorAppService;
             _userManager = userManager;
             _numberingService = numberingService;
+            _prescriptionItemRepository = prescriptionItemRepository;
             _appointmentRepository = appointmentRepository;
             _patientRepository = patientRepository;
             _prescriptionLabTestRepository = prescriptionLabTestRepository;
@@ -81,6 +87,7 @@ namespace EMRSystem.Prescriptions
             _consultationRequestsRepository = consultationRequestsRepository;
             _pharmacistPrescriptionsRepository = pharmacistPrescriptionsRepository;
             _pharmacistInventoryRepository = pharmacistInventoryRepository;
+            _medicineStockRepository = medicineStockRepository;
         }
         protected override IQueryable<Prescription> CreateFilteredQuery(PagedPrescriptionResultRequestDto input)
         {
@@ -186,13 +193,34 @@ namespace EMRSystem.Prescriptions
                 isAdmitted = patient.IsAdmitted;
             }
 
-            // Map Items
+            //// Map Items
+            //prescription.Items = input.Items
+            //    .Select(item =>
+            //    {
+            //        item.UnitPrice = _pharmacistInventoryRepository.Get(item.MedicineId).SellingPrice;
+            //        return ObjectMapper.Map<PrescriptionItem>(item);
+            //    }).ToList();
+
             prescription.Items = input.Items
                 .Select(item =>
                 {
-                    item.UnitPrice = _pharmacistInventoryRepository.Get(item.MedicineId).SellingPrice;
+                    var stock = _medicineStockRepository.GetAll()
+                        .Where(ms => ms.MedicineMasterId == item.MedicineId
+                                     && !ms.IsExpire
+                                     && ms.ExpiryDate >= DateTime.Today)
+                        .OrderBy(ms => ms.ExpiryDate) // सबसे नज़दीकी expiry वाला लेगा
+                        .FirstOrDefault();
+
+                    if (stock == null)
+                    {
+                        throw new UserFriendlyException($"No valid stock found for medicine ID {item.MedicineId}");
+                    }
+
+                    item.UnitPrice = stock.SellingPrice;
+
                     return ObjectMapper.Map<PrescriptionItem>(item);
-                }).ToList();
+                })
+                .ToList();
 
             if (input.EmergencyProcedures != null && input.EmergencyProcedures.Any())
             {
@@ -404,8 +432,16 @@ namespace EMRSystem.Prescriptions
             // Update existing items or add new ones
             foreach (var inputItem in input.Items)
             {
-                // inputItem.Qty = CalculateQty(inputItem.Frequency, inputItem.Duration);
-                inputItem.UnitPrice = _pharmacistInventoryRepository.Get(inputItem.MedicineId).SellingPrice;
+                // Stock से UnitPrice निकालना
+                var stock = await _medicineStockRepository.GetAll()
+                    .Where(ms => ms.MedicineMasterId == inputItem.MedicineId
+                                 && !ms.IsExpire
+                                 && ms.ExpiryDate >= DateTime.Today)
+                    .OrderBy(ms => ms.ExpiryDate)
+                    .FirstOrDefaultAsync();
+
+                inputItem.UnitPrice = stock != null ? stock.SellingPrice : 0;
+
                 var existingItem = existingItems.FirstOrDefault(i => i.Id == inputItem.Id);
                 if (existingItem != null)
                 {
@@ -421,13 +457,15 @@ namespace EMRSystem.Prescriptions
             }
 
             // Remove items that are no longer in the input
-            var itemsToRemove = existingItems.Where(ei => !input.Items.Any(ii => ii.Id == ei.Id)).ToList();
+            var itemsToRemove = existingItems
+                .Where(ei => !input.Items.Any(ii => ii.Id == ei.Id))
+                .ToList();
+
             foreach (var item in itemsToRemove)
             {
-                existingPrescription.Items.Remove(item);
+                await _prescriptionItemRepository.DeleteAsync(item);
             }
 
-            // Handle LabTests update
             // Handle LabTests update
             var existingLabTests = existingPrescription.LabTests.ToList();
 
@@ -607,6 +645,7 @@ namespace EMRSystem.Prescriptions
                         MedicineId = i.MedicineId,
                         Dosage = i.Dosage,
                         Frequency = i.Frequency,
+                        MedicineFormId = i.MedicineFormId,
                         Duration = i.Duration,
                         Instructions = i.Instructions,
                         PharmacistPrescriptionId = i.PharmacistPrescriptionId
@@ -739,34 +778,50 @@ namespace EMRSystem.Prescriptions
                 .Include(p => p.Doctor)
                 .Include(p => p.LabTests)
                 .Include(p => p.Items)
-                .Include(p => p.SelectedEmergencyProcedureses) // 👈 include procedure relation
-                        .ThenInclude(sep => sep.EmergencyProcedures)
+                .Include(p => p.SelectedEmergencyProcedureses)
+                    .ThenInclude(sep => sep.EmergencyProcedures)
                 .Where(p => p.Patient.Id == patientId)
                 .OrderByDescending(p => p.IssueDate);
 
-            var prescriptions = await query
-                .Select(p => new PrescriptionDto
+            // पहले पूरे prescriptions entities लाओ
+            var prescriptions = await query.ToListAsync();
+
+            // अब C# side mapping करो
+            var result = prescriptions.Select(p => new PrescriptionDto
+            {
+                Id = p.Id,
+                TenantId = p.TenantId,
+                Diagnosis = p.Diagnosis,
+                Notes = p.Notes,
+                IssueDate = p.IssueDate,
+                IsFollowUpRequired = p.IsFollowUpRequired,
+
+                Patient = new PatientDto
                 {
-                    Id = p.Id,
-                    TenantId = p.TenantId,
-                    Diagnosis = p.Diagnosis,
-                    Notes = p.Notes,
-                    IssueDate = p.IssueDate,
-                    IsFollowUpRequired = p.IsFollowUpRequired,
-                    Patient = new PatientDto
-                    {
-                        Id = p.Patient.Id,
-                        FullName = p.Patient.FullName
-                        // Add other needed PatientDto properties here
-                    },
-                    Doctor = new DoctorDto
-                    {
-                        Id = p.Doctor.Id,
-                        FullName = p.Doctor.FullName
-                        // Add other needed DoctorDto properties here
-                    },
-                    LabTestIds = p.LabTests.Select(lt => lt.LabReportsTypeId).ToList(),
-                    PharmacistPrescription = p.Items.Select(x => new PharmacistPrescriptionItemWithUnitPriceDto
+                    Id = p.Patient.Id,
+                    FullName = p.Patient.FullName
+                },
+                Doctor = new DoctorDto
+                {
+                    Id = p.Doctor.Id,
+                    FullName = p.Doctor.FullName
+                },
+
+                LabTestIds = p.LabTests.Select(lt => lt.LabReportsTypeId).ToList(),
+
+                PharmacistPrescription = p.Items.Select(x =>
+                {
+                    // memory में stock check करो
+                    var stock = _medicineStockRepository.GetAll()
+                        .Where(ms => ms.MedicineMasterId == x.MedicineId
+                                     && !ms.IsExpire
+                                     && ms.ExpiryDate >= DateTime.Today)
+                        .OrderBy(ms => ms.ExpiryDate)
+                        .FirstOrDefault();
+
+                    var unitPrice = stock != null ? stock.SellingPrice : 0;
+
+                    return new PharmacistPrescriptionItemWithUnitPriceDto
                     {
                         PrescriptionId = x.PrescriptionId,
                         MedicineId = x.MedicineId,
@@ -776,34 +831,35 @@ namespace EMRSystem.Prescriptions
                         Duration = x.Duration,
                         Instructions = x.Instructions,
                         Qty = x.Qty,
-                        UnitPrice = _pharmacistInventoryRepository.Get(x.MedicineId).SellingPrice,
+                        UnitPrice = unitPrice,
                         IsPrescribe = x.IsPrescribe,
-                        TotalPayableAmount = 0,
-                        PharmacistPrescriptionId=x.PharmacistPrescriptionId,
-                    }).ToList(),
-                    Procedures = p.SelectedEmergencyProcedureses.Select(sep => new SelectedEmergencyProceduresDto
+                        TotalPayableAmount = x.Qty * unitPrice,
+                        PharmacistPrescriptionId = x.PharmacistPrescriptionId,
+                    };
+                }).ToList(),
+
+                Procedures = p.SelectedEmergencyProcedureses.Select(sep => new SelectedEmergencyProceduresDto
+                {
+                    Id = sep.Id,
+                    TenantId = sep.TenantId,
+                    IsPaid = sep.IsPaid,
+                    Status = sep.Status,
+                    EmergencyProcedures = new EmergencyProcedureDto
                     {
-                        Id = sep.Id,
-                        TenantId = sep.TenantId,
-                        IsPaid = sep.IsPaid,
-                        Status = sep.Status,
-                        EmergencyProcedures = new EmergencyProcedureDto
-                        {
-                            Id = sep.EmergencyProcedures.Id,
-                            TenantId = sep.EmergencyProcedures.TenantId,
-                            Name = sep.EmergencyProcedures.Name,
-                            Category = sep.EmergencyProcedures.Category,
-                            DefaultCharge = sep.EmergencyProcedures.DefaultCharge,
-                            IsActive = sep.EmergencyProcedures.IsActive
-                        },
-                        ProcedureName = sep.EmergencyProcedures.Name,
-                        PatientName = p.Patient.FullName
-                    }).ToList()
+                        Id = sep.EmergencyProcedures.Id,
+                        TenantId = sep.EmergencyProcedures.TenantId,
+                        Name = sep.EmergencyProcedures.Name,
+                        Category = sep.EmergencyProcedures.Category,
+                        DefaultCharge = sep.EmergencyProcedures.DefaultCharge,
+                        IsActive = sep.EmergencyProcedures.IsActive
+                    },
+                    ProcedureName = sep.EmergencyProcedures.Name,
+                    PatientName = p.Patient.FullName
+                }).ToList()
 
-                    // Add other properties if needed
-                }).ToListAsync();
+            }).ToList();
 
-            return new ListResultDto<PrescriptionDto>(prescriptions);
+            return new ListResultDto<PrescriptionDto>(result);
         }
 
         public async Task CreateUpdateCharges(CreateUpdatePrescriptionDto input, long? prescriptionId, bool isNewRecord)

@@ -73,14 +73,14 @@ export class DepartmentComponent extends PagedListingComponentBase<DepartmentDto
   createDepartment(): void {
     let createDialog: BsModalRef = this._modalService.show(CreateupdateDepartmentComponent, { class: 'modal-lg' });
     createDialog.content.onSave.subscribe(() => {
-      this.list();
+      this.refresh();
     });
   }
 
   editDepartment(department: DepartmentDto): void {
     let editDialog: BsModalRef = this._modalService.show(CreateupdateDepartmentComponent, { class: 'modal-lg', initialState: { id: department.id } });
     editDialog.content.onSave.subscribe(() => {
-      this.list();
+      this.refresh();
     });
   }
 
@@ -89,7 +89,7 @@ export class DepartmentComponent extends PagedListingComponentBase<DepartmentDto
       if (result) {
         this._departmentService.delete(department.id).subscribe(() => {
           abp.notify.success('Deleted successfully');
-          this.list();
+          this.refresh();
         });
       }
     });

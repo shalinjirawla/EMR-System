@@ -12,6 +12,7 @@ using EMRSystem.IpdChargeEntry;
 using EMRSystem.LabReport.Dto;
 using EMRSystem.LabReports;
 using EMRSystem.MedicineOrder;
+using EMRSystem.Medicines;
 using EMRSystem.MultiTenancy;
 using EMRSystem.NumberingService;
 using EMRSystem.Patients;
@@ -46,13 +47,16 @@ namespace EMRSystem.Pharmacist
         private readonly IRepository<EmergencyChargeEntry, long> _emergencyChargeRepository;
         private readonly IRepository<EMRSystem.IpdChargeEntry.IpdChargeEntry, long> _ipdChargeRepository;
         private readonly ITempStripeDataService _tempStripeDataService;
+        private readonly IRepository<MedicineStock, long> _medicineStockRepository;
 
         public PharmacistPrescriptionsAppService(
             IRepository<EMRSystem.Pharmacists.PharmacistPrescriptions, long> repository,
             INumberingService numberingService,
+            IRepository<MedicineStock, long> medicineStockRepository,
             IRepository<EmergencyChargeEntry, long> emergencyChargeRepository,
             IRepository<EMRSystem.IpdChargeEntry.IpdChargeEntry, long> ipdChargeRepository,
-            ITempStripeDataService tempStripeDataService,
+
+        ITempStripeDataService tempStripeDataService,
             IRepository<Pharmacists.PharmacistInventory, long> pharmacistInventoryRepository, TenantManager tenantManager,
             IRepository<PrescriptionItem, long> prescriptionItemRepository) : base(repository)
         {
@@ -62,6 +66,7 @@ namespace EMRSystem.Pharmacist
             _ipdChargeRepository = ipdChargeRepository;
             _numberingService = numberingService;
             _tempStripeDataService = tempStripeDataService;
+            _medicineStockRepository = medicineStockRepository;
             _prescriptionItemRepository = prescriptionItemRepository;
         }
 
@@ -72,24 +77,34 @@ namespace EMRSystem.Pharmacist
             {
                 var list = await Repository.GetAllIncluding
                         (
-                        x => x.Prescriptions,
-                        x => x.Prescriptions.Patient,
-                        x => x.Prescriptions.Doctor,
-                        x => x.Prescriptions.Items
+                            x => x.Prescriptions,
+                            x => x.Prescriptions.Patient,
+                            x => x.Prescriptions.Doctor,
+                            x => x.Prescriptions.Items
                         )
                         .Where(x => x.Prescriptions != null && x.Prescriptions.Items != null)
                         .ToListAsync();
+
                 var mappedItems = ObjectMapper.Map<List<PharmacistPrescriptionsDto>>(list);
-                mappedItems.ForEach(x =>
+
+                foreach (var prescription in mappedItems)
                 {
-                    if (x?.prescriptionItems != null)
+                    if (prescription?.prescriptionItems != null)
                     {
-                        foreach (var item in x.prescriptionItems)
+                        foreach (var item in prescription.prescriptionItems)
                         {
-                            item.UnitPrice = _pharmacistInventoryRepository.Get(item.MedicineId).SellingPrice;
+                            var stock = await _medicineStockRepository.GetAll()
+                                .Where(ms => ms.MedicineMasterId == item.MedicineId
+                                             && !ms.IsExpire
+                                             && ms.ExpiryDate >= DateTime.Today)
+                                .OrderBy(ms => ms.ExpiryDate)
+                                .FirstOrDefaultAsync();
+
+                            item.UnitPrice = stock != null ? stock.SellingPrice : 0;
                         }
                     }
-                });
+                }
+
                 return new PagedResultDto<PharmacistPrescriptionsDto>(
                     list.Count,
                     mappedItems
@@ -100,7 +115,8 @@ namespace EMRSystem.Pharmacist
                 throw new UserFriendlyException("Error in GetPrescriptionFulfillment", ex);
             }
         }
-        
+
+
         public async Task<string> GenerateReceiptNoAsync(int tenantId)
         {
             return await _numberingService.GenerateReceiptNumberAsync(
@@ -158,7 +174,6 @@ namespace EMRSystem.Pharmacist
 
             throw new UserFriendlyException("Invalid payment method");
         }
-
         [HttpPost]
         public async Task CreatePharmacistPrescriptionsWithItem(CreatePharmacistPrescriptionsWithItemDto withItemDto)
         {
@@ -208,18 +223,7 @@ namespace EMRSystem.Pharmacist
                                 int diff = newQty - oldQty;
 
                                 if (diff != 0)
-                                {
-                                    var inventoryItem = await _pharmacistInventoryRepository.FirstOrDefaultAsync(t => t.Id == existing.MedicineId);
-                                    if (inventoryItem != null)
-                                    {
-                                        if (diff > 0 && inventoryItem.Stock >= diff) // qty increased → stock cut
-                                            inventoryItem.Stock -= diff;
-                                        else if (diff < 0) // qty decreased → stock add back
-                                            inventoryItem.Stock += Math.Abs(diff);
-
-                                        await _pharmacistInventoryRepository.UpdateAsync(inventoryItem);
-                                    }
-                                }
+                                    await AdjustStockAsync(existing.MedicineId, diff);
 
                                 existing.Qty = newQty;
                                 existing.Dosage = dto.Dosage;
@@ -240,12 +244,7 @@ namespace EMRSystem.Pharmacist
                                     newEntity.IsPrescribe = false;
                                     newEntity.PrescriptionId = null;
 
-                                    var inventoryItem = await _pharmacistInventoryRepository.FirstOrDefaultAsync(t => t.Id == newEntity.MedicineId);
-                                    if (inventoryItem != null && inventoryItem.Stock >= newEntity.Qty)
-                                    {
-                                        inventoryItem.Stock -= newEntity.Qty;
-                                        await _pharmacistInventoryRepository.UpdateAsync(inventoryItem);
-                                    }
+                                    await AdjustStockAsync(newEntity.MedicineId, newEntity.Qty);
 
                                     await _prescriptionItemRepository.InsertAsync(newEntity);
                                 }
@@ -266,12 +265,7 @@ namespace EMRSystem.Pharmacist
                                 newEntity.IsPrescribe = false;
                                 newEntity.PrescriptionId = null;
 
-                                var inventoryItem = await _pharmacistInventoryRepository.FirstOrDefaultAsync(t => t.Id == newEntity.MedicineId);
-                                if (inventoryItem != null && inventoryItem.Stock >= newEntity.Qty)
-                                {
-                                    inventoryItem.Stock -= newEntity.Qty;
-                                    await _pharmacistInventoryRepository.UpdateAsync(inventoryItem);
-                                }
+                                await AdjustStockAsync(newEntity.MedicineId, newEntity.Qty);
 
                                 await _prescriptionItemRepository.InsertAsync(newEntity);
                             }
@@ -304,18 +298,7 @@ namespace EMRSystem.Pharmacist
                             int diff = newQty - oldQty;
 
                             if (diff != 0)
-                            {
-                                var inventoryItem = await _pharmacistInventoryRepository.FirstOrDefaultAsync(t => t.Id == existing.MedicineId);
-                                if (inventoryItem != null)
-                                {
-                                    if (diff > 0 && inventoryItem.Stock >= diff) // qty increased → stock cut
-                                        inventoryItem.Stock -= diff;
-                                    else if (diff < 0) // qty decreased → stock add back
-                                        inventoryItem.Stock += Math.Abs(diff);
-
-                                    await _pharmacistInventoryRepository.UpdateAsync(inventoryItem);
-                                }
-                            }
+                                await AdjustStockAsync(existing.MedicineId, diff);
 
                             existing.Qty = newQty;
                             existing.Dosage = dto.Dosage;
@@ -335,12 +318,7 @@ namespace EMRSystem.Pharmacist
                                 newEntity.IsPrescribe = false;
                                 newEntity.PrescriptionId = null;
 
-                                var inventoryItem = await _pharmacistInventoryRepository.FirstOrDefaultAsync(t => t.Id == newEntity.MedicineId);
-                                if (inventoryItem != null && inventoryItem.Stock >= newEntity.Qty)
-                                {
-                                    inventoryItem.Stock -= newEntity.Qty;
-                                    await _pharmacistInventoryRepository.UpdateAsync(inventoryItem);
-                                }
+                                await AdjustStockAsync(newEntity.MedicineId, newEntity.Qty);
 
                                 await _prescriptionItemRepository.InsertAsync(newEntity);
                             }
@@ -355,6 +333,233 @@ namespace EMRSystem.Pharmacist
                 throw;
             }
         }
+        private async Task AdjustStockAsync(long medicineMasterId, int diff)
+        {
+            var stock = await _medicineStockRepository.GetAll()
+                .Where(s => s.MedicineMasterId == medicineMasterId
+                            && !s.IsExpire
+                            && (s.ExpiryDate == null || s.ExpiryDate >= DateTime.Today))
+                .OrderBy(s => s.ExpiryDate) // FIFO basis
+                .FirstOrDefaultAsync();
+
+            if (stock == null)
+                throw new UserFriendlyException($"No valid stock found for medicine {medicineMasterId}");
+
+            if (diff > 0) // qty बढ़ी → stock घटाना
+            {
+                if (stock.Quantity >= diff)
+                {
+                    stock.Quantity -= diff;
+                }
+                else
+                {
+                    throw new UserFriendlyException($"Not enough stock for medicine {medicineMasterId}");
+                }
+            }
+            else if (diff < 0) // qty कम हुई → stock वापस बढ़ाना
+            {
+                stock.Quantity += Math.Abs(diff);
+            }
+
+            await _medicineStockRepository.UpdateAsync(stock);
+        }
+
+        //[HttpPost]
+        //public async Task CreatePharmacistPrescriptionsWithItem(CreatePharmacistPrescriptionsWithItemDto withItemDto)
+        //{
+        //    try
+        //    {
+        //        var prescription = ObjectMapper.Map<PharmacistPrescriptions>(withItemDto.pharmacistPrescriptionsDto);
+        //        prescription.IsPaid = true;
+        //        long? pharmacistPrescriptionId = null;
+
+        //        if (withItemDto.pharmacistPrescriptionsDto.Id <= 0)
+        //        {
+        //            var isAlreadyExist = await Repository.GetAll()
+        //                .FirstOrDefaultAsync(x => x.PrescriptionId == prescription.PrescriptionId);
+
+        //            if (isAlreadyExist != null)
+        //            {
+        //                // ✅ Update existing pharmacistPrescription
+        //                isAlreadyExist.IsPaid = true;
+        //                isAlreadyExist.GrandTotal = prescription.GrandTotal;
+        //                isAlreadyExist.PickedUpByPatient = prescription.PickedUpByPatient;
+        //                isAlreadyExist.CollectionStatus = CollectionStatus.PickedUp;
+        //                isAlreadyExist.PharmacyNotes = prescription.PharmacyNotes;
+        //                isAlreadyExist.PaymentMethod = prescription.PaymentMethod;
+        //                isAlreadyExist.PaymentIntentId = prescription.PaymentIntentId;
+        //                isAlreadyExist.ReceiptNumber = await GenerateReceiptNoAsync(prescription.TenantId);
+
+        //                await Repository.UpdateAsync(isAlreadyExist);
+        //                pharmacistPrescriptionId = isAlreadyExist.Id;
+
+        //                var allItems = await _prescriptionItemRepository.GetAll()
+        //                    .Where(x => x.PrescriptionId == prescription.PrescriptionId || x.PharmacistPrescriptionId == pharmacistPrescriptionId)
+        //                    .ToListAsync();
+
+        //                foreach (var dto in withItemDto.pharmacistPrescriptionsListOfItem)
+        //                {
+        //                    var existing = allItems.FirstOrDefault(x =>
+        //                        x.MedicineId == dto.MedicineId && (
+        //                            (x.PrescriptionId != null && x.PrescriptionId == dto.PrescriptionId) ||
+        //                            (x.PrescriptionId == null && x.PharmacistPrescriptionId != null && x.PharmacistPrescriptionId == pharmacistPrescriptionId)
+        //                        ));
+
+        //                    if (existing != null)
+        //                    {
+        //                        // ✅ Stock adjustment on update
+        //                        int oldQty = existing.Qty;
+        //                        int newQty = dto.Qty;
+        //                        int diff = newQty - oldQty;
+
+        //                        if (diff != 0)
+        //                        {
+        //                            var inventoryItem = await _pharmacistInventoryRepository.FirstOrDefaultAsync(t => t.Id == existing.MedicineId);
+        //                            if (inventoryItem != null)
+        //                            {
+        //                                if (diff > 0 && inventoryItem.Stock >= diff) // qty increased → stock cut
+        //                                    inventoryItem.Stock -= diff;
+        //                                else if (diff < 0) // qty decreased → stock add back
+        //                                    inventoryItem.Stock += Math.Abs(diff);
+
+        //                                await _pharmacistInventoryRepository.UpdateAsync(inventoryItem);
+        //                            }
+        //                        }
+
+        //                        existing.Qty = newQty;
+        //                        existing.Dosage = dto.Dosage;
+        //                        existing.Frequency = dto.Frequency;
+        //                        existing.Duration = dto.Duration;
+        //                        existing.Instructions = dto.Instructions;
+        //                        existing.IsPrescribe = true;
+        //                        existing.PharmacistPrescriptionId = pharmacistPrescriptionId;
+
+        //                        await _prescriptionItemRepository.UpdateAsync(existing);
+        //                    }
+        //                    else
+        //                    {
+        //                        if (dto.PrescriptionId == null && dto.PharmacistPrescriptionId == null)
+        //                        {
+        //                            var newEntity = ObjectMapper.Map<PrescriptionItem>(dto);
+        //                            newEntity.PharmacistPrescriptionId = pharmacistPrescriptionId;
+        //                            newEntity.IsPrescribe = false;
+        //                            newEntity.PrescriptionId = null;
+
+        //                            var inventoryItem = await _pharmacistInventoryRepository.FirstOrDefaultAsync(t => t.Id == newEntity.MedicineId);
+        //                            if (inventoryItem != null && inventoryItem.Stock >= newEntity.Qty)
+        //                            {
+        //                                inventoryItem.Stock -= newEntity.Qty;
+        //                                await _pharmacistInventoryRepository.UpdateAsync(inventoryItem);
+        //                            }
+
+        //                            await _prescriptionItemRepository.InsertAsync(newEntity);
+        //                        }
+        //                    }
+        //                }
+        //            }
+        //            else
+        //            {
+        //                // ✅ नया create
+        //                pharmacistPrescriptionId = await Repository.InsertAndGetIdAsync(prescription);
+
+        //                foreach (var dto in withItemDto.pharmacistPrescriptionsListOfItem)
+        //                {
+        //                    if (dto.PrescriptionId == null && dto.PharmacistPrescriptionId == null)
+        //                    {
+        //                        var newEntity = ObjectMapper.Map<PrescriptionItem>(dto);
+        //                        newEntity.PharmacistPrescriptionId = pharmacistPrescriptionId;
+        //                        newEntity.IsPrescribe = false;
+        //                        newEntity.PrescriptionId = null;
+
+        //                        var inventoryItem = await _pharmacistInventoryRepository.FirstOrDefaultAsync(t => t.Id == newEntity.MedicineId);
+        //                        if (inventoryItem != null && inventoryItem.Stock >= newEntity.Qty)
+        //                        {
+        //                            inventoryItem.Stock -= newEntity.Qty;
+        //                            await _pharmacistInventoryRepository.UpdateAsync(inventoryItem);
+        //                        }
+
+        //                        await _prescriptionItemRepository.InsertAsync(newEntity);
+        //                    }
+        //                }
+        //            }
+        //        }
+        //        else
+        //        {
+        //            // ✅ Update flow
+        //            await Repository.UpdateAsync(prescription);
+        //            pharmacistPrescriptionId = withItemDto.pharmacistPrescriptionsDto.Id;
+
+        //            var allItems = await _prescriptionItemRepository.GetAll()
+        //                .Where(x => x.PrescriptionId == prescription.PrescriptionId || x.PharmacistPrescriptionId == pharmacistPrescriptionId)
+        //                .ToListAsync();
+
+        //            foreach (var dto in withItemDto.pharmacistPrescriptionsListOfItem)
+        //            {
+        //                var existing = allItems.FirstOrDefault(x =>
+        //                    x.MedicineId == dto.MedicineId && (
+        //                        (x.PrescriptionId != null && x.PrescriptionId == dto.PrescriptionId) ||
+        //                        (x.PrescriptionId == null && x.PharmacistPrescriptionId != null && x.PharmacistPrescriptionId == pharmacistPrescriptionId)
+        //                    ));
+
+        //                if (existing != null)
+        //                {
+        //                    // ✅ Stock adjustment on update
+        //                    int oldQty = existing.Qty;
+        //                    int newQty = dto.Qty;
+        //                    int diff = newQty - oldQty;
+
+        //                    if (diff != 0)
+        //                    {
+        //                        var inventoryItem = await _pharmacistInventoryRepository.FirstOrDefaultAsync(t => t.Id == existing.MedicineId);
+        //                        if (inventoryItem != null)
+        //                        {
+        //                            if (diff > 0 && inventoryItem.Stock >= diff) // qty increased → stock cut
+        //                                inventoryItem.Stock -= diff;
+        //                            else if (diff < 0) // qty decreased → stock add back
+        //                                inventoryItem.Stock += Math.Abs(diff);
+
+        //                            await _pharmacistInventoryRepository.UpdateAsync(inventoryItem);
+        //                        }
+        //                    }
+
+        //                    existing.Qty = newQty;
+        //                    existing.Dosage = dto.Dosage;
+        //                    existing.Frequency = dto.Frequency;
+        //                    existing.Duration = dto.Duration;
+        //                    existing.Instructions = dto.Instructions;
+        //                    existing.PharmacistPrescriptionId = pharmacistPrescriptionId;
+
+        //                    await _prescriptionItemRepository.UpdateAsync(existing);
+        //                }
+        //                else
+        //                {
+        //                    if (dto.PrescriptionId == null && dto.PharmacistPrescriptionId == null)
+        //                    {
+        //                        var newEntity = ObjectMapper.Map<PrescriptionItem>(dto);
+        //                        newEntity.PharmacistPrescriptionId = pharmacistPrescriptionId;
+        //                        newEntity.IsPrescribe = false;
+        //                        newEntity.PrescriptionId = null;
+
+        //                        var inventoryItem = await _pharmacistInventoryRepository.FirstOrDefaultAsync(t => t.Id == newEntity.MedicineId);
+        //                        if (inventoryItem != null && inventoryItem.Stock >= newEntity.Qty)
+        //                        {
+        //                            inventoryItem.Stock -= newEntity.Qty;
+        //                            await _pharmacistInventoryRepository.UpdateAsync(inventoryItem);
+        //                        }
+
+        //                        await _prescriptionItemRepository.InsertAsync(newEntity);
+        //                    }
+        //                }
+        //            }
+        //        }
+
+        //        await CurrentUnitOfWork.SaveChangesAsync();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw;
+        //    }
+        //}
 
         //public async Task CreatePharmacistPrescriptionsWithItem(CreatePharmacistPrescriptionsWithItemDto withItemDto)
         //{
