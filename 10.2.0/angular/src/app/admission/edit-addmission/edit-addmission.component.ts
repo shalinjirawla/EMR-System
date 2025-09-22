@@ -93,8 +93,8 @@ export class EditAddmissionComponent extends AppComponentBase implements OnInit 
         doctorId: res.doctorId,
         nurseId: res.nurseId,
         roomId: res.roomId,
-        admissionType: res.admissionType
-        
+        admissionType: res.admissionType,
+        bedId:res.bedId
       };
       if (res.roomId) {
         this.loadBeds(res.roomId); // ✅ Load beds when admission data loaded
@@ -110,7 +110,7 @@ export class EditAddmissionComponent extends AppComponentBase implements OnInit 
   }
 
   loadBeds(roomId: number) {
-    this._bedService.getAvailableBedsByRoom(abp.session.tenantId,roomId).subscribe(res => {
+    this._bedService.getAvailableBedsByRoom(abp.session.tenantId,roomId,this.id).subscribe(res => {
       this.beds = res;
       this.cd.detectChanges();
     });
@@ -122,7 +122,7 @@ export class EditAddmissionComponent extends AppComponentBase implements OnInit 
     });
   }
   loadDoctors() {
-    this._doctorService.getAllDoctorsByTenantID(abp.session.tenantId).subscribe(res => {
+    this._doctorService.getAllDoctors().subscribe(res => {
       this.doctors = res.items;
       this.cd.detectChanges();
     });

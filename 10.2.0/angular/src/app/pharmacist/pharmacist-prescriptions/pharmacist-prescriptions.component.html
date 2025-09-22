@@ -182,13 +182,13 @@
         </div>
     </section>
 </div>
-<p-dialog header="Mark Prescription as Picked Up" [modal]="true" [(visible)]="pickupDialog"
+<p-dialog header="Mark Prescription as Picked Up" [modal]="true" [(visible)]="pickupDialog" [draggable]="false"
     [style]="{ width: '30rem',height:'20rem' }" (onHide)="closePickupDialog()">
     <div class="row">
         <div class="col-md-12" *ngIf="!isPickedpByPatient">
             <label><b>Select Nurse</b></label>
             <p-select [(ngModel)]="selectedNurseId" name="nurseId" [options]="nurseOptions" optionLabel="fullName"
-                optionValue="id" placeholder="Select nurse" class="w-100" />
+                optionValue="id" placeholder="Select nurse" class="w-100" appendTo="body"/>
         </div>
         <div class="col-md-12 mt-3">
             <b>PickedUp By Patient :</b> &nbsp;
@@ -197,6 +197,6 @@
     </div>
     <ng-template #footer>
         <p-button label="Confirm PickUp" variant="outlined" severity="success" icon="pi pi-check"
-            (click)="markPickedUp()"></p-button>
+            (click)="markPickedUp()"  [disabled]="!isPickedpByPatient && !selectedNurseId"></p-button>
     </ng-template>
 </p-dialog>

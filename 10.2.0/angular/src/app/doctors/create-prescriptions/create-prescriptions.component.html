@@ -89,62 +89,65 @@
     <div class="row mt-4">
       <div class="col-12">
         <!-- Header -->
-        <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex justify-content-between align-items-center">
           <h5 class="mb-0"><b>Prescription Items</b></h5>
-          <p-button label="Add Item" icon="fa-solid fa-plus" severity="info" (click)="addItem()"></p-button>
+          <p-button label="Add Item" variant="text" severity="info" (click)="addItem()" icon="fa-solid fa-plus" />
         </div>
 
         <!-- Prescription Items -->
-        <div *ngFor="let item of prescription.items; let i = index" class="border rounded p-3 mb-3">
-          <div class="row">
-            <div class="col-12 d-flex justify-content-end mb-2">
-              <button type="button" class="btn btn-danger" (click)="removeItem(i)">
-                <i class="fa-solid fa-xmark"></i>
-              </button>
-            </div>
-          </div>
-          <!-- Row 1 -->
-          <div class="row mb-2">
-            <div class="col-md-4">
-              <p-dropdown appendTo="self" [(ngModel)]="item.medicineFormId" name="medicineForm{{i}}"
-                [options]="medicineForms" optionLabel="label" optionValue="value" class="w-100"
-                placeholder="Medicine Type" (onChange)="onMedicineFormChange(item, i)">
-              </p-dropdown>
+        <div *ngFor="let item of prescription.items; let i = index"
+          class="d-flex align-items-center justify-content-between mt-2">
+          <p-fieldset>
+            <ng-template #header>
+              {{i + 1}}
+            </ng-template>
+            <!-- Row 1 -->
+            <div class="row mb-2">
+              <div class="col-md-4">
+                <p-dropdown appendTo="self" [(ngModel)]="item.medicineFormId" name="medicineForm{{i}}"
+                  [options]="medicineForms" optionLabel="label" optionValue="value" class="w-100"
+                  placeholder="Medicine Type" (onChange)="onMedicineFormChange(item, i)">
+                </p-dropdown>
+              </div>
+
+              <div class="col-md-4">
+                <p-dropdown appendTo="self" class="w-100" [(ngModel)]="item.medicineId" name="medicine{{i}}"
+                  [options]="item.filteredMedicines || []" optionLabel="label" optionValue="value"
+                  placeholder="Select Medicine" (onChange)="onMedicineChange(item, i)">
+                </p-dropdown>
+              </div>
+
+              <div class="col-md-4">
+                <input type="text" [(ngModel)]="item.dosage" pInputText name="dosage{{i}}" placeholder="Dosage"
+                  readonly>
+              </div>
             </div>
 
-            <div class="col-md-4">
-              <p-dropdown appendTo="self" class="w-100" [(ngModel)]="item.medicineId" name="medicine{{i}}"
-                [options]="item.filteredMedicines || []" optionLabel="label" optionValue="value"
-                placeholder="Select Medicine" (onChange)="onMedicineChange(item, i)">
-              </p-dropdown>
-            </div>
+            <!-- Row 2 -->
+            <div class="row mb-2">
+              <div class="col-md-4">
+                <p-dropdown appendTo="self" class="w-100" [(ngModel)]="item.frequency" name="frequency{{i}}"
+                  [options]="frequencyOptions" optionLabel="label" optionValue="value" placeholder="Frequency">
+                </p-dropdown>
+              </div>
 
-            <div class="col-md-4">
-              <input type="text" [(ngModel)]="item.dosage" name="dosage{{i}}" class="form-control" placeholder="Dosage"
-                readonly>
-            </div>
-          </div>
+              <div class="col-md-4 d-flex">
+                <input type="number" pInputText [(ngModel)]="item.durationValue" name="durationValue{{i}}"
+                  placeholder="Duration" min="1" class="form-control mr-1"
+                  style="padding-top: 22px; padding-bottom: 22px;">
+                <p-dropdown appendTo="self" [(ngModel)]="item.durationUnit" name="durationUnit{{i}}"
+                  [options]="durationUnits" optionLabel="label" optionValue="value">
+                </p-dropdown>
+              </div>
 
-          <!-- Row 2 -->
-          <div class="row mb-2">
-            <div class="col-md-4">
-              <p-dropdown appendTo="self" class="w-100" [(ngModel)]="item.frequency" name="frequency{{i}}"
-                [options]="frequencyOptions" optionLabel="label" optionValue="value" placeholder="Frequency">
-              </p-dropdown>
+              <div class="col-md-4">
+                <textarea pInputText [(ngModel)]="item.instructions" class="form-control" name="instructions{{i}}"
+                  placeholder="Instructions" rows="1"></textarea>
+              </div>
             </div>
-
-            <div class="col-md-4 d-flex">
-              <input type="number" pInputText [(ngModel)]="item.durationValue" name="durationValue{{i}}"
-                placeholder="Duration" min="1" class="form-control me-1">
-              <p-dropdown appendTo="self" [(ngModel)]="item.durationUnit" name="durationUnit{{i}}"
-                [options]="durationUnits" optionLabel="label" optionValue="value">
-              </p-dropdown>
-            </div>
-
-            <div class="col-md-4">
-              <textarea pInputText [(ngModel)]="item.instructions" class="form-control" name="instructions{{i}}"
-                placeholder="Instructions" rows="1"></textarea>
-            </div>
+          </p-fieldset>
+          <div>
+            <p-button (click)="removeItem(i)" icon="pi pi-times" [rounded]="true" [text]="true" severity="danger" />
           </div>
         </div>
       </div>

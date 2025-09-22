@@ -129,7 +129,7 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
                .HasOne(d => d.Consultation_Requests)
                .WithOne(dep => dep.Prescriptions)
                .HasForeignKey<ConsultationRequests>(c => c.PrescriptionId)
-               .OnDelete(DeleteBehavior.Restrict);
+               .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<ConsultationRequests>()
                .HasOne(d => d.RequestingDoctor)
@@ -352,7 +352,7 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
            .HasOne(plt => plt.PrescriptionLabTest)
            .WithMany(lrt => lrt.LabReportResultItems) // Optional: Add if you want reverse navigation
            .HasForeignKey(plt => plt.PrescriptionLabTestId)
-           .OnDelete(DeleteBehavior.NoAction);
+           .OnDelete(DeleteBehavior.Cascade);
         // MedicineOrder - Nurse relationship
         modelBuilder.Entity<EMRSystem.MedicineOrder.MedicineOrder>()
             .HasOne(m => m.Nurse)
@@ -456,7 +456,7 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
             b.HasOne(ice => ice.Prescriptions)
                 .WithMany(a => a.IpdChargeEntries)
                 .HasForeignKey(ice => ice.PrescriptionId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             b.HasOne(ice => ice.Patient)
                 .WithMany(p => p.IpdChargeEntries)
@@ -832,7 +832,7 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
             b.HasOne(e => e.Prescriptions)
             .WithMany(d => d.EmergencyChargeEntries)
             .HasForeignKey(e => e.PrescriptionId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<PharmacistPrescriptions>()
@@ -846,7 +846,7 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
             b.HasOne(e => e.Prescriptions)
              .WithMany(d => d.PharmacistPrescriptions)
               .HasForeignKey(c => c.PrescriptionId)
-             .OnDelete(DeleteBehavior.Restrict);
+             .OnDelete(DeleteBehavior.Cascade);
 
             b.HasOne(e => e.Nurse)
             .WithMany(d => d.PharmacistPrescriptions)
@@ -871,7 +871,7 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
             b.HasOne(e => e.Prescription)
             .WithMany(d => d.Items)
             .HasForeignKey(e => e.PrescriptionId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
             
         });
 

@@ -6,6 +6,8 @@ using Abp.Extensions;
 using Abp.Linq.Extensions;
 using Abp.UI;
 using AutoMapper.Internal.Mappers;
+using EMRSystem.Admissions;
+using EMRSystem.Appointments;
 using EMRSystem.EntityFrameworkCore;
 using EMRSystem.RoomMaster.Dto;
 using Microsoft.EntityFrameworkCore;
@@ -26,12 +28,14 @@ namespace EMRSystem.RoomMaster
          IBedAppService
     {
         private readonly IDbContextProvider<EMRSystemDbContext> _dbContextProvider;
+        private readonly IRepository<EMRSystem.Admission.Admission, long> _admissionAppService;
 
-        public BedAppService(IDbContextProvider<EMRSystemDbContext> dbContextProvider,
+        public BedAppService(IDbContextProvider<EMRSystemDbContext> dbContextProvider, IRepository<EMRSystem.Admission.Admission, long> admissionAppService,
                              IRepository<Bed, long> repository)
             : base(repository)
         {
             _dbContextProvider = dbContextProvider;
+            _admissionAppService = admissionAppService;
         }
 
         protected override IQueryable<Bed> CreateFilteredQuery(PagedBedResultRequestDto input)
@@ -127,17 +131,31 @@ namespace EMRSystem.RoomMaster
             return ObjectMapper.Map<List<BedDto>>(entities);
         }
 
-        public async Task<List<BedDto>> GetAvailableBedsByRoomAsync(int tenantId, long roomId)
+        public async Task<List<BedDto>> GetAvailableBedsByRoomAsync(int tenantId, long roomId, long? admissionId=null)
         {
             var beds = await Repository
                 .GetAllIncluding(b => b.Room)
                 .Where(b => b.TenantId == tenantId
                             && b.RoomId == roomId
                             && b.Status == BedStatus.Available)
-                .OrderBy(b => b.BedNumber)
+                //.OrderBy(b => b.BedNumber)
                 .ToListAsync();
 
-            return ObjectMapper.Map<List<BedDto>>(beds);
+            // Step 2: If edit mode, include the bed assigned to the current admission
+            if (admissionId.HasValue)
+            {
+                // Get the admission to find the currently selected bed
+                var admission = await _admissionAppService
+                    .GetAllIncluding(a => a.Bed)
+                    .FirstOrDefaultAsync(a => a.Id == admissionId.Value);
+
+                if (admission?.Bed != null && !beds.Any(b => b.Id == admission.BedId))
+                {
+                    beds.Add(admission.Bed); // add selected bed even if unavailable
+                }
+            }
+
+            return ObjectMapper.Map<List<BedDto>>(beds.OrderBy(b => b.BedNumber));
         }
 
 

@@ -108,7 +108,7 @@ export class EditAppoinmentComponent extends AppComponentBase implements OnInit 
 
     if (this.appointment.departmentId) {
       // jab doctor list load ho jaye tab assign karenge
-      this._doctorService.getAllDoctorsByTenantID(abp.session.tenantId).subscribe({
+      this._doctorService.getAllDoctors().subscribe({
         next: (res) => {
           this.doctors = res.items;
           this.onSelectDepartment(this.appointment.departmentId);
@@ -135,7 +135,7 @@ export class EditAppoinmentComponent extends AppComponentBase implements OnInit 
     })
   }
   LoadDoctors() {
-    this._doctorService.getAllDoctorsByTenantID(abp.session.tenantId).subscribe({
+    this._doctorService.getAllDoctors().subscribe({
       next: (res) => {
         this.doctors = res.items;
         if (this.appointment.departmentId) {

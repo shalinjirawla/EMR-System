@@ -101,7 +101,7 @@ export class CreateAddmissionComponent extends AppComponentBase implements OnIni
     });
   }
   loadDoctors() {
-    this._doctorService.getAllDoctorsByTenantID(abp.session.tenantId).subscribe(res => {
+    this._doctorService.getAllDoctors().subscribe(res => {
       this.doctors = res.items;
       this.cd.detectChanges();
     });
@@ -126,7 +126,7 @@ export class CreateAddmissionComponent extends AppComponentBase implements OnIni
       return;
     }
 
-    this._bedService.getAvailableBedsByRoom(this.admission.tenantId, roomId).subscribe(res => {
+    this._bedService.getAvailableBedsByRoom(this.admission.tenantId, roomId,this.admission.id).subscribe(res => {
       this.beds = res;
       this.cd.detectChanges();
     });

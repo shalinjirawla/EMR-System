@@ -15,16 +15,18 @@ import { DropdownModule } from 'primeng/dropdown';
 import { AppointmentDto, CreateUpdatePrescriptionDto, DoctorDto, DoctorServiceProxy, PatientDto, PatientServiceProxy } from '@shared/service-proxies/service-proxies';
 import moment from 'moment';
 import { TextareaModule } from 'primeng/textarea';
+import { InputText } from 'primeng/inputtext';
 import { AppSessionService } from '@shared/session/app-session.service';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { PermissionCheckerService } from '@node_modules/abp-ng2-module';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { CreateUserDialogComponent } from '@app/users/create-user/create-user-dialog.component';
+import { FieldsetModule } from 'primeng/fieldset';
 @Component({
   selector: 'app-create-prescriptions',
   standalone: true,
   imports: [
-    FormsModule, CalendarModule, DropdownModule, CheckboxModule, InputTextModule, TextareaModule,
+    FormsModule, CalendarModule, DropdownModule, InputText, FieldsetModule, CheckboxModule, InputTextModule, TextareaModule,
     ButtonModule, CommonModule, SelectModule, AbpModalHeaderComponent, AbpModalFooterComponent, MultiSelectModule
   ],
   templateUrl: './create-prescriptions.component.html',
@@ -133,23 +135,23 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
       this.showAddPatientButton = false;
     }
   }
- loadMedicineForms() {
-  this._medicineFormService.getAlldicineFormByTenantId(abp.session.tenantId).subscribe({
-    next: (res: any) => {
-      // res.items will always exist in ListResultDto
-      const items: any[] = res.items || [];
-      this.medicineForms = items.map((m: any) => ({
-        label: m.name,
-        value: m.id
-      }));
-      this.cd.detectChanges();
-    },
-    error: (err) => {
-      this.notify.error('Could not load medicine forms');
-      console.error('Error loading medicine forms:', err);
-    }
-  });
-}
+  loadMedicineForms() {
+    this._medicineFormService.getAlldicineFormByTenantId(abp.session.tenantId).subscribe({
+      next: (res: any) => {
+        // res.items will always exist in ListResultDto
+        const items: any[] = res.items || [];
+        this.medicineForms = items.map((m: any) => ({
+          label: m.name,
+          value: m.id
+        }));
+        this.cd.detectChanges();
+      },
+      error: (err) => {
+        this.notify.error('Could not load medicine forms');
+        console.error('Error loading medicine forms:', err);
+      }
+    });
+  }
 
   onMedicineFormChange(item: any, index: number) {
     const formId = item.medicineFormId;
@@ -207,7 +209,7 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
     });
   }
   loadDoctors() {
-    this._doctorService.getAllDoctorsByTenantID(abp.session.tenantId).subscribe(res => {
+    this._doctorService.getAllDoctors().subscribe(res => {
       this.doctors = res.items;
       this.cd.detectChanges();
     });
@@ -365,6 +367,10 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
       return true;
     }
 
+    if (!this.prescription.items || this.prescription.items.length === 0) {
+      return true;
+    }
+
     return this.prescription.items.some(item =>
       !item.medicineName?.trim() ||
       !item.dosage?.trim() ||
@@ -423,7 +429,7 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
         });
         return dto;
       });
-      debugger
+    debugger
     this._prescriptionService.createPrescriptionWithItem(input).subscribe({
       next: (res) => {
         this.notify.info(this.l('SavedSuccessfully'));

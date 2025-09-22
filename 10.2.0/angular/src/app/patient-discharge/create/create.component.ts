@@ -20,7 +20,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { CheckboxModule } from 'primeng/checkbox';
 import { StepperModule } from 'primeng/stepper';
 import { StepsModule } from 'primeng/steps';
-import { CollectionStatus, CreatePrescriptionLabTestsServiceProxy, DischargeStatus, DischargeSummaryDto, EmergencyProcedureStatus, InvoiceDto, LabTestStatus, PatientDischargeServiceProxy, PrescriptionDto, PrescriptionLabTestDto, PrescriptionLabTestServiceProxy, PrescriptionServiceProxy, SelectedEmergencyProcedures, SelectedEmergencyProceduresDto, SelectedEmergencyProceduresServiceProxy, VitalDto } from '@shared/service-proxies/service-proxies';
+import { CollectionStatus, CreatePrescriptionLabTestsServiceProxy, DischargeStatus, DischargeSummaryDto, DoctorDto, DoctorServiceProxy, EmergencyProcedureStatus, InvoiceDto, LabTestStatus, PatientDischargeServiceProxy, PrescriptionServiceProxy, VitalDto } from '@shared/service-proxies/service-proxies';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { TextareaModule } from 'primeng/textarea';
@@ -39,7 +39,7 @@ import { ToastModule } from 'primeng/toast';
   animations: [appModuleAnimation()],
   templateUrl: './create.component.html',
   styleUrl: './create.component.css',
-  providers: [PatientDischargeServiceProxy, PrescriptionServiceProxy, CreatePrescriptionLabTestsServiceProxy, MessageService],
+  providers: [PatientDischargeServiceProxy, DoctorServiceProxy, PrescriptionServiceProxy, CreatePrescriptionLabTestsServiceProxy, MessageService],
   imports: [StepperModule, FormsModule, EditorModule, RouterLink, AccordionModule, DialogModule, StepsModule, TextareaModule, InputGroupModule, InputGroupAddonModule, CommonModule, TableModule, AvatarModule, BadgeModule, TabsModule, PaginatorModule, CheckboxModule,
     BreadcrumbModule, TooltipModule, ToastModule, CardModule, TagModule, SelectModule, InputTextModule, MenuModule, ButtonModule],
 })
@@ -65,6 +65,7 @@ export class CreateComponent implements OnInit {
     { label: 'Not PickedUp', value: CollectionStatus._0 },
     { label: 'Picked Up', value: CollectionStatus._1 },
   ];
+  doctors: DoctorDto[];
   constructor(
     private _activatedRoute: ActivatedRoute,
     private cd: ChangeDetectorRef, private router: Router,
@@ -72,7 +73,7 @@ export class CreateComponent implements OnInit {
     private _prescriptionService: PrescriptionServiceProxy,
     private _modalService: BsModalService,
     private messageService: MessageService,
-    private _prescriptionLabTestService: CreatePrescriptionLabTestsServiceProxy,
+    private _doctorService: DoctorServiceProxy,
   ) {
     this.patientId = Number(this._activatedRoute.snapshot.paramMap.get('id'));
   }
@@ -82,6 +83,7 @@ export class CreateComponent implements OnInit {
       { label: 'Create Discharge summary' },
     ];
     this.GetSummaryDetails();
+    this.loadDoctors();
   }
 
   // ----listing----
@@ -96,6 +98,12 @@ export class CreateComponent implements OnInit {
 
       }
     })
+  }
+  loadDoctors() {
+    this._doctorService.getAllDoctors().subscribe(res => {
+      this.doctors = res.items;
+      this.cd.detectChanges();
+    });
   }
 
   // ---- post -----
@@ -115,7 +123,7 @@ export class CreateComponent implements OnInit {
       return;
     }
 
-    this._summaryService.finalApproval(rawSummary, this.patientId, 1).subscribe({
+    this._summaryService.finalApproval(rawSummary, this.patientId, this.data.patientDischarge.doctorId).subscribe({
       next: (res) => {
         this.messageService.add({
           severity: 'success',

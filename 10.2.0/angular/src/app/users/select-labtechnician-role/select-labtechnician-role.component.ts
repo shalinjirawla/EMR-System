@@ -3,18 +3,25 @@ import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output, ViewChild }
 import { ControlValueAccessor, FormsModule, NgForm } from '@angular/forms';
 import { AbpValidationSummaryComponent } from '../../../shared/components/validation/abp-validation.summary.component';
 import { DepartmentServiceProxy } from '@shared/service-proxies/service-proxies';
+import { DatePickerModule } from 'primeng/datepicker';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { CheckboxModule } from 'primeng/checkbox';
+import { RadioButtonModule } from 'primeng/radiobutton';
+import { SelectModule } from 'primeng/select';
 
 @Component({
   selector: 'app-select-labtechnician-role',
-  imports: [CommonModule, FormsModule, AbpValidationSummaryComponent],
-  providers:[DepartmentServiceProxy],
+  imports: [CommonModule, FormsModule, DatePickerModule, InputTextModule, InputNumberModule,
+    AbpValidationSummaryComponent, CheckboxModule, RadioButtonModule, SelectModule],
+  providers: [DepartmentServiceProxy],
   templateUrl: './select-labtechnician-role.component.html',
   styleUrl: './select-labtechnician-role.component.css'
 })
-export class SelectLabtechnicianRoleComponent implements OnInit{
+export class SelectLabtechnicianRoleComponent implements OnInit {
   @Output() technicianDataChange = new EventEmitter<any>();
   @ViewChild('labTechnicianForm', { static: true }) labTechnicianForm: NgForm;
-
+  today: Date = new Date();
   technicianData = {
     gender: 'Male',
     qualification: '',
@@ -26,7 +33,7 @@ export class SelectLabtechnicianRoleComponent implements OnInit{
   constructor(
     private _departmentService: DepartmentServiceProxy,
     private cd: ChangeDetectorRef
-  ) {}
+  ) { }
 
   genders = ['Male', 'Female', 'Other'];
   departments: { id: number; name: string }[] = [];
@@ -35,7 +42,7 @@ export class SelectLabtechnicianRoleComponent implements OnInit{
   onInputChange() {
     this.updateData();
   }
-ngOnInit(): void {
+  ngOnInit(): void {
     this.loadDepartments();
     const today = new Date();
     this.maxDate = today.toISOString().split('T')[0];
@@ -43,7 +50,7 @@ ngOnInit(): void {
   updateData() {
     this.technicianDataChange.emit(this.technicianData);
   }
- loadDepartments(): void {
+  loadDepartments(): void {
     this._departmentService.getAllDepartmentForLabTechnician().subscribe({
       next: (res: any) => {
         const items = (res && res.items) ? res.items : res;
