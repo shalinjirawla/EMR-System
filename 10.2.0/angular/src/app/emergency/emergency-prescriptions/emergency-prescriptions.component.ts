@@ -157,12 +157,12 @@ export class EmergencyPrescriptionsComponent extends PagedListingComponentBase<P
     let createOrEditUserDialog: BsModalRef;
     if (!id) {
       createOrEditUserDialog = this._modalService.show(CreateUpdateEmergencyPrescriptionsComponent, {
-        class: 'modal-xl',
+        class: 'modal-lg',
       });
     }
     else {
       createOrEditUserDialog = this._modalService.show(CreateUpdateEmergencyPrescriptionsComponent, {
-        class: 'modal-xl',
+        class: 'modal-lg',
         initialState: {
           id: id,
         },

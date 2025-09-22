@@ -20,5 +20,9 @@ namespace EMRSystem.Admissions.Dto
         public long? BedId { get; set; }
 
         public AdmissionType AdmissionType { get; set; }
+
+        //Signatures
+
+
     }
 }

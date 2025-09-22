@@ -1,22 +1,36 @@
 .scrollable-body {
-    max-height: 70vh;
-    overflow-y: auto;
-    padding-bottom: 150px; /* Ensure space */
-    position: relative;    /* Required for appendTo="self" */
-  }
-  
-  
-  
-  /* Optional: improve scrollbar aesthetics */
-  .scrollable-body::-webkit-scrollbar {
-    width: 6px;
-  }
-  .scrollable-body::-webkit-scrollbar-thumb {
-    background-color: #ccc;
-    border-radius: 4px;
-  }
-  .p-dropdown-panel {
-    z-index: 1051 !important; 
-  }
-    
-    
+  max-height: 70vh;
+  overflow-y: auto;
+  /* padding-bottom: 150px; */
+  /* Ensure space */
+  position: relative;
+  /* Required for appendTo="self" */
+}
+
+
+
+/* Optional: improve scrollbar aesthetics */
+.scrollable-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollable-body::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 4px;
+}
+
+.p-dropdown-panel {
+  z-index: 1051 !important;
+}
+
+
+::ng-deep .p-fieldset-legend {
+  background: none !important;
+  width: auto !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  padding-left: 5px !important;
+  padding-right: 5px !important;
+  border: none !important;
+  font-size: 15px !important;
+}

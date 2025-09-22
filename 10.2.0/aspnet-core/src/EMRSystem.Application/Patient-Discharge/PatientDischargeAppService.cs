@@ -35,6 +35,7 @@ using EMRSystem.Doctors;
 using Abp.Linq.Extensions;
 using Abp.Extensions;
 using EMRSystem.Pharmacist;
+using EMRSystem.RoomMaster;
 
 namespace EMRSystem.Patient_Discharge
 {
@@ -47,13 +48,17 @@ namespace EMRSystem.Patient_Discharge
         private readonly IVitalAppService _vitalAppService;
         private readonly IInvoiceAppService _invoiceAppService;
         private readonly IRepository<EMRSystem.Admission.Admission, long> _admissionAppService;
+        private readonly IRepository<EMRSystem.RoomMaster.Bed, long> _bedAppService;
+        private readonly IRepository<EMRSystem.Patients.Patient, long> _patientService;
         private readonly IRepository<EMRSystem.Emergency.EmergencyCase.EmergencyCase, long> _emergencyCaseAppService;
         public PatientDischargeAppService(IRepository<EMRSystem.PatientDischarge.PatientDischarge, long> repository,
             IPharmacistPrescriptionsAppService prescriptionAppService, ICreatePrescriptionLabTestsAppService createPrescriptionLabTestAppService,
             ISelectedEmergencyProceduresAppService selectedEmergencyProceduresAppService,
             IVitalAppService vitalAppService, IInvoiceAppService invoiceAppService,
             IRepository<EMRSystem.Admission.Admission, long> admissionAppService,
-            IRepository<EMRSystem.Emergency.EmergencyCase.EmergencyCase, long> emergencyCaseAppService
+            IRepository<EMRSystem.RoomMaster.Bed, long> bedAppService,
+            IRepository<EMRSystem.Patients.Patient, long> patientService,
+        IRepository<EMRSystem.Emergency.EmergencyCase.EmergencyCase, long> emergencyCaseAppService
             ) : base(repository)
         {
             _prescriptionAppService = prescriptionAppService;
@@ -63,6 +68,8 @@ namespace EMRSystem.Patient_Discharge
             _invoiceAppService = invoiceAppService;
             _admissionAppService = admissionAppService;
             _emergencyCaseAppService = emergencyCaseAppService;
+            _bedAppService = bedAppService;
+            _patientService = patientService;
         }
 
         protected override IQueryable<EMRSystem.PatientDischarge.PatientDischarge> CreateFilteredQuery(PagedPatientDischargeResultRequestDto input)
@@ -141,7 +148,7 @@ namespace EMRSystem.Patient_Discharge
             if (discharge != null)
             {
                 discharge.DischargeStatus = DischargeStatus.FinalApproval;
-                discharge.DoctorId = 1;//doctorID;     change when assign role and permission.
+                discharge.DoctorId = doctorID;
                 discharge.DischargeSummary = summary?.Trim();
                 await Repository.UpdateAsync(discharge);
             }
@@ -156,8 +163,7 @@ namespace EMRSystem.Patient_Discharge
                 discharge.DischargeStatus = DischargeStatus.Discharged;
                 discharge.DischargeDate = DateTime.Now;
                 await Repository.UpdateAsync(discharge);
-
-                var getAdmission = await _admissionAppService.GetAll().Where(x => x.PatientId == patientID).ToListAsync();
+                var getAdmission = await _admissionAppService.GetAllIncluding(x => x.Bed).Where(x => x.PatientId == patientID).ToListAsync();
                 if (getAdmission.Count > 0)
                 {
                     getAdmission.ForEach(async x =>
@@ -165,6 +171,12 @@ namespace EMRSystem.Patient_Discharge
                         x.IsDischarged = true;
                         x.DischargeDateTime = discharge.DischargeDate;
                         await _admissionAppService.UpdateAsync(x);
+                        var getBedDetails = await _bedAppService.GetAsync(x.BedId.Value);
+                        if (getBedDetails != null)
+                        {
+                            getBedDetails.Status = BedStatus.Available;
+                            await _bedAppService.UpdateAsync(getBedDetails);
+                        }
                     });
                 }
                 var emergencyCase = await _emergencyCaseAppService.GetAll().Where(x => x.PatientId == patientID).ToListAsync();
@@ -177,7 +189,18 @@ namespace EMRSystem.Patient_Discharge
                         await _emergencyCaseAppService.UpdateAsync(x);
                     });
                 }
+                var patient = await _patientService.GetAsync(patientID);
+                if (patient != null)
+                {
+                    patient.IsAdmitted = false;
+                    await _patientService.UpdateAsync(patient);
+                }
             }
+        }
+
+        public async Task DownloadPDF()
+        {
+
         }
     }
 }

@@ -12,7 +12,7 @@ namespace EMRSystem.Patient_Discharge.Dto
 {
     public class DischargeSummaryDto
     {
-        public PatientDischargeDto PatientDischarge { get; set; }
+        public CreateUpdatePatientDischargeDto PatientDischarge { get; set; }
         public PatientDetailsFordischargeSummaryDto PatientDetails { get; set; } = new();
         public List<VitalDto> Vitals { get; set; } = null;
         public List<PharmacistPrescriptionsDto> Prescriptions { get; set; }

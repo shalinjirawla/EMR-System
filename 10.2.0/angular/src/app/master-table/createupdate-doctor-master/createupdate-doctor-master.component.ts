@@ -62,7 +62,7 @@ export class CreateupdateDoctorMasterComponent extends AppComponentBase implemen
   }
 
   ngOnInit(): void {
-    this._doctorService.getAllDoctorsByTenantID(this.appSession.tenantId).subscribe(res => {
+    this._doctorService.getAllDoctors().subscribe(res => {
       this.doctors = res.items;
       this.cd.detectChanges();
     });

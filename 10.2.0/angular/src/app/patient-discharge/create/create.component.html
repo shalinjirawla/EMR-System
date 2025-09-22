@@ -238,7 +238,9 @@
                                                         </ng-template>
                                                         <ng-template #body let-product1>
                                                             <tr>
-                                                                <td>#{{ product1.prescriptionId}}</td>
+                                                                <td><a
+                                                                        [routerLink]="['/app/pharmacist/pharmacist-prescriptions']">#{{
+                                                                        product1.prescriptionId}}</a></td>
                                                                 <td>Dr.{{ product1.doctorName}}</td>
                                                                 <td>
                                                                     <p-tag
@@ -285,7 +287,9 @@
                                                         </ng-template>
                                                         <ng-template #body let-product2>
                                                             <tr>
-                                                                <td>{{ product2.procedureName }}</td>
+                                                                <td><a
+                                                                        [routerLink]="['/app/procedure/procedure-requests']">{{
+                                                                        product2.procedureName }}</a></td>
                                                                 <td>
                                                                     <p-tag
                                                                         [value]="getStatusLabelForProcedure(product2.status)"
@@ -352,7 +356,9 @@
                                                         </ng-template>
                                                         <ng-template #body let-product2>
                                                             <tr>
-                                                                <td>#{{ product2.id }}</td>
+                                                                <td><a
+                                                                        [routerLink]="['/app/lab-technician/test-requests']">#{{
+                                                                        product2.id }}</a></td>
                                                                 <td>{{ product2.reportTypeName }}</td>
                                                                 <td>
                                                                     <p-tag [value]="getStatusLabel(product2.testStatus)"
@@ -404,10 +410,14 @@
                                                         <div>
                                                             <b>Total Invoice</b>
                                                         </div>
-                                                        <div>
+                                                        <div *ngIf="data?.invoices?.length>0">
                                                             <p-badge [value]="data?.invoices?.length"
                                                                 severity="secondary" />
                                                         </div>
+                                                        <a [routerLink]="['/app/billing-staff/invoices']"
+                                                            *ngIf="data?.invoices?.length<=0"><span
+                                                                class="pi pi-arrow-left mr-2"></span>Go To Invoice
+                                                            list</a>
                                                     </div>
                                                 </div>
                                                 <div class="card-body">
@@ -425,7 +435,8 @@
                                                         </ng-template>
                                                         <ng-template #body let-product3>
                                                             <tr>
-                                                                <td>{{ product3.invoiceNo }}</td>
+                                                                <td><a [routerLink]="['/app/billing-staff/invoices']">{{
+                                                                        product3.invoiceNo }}</a></td>
                                                                 <td>{{ product3.invoiceType }}</td>
                                                                 <td>{{ product3.invoiceDate | date:'dd/MM/yyyy hh:mm a'
                                                                     }}
@@ -487,7 +498,17 @@
                                                 </div>
                                                 <div class="card-body">
                                                     <p-editor [(ngModel)]="data.patientDischarge.dischargeSummary"
-                                                        [style]="{ height: '130px' }" required />
+                                                        [style]="{ height: '130px' }" required
+                                                        [readonly]="data?.patientDischarge?.dischargeStatus ==8" />
+
+                                                    <div class="d-flex flex-column mt-2"
+                                                        *ngIf="data?.patientDischarge?.dischargeStatus <=7">
+                                                        <label>Discharge Approved by:</label>
+                                                        <p-select [(ngModel)]="data.patientDischarge.doctorId"
+                                                            [optionValue]="'id'" name="doctorId" [options]="doctors"
+                                                            optionLabel="fullName" placeholder="Select doctor"
+                                                            class="w-100" appendTo="body" />
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="d-flex justify-content-between">

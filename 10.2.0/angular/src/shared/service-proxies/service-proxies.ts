@@ -1923,9 +1923,10 @@ export class BedServiceProxy {
     /**
      * @param tenantId (optional) 
      * @param roomId (optional) 
+     * @param admissionId (optional) 
      * @return OK
      */
-    getAvailableBedsByRoom(tenantId: number | undefined, roomId: number | undefined): Observable<BedDto[]> {
+    getAvailableBedsByRoom(tenantId: number | undefined, roomId: number | undefined, admissionId: number | undefined): Observable<BedDto[]> {
         let url_ = this.baseUrl + "/api/services/app/Bed/GetAvailableBedsByRoom?";
         if (tenantId === null)
             throw new Error("The parameter 'tenantId' cannot be null.");
@@ -1935,6 +1936,10 @@ export class BedServiceProxy {
             throw new Error("The parameter 'roomId' cannot be null.");
         else if (roomId !== undefined)
             url_ += "roomId=" + encodeURIComponent("" + roomId) + "&";
+        if (admissionId === null)
+            throw new Error("The parameter 'admissionId' cannot be null.");
+        else if (admissionId !== undefined)
+            url_ += "admissionId=" + encodeURIComponent("" + admissionId) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -4591,15 +4596,10 @@ export class DoctorServiceProxy {
     }
 
     /**
-     * @param tenantId (optional) 
      * @return OK
      */
-    getAllDoctorsByTenantID(tenantId: number | undefined): Observable<DoctorDtoListResultDto> {
-        let url_ = this.baseUrl + "/api/services/app/Doctor/GetAllDoctorsByTenantID?";
-        if (tenantId === null)
-            throw new Error("The parameter 'tenantId' cannot be null.");
-        else if (tenantId !== undefined)
-            url_ += "tenantId=" + encodeURIComponent("" + tenantId) + "&";
+    getAllDoctors(): Observable<DoctorDtoListResultDto> {
+        let url_ = this.baseUrl + "/api/services/app/Doctor/GetAllDoctors";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -4611,11 +4611,11 @@ export class DoctorServiceProxy {
         };
 
         return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetAllDoctorsByTenantID(response_);
+            return this.processGetAllDoctors(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processGetAllDoctorsByTenantID(response_ as any);
+                    return this.processGetAllDoctors(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<DoctorDtoListResultDto>;
                 }
@@ -4624,7 +4624,7 @@ export class DoctorServiceProxy {
         }));
     }
 
-    protected processGetAllDoctorsByTenantID(response: HttpResponseBase): Observable<DoctorDtoListResultDto> {
+    protected processGetAllDoctors(response: HttpResponseBase): Observable<DoctorDtoListResultDto> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -14600,6 +14600,53 @@ export class PatientDischargeServiceProxy {
     }
 
     /**
+     * @return OK
+     */
+    downloadPDF(): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/PatientDischarge/DownloadPDF";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDownloadPDF(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDownloadPDF(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDownloadPDF(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * @param id (optional) 
      * @return OK
      */
@@ -17079,6 +17126,58 @@ export class PrescriptionServiceProxy {
      * @param id (optional) 
      * @return OK
      */
+    delete(id: number | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/Prescription/Delete?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDelete(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDelete(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDelete(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
     get(id: number | undefined): Observable<PrescriptionDto> {
         let url_ = this.baseUrl + "/api/services/app/Prescription/Get?";
         if (id === null)
@@ -17315,58 +17414,6 @@ export class PrescriptionServiceProxy {
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = PrescriptionDto.fromJS(resultData200);
             return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    /**
-     * @param id (optional) 
-     * @return OK
-     */
-    delete(id: number | undefined): Observable<void> {
-        let url_ = this.baseUrl + "/api/services/app/Prescription/Delete?";
-        if (id === null)
-            throw new Error("The parameter 'id' cannot be null.");
-        else if (id !== undefined)
-            url_ += "Id=" + encodeURIComponent("" + id) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-            })
-        };
-
-        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processDelete(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processDelete(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<void>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<void>;
-        }));
-    }
-
-    protected processDelete(response: HttpResponseBase): Observable<void> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return _observableOf(null as any);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -32057,7 +32104,7 @@ export enum DischargeStatus {
 }
 
 export class DischargeSummaryDto implements IDischargeSummaryDto {
-    patientDischarge: PatientDischargeDto;
+    patientDischarge: CreateUpdatePatientDischargeDto;
     patientDetails: PatientDetailsFordischargeSummaryDto;
     vitals: VitalDto[] | undefined;
     prescriptions: PharmacistPrescriptionsDto[] | undefined;
@@ -32076,7 +32123,7 @@ export class DischargeSummaryDto implements IDischargeSummaryDto {
 
     init(_data?: any) {
         if (_data) {
-            this.patientDischarge = _data["patientDischarge"] ? PatientDischargeDto.fromJS(_data["patientDischarge"]) : <any>undefined;
+            this.patientDischarge = _data["patientDischarge"] ? CreateUpdatePatientDischargeDto.fromJS(_data["patientDischarge"]) : <any>undefined;
             this.patientDetails = _data["patientDetails"] ? PatientDetailsFordischargeSummaryDto.fromJS(_data["patientDetails"]) : <any>undefined;
             if (Array.isArray(_data["vitals"])) {
                 this.vitals = [] as any;
@@ -32154,7 +32201,7 @@ export class DischargeSummaryDto implements IDischargeSummaryDto {
 }
 
 export interface IDischargeSummaryDto {
-    patientDischarge: PatientDischargeDto;
+    patientDischarge: CreateUpdatePatientDischargeDto;
     patientDetails: PatientDetailsFordischargeSummaryDto;
     vitals: VitalDto[] | undefined;
     prescriptions: PharmacistPrescriptionsDto[] | undefined;
@@ -38141,6 +38188,9 @@ export class MedicineStockDto implements IMedicineStockDto {
     purchasePrice: number;
     sellingPrice: number;
     isExpire: boolean;
+    totalStock: number;
+    stockStatus: string | undefined;
+    expiryStatus: string | undefined;
 
     constructor(data?: IMedicineStockDto) {
         if (data) {
@@ -38163,6 +38213,9 @@ export class MedicineStockDto implements IMedicineStockDto {
             this.purchasePrice = _data["purchasePrice"];
             this.sellingPrice = _data["sellingPrice"];
             this.isExpire = _data["isExpire"];
+            this.totalStock = _data["totalStock"];
+            this.stockStatus = _data["stockStatus"];
+            this.expiryStatus = _data["expiryStatus"];
         }
     }
 
@@ -38185,6 +38238,9 @@ export class MedicineStockDto implements IMedicineStockDto {
         data["purchasePrice"] = this.purchasePrice;
         data["sellingPrice"] = this.sellingPrice;
         data["isExpire"] = this.isExpire;
+        data["totalStock"] = this.totalStock;
+        data["stockStatus"] = this.stockStatus;
+        data["expiryStatus"] = this.expiryStatus;
         return data;
     }
 
@@ -38207,6 +38263,9 @@ export interface IMedicineStockDto {
     purchasePrice: number;
     sellingPrice: number;
     isExpire: boolean;
+    totalStock: number;
+    stockStatus: string | undefined;
+    expiryStatus: string | undefined;
 }
 
 export class MedicineStockDtoPagedResultDto implements IMedicineStockDtoPagedResultDto {

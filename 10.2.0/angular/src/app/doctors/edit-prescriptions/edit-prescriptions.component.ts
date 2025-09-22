@@ -16,14 +16,14 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { MultiSelectModule } from 'primeng/multiselect';
-
+import { FieldsetModule } from 'primeng/fieldset';
 @Component({
   selector: 'app-edit-prescriptions',
   standalone: true,
   imports: [
     FormsModule, AbpModalHeaderComponent,
     AbpModalFooterComponent, CommonModule,
-    CalendarModule, DropdownModule, CheckboxModule, InputTextModule, TextareaModule,
+    CalendarModule, DropdownModule, CheckboxModule, FieldsetModule, InputTextModule, TextareaModule,
     ButtonModule, CommonModule, SelectModule, AbpModalHeaderComponent, AbpModalFooterComponent,
     MultiSelectModule
   ],
@@ -105,7 +105,7 @@ export class EditPrescriptionsComponent extends AppComponentBase implements OnIn
     this.loadDoctors();
   }
   loadDoctors() {
-    this._doctorService.getAllDoctorsByTenantID(abp.session.tenantId).subscribe(res => {
+    this._doctorService.getAllDoctors().subscribe(res => {
       this.doctors = res.items;
       this.cd.detectChanges();
     });
@@ -190,89 +190,89 @@ export class EditPrescriptionsComponent extends AppComponentBase implements OnIn
   }
 
   // Update the loadPrescription method to handle medicine forms:
-loadPrescription(): void {
-  this._prescriptionService.getPrescriptionDetailsById(this.id).subscribe({
-    next: (result) => {
-      this.prescription = {
-        id: result.id,
-        tenantId: result.tenantId,
-        diagnosis: result.diagnosis,
-        notes: result.notes,
-        issueDate: result.issueDate,
-        isFollowUpRequired: result.isFollowUpRequired,
-        appointmentId: result.appointmentId,
-        doctorId: result.doctorId,
-        patientId: result.patientId,
-        labTestIds: result.labTestIds || [],
-        items: result.items.map(i => {
-          const durationParts = i.duration?.split(' ') || ['', ''];
-          return {
-            ...new CreateUpdatePrescriptionItemDto(),
-            id: i.id,
-            tenantId: i.tenantId,
-            medicineName: i.medicineName,
-            medicineId: i.medicineId,
-            medicineFormId: i.medicineFormId,
-            dosage: i.dosage,
-            frequency: i.frequency,
-            duration: i.duration,
-            durationValue: durationParts[0] ? parseInt(durationParts[0]) : 1,
-            durationUnit: durationParts[1] || 'Days',
-            instructions: i.instructions,
-            prescriptionId: i.prescriptionId,
-            filteredMedicines: [] // Initialize empty array
-          };
-        })
-      };
+  loadPrescription(): void {
+    this._prescriptionService.getPrescriptionDetailsById(this.id).subscribe({
+      next: (result) => {
+        this.prescription = {
+          id: result.id,
+          tenantId: result.tenantId,
+          diagnosis: result.diagnosis,
+          notes: result.notes,
+          issueDate: result.issueDate,
+          isFollowUpRequired: result.isFollowUpRequired,
+          appointmentId: result.appointmentId,
+          doctorId: result.doctorId,
+          patientId: result.patientId,
+          labTestIds: result.labTestIds || [],
+          items: result.items.map(i => {
+            const durationParts = i.duration?.split(' ') || ['', ''];
+            return {
+              ...new CreateUpdatePrescriptionItemDto(),
+              id: i.id,
+              tenantId: i.tenantId,
+              medicineName: i.medicineName,
+              medicineId: i.medicineId,
+              medicineFormId: i.medicineFormId,
+              dosage: i.dosage,
+              frequency: i.frequency,
+              duration: i.duration,
+              durationValue: durationParts[0] ? parseInt(durationParts[0]) : 1,
+              durationUnit: durationParts[1] || 'Days',
+              instructions: i.instructions,
+              prescriptionId: i.prescriptionId,
+              filteredMedicines: [] // Initialize empty array
+            };
+          })
+        };
 
-      this.selectedProcedures = result.emergencyProcedures?.map(p => p.emergencyProcedureId) || [];
-      this.selectedLabTests = this.prescription.labTestIds
-        .map(id => this.labTests.find(test => test.id === id))
-        .filter(test => test !== undefined);
+        this.selectedProcedures = result.emergencyProcedures?.map(p => p.emergencyProcedureId) || [];
+        this.selectedLabTests = this.prescription.labTestIds
+          .map(id => this.labTests.find(test => test.id === id))
+          .filter(test => test !== undefined);
 
-      // Load medicines for each item's form and preselect the medicine
-      this.prescription.items.forEach(item => {
-        if (item.medicineFormId) {
-          // Load medicines for this form
-          this._medicineMasterService.getMedicinesByFormId(item.medicineFormId).subscribe({
-            next: (res) => {
-              const medicines = (res || []).map((it: any) => ({
-                label: it.medicineName,
-                value: it.id,
-                dosageOption: it.dosageOption
-              }));
+        // Load medicines for each item's form and preselect the medicine
+        this.prescription.items.forEach(item => {
+          if (item.medicineFormId) {
+            // Load medicines for this form
+            this._medicineMasterService.getMedicinesByFormId(item.medicineFormId).subscribe({
+              next: (res) => {
+                const medicines = (res || []).map((it: any) => ({
+                  label: it.medicineName,
+                  value: it.id,
+                  dosageOption: it.dosageOption
+                }));
 
-              // Cache the medicines for this form
-              this.medicineCache[item.medicineFormId] = medicines;
-              
-              // Set the filtered medicines for this item
-              item.filteredMedicines = medicines;
-              
-              // Find and select the correct medicine
-              const selectedMedicine = medicines.find(m => m.value === item.medicineId);
-              if (selectedMedicine) {
-                item.medicineName = selectedMedicine.label;
-                item.dosage = selectedMedicine.dosageOption;
+                // Cache the medicines for this form
+                this.medicineCache[item.medicineFormId] = medicines;
+
+                // Set the filtered medicines for this item
+                item.filteredMedicines = medicines;
+
+                // Find and select the correct medicine
+                const selectedMedicine = medicines.find(m => m.value === item.medicineId);
+                if (selectedMedicine) {
+                  item.medicineName = selectedMedicine.label;
+                  item.dosage = selectedMedicine.dosageOption;
+                }
+
+                this.cd.detectChanges();
+              },
+              error: (err) => {
+                this.notify.error('Could not load medicines for selected type');
+                console.error('Error loading medicines by form:', err);
               }
-              
-              this.cd.detectChanges();
-            },
-            error: (err) => {
-              this.notify.error('Could not load medicines for selected type');
-              console.error('Error loading medicines by form:', err);
-            }
-          });
-        }
-      });
+            });
+          }
+        });
 
-      this.loadAppointmentDetails();
-      this.cd.detectChanges();
-    },
-    error: (err) => {
-      this.notify.error('Could not load prescription details');
-    }
-  });
-}
+        this.loadAppointmentDetails();
+        this.cd.detectChanges();
+      },
+      error: (err) => {
+        this.notify.error('Could not load prescription details');
+      }
+    });
+  }
   loadLabTestsAndPrescription(): void {
     // First load all available lab tests
     this._labService.getAllTestByTenantID(abp.session.tenantId).subscribe({
@@ -469,9 +469,9 @@ loadPrescription(): void {
     if (!this.editPrescriptionForm.valid || this.saving) {
       return true;
     }
-    // if (!this.prescription.items || this.prescription.items.length === 0) {
-    //   return true;
-    // }
+    if (!this.prescription.items || this.prescription.items.length === 0) {
+      return true;
+    }
 
     return this.prescription.items.some(item =>
       !item.medicineName?.trim() ||

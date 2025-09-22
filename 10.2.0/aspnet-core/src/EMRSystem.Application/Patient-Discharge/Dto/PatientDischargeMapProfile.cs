@@ -52,10 +52,11 @@ namespace EMRSystem.Patient_Discharge.Dto
                         EmergencyPersonName = src.Patient.EmergencyContactName,
                         Address=src.Patient.Address
                     }))
-                    .ForMember(dest => dest.PatientDischarge, opt => opt.MapFrom(src => new PatientDischargeDto
+                    .ForMember(dest => dest.PatientDischarge, opt => opt.MapFrom(src => new CreateUpdatePatientDischargeDto
                     {
                         DischargeStatus = src.DischargeStatus,
                         DischargeSummary=src.DischargeSummary,
+                        DoctorId=src.DoctorId,
                     }));
 
         }

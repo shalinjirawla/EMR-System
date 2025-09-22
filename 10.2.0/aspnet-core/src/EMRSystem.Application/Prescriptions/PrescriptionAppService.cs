@@ -411,7 +411,7 @@ namespace EMRSystem.Prescriptions
                 p => p.LabTests,
                 p => p.SelectedEmergencyProcedureses
             ).FirstOrDefaultAsync(p => p.Id == input.Id);
-         
+
             if (existingPrescription == null)
             {
                 throw new UserFriendlyException("Prescription not found");
@@ -996,6 +996,34 @@ namespace EMRSystem.Prescriptions
             else
             {
                 return 0;
+            }
+        }
+
+        public override async Task DeleteAsync(EntityDto<long> input)
+        {
+            try
+            {
+                var entity = await Repository.GetAll()
+                    .Include(x => x.Consultation_Requests)
+                    .Include(x => x.PharmacistPrescriptions)
+                    .Include(x => x.IpdChargeEntries)
+                    .Include(x => x.EmergencyChargeEntries)
+                    .Include(x => x.SelectedEmergencyProcedureses)
+                    .Include(x => x.LabTests).ThenInclude(x => x.LabReportResultItems)
+                    .Include(x => x.Items)
+               .Where(x => x.Id == input.Id).FirstOrDefaultAsync();
+                if (entity != null)
+                {
+                    await Repository.DeleteAsync(entity);
+                    await CurrentUnitOfWork.SaveChangesAsync();
+                }
+            }
+            catch (Exception dbEx)
+            {
+                throw new UserFriendlyException(
+                    "Delete failed",
+                    dbEx.GetBaseException().Message
+                );
             }
         }
     }

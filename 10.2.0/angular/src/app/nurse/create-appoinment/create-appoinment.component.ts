@@ -106,7 +106,7 @@ export class CreateAppoinmentComponent extends AppComponentBase implements OnIni
     })
   }
   LoadDoctors() {
-    this._doctorService.getAllDoctorsByTenantID(abp.session.tenantId).subscribe({
+    this._doctorService.getAllDoctors().subscribe({
       next: (res) => {
         const filtredList=res.items.filter(x=>!x.isEmergencyDoctor)
         this.doctors = filtredList;
