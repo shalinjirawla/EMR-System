@@ -26,7 +26,7 @@ import { TagModule } from 'primeng/tag';
     styleUrl: './appointments.component.css',
     animations: [appModuleAnimation()],
     standalone: true,
-    imports: [FormsModule, TableModule, ChipModule,TagModule, SelectModule, MenuModule, ButtonModule,TagModule, OverlayPanelModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, DatePipe],
+    imports: [FormsModule, TableModule, ChipModule, TagModule, SelectModule, MenuModule, ButtonModule, TagModule, OverlayPanelModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, DatePipe],
     providers: [AppointmentServiceProxy, UserServiceProxy]
 })
 export class AppointmentsComponent extends PagedListingComponentBase<AppointmentDto> implements OnInit {
@@ -35,7 +35,7 @@ export class AppointmentsComponent extends PagedListingComponentBase<Appointment
     appointMents: AppointmentDto[] = [];
     AppointmentStatus = AppointmentStatus;
     keyword = '';
-    status: number;
+    selectedStatuses: number[] = [];
     advancedFiltersVisible = false;
     patients!: UserDto[];
     statusOptions = [
@@ -44,6 +44,13 @@ export class AppointmentsComponent extends PagedListingComponentBase<Appointment
         { label: 'Checked In', value: AppointmentStatus._2 },
         { label: 'Completed', value: AppointmentStatus._3 },
         { label: 'Cancelled', value: AppointmentStatus._4 }
+    ];
+    statuses = [
+        { label: 'Scheduled', value: AppointmentStatus._0, selected: false },
+        { label: 'Rescheduled', value: AppointmentStatus._1, selected: false },
+        { label: 'Checked In', value: AppointmentStatus._2, selected: false },
+        { label: 'Completed', value: AppointmentStatus._3, selected: false },
+        { label: 'Cancelled', value: AppointmentStatus._4, selected: false },
     ];
     appointmentStatus!: any;
     constructor(
@@ -61,12 +68,16 @@ export class AppointmentsComponent extends PagedListingComponentBase<Appointment
     }
     clearFilters(): void {
         this.keyword = '';
-        this.status = undefined;
+        this.selectedStatuses = undefined;
         this.list();
     }
 
     onStatusChange() {
-        this.list(); // or this.list() depending on your implementation
+        this.selectedStatuses = this.statuses
+            .filter(s => s.selected)
+            .map(s => s.value);
+        this.cd.detectChanges();
+        this.list();
     }
     list(event?: LazyLoadEvent): void {
         if (this.primengTableHelper.shouldResetPaging(event)) {
@@ -80,7 +91,7 @@ export class AppointmentsComponent extends PagedListingComponentBase<Appointment
         this._apointMentService
             .getAll(
                 this.keyword,
-                this.status,
+                this.selectedStatuses,
                 this.primengTableHelper.getSorting(this.dataTable),
                 this.primengTableHelper.getSkipCount(this.paginator, event),
                 this.primengTableHelper.getMaxResultCount(this.paginator, event)
@@ -108,35 +119,35 @@ export class AppointmentsComponent extends PagedListingComponentBase<Appointment
         });
     }
     // Add to component class
-makePayment(appointment: AppointmentDto): void {
-    this._apointMentService.initiatePaymentForAppointment(appointment.id)
-        .subscribe({
-            next: (stripeUrl) => {
-                localStorage.setItem('pendingAppointment', JSON.stringify({
-                    id: appointment.id,
-                    date: appointment.appointmentDate,
-                    doctor: appointment.doctor.fullName
-                }));
-                window.location.href = stripeUrl;
-            },
-            error: (err) => {
-                this.notify.error('Failed to initiate payment');
-                console.error(err);
-            }
-        });
-}
+    makePayment(appointment: AppointmentDto): void {
+        this._apointMentService.initiatePaymentForAppointment(appointment.id)
+            .subscribe({
+                next: (stripeUrl) => {
+                    localStorage.setItem('pendingAppointment', JSON.stringify({
+                        id: appointment.id,
+                        date: appointment.appointmentDate,
+                        doctor: appointment.doctor.fullName
+                    }));
+                    window.location.href = stripeUrl;
+                },
+                error: (err) => {
+                    this.notify.error('Failed to initiate payment');
+                    console.error(err);
+                }
+            });
+    }
 
     viewReceipt(record: AppointmentDto): void {
         const modalRef: BsModalRef = this._modalService.show(
-          ViewAppointmentReceiptComponent,
-          {
-            class: 'modal-lg',
-            initialState: {
-              appointmentId: record.id
+            ViewAppointmentReceiptComponent,
+            {
+                class: 'modal-lg',
+                initialState: {
+                    appointmentId: record.id
+                }
             }
-          }
         );
-      }
+    }
     createAppoinment(): void {
         this.showCreateOrEditAppoinmentDialog();
     }
@@ -177,31 +188,31 @@ makePayment(appointment: AppointmentDto): void {
             default: return 'contrast';
         }
     }
-    
+
     changeStatusofAppoinment(id: number, status: AppointmentStatus) {
-    this._apointMentService.markAsAction(id, status).subscribe(res => {
-      this.list();
-      this.cd.detectChanges();
-    })
-  }
+        this._apointMentService.markAsAction(id, status).subscribe(res => {
+            this.list();
+            this.cd.detectChanges();
+        })
+    }
 
-  canEdit(record: any): boolean {
-  return record.status === 0 || record.status === 1 || 
-         (record.status === 4) || 
-         (record.patient.isAdmitted && (record.status === 0 || record.status === 1 || record.status === 4));
-}
+    canEdit(record: any): boolean {
+        return record.status === 0 || record.status === 1 ||
+            (record.status === 4) ||
+            (record.patient.isAdmitted && (record.status === 0 || record.status === 1 || record.status === 4));
+    }
 
-canViewReceipt(record: any): boolean {
-  return record.isPaid && !record.patient.isAdmitted && 
-         ((record.status === 0 || record.status === 1) || record.status === 4 || record.status === 3);
-}
+    canViewReceipt(record: any): boolean {
+        return record.isPaid && !record.patient.isAdmitted &&
+            ((record.status === 0 || record.status === 1) || record.status === 4 || record.status === 3);
+    }
 
-canPay(record: any): boolean {
-  return !record.isPaid && (record.status === 0 || record.status === 1) && !record.patient.isAdmitted;
-}
+    canPay(record: any): boolean {
+        return !record.isPaid && (record.status === 0 || record.status === 1) && !record.patient.isAdmitted;
+    }
 
-canCancel(record: any): boolean {
-  return (record.status === 0 || record.status === 1) && !record.patient.isAdmitted;
-}
+    canCancel(record: any): boolean {
+        return (record.status === 0 || record.status === 1) && !record.patient.isAdmitted;
+    }
 
 }

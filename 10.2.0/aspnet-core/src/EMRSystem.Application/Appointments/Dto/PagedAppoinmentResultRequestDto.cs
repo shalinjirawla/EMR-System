@@ -11,7 +11,7 @@ namespace EMRSystem.Appointments.Dto
     public class PagedAppoinmentResultRequestDto : PagedResultRequestDto, IShouldNormalize
     {
         public string Keyword { get; set; }
-        public AppointmentStatus? Status { get; set; }
+        public AppointmentStatus[] Status { get; set; }
         public string Sorting { get; set; }
         public void Normalize()
         {

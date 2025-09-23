@@ -1,0 +1,248 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Patient Discharge Summary</title>
+    <style>
+        :root {
+            --accent: #0b5ed7;
+            --muted: #6b7280;
+            --card: #ffffff
+        }
+
+        body {
+            font-family: system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;
+            background: #f3f4f6;
+            color: #111827;
+            margin: 0;
+            padding: 20px
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--card);
+            padding: 22px;
+            border-radius: 8px;
+            box-shadow: 0 6px 18px rgba(15,23,42,0.06)
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 18px
+        }
+
+        .logo {
+            width: 84px;
+            height: 84px;
+            border-radius: 6px;
+            background: #eef2ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--accent)
+        }
+
+        h1 {
+            font-size: 20px;
+            margin: 0
+        }
+
+        .meta {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            color: var(--muted);
+            font-size: 13px
+        }
+
+        .section {
+            margin-top: 18px
+        }
+
+            .section h2 {
+                font-size: 15px;
+                margin: 0 0 8px 0;
+                color: #0f172a
+            }
+
+        .two-cols {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px
+        }
+
+        th, td {
+            padding: 8px;
+            border: 1px solid #e6e9ee;
+            text-align: left
+        }
+
+        th {
+            background: #f8fafc;
+            font-weight: 600
+        }
+
+        ul {
+            margin: 0;
+            padding-left: 20px
+        }
+
+        .muted {
+            color: var(--muted);
+            font-size: 13px
+        }
+
+        .footer {
+            margin-top: 20px;
+            border-top: 1px dashed #e6e9ee;
+            padding-top: 12px;
+            font-size: 13px;
+            color: var(--muted)
+        }
+
+        @media print {
+            body {
+                padding: 0
+            }
+
+            .container {
+                box-shadow: none;
+                border-radius: 0
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">H</div>
+            <div>
+                <h1>Patient Discharge Summary</h1>
+                <div class="meta">Purpose: Summary of hospitalization, treatments and post-discharge instructions.</div>
+            </div>
+        </header>
+
+        <!-- Patient Information -->
+        <section class="section">
+            <h2>Patient Information</h2>
+            <div class="two-cols">
+                <table>
+                    <tr><th>Patient Name</th><td>{{fullName}}</td></tr>
+                    <tr><th>Date of Birth</th><td>{{dateOfBirth}}</td></tr>
+                    <tr><th>Gender</th><td>{{gender}}</td></tr>
+                    <tr><th>Patient ID</th><td>{{patientId}}</td></tr>
+                </table>
+                <table>
+                    <tr><th>Admission Date</th><td>{{admissionDate}}</td></tr>
+                    <tr><th>Discharge Date</th><td>{{dischargeDate}}</td></tr>
+                    <tr><th>Primary Diagnosis</th><td>{{diagnosis}}</td></tr>
+                    <tr><th class="muted">Responsible Physician</th><td>{{physicianName}}<br><span class="muted">{{physicianContact}}</span></td></tr>
+                </table>
+            </div>
+        </section>
+
+        <!-- Hospital Course -->
+        <section class="section">
+            <h2>Hospital Course</h2>
+            <p>{{hospitalCourseDescription}}</p>
+        </section>
+
+        <!-- Treatment Summary -->
+        <section class="section">
+            <h2>Treatment Summary</h2>
+            <table>
+                <thead>
+                    <tr><th>Treatment</th><th>Duration</th><th>Notes</th></tr>
+                </thead>
+                <tbody>
+                    <!-- Repeat one row per treatment -->
+                    {{#treatments}}
+                    <tr>
+                        <td>{{treatmentName}}</td>
+                        <td>{{treatmentDuration}}</td>
+                        <td>{{treatmentNotes}}</td>
+                    </tr>
+                    {{/treatments}}
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Medications -->
+        <section class="section">
+            <h2>Medications at Discharge</h2>
+            <div>
+                {{#hasMedications}}
+                <ul>
+                    {{#medications}}
+                    <li>{{medicationName}} - {{dosage}}, {{frequency}} (Duration: {{medicationDuration}})</li>
+                    {{/medications}}
+                </ul>
+                {{/hasMedications}}
+                {{^hasMedications}}
+                <p class="muted">No medications prescribed at discharge.</p>
+                {{/hasMedications}}
+            </div>
+        </section>
+
+        <!-- Discharge Instructions -->
+        <section class="section">
+            <h2>Discharge Instructions</h2>
+            <ol>
+                {{#dischargeInstructions}}
+                <li>{{instruction}}</li>
+                {{/dischargeInstructions}}
+            </ol>
+        </section>
+
+        <!-- Follow-ups -->
+        <section class="section">
+            <h2>Follow-up Appointments</h2>
+            <table>
+                <thead><tr><th>Date</th><th>Department</th><th>Provider</th></tr></thead>
+                <tbody>
+                    {{#followUps}}
+                    <tr>
+                        <td>{{appointmentDate}}</td>
+                        <td>{{department}}</td>
+                        <td>{{provider}}</td>
+                    </tr>
+                    {{/followUps}}
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Additional Notes -->
+        <section class="section">
+            <h2>Additional Notes</h2>
+            <p>{{additionalNotes}}</p>
+        </section>
+
+        <!-- Emergency Contact -->
+        <section class="section two-cols">
+            <div>
+                <h2>Emergency Contact</h2>
+                <p>{{emergencyContactName}}<br>{{emergencyContactPhone}}<br>{{emergencyContactRelation}}</p>
+            </div>
+            <div>
+                <h2>Handover / Bed Status</h2>
+                <p class="muted">Bed will be marked available after discharge processing: {{bedStatus}}</p>
+            </div>
+        </section>
+
+        <div class="footer">
+            Generated on: {{generatedDate}} — For questions contact the admitting department.
+        </div>
+    </div>
+</body>
+</html>

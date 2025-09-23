@@ -50,7 +50,8 @@ namespace EMRSystem.Patient_Discharge.Dto
                         MobileNumber = src.Patient.AbpUser != null ? src.Patient.AbpUser.PhoneNumber : string.Empty,
                         EmergencyNumber = src.Patient.EmergencyContactNumber,
                         EmergencyPersonName = src.Patient.EmergencyContactName,
-                        Address=src.Patient.Address
+                        Address=src.Patient.Address,
+                        AdmissionDateTime=src.Admission.AdmissionDateTime,
                     }))
                     .ForMember(dest => dest.PatientDischarge, opt => opt.MapFrom(src => new CreateUpdatePatientDischargeDto
                     {

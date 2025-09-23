@@ -110,9 +110,9 @@ namespace EMRSystem.Appointments
                     (x.Doctor.FullName != null && x.Doctor.FullName.Contains(input.Keyword)));
             }
 
-            if (input.Status.HasValue)
+            if (input.Status != null && input.Status.Any())
             {
-                filteredQuery = filteredQuery.Where(x => x.Status == input.Status.Value);
+                filteredQuery = filteredQuery.Where(x => input.Status.Contains(x.Status));
             }
 
             // Apply projection after all filtering
@@ -318,43 +318,43 @@ namespace EMRSystem.Appointments
             //}
             //else
             //{
-                // OPD Patient - Handle payment
-                var appointment = ObjectMapper.Map<Appointment>(dto);
-                appointment.IsPaid = (dto.PaymentMethod != PaymentMethod.Card);
-                await Repository.InsertAsync(appointment);
-                await CurrentUnitOfWork.SaveChangesAsync();
+            // OPD Patient - Handle payment
+            var appointment = ObjectMapper.Map<Appointment>(dto);
+            appointment.IsPaid = (dto.PaymentMethod != PaymentMethod.Card);
+            await Repository.InsertAsync(appointment);
+            await CurrentUnitOfWork.SaveChangesAsync();
 
-                if (dto.PaymentMethod == PaymentMethod.Card)
+            if (dto.PaymentMethod == PaymentMethod.Card)
+            {
+                var doctorFee = await _doctorMasterRepository.FirstOrDefaultAsync(dm =>
+                    dm.DoctorId == appointment.DoctorId &&
+                    dm.TenantId == appointment.TenantId);
+
+                if (doctorFee == null)
+                    throw new UserFriendlyException("Doctor fee configuration not found");
+
+                var stripeUrl = await CreateStripeCheckoutSessionForAppointment(
+                    appointment,
+                    doctorFee.Fee,
+                    "http://localhost:4200/app/nurse/appointments",
+                    "http://localhost:4200/app/nurse/appointments");
+
+                return new AppointmentCreationResultDto
                 {
-                    var doctorFee = await _doctorMasterRepository.FirstOrDefaultAsync(dm =>
-                        dm.DoctorId == appointment.DoctorId &&
-                        dm.TenantId == appointment.TenantId);
-
-                    if (doctorFee == null)
-                        throw new UserFriendlyException("Doctor fee configuration not found");
-
-                    var stripeUrl = await CreateStripeCheckoutSessionForAppointment(
-                        appointment,
-                        doctorFee.Fee,
-                        "http://localhost:4200/app/nurse/appointments",
-                        "http://localhost:4200/app/nurse/appointments");
-
-                    return new AppointmentCreationResultDto
-                    {
-                        IsStripeRedirect = true,
-                        StripeSessionUrl = stripeUrl
-                    };
-                }
-                else // Cash payment
+                    IsStripeRedirect = true,
+                    StripeSessionUrl = stripeUrl
+                };
+            }
+            else // Cash payment
+            {
+                var receipt = await GenerateAppointmentReceipt(appointment.Id, dto.PaymentMethod.ToString(), null);
+                return new AppointmentCreationResultDto
                 {
-                    var receipt = await GenerateAppointmentReceipt(appointment.Id, dto.PaymentMethod.ToString(),null);
-                    return new AppointmentCreationResultDto
-                    {
-                        IsStripeRedirect = false,
-                        Receipt = receipt
-                    };
-                }
-            
+                    IsStripeRedirect = false,
+                    Receipt = receipt
+                };
+            }
+
         }
         public async Task<string> InitiatePaymentForAppointment(long appointmentId)
         {

@@ -18,15 +18,26 @@ import { OverlayPanel, OverlayPanelModule } from 'primeng/overlaypanel';
 import { MenuModule } from 'primeng/menu';
 import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
-import {ViewPrescriptionComponent} from '@app/doctors/view-prescription/view-prescription.component'
+import { ViewPrescriptionComponent } from '@app/doctors/view-prescription/view-prescription.component'
 
-
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { MenuItem } from 'primeng/api';
+import { TooltipModule } from 'primeng/tooltip';
+import { CardModule } from 'primeng/card';
+import { TagModule } from 'primeng/tag';
+import { AvatarModule } from 'primeng/avatar';
+import { AvatarGroupModule } from 'primeng/avatargroup';
+import { SelectModule } from 'primeng/select';
+import { InputTextModule } from 'primeng/inputtext';
+import { CheckboxModule } from 'primeng/checkbox';
 
 import moment from 'moment';
 @Component({
   selector: 'app-prescriptions',
   animations: [appModuleAnimation()],
-  imports: [FormsModule, TableModule, PrimeTemplate, CalendarModule, NgIf, PaginatorModule, ButtonModule, LocalizePipe, DatePipe, CommonModule, OverlayPanelModule, MenuModule],
+  imports: [FormsModule, TableModule, PrimeTemplate, CalendarModule, NgIf, PaginatorModule, InputTextModule,
+    BreadcrumbModule, TooltipModule, CardModule, TagModule, AvatarModule, AvatarGroupModule, SelectModule, CheckboxModule,
+    ButtonModule, LocalizePipe, DatePipe, CommonModule, OverlayPanelModule, MenuModule],
   templateUrl: './prescriptions.component.html',
   styleUrl: './prescriptions.component.css',
   providers: [PrescriptionServiceProxy]
@@ -34,6 +45,8 @@ import moment from 'moment';
 export class PrescriptionsComponent extends PagedListingComponentBase<PrescriptionDto> implements OnInit {
   @ViewChild('dataTable', { static: true }) dataTable: Table;
   @ViewChild('paginator', { static: true }) paginator: Paginator;
+  items: MenuItem[] | undefined;
+  editDeleteMenus: MenuItem[] | undefined;
   prescriptions: PrescriptionDto[] = [];
   keyword = '';
   dateRange: Date[];
@@ -41,6 +54,7 @@ export class PrescriptionsComponent extends PagedListingComponentBase<Prescripti
   advancedFiltersVisible = false;
   showDoctorColumn: boolean = false;
   showNurseColumn: boolean = false;
+  selectedRecord: PrescriptionDto;
   constructor(
     injector: Injector,
     private _modalService: BsModalService,
@@ -53,6 +67,27 @@ export class PrescriptionsComponent extends PagedListingComponentBase<Prescripti
   }
   ngOnInit(): void {
     this.GetLoggedInUserRole();
+    this.items = [
+      { label: 'Home', routerLink: '/' },
+      { label: 'Prescription' },
+    ];
+    this.editDeleteMenus = [
+      {
+        label: 'Edit',
+        icon: 'pi pi-pencil',
+        command: () => this.editPrescription(this.selectedRecord)  // call edit
+      },
+      {
+        label: 'Delete',
+        icon: 'pi pi-trash',
+        command: () => this.delete(this.selectedRecord)  // call delete
+      },
+      {
+        label: 'View',
+        icon: 'pi pi-eye',
+        command: () => this.viewPrescription(this.selectedRecord)  // call delete
+      }
+    ];
   }
   clearFilters(): void {
     this.keyword = '';
@@ -110,7 +145,7 @@ export class PrescriptionsComponent extends PagedListingComponentBase<Prescripti
   viewPrescription(dto: PrescriptionDto): void {
     this.showViewPrescriptionDialog(dto.id);
   }
-  
+
   private showViewPrescriptionDialog(id: number): void {
     const viewPrescriptionDialog: BsModalRef = this._modalService.show(
       ViewPrescriptionComponent,
