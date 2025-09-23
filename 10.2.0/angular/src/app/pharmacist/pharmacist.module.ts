@@ -7,6 +7,7 @@ import { PharmacistInventoryComponent } from './pharmacist-inventory/pharmacist-
 import { PharmacistPrescriptionsComponent } from './pharmacist-prescriptions/pharmacist-prescriptions.component';
 import { MedicineListComponent } from './medicine-list/medicine-list.component';
 import {PurchaseInvoiceListComponent} from './purchase-invoice-list/purchase-invoice-list.component'
+import { MedicineStockComponent } from './medicine-stock/medicine-stock.component';
 
 @NgModule({
     imports: [
@@ -18,6 +19,7 @@ import {PurchaseInvoiceListComponent} from './purchase-invoice-list/purchase-inv
         PharmacistPrescriptionsComponent,
         MedicineListComponent,
         PurchaseInvoiceListComponent,
+        MedicineStockComponent
 
       
     ],

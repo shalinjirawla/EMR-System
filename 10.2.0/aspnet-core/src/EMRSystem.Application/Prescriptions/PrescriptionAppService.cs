@@ -834,6 +834,7 @@ namespace EMRSystem.Prescriptions
                         UnitPrice = unitPrice,
                         IsPrescribe = x.IsPrescribe,
                         TotalPayableAmount = x.Qty * unitPrice,
+                        MedicineFormId = x.MedicineFormId,
                         PharmacistPrescriptionId = x.PharmacistPrescriptionId,
                     };
                 }).ToList(),
