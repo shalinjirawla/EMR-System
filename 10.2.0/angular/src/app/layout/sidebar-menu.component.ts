@@ -172,7 +172,8 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
             new MenuItem(this.l('Pharmacy Portal'), '', 'fas fa-clinic-medical', 'Pages.Pharmacist', [
                 new MenuItem(this.l('Medicine List'), '/app/pharmacist/medicine-list', 'fas fa-capsules', 'Pages.Pharmacist.Inventory.View'),
                 new MenuItem(this.l('Purchase Medicine'), '/app/pharmacist/purchase-medicine', 'fas fa-capsules', 'Pages.Pharmacist.Inventory.View'),
-                new MenuItem(this.l('Drug Inventory'), '/app/pharmacist/pharmacist-inventory', 'fas fa-capsules', 'Pages.Pharmacist.Inventory.View'),
+                new MenuItem(this.l('Medicine Stock'), '/app/pharmacist/medicine-stock', 'fas fa-capsules', 'Pages.Pharmacist.Inventory.View'),
+                //new MenuItem(this.l('Drug Inventory'), '/app/pharmacist/pharmacist-inventory', 'fas fa-capsules', 'Pages.Pharmacist.Inventory.View'),
                 new MenuItem(this.l('Prescription Fulfillment'), '/app/pharmacist/pharmacist-prescriptions', 'fas fa-prescription-bottle-alt', 'Pages.Pharmacist.Prescriptions.View'),
             ]),
 

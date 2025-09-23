@@ -1,12 +1,16 @@
 ﻿using Abp.Application.Services;
 using Abp.Application.Services.Dto;
 using Abp.Domain.Repositories;
+using Abp.UI;
 using EMRSystem.Medicines.Dto;
+using EMRSystem.Medicines;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Abp.Linq.Extensions;
 
 namespace EMRSystem.Medicines
 {
@@ -19,6 +23,12 @@ namespace EMRSystem.Medicines
         {
 
         }
+        protected override IQueryable<MedicineStock> CreateFilteredQuery(PagedAndSortedResultRequestDto input)
+        {
+            return Repository.GetAll()
+                             .Include(s => s.MedicineMaster);
+        }
+
         protected override MedicineStockDto MapToEntityDto(MedicineStock entity)
         {
             var dto = new MedicineStockDto
@@ -62,6 +72,46 @@ namespace EMRSystem.Medicines
             }
 
             return dto;
+        }
+
+        public async Task<List<AllocateMedicineResultDto>> AllocateMedicineAsync(long medicineId, int requestedQty)
+        {
+            var allocatedList = new List<AllocateMedicineResultDto>();
+
+            var stocks = await Repository.GetAll()
+                .Where(s => s.MedicineMasterId == medicineId
+                         && !s.IsExpire
+                         && (s.ExpiryDate == null || s.ExpiryDate >= DateTime.Today)
+                         && s.Quantity > 0)
+                .OrderBy(s => s.ExpiryDate)
+                .ToListAsync();
+
+            int remaining = requestedQty;
+
+            foreach (var stock in stocks)
+            {
+                if (remaining <= 0)
+                    break;
+
+                int takeQty = Math.Min(stock.Quantity, remaining);
+
+                allocatedList.Add(new AllocateMedicineResultDto
+                {
+                    MedicineId = medicineId,
+                    MedicineName = stock.MedicineMaster.Name,
+                    BatchNo = stock.BatchNo,
+                    Quantity = takeQty,
+                    Price = takeQty * stock.SellingPrice,
+                    ExpiryDate = stock.ExpiryDate
+                });
+
+                remaining -= takeQty;
+            }
+
+            if (remaining > 0)
+                throw new UserFriendlyException($"Ye stock me sirf {requestedQty - remaining} qty available hai!");
+
+            return allocatedList;
         }
 
 
