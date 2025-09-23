@@ -20,5 +20,7 @@ namespace EMRSystem.Prescriptions.Dto
         public decimal UnitPrice { get; set; }
         public decimal TotalPayableAmount { get; set; }
         public bool IsPrescribe { get; set; }
+        public long MedicineFormId { get; set; }
+
     }
 }

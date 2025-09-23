@@ -21,5 +21,7 @@ namespace EMRSystem.Medicines.Dto
         public int TotalStock { get; set; }       // All batches combined
         public string StockStatus { get; set; }   // Out of Stock / Low Stock / In Stock
         public string ExpiryStatus { get; set; }
+        public int? DaysToExpire { get; set; }
+
     }
 }

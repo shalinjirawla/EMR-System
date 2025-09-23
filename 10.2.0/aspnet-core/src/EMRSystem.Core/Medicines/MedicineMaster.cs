@@ -28,5 +28,14 @@ namespace EMRSystem.Medicines
         public bool IsAvailable { get; set; } = true;
 
         public virtual ICollection<MedicineStock> Stocks { get; set; }
+        public int TotalAvailableQuantity
+        {
+            get
+            {
+                return Stocks?.Where(s => s.Status == StockStatus.Available)
+                              .Sum(s => s.Quantity) ?? 0;
+            }
+        }
+        public bool HasAvailableStock => TotalAvailableQuantity > 0;
     }
 }

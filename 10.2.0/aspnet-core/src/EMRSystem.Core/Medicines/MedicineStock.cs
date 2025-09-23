@@ -23,5 +23,24 @@ namespace EMRSystem.Medicines
         public decimal SellingPrice { get; set; }
 
         public bool IsExpire { get; set; } = false;
+        public StockStatus Status
+        {
+            get
+            {
+                if (IsExpire || (ExpiryDate.HasValue && ExpiryDate.Value.Date < DateTime.Today))
+                    return StockStatus.Expired;
+
+                if (Quantity <= 0)
+                    return StockStatus.OutOfStock;
+
+                return StockStatus.Available;
+            }
+        }
+    }
+    public enum StockStatus
+    {
+        Available,
+        OutOfStock,
+        Expired
     }
 }

@@ -6,7 +6,7 @@ import { PharmacistPrescriptionsComponent } from './pharmacist-prescriptions/pha
 import { PharmacistInventoryComponent } from './pharmacist-inventory/pharmacist-inventory.component';
 import {MedicineListComponent} from './medicine-list/medicine-list.component'
 import { PurchaseInvoiceListComponent } from './purchase-invoice-list/purchase-invoice-list.component';
-
+import {MedicineStockComponent} from './medicine-stock/medicine-stock.component';
 
 
 const routes: Routes = [
@@ -30,6 +30,10 @@ const routes: Routes = [
             {
                 path:'purchase-medicine',
                 component:PurchaseInvoiceListComponent
+            },
+            {
+                path:'medicine-stock',
+                component:MedicineStockComponent
             },
             {
                 path: '',
