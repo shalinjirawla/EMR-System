@@ -21,5 +21,6 @@ namespace EMRSystem.Patient_Discharge.Dto
         public string EmergencyNumber { get; set; }
         public string EmergencyPersonName { get; set; }
         public string Address { get; set; }
+        public DateTime AdmissionDateTime { get; set; }
     }
 }

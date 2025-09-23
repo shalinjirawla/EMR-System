@@ -9,7 +9,7 @@ import { LazyLoadEvent, PrimeTemplate } from 'primeng/api';
 import { ActivatedRoute } from '@angular/router';
 import { Paginator, PaginatorModule } from 'primeng/paginator';
 import { FormsModule } from '@angular/forms';
-import { DatePipe, NgIf } from '@angular/common';
+import { DatePipe, NgIf, CommonModule } from '@angular/common';
 import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { EditAppoinmentComponent } from '@app/nurse/edit-appoinment/edit-appoinment.component';
 import { SelectModule } from 'primeng/select';
@@ -19,13 +19,23 @@ import { MenuModule } from 'primeng/menu';
 import { ButtonModule } from 'primeng/button';
 import { AppSessionService } from '@shared/session/app-session.service';
 import { TagModule } from 'primeng/tag';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { MenuItem } from 'primeng/api';
+import { TooltipModule } from 'primeng/tooltip';
+import { CardModule } from 'primeng/card';
+import { AvatarModule } from 'primeng/avatar';
+import { AvatarGroupModule } from 'primeng/avatargroup';
+import { InputTextModule } from 'primeng/inputtext';
+import { CheckboxModule } from 'primeng/checkbox';
 
 @Component({
   selector: 'app-view-appoinment',
   animations: [appModuleAnimation()],
   templateUrl: './view-appoinment.component.html',
   styleUrl: './view-appoinment.component.css',
-  imports: [FormsModule, TableModule,TagModule, ChipModule, SelectModule, MenuModule, ButtonModule, OverlayPanelModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, DatePipe],
+  imports: [FormsModule, TableModule, TagModule, ChipModule, BreadcrumbModule, CardModule, AvatarGroupModule, CheckboxModule,
+    SelectModule, MenuModule, ButtonModule, OverlayPanelModule, CommonModule, TooltipModule, AvatarModule, InputTextModule,
+    PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, DatePipe],
   providers: [AppointmentServiceProxy, UserServiceProxy]
 })
 export class ViewAppoinmentComponent extends PagedListingComponentBase<AppointmentDto> implements OnInit {
@@ -34,7 +44,7 @@ export class ViewAppoinmentComponent extends PagedListingComponentBase<Appointme
   appointMents: AppointmentDto[] = [];
   AppointmentStatus = AppointmentStatus;
   keyword = '';
-  status: number;
+  selectedStatuses: number[] = [];
   advancedFiltersVisible = false;
   patients!: UserDto[];
   statusOptions = [
@@ -44,8 +54,18 @@ export class ViewAppoinmentComponent extends PagedListingComponentBase<Appointme
     { label: 'Completed', value: AppointmentStatus._3 },
     { label: 'Cancelled', value: AppointmentStatus._4 },
   ];
+  statuses = [
+    { label: 'Scheduled', value: AppointmentStatus._0, selected: false },
+    { label: 'Rescheduled', value: AppointmentStatus._1, selected: false },
+    { label: 'Checked In', value: AppointmentStatus._2, selected: false },
+    { label: 'Completed', value: AppointmentStatus._3, selected: false },
+    { label: 'Cancelled', value: AppointmentStatus._4, selected: false },
+  ];
   showDoctorColumn: boolean = false;
   showNurseColumn: boolean = false;
+  editDeleteMenus: MenuItem[] | undefined;
+  items: MenuItem[] | undefined;
+  selectedRecord: AppointmentDto;
   constructor(
     injector: Injector,
     private _appSessionService: AppSessionService,
@@ -60,14 +80,42 @@ export class ViewAppoinmentComponent extends PagedListingComponentBase<Appointme
   }
   ngOnInit(): void {
     this.GetLoggedInUserRole();
+    this.items = [
+      { label: 'Home', routerLink: '/' },
+      { label: 'Appointments' },
+    ];
+    this.editDeleteMenus = [
+      {
+        label: 'Rescheduled',
+        icon: 'pi pi-clock',
+        visible: this.selectedRecord?.status !== 0 && this.selectedRecord?.status !== 1,
+        command: () => this.reschedulAppoinment(this.selectedRecord.id)
+      },
+      {
+        label: 'Mark as In Progress',
+        icon: 'pi pi-check',
+        visible: this.selectedRecord?.status !== 1 && this.selectedRecord?.status !== 0,
+        command: () => this.changeStatusofAppoinment(this.selectedRecord.id, 2)
+      },
+      {
+        label: 'Cancel',
+        icon: 'pi pi-times',
+        visible: this.selectedRecord?.status !== 3,
+        command: () => this.changeStatusofAppoinment(this.selectedRecord.id, 4)
+      }
+    ];
   }
   clearFilters(): void {
     this.keyword = '';
-    this.status = undefined;
+    this.selectedStatuses = undefined;
     this.list();
   }
   onStatusChange() {
-    this.list(); // or this.list() depending on your implementation
+    this.selectedStatuses = this.statuses
+      .filter(s => s.selected)
+      .map(s => s.value);
+    this.cd.detectChanges();
+    this.list();
   }
   list(event?: LazyLoadEvent): void {
     if (this.primengTableHelper.shouldResetPaging(event)) {
@@ -81,7 +129,7 @@ export class ViewAppoinmentComponent extends PagedListingComponentBase<Appointme
     this._apointMentService
       .getAll(
         this.keyword,
-        this.status,
+        this.selectedStatuses,
         this.primengTableHelper.getSorting(this.dataTable),
         this.primengTableHelper.getSkipCount(this.paginator, event),
         this.primengTableHelper.getMaxResultCount(this.paginator, event)
@@ -142,24 +190,14 @@ export class ViewAppoinmentComponent extends PagedListingComponentBase<Appointme
     const status = this.statusOptions.find(s => s.value === value);
     return status ? status.label : '';
   }
-  getStatusClass(value: number): string {
+  getStatusSeverity(value: number) {
     switch (value) {
-      case AppointmentStatus._0: return 'status-scheduled';    // Scheduled
-      case AppointmentStatus._1: return 'status-rescheduled';  // Rescheduled
-      case AppointmentStatus._2: return 'status-checkedin';    // Checked In
-      case AppointmentStatus._3: return 'status-completed';    // Completed
-      case AppointmentStatus._4: return 'status-cancelled';    // Cancelled
-      default: return '';
-    }
-  }
-  getStatusSeverity(value: number): 'info' | 'warn' | 'success' | 'danger' | 'secondary' | 'contrast' {
-    switch (value) {
-      case AppointmentStatus._0: return 'info';        // Scheduled
-      case AppointmentStatus._1: return 'secondary';   // Rescheduled
-      case AppointmentStatus._2: return 'success';     // Checked In
-      case AppointmentStatus._3: return 'success';     // Completed
-      case AppointmentStatus._4: return 'danger';      // Cancelled
-      default: return 'contrast';
+      case AppointmentStatus._0: return 'badge-soft-primary p-1 rounded';        // Scheduled
+      case AppointmentStatus._1: return 'badge-soft-warning p-1 rounded';   // Rescheduled
+      case AppointmentStatus._2: return 'badge-soft-purple p-1 rounded';     // Checked In
+      case AppointmentStatus._3: return 'badge-soft-success p-1 rounded';     // Completed
+      case AppointmentStatus._4: return 'badge-soft-danger p-1 rounded';      // Cancelled
+      default: return 'badge-soft-teal p-1 rounded';
     }
   }
   GetLoggedInUserRole() {
@@ -184,5 +222,12 @@ export class ViewAppoinmentComponent extends PagedListingComponentBase<Appointme
       this.list();
       this.cd.detectChanges();
     })
+  }
+  getShortName(fullName: string | 'unknown'): string {
+    if (!fullName) return '';
+    const words = fullName.trim().split(' ');
+    const firstInitial = words[0].charAt(0).toUpperCase();
+    const lastInitial = words.length > 1 ? words[words.length - 1].charAt(0).toUpperCase() : '';
+    return firstInitial + lastInitial;
   }
 } 

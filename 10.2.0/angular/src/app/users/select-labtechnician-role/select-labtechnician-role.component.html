@@ -27,7 +27,7 @@
       <label class="col-form-label" for="qualification">Qualification</label>
       <input type="text" id="qualification" name="qualification" pInputText required
         [(ngModel)]="technicianData.qualification" (ngModelChange)="onInputChange()" #qualificationModel="ngModel"
-        #qualificationEl>
+        #qualificationEl placeholder="Enter qualification">
       <abp-validation-summary [control]="qualificationModel" [controlEl]="qualificationEl"></abp-validation-summary>
     </div>
     <div class="col-md-6 d-flex flex-column">
@@ -49,7 +49,7 @@
     </div>
     <div class="col-md-6 d-flex flex-column">
       <label class="col-form-label" for="registration">Certification Number</label>
-      <input type="text" id="registration" name="certificationNumber" pInputText required
+      <input type="text" id="registration" name="certificationNumber" pInputText required placeholder="Enter certificationNumber"
         [(ngModel)]="technicianData.certificationNumber" (ngModelChange)="onInputChange()" #regModel="ngModel" #regEl>
       <abp-validation-summary [control]="regModel" [controlEl]="regEl"></abp-validation-summary>
     </div>

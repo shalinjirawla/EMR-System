@@ -48,16 +48,16 @@
                             </button>
                         </div>
                         <p-overlayPanel #rowMenu class="custom-overlay" [dismissable]="true">
-                            <ul class="custom-overlay-menu">
-                                <li>
+                            <ul class="custom-overlay-menu list-unstyled mb-0 p-3">
+                                <li class="mb-2">
                                     <p-checkbox [binary]="true" [(ngModel)]="activeFilter.all" size="small"
                                         (onChange)="onFilterChange('all',$event)"></p-checkbox>&nbsp; All
                                 </li>
-                                <li>
+                                <li class="mb-2">
                                     <p-checkbox [binary]="true" [(ngModel)]="activeFilter.isActive" size="small"
                                         (onChange)="onFilterChange('active',$event)"></p-checkbox>&nbsp; Active
                                 </li>
-                                <li>
+                                <li class="mb-2">
                                     <p-checkbox [binary]="true" [(ngModel)]="activeFilter.isNotActive" size="small"
                                         (onChange)="onFilterChange('notActive',$event)"></p-checkbox>&nbsp; No Active
                                 </li>

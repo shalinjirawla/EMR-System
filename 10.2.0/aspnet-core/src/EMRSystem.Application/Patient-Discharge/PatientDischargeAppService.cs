@@ -108,6 +108,7 @@ namespace EMRSystem.Patient_Discharge
             var data = await Repository
             .GetAll().IgnoreQueryFilters()
             .Include(x => x.Patient).ThenInclude(x => x.AbpUser)
+            .Include(x => x.Admission)
             .FirstOrDefaultAsync(x => x.PatientId == patientID);
 
             var vitalsList = await _vitalAppService.GetVitalsByPatientID(patientID);
@@ -196,11 +197,6 @@ namespace EMRSystem.Patient_Discharge
                     await _patientService.UpdateAsync(patient);
                 }
             }
-        }
-
-        public async Task DownloadPDF()
-        {
-
         }
     }
 }
