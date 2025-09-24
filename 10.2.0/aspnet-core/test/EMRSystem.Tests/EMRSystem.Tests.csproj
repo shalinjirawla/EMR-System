@@ -15,8 +15,13 @@
     <ProjectReference Include="..\..\src\EMRSystem.EntityFrameworkCore\EMRSystem.EntityFrameworkCore.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="BouncyCastle.NetCore" Version="2.2.1" />
+    <PackageReference Include="itext7" Version="9.3.0" />
+    <PackageReference Include="itext7.bouncy-castle-adapter" Version="9.3.0" />
+    <PackageReference Include="itext7.pdfhtml" Version="6.2.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageReference Include="NSubstitute" Version="5.3.0" />
+    <PackageReference Include="QuestPDF" Version="2025.7.1" />
     <PackageReference Include="Shouldly" Version="4.3.0" />
     <PackageReference Include="Stripe.net" Version="48.5.0" />
     <PackageReference Include="xunit" Version="2.9.3" />

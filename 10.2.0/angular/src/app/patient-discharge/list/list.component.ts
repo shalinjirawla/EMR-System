@@ -22,7 +22,7 @@ import { AvatarModule } from 'primeng/avatar';
   styleUrl: './list.component.css',
   animations: [appModuleAnimation()],
   standalone: true,
-  imports: [FormsModule, TableModule, PrimeTemplate, NgIf, PaginatorModule,AvatarModule,
+  imports: [FormsModule, TableModule, PrimeTemplate, NgIf, PaginatorModule, AvatarModule,
     BreadcrumbModule, CardModule, InputTextModule, LocalizePipe, ButtonModule, DatePipe],
   providers: [PatientDischargeServiceProxy]
 })
@@ -84,5 +84,8 @@ export class ListComponent extends PagedListingComponentBase<PatientDischargeDto
     const firstInitial = words[0].charAt(0).toUpperCase();
     const lastInitial = words.length > 1 ? words[words.length - 1].charAt(0).toUpperCase() : '';
     return firstInitial + lastInitial;
+  }
+  downloadPDF(pID: number) {
+    alert("only backend api configure front end logic pending");
   }
 }
