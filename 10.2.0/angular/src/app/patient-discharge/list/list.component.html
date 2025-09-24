@@ -48,7 +48,7 @@
                                     Dr. {{ record.doctor.fullName }}
                                 </td>
                                 <td>
-                                    <span class="pi pi-download"></span>
+                                    <a class="pi pi-download" (click)="downloadPDF(record.patient.id)"></a>
                                 </td>
                             </tr>
                         </ng-template>

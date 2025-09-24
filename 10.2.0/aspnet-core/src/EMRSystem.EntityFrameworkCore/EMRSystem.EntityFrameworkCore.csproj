@@ -8,7 +8,11 @@
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="BouncyCastle.NetCore" Version="2.2.1" />
     <PackageReference Include="EFCore.BulkExtensions" Version="9.0.1" />
+    <PackageReference Include="itext7" Version="9.3.0" />
+    <PackageReference Include="itext7.bouncy-castle-adapter" Version="9.3.0" />
+    <PackageReference Include="itext7.pdfhtml" Version="6.2.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.9" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.9">
       <PrivateAssets>all</PrivateAssets>
@@ -18,6 +22,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="QuestPDF" Version="2025.7.1" />
     <PackageReference Include="Stripe.net" Version="48.5.0" />
   </ItemGroup>
   <ItemGroup>

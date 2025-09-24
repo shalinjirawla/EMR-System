@@ -14,5 +14,6 @@ namespace EMRSystem.Patient_Discharge
     public interface IPatientDischargeAppService : IAsyncCrudAppService<
     PatientDischargeDto, long, PagedPatientDischargeResultRequestDto, CreateUpdatePatientDischargeDto, CreateUpdatePatientDischargeDto>
     {
+        Task<DischargeSummaryDto> PatientDischargeSummaryAsync(long patientID);
     }
 }
