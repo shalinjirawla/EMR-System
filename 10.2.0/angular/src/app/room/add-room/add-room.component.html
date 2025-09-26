@@ -1,9 +1,10 @@
-<form class="form-horizontal" #createRoomModal="ngForm" (ngSubmit)="save()" autocomplete="off">
+<form class="form-horizontal d-flex flex-column" style="max-height: 90vh; display: flex; flex-direction: column;"
+  #createRoomModal="ngForm" (ngSubmit)="save()" autocomplete="off">
 
-  <abp-modal-header title="Create New Room" (onCloseClick)="bsModalRef.hide()">
+  <abp-modal-header style="flex: 0 0 auto;" title="Create New Room" (onCloseClick)="bsModalRef.hide()">
   </abp-modal-header>
 
-  <div class="modal-body">
+  <div class="modal-body flex-grow-1" style="overflow-y: auto; padding-right: 15px;">
     <!-- Room number + floor row -->
     <div class="row">
       <div class="col-md-6">
@@ -37,7 +38,7 @@
     </div>
   </div>
 
-  <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="!createRoomModal.form.valid || saving"
-    (onCancelClick)="bsModalRef.hide()">
+  <abp-modal-footer style="flex: 0 0 auto;" [cancelDisabled]="saving"
+    [saveDisabled]="!createRoomModal.form.valid || saving" (onCancelClick)="bsModalRef.hide()">
   </abp-modal-footer>
 </form>

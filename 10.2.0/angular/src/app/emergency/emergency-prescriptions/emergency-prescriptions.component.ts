@@ -98,8 +98,8 @@ export class EmergencyPrescriptionsComponent extends PagedListingComponentBase<P
       }
     }
 
-    const fromDate = this.dateRange?.[0] ? moment(this.dateRange[0]) : undefined;
-    const toDate = this.dateRange?.[1] ? moment(this.dateRange[1]) : undefined;
+    const fromDate = this.dateRange?.[0] ? moment(this.dateRange[0]).startOf('day').utc() : undefined;
+      const toDate = this.dateRange?.[1] ? moment(this.dateRange[1]).endOf('day').utc() : undefined;
 
     this.primengTableHelper.showLoadingIndicator();
 

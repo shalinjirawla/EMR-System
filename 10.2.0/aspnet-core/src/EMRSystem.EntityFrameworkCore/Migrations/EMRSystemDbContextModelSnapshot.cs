@@ -4308,7 +4308,7 @@ namespace EMRSystem.Migrations
                     b.HasOne("EMRSystem.Prescriptions.Prescription", "Prescriptions")
                         .WithOne("Consultation_Requests")
                         .HasForeignKey("EMRSystem.Doctors.ConsultationRequests", "PrescriptionId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("EMRSystem.Doctors.Doctor", "RequestedSpecialist")
                         .WithMany("RequestedSpecialist_Consultation_Requests")
@@ -4409,7 +4409,7 @@ namespace EMRSystem.Migrations
                     b.HasOne("EMRSystem.Prescriptions.Prescription", "Prescriptions")
                         .WithMany("EmergencyChargeEntries")
                         .HasForeignKey("PrescriptionId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("EmergencyCase");
 
@@ -4483,7 +4483,7 @@ namespace EMRSystem.Migrations
                     b.HasOne("EMRSystem.Prescriptions.Prescription", "Prescriptions")
                         .WithMany("IpdChargeEntries")
                         .HasForeignKey("PrescriptionId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Admission");
 
@@ -4567,7 +4567,7 @@ namespace EMRSystem.Migrations
                     b.HasOne("EMRSystem.LabReports.PrescriptionLabTest", "PrescriptionLabTest")
                         .WithMany("LabReportResultItems")
                         .HasForeignKey("PrescriptionLabTestId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("PrescriptionLabTest");
@@ -4838,7 +4838,7 @@ namespace EMRSystem.Migrations
                     b.HasOne("EMRSystem.Prescriptions.Prescription", "Prescriptions")
                         .WithMany("PharmacistPrescriptions")
                         .HasForeignKey("PrescriptionId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Nurse");
 
@@ -4901,7 +4901,7 @@ namespace EMRSystem.Migrations
                     b.HasOne("EMRSystem.Prescriptions.Prescription", "Prescription")
                         .WithMany("Items")
                         .HasForeignKey("PrescriptionId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("PharmacistPrescription");
 

@@ -1,20 +1,14 @@
-<form class="form-horizontal" autocomplete="off" #editAppoinmentForm="ngForm" (ngSubmit)="save()">
-  <abp-modal-header title="Edit Appointment" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
+<form class="form-horizontal d-flex flex-column" style="height: 90vh; display: flex; flex-direction: column;"
+  autocomplete="off" #editAppoinmentForm="ngForm" (ngSubmit)="save()">
+  <abp-modal-header style="flex: 0 0 auto;" title="Edit Appointment"
+    (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
 
-  <div class="modal-body">
+  <div class="modal-body flex-grow-1" style="overflow-y: auto; padding-right: 15px;">
     <!-- Patient Selection -->
     <div class="form-group mb-3">
       <label>Select Patient</label>
-      <p-select 
-        [options]="patients" 
-        optionLabel="fullName" 
-        optionValue="id"
-        placeholder="Select a patient"
-        [(ngModel)]="appointment.patientId" 
-        name="patientId" 
-        class="w-100" 
-        required
-        [disabled]="true">
+      <p-select [options]="patients" optionLabel="fullName" optionValue="id" placeholder="Select a patient"
+        [(ngModel)]="appointment.patientId" name="patientId" class="w-100" required [disabled]="true">
       </p-select>
     </div>
 
@@ -22,31 +16,15 @@
     <div class="row g-3 mb-3">
       <div class="col-md-6">
         <label>Department</label>
-        <p-select 
-          [options]="departments" 
-          optionLabel="departmentName" 
-          optionValue="id"
-          placeholder="Select department"
-          [(ngModel)]="appointment.departmentId" 
-          name="departmentId"
-          (onChange)="onSelectDepartment($event.value)"
-          class="w-100" 
-          required
-          [disabled]="true">
+        <p-select [options]="departments" optionLabel="departmentName" optionValue="id" placeholder="Select department"
+          [(ngModel)]="appointment.departmentId" name="departmentId" (onChange)="onSelectDepartment($event.value)"
+          class="w-100" required [disabled]="true">
         </p-select>
       </div>
       <div class="col-md-6">
         <label>Select Doctor</label>
-        <p-select 
-          [options]="departmentWiseDoctors" 
-          optionLabel="fullName" 
-          optionValue="id"
-          placeholder="Select doctor"
-          [(ngModel)]="appointment.doctorId" 
-          name="doctorId" 
-          class="w-100" 
-          required
-          [disabled]="true">
+        <p-select [options]="departmentWiseDoctors" optionLabel="fullName" optionValue="id" placeholder="Select doctor"
+          [(ngModel)]="appointment.doctorId" name="doctorId" class="w-100" required [disabled]="true">
         </p-select>
       </div>
     </div>
@@ -55,28 +33,14 @@
     <div class="row g-3 mb-3">
       <div class="col-md-6">
         <label>Appointment Type</label>
-        <p-select 
-          [options]="appointmentTypes" 
-          optionLabel="name" 
-          optionValue="id"
-          placeholder="Select type"
-          [(ngModel)]="appointment.appointmentTypeId" 
-          name="appointmentTypeId" 
-          class="w-100" 
-          required>
+        <p-select [options]="appointmentTypes" optionLabel="name" optionValue="id" placeholder="Select type"
+          [(ngModel)]="appointment.appointmentTypeId" name="appointmentTypeId" class="w-100" required>
         </p-select>
       </div>
       <div class="col-md-6">
         <label>Status</label>
-        <p-select 
-          [options]="statusOptions" 
-          optionLabel="label" 
-          optionValue="value"
-          placeholder="Select status"
-          [(ngModel)]="appointment.status" 
-          name="status" 
-          class="w-100" 
-          required>
+        <p-select [options]="statusOptions" optionLabel="label" optionValue="value" placeholder="Select status"
+          [(ngModel)]="appointment.status" name="status" class="w-100" required>
         </p-select>
       </div>
     </div>
@@ -84,23 +48,14 @@
     <!-- Appointment Date -->
     <div class="form-group mb-3">
       <label>Appointment Date</label>
-      <p-datepicker 
-        [(ngModel)]="appointment.appointmentDate" 
-        name="appointmentDate" 
-        [showIcon]="true"
-        placeholder="Select appointment date" 
-        [minDate]="today" 
-        class="w-100" 
-        required>
+      <p-datepicker [(ngModel)]="appointment.appointmentDate" name="appointmentDate" [showIcon]="true"
+        placeholder="Select appointment date" [minDate]="today" class="w-100" required>
       </p-datepicker>
     </div>
 
     <!-- Is Follow-Up -->
     <div class="form-group mb-3 d-flex align-items-center">
-      <p-checkbox 
-        [(ngModel)]="appointment.isFollowUp" 
-        name="isFollowUp" 
-        binary="true">
+      <p-checkbox [(ngModel)]="appointment.isFollowUp" name="isFollowUp" binary="true">
       </p-checkbox>
       <label class="mb-0 ml-2"><b>Is Follow-Up</b></label>
     </div>
@@ -108,21 +63,13 @@
     <!-- Reason -->
     <div class="form-group mb-3">
       <label>Reason for Visit</label>
-      <textarea 
-        pTextarea 
-        [(ngModel)]="appointment.reasonForVisit" 
-        name="reasonForVisit" 
-        placeholder="Reason for visit"
-        rows="3" 
-        class="form-control" 
-        required>
+      <textarea pTextarea [(ngModel)]="appointment.reasonForVisit" name="reasonForVisit" placeholder="Reason for visit"
+        rows="3" class="form-control" required>
       </textarea>
     </div>
   </div>
 
-  <abp-modal-footer 
-    [cancelDisabled]="saving" 
-    [saveDisabled]="isSaveDisabled()" 
+  <abp-modal-footer style="flex: 0 0 auto;" [cancelDisabled]="saving" [saveDisabled]="isSaveDisabled()"
     (onCancelClick)="bsModalRef.hide()">
   </abp-modal-footer>
 </form>

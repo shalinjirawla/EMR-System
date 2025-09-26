@@ -1,7 +1,9 @@
-<form class="form-horizontal" autocomplete="off" #editPrescriptionForm="ngForm" (ngSubmit)="save()">
-  <abp-modal-header title="Edit Prescription" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
+<form class="form-horizontal d-flex flex-column" style="height: 90vh; display: flex; flex-direction: column;"
+  autocomplete="off" #editPrescriptionForm="ngForm" (ngSubmit)="save()">
+  <abp-modal-header style="flex: 0 0 auto;" title="Edit Prescription"
+    (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
 
-  <div class="modal-body">
+  <div class="modal-body flex-grow-1" style="overflow-y: auto; padding-right: 15px;">
 
     <!-- Patient Selection -->
     <div class="row">
@@ -157,6 +159,7 @@
     </div>
   </div>
 
-  <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="isSaveDisabled()" (onCancelClick)="bsModalRef.hide()">
+  <abp-modal-footer style="flex: 0 0 auto;" [cancelDisabled]="saving" [saveDisabled]="isSaveDisabled()"
+    (onCancelClick)="bsModalRef.hide()">
   </abp-modal-footer>
 </form>

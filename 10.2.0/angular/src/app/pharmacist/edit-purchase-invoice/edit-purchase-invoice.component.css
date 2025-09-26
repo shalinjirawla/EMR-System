@@ -18,35 +18,3 @@
 ::ng-deep .p-datepicker{
     width: 100% !important;
 }
-/* Purchase items container with scroll */
-.purchase-items-container {
-    max-height: 500px; /* height adjust karo apne modal ke hisaab se */
-    overflow-y: auto;
-    padding-right: 5px; /* scrollbar ke liye thoda space */
-}
-
-/* Optional: scrollbar styling */
-.purchase-items-container::-webkit-scrollbar {
-    width: 6px;
-}
-
-.purchase-items-container::-webkit-scrollbar-thumb {
-    background-color: rgba(0,0,0,0.2);
-    border-radius: 3px;
-}
-/* Make modal scrollable inside */
-::ng-deep .modal-body {
-    max-height: 70vh; /* modal ki maximum height (adjust kar sakte ho) */
-    overflow-y: auto;
-    padding-right: 10px; /* scrollbar ke liye thoda space */
-}
-
-/* Optional: scrollbar styling */
-::ng-deep .modal-body::-webkit-scrollbar {
-    width: 6px;
-}
-
-::ng-deep .modal-body::-webkit-scrollbar-thumb {
-    background-color: rgba(0,0,0,0.2);
-    border-radius: 3px;
-}

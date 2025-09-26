@@ -1,214 +1,134 @@
 <div [@routerTransition]>
     <section class="content-header">
         <div class="container-fluid">
-            <div class="row">
-                <div class="col-6">
-                    <h1>Patients</h1>
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <p-breadcrumb [model]="items"></p-breadcrumb>
+                </div>
+                <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+                    <div class="btn-group mr-1" role="group" aria-label="Third group" pTooltip="Refresh"
+                        tooltipPosition="top" (click)="refresh()">
+                        <button type="button" class="btn btn-md refresh-btn">
+                            <span class="pi pi-refresh"></span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
-    <section class="content px-2 pb-3">
+
+    <section class="content px-2 pb-5">
         <div class="container-fluid">
-            <div class="card table-wrapper">
-                <div class="card-header">
-                    <div class="row">
-                        <div class="col-md-6">&emsp;</div>
-                        <div class="col-md-6">
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <button type="button" class="btn bg-blue" (click)="list()">
-                                        <i class="fas fa-search"></i>
-                                    </button>
-                                </div>
-                                <input type="text" class="form-control" name="keyword"
-                                    [placeholder]="'SearchWithThreeDot' | localize" [(ngModel)]="keyword"
-                                    (keyup.enter)="list()" />
-                                <div class="input-group-append">
-                                    <button type="button" class="btn btn-default"
-                                        (click)="advancedFiltersVisible = !advancedFiltersVisible">
-                                        <i class="fas" [class.fa-angle-up]="advancedFiltersVisible"
-                                            [class.fa-angle-down]="!advancedFiltersVisible"></i>
-                                    </button>
-                                </div>
-                            </div>
+            <div class="card mb-0 table-wrapper">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <!-- Filter Button -->
+                        <div class="ml-2 btn-group mr-1" role="group" aria-label="Second group" pTooltip="Filter"
+                            tooltipPosition="top" (click)="statusMenu.toggle($event)">
+                            <button type="button" class="btn btn-md refresh-btn">
+                                <span class="pi pi-filter"></span>
+                            </button>
                         </div>
-                    </div>
-                    @if (advancedFiltersVisible) {
-                    <div class="card mb-0 mt-1">
-                        <div class="card-body">
-                            <form class="form-horizontal">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group row mb-0">
-                                            <label class="col-md-3 col-form-label">
-                                                {{ 'IsActive' | localize }}
-                                            </label>
-                                            <div class="col-md-9 pt-2">
-                                                <div class="custom-control custom-radio d-inline">
-                                                    <input type="radio" class="custom-control-input" id="isActiveAll"
-                                                        name="isActive" [(ngModel)]="isActive" [value]="undefined"
-                                                        checked />
-                                                    <label class="custom-control-label" for="isActiveAll">
-                                                        {{ 'All' | localize }}
-                                                    </label>
-                                                </div>
-                                                <div class="custom-control custom-radio d-inline mx-3">
-                                                    <input type="radio" class="custom-control-input" id="isActiveActive"
-                                                        name="isActive" [(ngModel)]="isActive" [value]="true" />
-                                                    <label class="custom-control-label" for="isActiveActive">
-                                                        {{ 'Yes' | localize }}
-                                                    </label>
-                                                </div>
-                                                <div class="custom-control custom-radio d-inline">
-                                                    <input type="radio" class="custom-control-input"
-                                                        id="isActivePassive" name="isActive" [(ngModel)]="isActive"
-                                                        [value]="false" />
-                                                    <label class="custom-control-label" for="isActivePassive">
-                                                        {{ 'No' | localize }}
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
+
+                        <p-overlayPanel #statusMenu class="custom-overlay" [dismissable]="true">
+                            <ul class="custom-overlay-menu list-unstyled mb-0 p-3">
+                                <li>
+                                    <div class="custom-control custom-radio d-inline">
+                                        <input type="radio" class="custom-control-input" id="isActiveAll"
+                                            name="isActive" [(ngModel)]="isActive" [value]="undefined" checked>
+                                        <label class="custom-control-label" for="isActiveAll">
+                                            {{ 'All' | localize }}
+                                        </label>
                                     </div>
-                                </div>
-                            </form>
-                        </div>
-                        <div class="card-footer">
-                            <button type="button" class="btn bg-blue">
-                                {{ 'Search' | localize }}
-                            </button>
-                            <button type="button" class="btn btn-default float-right" (click)="clearFilters()">
-                                {{ 'Clear' | localize }}
-                            </button>
+                                </li>
+                                <li class="mt-2">
+                                    <div class="custom-control custom-radio d-inline">
+                                        <input type="radio" class="custom-control-input" id="isActiveActive"
+                                            name="isActive" [(ngModel)]="isActive" [value]="true">
+                                        <label class="custom-control-label" for="isActiveActive">
+                                            {{ 'Yes' | localize }}
+                                        </label>
+                                    </div>
+                                </li>
+                                <li class="mt-2">
+                                    <div class="custom-control custom-radio d-inline">
+                                        <input type="radio" class="custom-control-input" id="isActivePassive"
+                                            name="isActive" [(ngModel)]="isActive" [value]="false">
+                                        <label class="custom-control-label" for="isActivePassive">
+                                            {{ 'No' | localize }}
+                                        </label>
+                                    </div>
+                                </li>
+                            </ul>
+                        </p-overlayPanel>
+
+                        <!-- Search Box -->
+                        <div>
+                            <input class="search-bar-text" type="text" pInputText [(ngModel)]="keyword"
+                                [placeholder]="'SearchWithThreeDot' | localize" (input)="list()" />
                         </div>
                     </div>
-                    }
-                </div>
-                <div class="card-body table-responsive table-striped table-bordered">
-                    <div class="primeng-datatable-container">
-                        <p-table #dataTable sortMode="multiple" [value]="primengTableHelper.records"
-                            rows="{{ primengTableHelper.defaultRecordsCountPerPage }}" [paginator]="false" [lazy]="true"
-                            [tableStyle]="{ 'min-width': '50rem' }" (onLazyLoad)="list($event)">
-                            <ng-template pTemplate="header">
-                                <tr>
-                                    <th pSortableColumn="fullName">
-                                        {{ 'FullName' | localize }}
-                                        <p-sortIcon field="fullName"></p-sortIcon>
-                                    </th>
-                                    <th>
-                                        Age/Gender
-                                    </th>
-                                    <th *ngIf="showDoctorColumn">
-                                        Assigned Doctor
-                                    </th>
-                                    <th>
-                                        Assigned Nurse
-                                    </th>
-                                    <th>
-                                        Is Admitted
-                                    </th>
-                                    <th>
-                                        Status
-                                    </th>
-                                    <th style="min-width: 130px">
-                                        {{ 'Actions' | localize }}
-                                    </th>
-                                </tr>
-                            </ng-template>
 
-                            <ng-template pTemplate="body" let-record="$implicit">
-                                <tr>
-                                    <td>
-                                        <!-- <img [src]="getRandomAvatar()" class="rounded-circle mr-2" /> -->
-                                        <span>
-                                            {{ record.fullName }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span>
-                                            {{calculateAge(record.dateOfBirth)}} • {{record.gender}}
-                                        </span>
-                                    </td>
-                                    <td *ngIf="showDoctorColumn">
-                                        <span>
-                                            {{ record.doctorName || '-' }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span>
-                                            {{ record.nurseName || '-' }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span>
-                                            {{ record.isAdmitted }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <p-tag [value]="getStatusLabel(record.discharge_Status)"
-                                            *ngIf="record.isAdmitted"
-                                            [severity]="getStatusSeverity(record.discharge_Status)" [rounded]="true">
-                                        </p-tag>
-                                    </td>
-                                    <td>
-                                        <button type="button" pButton icon="pi pi-ellipsis-v" class="p-button-text"
-                                            (click)="rowMenu.toggle($event); selectedRecord = record">
-                                        </button>
-                                        <p-overlayPanel #rowMenu class="custom-overlay" [dismissable]="true">
-                                            <ul class="custom-overlay-menu">
-                                                <li *ngIf="record.isAdmitted && record.discharge_Status < 9"
-                                                    (click)="gotoDischargeSummaryPage(selectedRecord.id)">
-                                                    <i class="fa-solid fa-right-from-bracket"></i>Discharge Process
-                                                </li>
-                                                <li (click)="showCreatePrescriptionDialog(selectedRecord)">
-                                                    <i class="fa-solid fa-file-medical"></i> Create Prescription
-                                                </li>
-                                                <li (click)="showPatientDetailsDialog(selectedRecord.id)">
-                                                    <i class="fa-solid fa-eye"></i> View
-                                                </li>
-                                                <li (click)="showCreatePatientDialog(selectedRecord.id)">
-                                                    <i class="fa-solid fa-pencil"></i> Edit
-                                                </li>
-                                                <li (click)="delete(selectedRecord)">
-                                                    <i class="fa-solid fa-trash"></i> Delete
-                                                </li>
-                                            </ul>
-                                        </p-overlayPanel>
-                                    </td>
-                                </tr>
-                            </ng-template>
-                        </p-table>
-                        <div class="primeng-no-data text-center m-2" *ngIf="primengTableHelper.totalRecordsCount == 0">
-                            {{ 'NoData' | localize }}
-                        </div>
-                        <div class="ui-table-footer"></div>
+                    <!-- Patients Table -->
+                    <p-table #dataTable sortMode="multiple" [value]="primengTableHelper.records"
+                        rows="{{ primengTableHelper.defaultRecordsCountPerPage }}" [paginator]="false" [lazy]="true"
+                       [tableStyle]="{ 'min-width': '50rem' }" (onLazyLoad)="list($event)">
+                        <ng-template #header>
+                            <tr>
+                                <th pSortableColumn="fullName">
+                                    {{ 'FullName' | localize }}
+                                    <p-sortIcon field="fullName"></p-sortIcon>
+                                </th>
+                                <th>Age/Gender</th>
+                                <th *ngIf="showDoctorColumn">Assigned Doctor</th>
+                                <th>Assigned Nurse</th>
+                                <th>Is Admitted</th>
+                                <th>Status</th>
+                                <th style="min-width: 130px">{{ 'Actions' | localize }}</th>
+                            </tr>
+                        </ng-template>
+
+                        <ng-template pTemplate="body" let-record="$implicit">
+                            <tr>
+                                <td>
+                                    <span>{{ record.fullName }}</span>
+                                </td>
+                                <td>{{ calculateAge(record.dateOfBirth) }} • {{ record.gender }}</td>
+                                <td *ngIf="showDoctorColumn">{{ record.doctorName || '-' }}</td>
+                                <td>{{ record.nurseName || '-' }}</td>
+                                <td>{{ record.isAdmitted }}</td>
+                                <td>
+                                    <span [className]="getStatusSeverity(record.discharge_Status)"
+                                        *ngIf="record.isAdmitted">
+                                        {{ getStatusLabel(record.discharge_Status) }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm border rounded-1 px-3" type="button"
+                                        style="background-color: #f8fafc;"
+                                        (click)="rowMenu.toggle($event); selectedRecord = record">
+                                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                                    </button>
+                                    <p-menu #rowMenu [popup]="true" [style]="{'min-width':'120px','max-width':'180px'}"
+                                        [model]="getPatientMenu(record)" appendTo="body"></p-menu>
+
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+
+                    <div class="primeng-no-data text-center m-2" *ngIf="primengTableHelper.totalRecordsCount == 0">
+                        {{ 'NoData' | localize }}
                     </div>
                 </div>
 
-
-                <div class="card-footer table-card-footer bg-white border-top">
-                    <div class="row">
-                        <div class="col-sm-4 col-12 text-sm-left text-center">
-                            <button class="btn btn-secondary" (click)="refresh()">
-                                <i class="fas fa-redo-alt"></i>
-                            </button>
-                        </div>
-                        <div class="col-sm-8 col-12">
-                            <div class="float-sm-right m-auto">
-                                <div class="primeng-paging-container">
-                                    <p-paginator [rows]="primengTableHelper.defaultRecordsCountPerPage" #paginator
-                                        (onPageChange)="list($event)"
-                                        [totalRecords]="primengTableHelper.totalRecordsCount"
-                                        [rowsPerPageOptions]="primengTableHelper.predefinedRecordsCountPerPage"
-                                        [showCurrentPageReport]="true" [currentPageReportTemplate]="
-                                            'TotalRecordsCount' | localize: primengTableHelper.totalRecordsCount
-                                        "></p-paginator>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <!-- Footer -->
+                <p-paginator [rows]="primengTableHelper.defaultRecordsCountPerPage" #paginator
+                    (onPageChange)="list($event)" [totalRecords]="primengTableHelper.totalRecordsCount"
+                    [rowsPerPageOptions]="primengTableHelper.predefinedRecordsCountPerPage"
+                    [showCurrentPageReport]="true"
+                    [currentPageReportTemplate]="'TotalRecordsCount' | localize: primengTableHelper.totalRecordsCount">
+                </p-paginator>
             </div>
         </div>
     </section>

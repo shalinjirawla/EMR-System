@@ -1,6 +1,7 @@
-<form class="form-horizontal" autocomplete="off" #createVitalForm="ngForm" (ngSubmit)="save()">
-  <abp-modal-header title="Record Vitals" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
-  <div class="modal-body">
+<form class="form-horizontal d-flex flex-column" style="height: 90vh; display: flex; flex-direction: column;"
+  autocomplete="off" #createVitalForm="ngForm" (ngSubmit)="save()">
+  <abp-modal-header style="flex: 0 0 auto;" title="Record Vitals" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
+  <div class="modal-body flex-grow-1" style="overflow-y: auto; padding-right: 15px;">
 
     <div class="row">
       <div class="col-md-6 d-flex flex-column">
@@ -69,6 +70,6 @@
     </div>
 
   </div>
-  <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="!createVitalForm.valid || saving"
+  <abp-modal-footer style="flex: 0 0 auto;" [cancelDisabled]="saving" [saveDisabled]="!createVitalForm.valid || saving"
     (onCancelClick)="bsModalRef.hide()"></abp-modal-footer>
 </form>

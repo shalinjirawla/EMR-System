@@ -1,6 +1,8 @@
-<form class="form-horizontal" autocomplete="off" #createRoleForm="ngForm" (ngSubmit)="save()">
-    <abp-modal-header [title]="'CreateNewRole' | localize" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
-    <div class="modal-body">
+<form class="form-horizontal d-flex flex-column" autocomplete="off" #createRoleForm="ngForm" (ngSubmit)="save()"
+      style="max-height: 90vh; display: flex; flex-direction: column;">
+    <abp-modal-header [title]="'CreateNewRole' | localize" (onCloseClick)="bsModalRef.hide()"
+                      style="flex: 0 0 auto;"></abp-modal-header>
+    <div class="modal-body flex-grow-1" style="overflow-y: auto; padding-right: 15px;">
         <tabset>
             <tab [heading]="'Details' | localize" class="pt-3 px-2">
                 <div class="form-group row required">
@@ -78,8 +80,7 @@
             </tab>
         </tabset>
     </div>
-    <abp-modal-footer
-        [cancelDisabled]="saving"
-        [saveDisabled]="!createRoleForm.form.valid || saving"
-        (onCancelClick)="bsModalRef.hide()"></abp-modal-footer>
+    <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="!createRoleForm.form.valid || saving"
+                      (onCancelClick)="bsModalRef.hide()" style="flex: 0 0 auto;"></abp-modal-footer>
+
 </form>

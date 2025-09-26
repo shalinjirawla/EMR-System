@@ -1,8 +1,9 @@
-﻿<form class="form-horizontal" autocomplete="off" #editUserForm="ngForm" (ngSubmit)="save()">
-    <abp-modal-header [title]="'EditUser' | localize" (onCloseClick)="bsModalRef.hide()">
+﻿<form class="form-horizontal d-flex flex-column" autocomplete="off" #editUserForm="ngForm" (ngSubmit)="save()"
+    style="height: 90vh; display: flex; flex-direction: column;">
+    <abp-modal-header  style="flex: 0 0 auto;" [title]="'EditUser' | localize" (onCloseClick)="bsModalRef.hide()">
     </abp-modal-header>
 
-    <div class="modal-body">
+    <div class="modal-body flex-grow-1" style="overflow-y: auto; padding-right: 15px;">
         <div class="d-flex justify-content-end">
             <div>
                 <label>{{ 'IsActive' | localize }}</label>
@@ -81,7 +82,7 @@
         </app-edit-patients>
     </div>
 
-    <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="!isFormValid || saving"
+    <abp-modal-footer  style="flex: 0 0 auto;" [cancelDisabled]="saving" [saveDisabled]="!isFormValid || saving"
         (onCancelClick)="bsModalRef.hide()">
     </abp-modal-footer>
 </form>

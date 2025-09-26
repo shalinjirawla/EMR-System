@@ -1,8 +1,10 @@
-<form class="form-horizontal" autocomplete="off" #labTestForm="ngForm" (ngSubmit)="save()">
-    <abp-modal-header [title]="id ? 'Edit Lab Test' : 'Create Lab Tests'"
+<form class="form-horizontal d-flex flex-column" style="height: 90vh; display: flex; flex-direction: column;"
+    autocomplete="off" #labTestForm="ngForm" (ngSubmit)="save()">
+    
+    <abp-modal-header style="flex: 0 0 auto;" [title]="id ? 'Edit Lab Test' : 'Create Lab Tests'"
         (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
 
-    <div class="modal-body">
+    <div class="modal-body flex-grow-1" style="overflow-y: auto; padding-right: 15px;">
         <div class="form-group" *ngIf="!id">
             <label><b>Test Names *</b></label>
             <p-autoComplete [(ngModel)]="selectedTestNames" name="testNames" [suggestions]="filteredTestNames"
@@ -28,6 +30,6 @@
         </div>
     </div>
 
-    <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="!isFormValid || saving"
+    <abp-modal-footer style="flex: 0 0 auto;" [cancelDisabled]="saving" [saveDisabled]="!isFormValid || saving"
         (onCancelClick)="bsModalRef.hide()"></abp-modal-footer>
 </form>

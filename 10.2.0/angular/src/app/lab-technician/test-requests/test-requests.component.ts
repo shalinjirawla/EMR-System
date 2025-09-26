@@ -225,7 +225,7 @@ export class TestRequestsComponent extends PagedListingComponentBase<Prescriptio
     ViewLabReport(id?: number) {
         let viewReportDialog: BsModalRef;
         viewReportDialog = this._modalService.show(ViewLabReportComponent, {
-            class: 'modal-xl',
+            class: 'modal-lg',
             initialState: {
                 id: id,
             },

@@ -2,10 +2,12 @@
     <div class="overlay" *ngIf="isSaving">
         <p-progressSpinner></p-progressSpinner>
     </div>
-    <form class="form-horizontal" autocomplete="off" #createPharmacistPrescriptionForm="ngForm" (ngSubmit)="save()">
-        <abp-modal-header title="Edit Pharmacist Prescription" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
+    <form class="form-horizontal d-flex flex-column" style="height: 90vh; display: flex; flex-direction: column;"
+        autocomplete="off" #createPharmacistPrescriptionForm="ngForm" (ngSubmit)="save()">
+        <abp-modal-header style="flex: 0 0 auto;" title="Edit Pharmacist Prescription"
+            (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
 
-        <div class="modal-body">
+        <div class="modal-body flex-grow-1" style="overflow-y: auto; padding-right: 15px;">
             <!-- Selected Prescription -->
             <div class="row">
                 <div class="col-md-12">
@@ -78,7 +80,8 @@
                     <div *ngIf="newPrescriptionItem as item" class="d-flex align-items-center mt-3 mb-3">
                         <p-dropdown appendTo="self" [(ngModel)]="item.medicineId" [options]="medicineOptions"
                             optionLabel="label" optionValue="value" placeholder="Select Medicine" class="w-25 mr-2"
-                            name="itemMedicine" [optionDisabled]="'disabled'" (onChange)="onMedicineChange(item)" required>
+                            name="itemMedicine" [optionDisabled]="'disabled'" (onChange)="onMedicineChange(item)"
+                            required>
                         </p-dropdown>
                         <p-dropdown appendTo="self"
                             *ngIf="item.medicineName && medicineDosageOptions[item.medicineName]"
@@ -103,8 +106,8 @@
                         </div>
 
                         <textarea pInputText [(ngModel)]="item.instructions" name="itemInstructions" class="mr-2"
-                            style="min-width:150px; max-width:100px; flex:1" placeholder="Instructions"
-                            rows="1" required></textarea>
+                            style="min-width:150px; max-width:100px; flex:1" placeholder="Instructions" rows="1"
+                            required></textarea>
 
                         <p-inputNumber name="medicinePrice" inputId="integeronly" [(ngModel)]="item.unitPrice"
                             class="w-25 mr-2" placeholder="Price" [disabled]="true"></p-inputNumber>
@@ -112,8 +115,8 @@
                         <p-inputNumber [(ngModel)]="item.qty" [showButtons]="true" [min]="1" name="qtyNewItem"
                             (ngModelChange)="onQtyChange(item, $event)"></p-inputNumber>
 
-                        <p-button variant="text" severity="success" (click)="addItem()"
-                            icon="fa-solid fa-check" [disabled]="!itemForm.form.valid"></p-button>
+                        <p-button variant="text" severity="success" (click)="addItem()" icon="fa-solid fa-check"
+                            [disabled]="!itemForm.form.valid"></p-button>
                         <p-button variant="text" severity="danger" (click)="newPrescriptionItem = null"
                             icon="fa-solid fa-xmark"></p-button>
                     </div>
@@ -145,7 +148,7 @@
             </div> -->
         </div>
 
-        <abp-modal-footer [cancelDisabled]="isSaving"
+        <abp-modal-footer [cancelDisabled]="isSaving" style="flex: 0 0 auto;"
             [saveDisabled]="!createPharmacistPrescriptionForm.form.valid || isSaving"
             (onCancelClick)="bsModalRef.hide()">
             <ng-container *ngIf="isSaving">
