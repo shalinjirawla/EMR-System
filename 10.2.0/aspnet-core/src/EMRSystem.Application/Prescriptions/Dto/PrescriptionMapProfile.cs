@@ -47,7 +47,9 @@ namespace EMRSystem.Prescriptions.Dto
 
             // 🟢 Missing mappings
             CreateMap<Doctors.ConsultationRequests, CreateUpdateConsultationRequestsDto>().ReverseMap();
-            CreateMap<EmergencyProcedure.SelectedEmergencyProcedures, CreateUpdateSelectedEmergencyProceduresDto>().ReverseMap();
+            CreateMap<EmergencyProcedure.SelectedEmergencyProcedures, CreateUpdateSelectedEmergencyProceduresDto>()
+                .ReverseMap()
+                .ForMember(dest => dest.Id, opt => opt.Ignore());
         }
     }
 

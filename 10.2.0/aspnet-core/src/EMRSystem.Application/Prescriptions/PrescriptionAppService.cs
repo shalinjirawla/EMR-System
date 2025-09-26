@@ -96,6 +96,11 @@ namespace EMRSystem.Prescriptions
 
                 var userId = AbpSession.UserId;
                 var doctor = _doctorAppService.GetDoctorDetailsByAbpUserID(userId.Value);
+                var fromDateLocal = input.FromDate?.ToLocalTime();
+                var toDateLocal = input.ToDate?.ToLocalTime();
+
+
+
 
                 var dataa = Repository
                     .GetAll()
@@ -108,8 +113,8 @@ namespace EMRSystem.Prescriptions
                         x.Patient.FullName.Contains(input.Keyword) ||
                         x.Doctor.FullName.Contains(input.Keyword) ||
                         x.Items.Any(i => i.MedicineName.Contains(input.Keyword)))
-                    .WhereIf(input.FromDate.HasValue, x => x.IssueDate >= input.FromDate.Value)
-                    .WhereIf(input.ToDate.HasValue, x => x.IssueDate <= input.ToDate.Value)
+                    .WhereIf(fromDateLocal.HasValue, x => x.IssueDate >= fromDateLocal.Value)
+                    .WhereIf(toDateLocal.HasValue, x => x.IssueDate <= toDateLocal.Value)
                     .WhereIf(doctor != null, x => x.Doctor.Id == doctor.Id)
                     .Select(x => new Prescription
                     {
@@ -504,30 +509,52 @@ namespace EMRSystem.Prescriptions
 
 
             // Handle procedure update
+            // Handle procedure update
             var existingProcedure = existingPrescription.SelectedEmergencyProcedureses.ToList();
+
             // Update existing items or add new ones
             if (input.EmergencyProcedures != null && input.EmergencyProcedures.Any())
             {
                 foreach (var inputItem2 in input.EmergencyProcedures)
                 {
-                    var existingItem2 = existingProcedure.FirstOrDefault(i => i.Id == inputItem2.EmergencyProcedureId);
+                    var existingItem2 = existingProcedure
+                        .FirstOrDefault(i => i.EmergencyProcedureId == inputItem2.EmergencyProcedureId);
+
                     if (existingItem2 != null)
                     {
                         ObjectMapper.Map(inputItem2, existingItem2);
+
+                        // ✅ agar emergency prescription hai to IsPaid = true force kar do
+                        if (input.IsEmergencyPrescription)
+                        {
+                            existingItem2.IsPaid = true;
+                        }
                     }
                     else
                     {
                         var newItem2 = ObjectMapper.Map<EMRSystem.EmergencyProcedure.SelectedEmergencyProcedures>(inputItem2);
+
+                        // ✅ agar emergency prescription hai to IsPaid = true force kar do
+                        if (input.IsEmergencyPrescription)
+                        {
+                            newItem2.IsPaid = true;
+                        }
+
                         existingPrescription.SelectedEmergencyProcedureses.Add(newItem2);
                     }
                 }
             }
+
             // Remove items that are no longer in the input
-            var itemsToRemove2 = existingProcedure.Where(ei => !input.EmergencyProcedures.Any(ii => ii.EmergencyProcedureId == ei.Id)).ToList();
+            var itemsToRemove2 = existingProcedure
+                .Where(ei => !input.EmergencyProcedures.Any(ii => ii.EmergencyProcedureId == ei.EmergencyProcedureId))
+                .ToList();
+
             foreach (var item2 in itemsToRemove2)
             {
                 existingPrescription.SelectedEmergencyProcedureses.Remove(item2);
             }
+
 
             await Repository.UpdateAsync(existingPrescription);
             await CurrentUnitOfWork.SaveChangesAsync();

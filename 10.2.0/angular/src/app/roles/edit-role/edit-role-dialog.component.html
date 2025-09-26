@@ -1,6 +1,7 @@
-<form class="form-horizontal" autocomplete="off" #editRoleForm="ngForm" (ngSubmit)="save()">
-    <abp-modal-header [title]="'EditRole' | localize" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
-    <div class="modal-body">
+<form class="form-horizontal d-flex flex-column" autocomplete="off" #editRoleForm="ngForm" (ngSubmit)="save()"
+    style="max-height: 90vh; display: flex; flex-direction: column;">
+    <abp-modal-header [title]="'EditRole' | localize" (onCloseClick)="bsModalRef.hide()" style="flex: 0 0 auto;"></abp-modal-header>
+   <div class="modal-body flex-grow-1" style="overflow-y: auto; padding-right: 15px;">
         <tabset>
             <tab [heading]="'Details' | localize" class="pt-3 px-2">
                 <div class="form-group row required">
@@ -8,17 +9,8 @@
                         {{ 'Name' | localize }}
                     </label>
                     <div class="col-md-9">
-                        <input
-                            type="text"
-                            class="form-control"
-                            name="name"
-                            id="name"
-                            required
-                            minlength="2"
-                            maxlength="32"
-                            [(ngModel)]="role.name"
-                            #nameModel="ngModel"
-                            #nameEl />
+                        <input type="text" class="form-control" name="name" id="name" required minlength="2"
+                            maxlength="32" [(ngModel)]="role.name" #nameModel="ngModel" #nameEl />
                         <abp-validation-summary [control]="nameModel" [controlEl]="nameEl"></abp-validation-summary>
                     </div>
                 </div>
@@ -27,19 +19,10 @@
                         {{ 'DisplayName' | localize }}
                     </label>
                     <div class="col-md-9">
-                        <input
-                            type="text"
-                            class="form-control"
-                            name="displayName"
-                            id="displayName"
-                            required
-                            minlength="2"
-                            maxlength="32"
-                            [(ngModel)]="role.displayName"
-                            #displayNameModel="ngModel"
+                        <input type="text" class="form-control" name="displayName" id="displayName" required
+                            minlength="2" maxlength="32" [(ngModel)]="role.displayName" #displayNameModel="ngModel"
                             #displayNameEl />
-                        <abp-validation-summary
-                            [control]="displayNameModel"
+                        <abp-validation-summary [control]="displayNameModel"
                             [controlEl]="displayNameEl"></abp-validation-summary>
                     </div>
                 </div>
@@ -48,11 +31,7 @@
                         {{ 'RoleDescription' | localize }}
                     </label>
                     <div class="col-md-9">
-                        <textarea
-                            type="text"
-                            class="form-control"
-                            name="description"
-                            id="description"
+                        <textarea type="text" class="form-control" name="description" id="description"
                             [(ngModel)]="role.description"></textarea>
                     </div>
                 </div>
@@ -60,26 +39,21 @@
             <tab [heading]="'Permissions' | localize" class="pt-3 px-2">
                 <div class="form-group row mb-0">
                     @for (permission of permissions; track permission; let i = $index) {
-                        <div class="col-md-6">
-                            <div class="custom-control custom-checkbox">
-                                <input
-                                    type="checkbox"
-                                    class="custom-control-input"
-                                    [id]="'permission_' + i"
-                                    [checked]="isPermissionChecked(permission.name)"
-                                    (change)="onPermissionChange(permission, $event)" />
-                                <label class="custom-control-label" [for]="'permission_' + i">
-                                    {{ permission.displayName }}
-                                </label>
-                            </div>
+                    <div class="col-md-6">
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" [id]="'permission_' + i"
+                                [checked]="isPermissionChecked(permission.name)"
+                                (change)="onPermissionChange(permission, $event)" />
+                            <label class="custom-control-label" [for]="'permission_' + i">
+                                {{ permission.displayName }}
+                            </label>
                         </div>
+                    </div>
                     }
                 </div>
             </tab>
         </tabset>
     </div>
-    <abp-modal-footer
-        [cancelDisabled]="saving"
-        [saveDisabled]="!editRoleForm.form.valid || saving"
-        (onCancelClick)="bsModalRef.hide()"></abp-modal-footer>
+    <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="!editRoleForm.form.valid || saving"
+        (onCancelClick)="bsModalRef.hide()" style="flex: 0 0 auto;"></abp-modal-footer>
 </form>

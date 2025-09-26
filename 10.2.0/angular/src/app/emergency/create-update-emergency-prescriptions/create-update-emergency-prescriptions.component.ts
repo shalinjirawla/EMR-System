@@ -476,6 +476,7 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
         tenantId: abp.session.tenantId,
         medicineName: item.medicineName,
         medicineId: item.medicineId,
+        medicineFormId:item.medicineFormId,
         dosage: item.dosage,
         frequency: item.frequency,
         duration: `${item.durationValue} ${item.durationUnit}`,

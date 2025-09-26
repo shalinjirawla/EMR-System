@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, Injector, OnInit, ViewChild } from '@angu
 import { Table, TableModule } from 'primeng/table';
 import { Paginator, PaginatorModule } from 'primeng/paginator';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
-import { DischargeStatus, PatientDischargeServiceProxy, PatientDto, PatientServiceProxy, PatientsForDoctorAndNurseDtoPagedResultDto, UserServiceProxy } from '@shared/service-proxies/service-proxies';
+import { DischargeStatus, PatientDischargeServiceProxy, PatientDto, PatientServiceProxy, PatientsForDoctorAndNurseDto, PatientsForDoctorAndNurseDtoPagedResultDto, UserServiceProxy } from '@shared/service-proxies/service-proxies';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { ActivatedRoute } from '@angular/router';
 import { PagedListingComponentBase } from 'shared/paged-listing-component-base';
@@ -45,15 +45,17 @@ import { CheckboxModule } from 'primeng/checkbox';
 export class PatientComponent extends PagedListingComponentBase<PatientDto> implements OnInit {
     @ViewChild('dataTable', { static: true }) dataTable: Table;
     @ViewChild('paginator', { static: true }) paginator: Paginator;
-    items: MenuItem[] | undefined;
-    editDeleteMenus: MenuItem[] | undefined;
+
+    items: MenuItem[] = []; // breadcrumb
+    patientMenus: MenuItem[] = []; // row actions
     patients: PatientDto[] = [];
+
     keyword = '';
-    isActive: boolean | null;
-    advancedFiltersVisible = false;
-    showDoctorColumn: boolean = false;
-    showNurseColumn: boolean = false;
-    selectedRecord: PatientDto;
+    isActive: boolean | null | undefined;
+    showDoctorColumn = false;
+    showNurseColumn = false;
+    selectedRecord: PatientsForDoctorAndNurseDto;
+
     statusOptions = [
         { label: 'Pending', value: DischargeStatus._0 },
         { label: 'Initiated', value: DischargeStatus._1 },
@@ -66,6 +68,7 @@ export class PatientComponent extends PagedListingComponentBase<PatientDto> impl
         { label: 'Final Approval', value: DischargeStatus._8 },
         { label: 'Discharged', value: DischargeStatus._9 },
     ];
+
     constructor(
         injector: Injector,
         private _modalService: BsModalService,
@@ -78,42 +81,57 @@ export class PatientComponent extends PagedListingComponentBase<PatientDto> impl
         super(injector, cd);
         this.keyword = this._activatedRoute.snapshot.queryParams['filterText'] || '';
     }
+
     ngOnInit(): void {
         this.GetLoggedInUserRole();
+
+        // Breadcrumb
         this.items = [
             { label: 'Home', routerLink: '/' },
-            { label: 'Users' },
+            { label: this.l('Patients') }
         ];
-        // this.editDeleteMenus = [
-        //     {
-        //         label: 'Edit',
-        //         icon: 'pi pi-pencil',
-        //         command: () => this.edi(this.selectedRecord)  // call edit
-        //     },
-        //     {
-        //         label: 'Delete',
-        //         icon: 'pi pi-trash',
-        //         command: () => this.delete(this.selectedRecord)  // call delete
-        //     },
-        //     {
-        //         label: 'ResetPassword',
-        //         icon: 'fas fa-lock',
-        //         command: () => this.resetPassword(this.selectedRecord)  // call resetPassword
-        //     }
-        // ];
     }
+    getPatientMenu(record: PatientsForDoctorAndNurseDto): MenuItem[] {
+        return [
+            {
+                label: this.l('View'),
+                icon: 'pi pi-eye',
+                command: () => this.showPatientDetailsDialog(record.id),
+            },
+            {
+                label: this.l('Prescription'),
+                icon: 'pi pi-file-edit',
+                command: () => this.showCreatePrescriptionDialog({ id: record.id } as PatientDto),
+            },
+            {
+                label: this.l('Discharge'),
+                icon: 'pi pi-sign-out',
+                visible: record.isAdmitted && record.discharge_Status < 9,
+                command: () => this.gotoDischargeSummaryPage(record.id),
+            },
+            { separator: true },
+            {
+                label: this.l('Delete'),
+                icon: 'pi pi-trash',
+                command: () => this.delete({ id: record.id } as PatientDto),
+            },
+        ];
+    }
+
+
     clearFilters(): void {
         this.keyword = '';
         this.isActive = undefined;
     }
+
     list(event?: LazyLoadEvent): void {
         if (this.primengTableHelper.shouldResetPaging(event)) {
             this.paginator.changePage(0);
-
             if (this.primengTableHelper.records && this.primengTableHelper.records.length > 0) {
                 return;
             }
         }
+
         this.primengTableHelper.showLoadingIndicator();
 
         this._patientService
@@ -123,19 +141,14 @@ export class PatientComponent extends PagedListingComponentBase<PatientDto> impl
                 this.primengTableHelper.getSkipCount(this.paginator, event),
                 this.primengTableHelper.getMaxResultCount(this.paginator, event)
             )
-            .pipe(
-                finalize(() => {
-                    this.primengTableHelper.hideLoadingIndicator();
-                })
-            )
+            .pipe(finalize(() => this.primengTableHelper.hideLoadingIndicator()))
             .subscribe((result: PatientsForDoctorAndNurseDtoPagedResultDto) => {
                 this.primengTableHelper.records = result.items;
-                console.log("result.items ", result.items);
                 this.primengTableHelper.totalRecordsCount = result.totalCount;
-                this.primengTableHelper.hideLoadingIndicator();
                 this.cd.detectChanges();
             });
     }
+
     delete(patient: PatientDto): void {
         abp.message.confirm(this.l('UserDeleteWarningMessage'), undefined, (result: boolean) => {
             if (result) {
@@ -146,67 +159,55 @@ export class PatientComponent extends PagedListingComponentBase<PatientDto> impl
             }
         });
     }
+
     showCreatePrescriptionDialog(patient: PatientDto): void {
-        let createPrescriptionDialog: BsModalRef;
-        createPrescriptionDialog = this._modalService.show(CreatePrescriptionsComponent, {
-            class: 'modal-xl',
-            initialState: {
-                selectedPatient: patient   // 👈 patient को pass कर रहे हैं
-            },
+        const createPrescriptionDialog: BsModalRef = this._modalService.show(CreatePrescriptionsComponent, {
+            class: 'modal-lg',
+            initialState: { selectedPatient: patient },
         });
 
-        createPrescriptionDialog.content.onSave.subscribe(() => {
-            this.refresh();
-        });
+        createPrescriptionDialog.content.onSave.subscribe(() => this.refresh());
     }
-    showCreatePatientDialog(id?: number): void {
-        let createOrEditPatientDialog: BsModalRef;
-        if (!id) {
-            createOrEditPatientDialog = this._modalService.show(CreateUserDialogComponent, {
-                class: 'modal-lg',
-                initialState: {
-                    defaultRole: 'Patient',
-                    disableRoleSelection: true
-                }
-            });
-        }
-        createOrEditPatientDialog.content.onSave.subscribe(() => {
-            this.refresh();
-        });
-    }
-    showPatientDetailsDialog(id: number): void {
-        let patientDetailsDialog: BsModalRef;
-        patientDetailsDialog = this._modalService.show(PatientProfileComponent, {
+
+    showCreatePatientDialog(): void {
+        const createOrEditPatientDialog: BsModalRef = this._modalService.show(CreateUserDialogComponent, {
             class: 'modal-lg',
-            initialState: {
-                id: id,
-            },
+            initialState: { defaultRole: 'Patient', disableRoleSelection: true },
+        });
+
+        createOrEditPatientDialog.content.onSave.subscribe(() => this.refresh());
+    }
+
+    showPatientDetailsDialog(id: number): void {
+        this._modalService.show(PatientProfileComponent, {
+            class: 'modal-lg',
+            initialState: { id: id },
         });
     }
+
     calculateAge(dob: string | Date): number {
         const birthDate = new Date(dob);
         const today = new Date();
-
         let age = today.getFullYear() - birthDate.getFullYear();
 
-        const hasBirthdayPassedThisYear =
+        const hasBirthdayPassed =
             today.getMonth() > birthDate.getMonth() ||
             (today.getMonth() === birthDate.getMonth() && today.getDate() >= birthDate.getDate());
 
-        if (!hasBirthdayPassedThisYear) {
-            age--;
-        }
-
+        if (!hasBirthdayPassed) age--;
         return age;
     }
+
     getRandomAvatar(): string {
-        const randomId = Math.floor(Math.random() * 100) + 1; // IDs from 1 to 100
+        const randomId = Math.floor(Math.random() * 100) + 1;
         return `https://i.pravatar.cc/150?img=${randomId}`;
     }
-    GetLoggedInUserRole() {
-        this._patientService.getCurrentUserRoles().subscribe(res => {
+
+    GetLoggedInUserRole(): void {
+        this._patientService.getCurrentUserRoles().subscribe((res) => {
             this.showDoctorColumn = false;
             this.showNurseColumn = false;
+
             if (res && Array.isArray(res)) {
                 if (res.includes('Admin')) {
                     this.showDoctorColumn = true;
@@ -220,27 +221,32 @@ export class PatientComponent extends PagedListingComponentBase<PatientDto> impl
             this.cd.detectChanges();
         });
     }
+
     getStatusLabel(value: number): string {
-        const status = this.statusOptions.find(s => s.value === value);
-        const dataa = status ? status.label : '';
-        return dataa;
+        const status = this.statusOptions.find((s) => s.value === value);
+        return status ? status.label : '';
     }
-    getStatusSeverity(value: number) {
+
+    getStatusSeverity(value: number): string {
         switch (value) {
-            case DischargeStatus._0: return 'warn';
-            case DischargeStatus._1: return 'warn';
-            case DischargeStatus._2: return 'warn';
-            case DischargeStatus._3: return 'warn';
-            case DischargeStatus._4: return 'warn';
-            case DischargeStatus._5: return 'warn';
-            case DischargeStatus._6: return 'warn';
-            case DischargeStatus._7: return 'warn';
-            case DischargeStatus._8: return 'success';
-            case DischargeStatus._9: return 'success';
-            default: return 'warn';
+            case DischargeStatus._0:
+            case DischargeStatus._1:
+            case DischargeStatus._2:
+            case DischargeStatus._3:
+            case DischargeStatus._4:
+            case DischargeStatus._5:
+            case DischargeStatus._6:
+            case DischargeStatus._7:
+                return 'badge-soft-primary p-1 rounded';
+            case DischargeStatus._8:
+            case DischargeStatus._9:
+                return 'badge-soft-success p-1 rounded';
+            default:
+                return 'badge-soft-teal p-1 rounded';
         }
     }
+
     gotoDischargeSummaryPage(id: number): void {
-        this.router.navigate(['app/patient-discharge/create', id],);
+        this.router.navigate(['app/patient-discharge/create', id]);
     }
 }

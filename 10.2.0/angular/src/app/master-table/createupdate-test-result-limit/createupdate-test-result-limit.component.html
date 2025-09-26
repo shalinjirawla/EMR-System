@@ -1,13 +1,14 @@
-<form class="form-horizontal" autocomplete="off" #labForm="ngForm" (ngSubmit)="save()">
-  <abp-modal-header [title]="id ? 'Edit Test Result Limit' : 'Create Test Result Limits'"
+<form class="form-horizontal d-flex flex-column" style="height: 90vh; display: flex; flex-direction: column;"
+  autocomplete="off" #labForm="ngForm" (ngSubmit)="save()">
+  <abp-modal-header style="flex: 0 0 auto;" [title]="id ? 'Edit Test Result Limit' : 'Create Test Result Limits'"
     (onCloseClick)="modalRef.hide()"></abp-modal-header>
 
-  <div class="modal-body">
+  <div class="modal-body flex-grow-1" style="overflow-y: auto; padding-right: 15px;">
 
     <!-- Multiselect only in Create mode -->
     <div class="form-group" *ngIf="!id">
       <label>{{ 'Select Lab Tests' | localize }}</label>
-      <div class="card flex justify-center">  
+      <div class="card flex justify-center">
         <p-multiSelect [options]="labTests" [(ngModel)]="selectedLabTests" name="selectedLabTests" optionLabel="name"
           (onChange)="onTestChange()" [filter]="true" placeholder="Select lab tests"></p-multiSelect>
       </div>
@@ -33,9 +34,10 @@
         </div>
       </div>
     </div>
-
-    <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="!labForm.valid || !testLimits.length || saving"
-      (onCancelClick)="modalRef.hide()"></abp-modal-footer>
-
   </div>
+  <abp-modal-footer style="flex: 0 0 auto;" [cancelDisabled]="saving"
+    [saveDisabled]="!labForm.valid || !testLimits.length || saving"
+    (onCancelClick)="modalRef.hide()"></abp-modal-footer>
+
+
 </form>

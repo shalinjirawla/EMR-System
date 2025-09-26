@@ -1,43 +1,46 @@
-<form class="form-horizontal" autocomplete="off" #labResultForm="ngForm" (ngSubmit)="save()">
-    <abp-modal-header title="Generate Lab Report - {{testName}}" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
+<form class="form-horizontal d-flex flex-column" style="height: 90vh; display: flex; flex-direction: column;"
+    autocomplete="off" #labResultForm="ngForm" (ngSubmit)="save()">
+    <abp-modal-header style="flex: 0 0 auto;" title="Generate Lab Report - {{testName}}"
+        (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
 
-    <div class="modal-body">
+    <div class="modal-body flex-grow-1" style="overflow-y: auto; padding-right: 15px;">
         <div class="patient-info">
             <span class="label">Patient:</span>
             <span class="value">{{ patientName }}</span>
         </div>
         <div class="table-container" *ngIf="labReportItems.length > 0">
-        <table class="lab-report-table">
-            <thead>
-                <tr>
-                    <th>Test</th>
-                    <th>Min Value</th>
-                    <th>Max Value</th>
-                    <th>Result</th>
-                    <th>Unit</th>
-                    <th>Flag</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let item of labReportItems; let i = index">
-                    <td>{{ item.test }}</td>
-                    <td>{{ item.minValue }}</td>
-                    <td>{{ item.maxValue }}</td>
-                    <td>
-                        <input type="text" pInputText [(ngModel)]="item.result" [name]="'itemResult' + i"
-                            (ngModelChange)="onResultChange(item)" class="result-input" placeholder="Result" />
-                    </td>
-                    <td >{{ item.unit }}</td>
-                    <td>
-                        <p-tag [severity]="getSeverity(item.flag)"
-                            [value]="item.flag && item.flag !== 'NA' ? item.flag : 'Unset'"></p-tag>
-                    </td>
-                </tr>
-            </tbody>
+            <table class="lab-report-table">
+                <thead>
+                    <tr>
+                        <th>Test</th>
+                        <th>Min Value</th>
+                        <th>Max Value</th>
+                        <th>Result</th>
+                        <th>Unit</th>
+                        <th>Flag</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of labReportItems; let i = index">
+                        <td>{{ item.test }}</td>
+                        <td>{{ item.minValue }}</td>
+                        <td>{{ item.maxValue }}</td>
+                        <td>
+                            <input type="text" pInputText [(ngModel)]="item.result" [name]="'itemResult' + i"
+                                (ngModelChange)="onResultChange(item)" class="result-input" placeholder="Result" />
+                        </td>
+                        <td>{{ item.unit }}</td>
+                        <td>
+                            <p-tag [severity]="getSeverity(item.flag)"
+                                [value]="item.flag && item.flag !== 'NA' ? item.flag : 'Unset'"></p-tag>
+                        </td>
+                    </tr>
+                </tbody>
 
-        </table>
+            </table>
         </div>
     </div>
-    <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="isSaveDisabled()" (onCancelClick)="bsModalRef.hide()">
+    <abp-modal-footer style="flex: 0 0 auto;" [cancelDisabled]="saving" [saveDisabled]="isSaveDisabled()"
+        (onCancelClick)="bsModalRef.hide()">
     </abp-modal-footer>
 </form>

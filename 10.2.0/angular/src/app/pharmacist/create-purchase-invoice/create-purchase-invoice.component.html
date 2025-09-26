@@ -1,7 +1,9 @@
-<form class="form-horizontal" autocomplete="off" #purchaseInvoiceForm="ngForm" (ngSubmit)="save()">
-  <abp-modal-header title="Add Purchase Invoice" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
+<form class="form-horizontal d-flex flex-column" style="height: 90vh; display: flex; flex-direction: column;"
+  autocomplete="off" #purchaseInvoiceForm="ngForm" (ngSubmit)="save()">
+  <abp-modal-header style="flex: 0 0 auto;" title="Add Purchase Invoice"
+    (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
 
-  <div class="modal-body">
+  <div class="modal-body flex-grow-1" style="overflow-y: auto; padding-right: 15px;">
     <!-- Invoice Info -->
     <div class="row">
       <div class="col-md-6 d-flex flex-column">
@@ -33,73 +35,74 @@
         <button type="button" pButton label="Add Item" icon="pi pi-plus" (click)="addItem()"></button>
       </div>
     </div>
-     <div class="purchase-items-container mt-2">
-    <div class="card mt-2" *ngFor="let item of invoice.items; let i = index">
-      <div class="card-body">
-        <div class="col-md-12 d-flex justify-content-end mt-1">
-          <p-button icon="pi pi-times" [rounded]="true" [text]="true" severity="danger" (click)="removeItem(i)" />
-        </div>
-        <div class="row mt-2">
-
-          <!-- Medicine -->
-          <div class="col-md-4 d-flex flex-column">
-            <label>Medicine</label>
-            <p-dropdown [(ngModel)]="item.medicineMasterId" name="medicineMasterId{{i}}" [options]="medicineOptions"
-              optionLabel="name" optionValue="id" placeholder="Select medicine" [filter]="true" required>
-            </p-dropdown>
+    <div class="purchase-items-container mt-2">
+      <div class="card mt-2" *ngFor="let item of invoice.items; let i = index">
+        <div class="card-body">
+          <div class="col-md-12 d-flex justify-content-end mt-1">
+            <p-button icon="pi pi-times" [rounded]="true" [text]="true" severity="danger" (click)="removeItem(i)" />
           </div>
+          <div class="row mt-2">
 
-          <!-- Batch No -->
-          <div class="col-md-4 d-flex flex-column">
-            <label>Batch No</label>
-            <input pInputText [(ngModel)]="item.batchNo" name="batchNo{{i}}" placeholder="Enter batch no" required />
+            <!-- Medicine -->
+            <div class="col-md-4 d-flex flex-column">
+              <label>Medicine</label>
+              <p-dropdown [(ngModel)]="item.medicineMasterId" name="medicineMasterId{{i}}" [options]="medicineOptions"
+                optionLabel="name" optionValue="id" placeholder="Select medicine" [filter]="true" required>
+              </p-dropdown>
+            </div>
+
+            <!-- Batch No -->
+            <div class="col-md-4 d-flex flex-column">
+              <label>Batch No</label>
+              <input pInputText [(ngModel)]="item.batchNo" name="batchNo{{i}}" placeholder="Enter batch no" required />
+            </div>
+
+            <!-- Expiry Date -->
+            <div class="col-md-4 d-flex flex-column">
+              <label>Expiry Date</label>
+              <p-calendar [(ngModel)]="item.expiryDate" name="expiryDate{{i}}" [minDate]="today" dateFormat="yy-mm-dd"
+                placeholder="Select expiry date" required></p-calendar>
+
+              <small class="text-danger" *ngIf="isExpiryInvalid(item) && purchaseInvoiceForm.submitted">
+                Expiry date is required and must be in the future
+              </small>
+            </div>
           </div>
+          <div class="row mt-2">
+            <!-- Qty -->
+            <div class="col-md-4 d-flex flex-column">
+              <label>Qty</label>
+              <p-inputNumber [(ngModel)]="item.quantity" name="quantity{{i}}" [min]="1" [max]="10000"
+                (onInput)="updateInvoiceTotal()" required></p-inputNumber>
+            </div>
 
-          <!-- Expiry Date -->
-          <div class="col-md-4 d-flex flex-column">
-            <label>Expiry Date</label>
-            <p-calendar [(ngModel)]="item.expiryDate" name="expiryDate{{i}}" [minDate]="today" dateFormat="yy-mm-dd"
-              placeholder="Select expiry date" required></p-calendar>
+            <!-- Purchase Price -->
+            <div class="col-md-4 d-flex flex-column">
+              <label>Purchase Price</label>
+              <p-inputNumber [(ngModel)]="item.purchasePrice" name="purchasePrice{{i}}" [min]="1" [mode]="'decimal'"
+                (onInput)="updateInvoiceTotal()" required [minFractionDigits]="2"
+                [maxFractionDigits]="2"></p-inputNumber>
+              <small class="text-danger" *ngIf="item.purchasePrice <= 0 && purchaseInvoiceForm.submitted">
+                Purchase price must be greater than 0
+              </small>
+            </div>
 
-            <small class="text-danger" *ngIf="isExpiryInvalid(item) && purchaseInvoiceForm.submitted">
-              Expiry date is required and must be in the future
-            </small>
-          </div>
-        </div>
-        <div class="row mt-2">
-          <!-- Qty -->
-          <div class="col-md-4 d-flex flex-column">
-            <label>Qty</label>
-            <p-inputNumber [(ngModel)]="item.quantity" name="quantity{{i}}" [min]="1" [max]="10000"
-              (onInput)="updateInvoiceTotal()" required></p-inputNumber>
-          </div>
-
-          <!-- Purchase Price -->
-          <div class="col-md-4 d-flex flex-column">
-            <label>Purchase Price</label>
-            <p-inputNumber [(ngModel)]="item.purchasePrice" name="purchasePrice{{i}}" [min]="1" [mode]="'decimal'"
-              (onInput)="updateInvoiceTotal()" required [minFractionDigits]="2" [maxFractionDigits]="2"></p-inputNumber>
-            <small class="text-danger" *ngIf="item.purchasePrice <= 0 && purchaseInvoiceForm.submitted">
-              Purchase price must be greater than 0
-            </small>
-          </div>
-
-          <!-- Selling Price -->
-          <div class="col-md-4 d-flex flex-column">
-            <label>Selling Price</label>
-            <p-inputNumber [(ngModel)]="item.sellingPrice" name="sellingPrice{{i}}" [min]="1" [mode]="'decimal'"
-              required [minFractionDigits]="2" [maxFractionDigits]="2"></p-inputNumber>
-            <small class="text-danger" *ngIf="item.sellingPrice <= 0 && purchaseInvoiceForm.submitted">
-              Selling price must be greater than 0
-            </small>
-            <small class="text-danger"
-              *ngIf="item.sellingPrice < item.purchasePrice && purchaseInvoiceForm.controls['sellingPrice'+i]?.dirty">
-              Selling price cannot be less than purchase price
-            </small>
+            <!-- Selling Price -->
+            <div class="col-md-4 d-flex flex-column">
+              <label>Selling Price</label>
+              <p-inputNumber [(ngModel)]="item.sellingPrice" name="sellingPrice{{i}}" [min]="1" [mode]="'decimal'"
+                required [minFractionDigits]="2" [maxFractionDigits]="2"></p-inputNumber>
+              <small class="text-danger" *ngIf="item.sellingPrice <= 0 && purchaseInvoiceForm.submitted">
+                Selling price must be greater than 0
+              </small>
+              <small class="text-danger"
+                *ngIf="item.sellingPrice < item.purchasePrice && purchaseInvoiceForm.controls['sellingPrice'+i]?.dirty">
+                Selling price cannot be less than purchase price
+              </small>
+            </div>
           </div>
         </div>
       </div>
-    </div>
     </div>
     <hr>
     <!-- Grand Total -->
@@ -110,6 +113,6 @@
     </div>
   </div>
 
-  <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="!isFormValid || saving"
+  <abp-modal-footer style="flex: 0 0 auto;" [cancelDisabled]="saving" [saveDisabled]="!isFormValid || saving"
     (onCancelClick)="bsModalRef.hide()"></abp-modal-footer>
 </form>

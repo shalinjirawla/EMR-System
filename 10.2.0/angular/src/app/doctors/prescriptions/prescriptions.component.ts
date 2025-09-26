@@ -94,38 +94,41 @@ export class PrescriptionsComponent extends PagedListingComponentBase<Prescripti
     this.dateRange = [];
     this.list();
   }
-  list(event?: LazyLoadEvent): void {
-    if (this.primengTableHelper.shouldResetPaging(event)) {
-      this.paginator.changePage(0);
-      if (this.primengTableHelper.records && this.primengTableHelper.records.length > 0) {
-        return;
-      }
+list(event?: LazyLoadEvent): void {
+  if (this.primengTableHelper.shouldResetPaging(event)) {
+    this.paginator.changePage(0);
+    if (this.primengTableHelper.records && this.primengTableHelper.records.length > 0) {
+      return;
     }
-
-    const fromDate = this.dateRange?.[0] ? moment(this.dateRange[0]) : undefined;
-    const toDate = this.dateRange?.[1] ? moment(this.dateRange[1]) : undefined;
-
-    this.primengTableHelper.showLoadingIndicator();
-
-    this._prescriptionService
-      .getAll(
-        this.keyword,
-        this.primengTableHelper.getSorting(this.dataTable),
-        fromDate,
-        toDate,
-        this.primengTableHelper.getSkipCount(this.paginator, event),
-        this.primengTableHelper.getMaxResultCount(this.paginator, event)
-      )
-      .pipe(finalize(() => {
-        this.primengTableHelper.hideLoadingIndicator();
-      }))
-      .subscribe((result: PrescriptionDtoPagedResultDto) => {
-        const filteredItems = result.items.filter(x => !x.isEmergencyPrescription);
-        this.primengTableHelper.records = filteredItems;
-        this.primengTableHelper.totalRecordsCount = filteredItems.length;
-        this.cd.detectChanges();
-      });
   }
+
+  const fromDate = this.dateRange?.[0] ? moment(this.dateRange[0]).startOf('day').utc() : undefined;
+  const toDate = this.dateRange?.[1] ? moment(this.dateRange[1]).endOf('day').utc() : undefined;
+
+  console.log('FromDate (UTC):', fromDate?.toISOString());
+  console.log('ToDate (UTC):', toDate?.toISOString());
+
+  this.primengTableHelper.showLoadingIndicator();
+
+  this._prescriptionService
+    .getAll(
+      this.keyword,
+      this.primengTableHelper.getSorting(this.dataTable),
+      fromDate,
+      toDate,
+      this.primengTableHelper.getSkipCount(this.paginator, event),
+      this.primengTableHelper.getMaxResultCount(this.paginator, event)
+    )
+    .pipe(finalize(() => this.primengTableHelper.hideLoadingIndicator()))
+    .subscribe((result: PrescriptionDtoPagedResultDto) => {
+      const filteredItems = result.items.filter(x => !x.isEmergencyPrescription);
+      this.primengTableHelper.records = filteredItems;
+      this.primengTableHelper.totalRecordsCount = filteredItems.length;
+      this.cd.detectChanges();
+    });
+}
+
+
   protected delete(entity: PrescriptionDto): void {
     abp.message.confirm("Are you sure u want to delete this", undefined, (result: boolean) => {
       if (result) {

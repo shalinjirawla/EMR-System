@@ -1,8 +1,9 @@
-<form class="form-horizontal" autocomplete="off" #emergencyPrescriptionForm="ngForm" (ngSubmit)="save()">
-  <abp-modal-header [title]="id>0?'Edit Emergency Prescription':'Create Emergency Prescription'"
+<form class="form-horizontal d-flex flex-column" style="height: 90vh; display: flex; flex-direction: column;"
+  autocomplete="off" #emergencyPrescriptionForm="ngForm" (ngSubmit)="save()">
+  <abp-modal-header style="flex: 0 0 auto;" [title]="id>0?'Edit Emergency Prescription':'Create Emergency Prescription'"
     (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
 
-  <div class="modal-body scrollable-body">
+  <div class="modal-body flex-grow-1" style="overflow-y: auto; padding-right: 15px;">
 
     <!-- Emergency Selection -->
     <div class="row">
@@ -172,6 +173,7 @@
     </div>
   </div>
 
-  <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="isSaveDisabled()" (onCancelClick)="bsModalRef.hide()">
+  <abp-modal-footer style="flex: 0 0 auto;" [cancelDisabled]="saving" [saveDisabled]="isSaveDisabled()"
+    (onCancelClick)="bsModalRef.hide()">
   </abp-modal-footer>
 </form>

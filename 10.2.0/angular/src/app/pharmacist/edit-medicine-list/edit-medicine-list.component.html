@@ -1,67 +1,65 @@
-<form class="form-horizontal" autocomplete="off" #editMedicineModal="ngForm" (ngSubmit)="save()">
-  <abp-modal-header title="Edit Medicine" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
+<form class="form-horizontal d-flex flex-column" style="height: 90vh; display: flex; flex-direction: column;"
+  autocomplete="off" #editMedicineModal="ngForm" (ngSubmit)="save()">
+  <abp-modal-header style="flex: 0 0 auto;" title="Edit Medicine" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
 
-  <div class="modal-body">
+  <div class="modal-body flex-grow-1" style="overflow-y: auto; padding-right: 15px;">
     <div class="row">
       <div class="col-md-12 d-flex flex-column">
         <label for="name">Medicine Name</label>
-        <input pInputText [(ngModel)]="medicine.name" name="name"
-               placeholder="Enter medicine name" class="w-100" required />
+        <input pInputText [(ngModel)]="medicine.name" name="name" placeholder="Enter medicine name" class="w-100"
+          required />
       </div>
     </div>
 
     <div class="row mt-3">
       <div class="col-md-6 d-flex flex-column">
         <label for="form">Form</label>
-        <p-dropdown [(ngModel)]="medicine.medicineFormId" name="medicineFormId" [filter]="true"
-                    [options]="formOptions" optionLabel="name" optionValue="id"
-                    placeholder="Select form" class="w-100" required>
+        <p-dropdown [(ngModel)]="medicine.medicineFormId" name="medicineFormId" [filter]="true" [options]="formOptions"
+          optionLabel="name" optionValue="id" placeholder="Select form" class="w-100" required>
         </p-dropdown>
       </div>
       <div class="col-md-6 d-flex flex-column">
         <label for="minimumStock">Minimum Stock</label>
-        <p-inputNumber [(ngModel)]="medicine.minimumStock" name="minimumStock"
-                       placeholder="Enter minimum stock" [min]="1" [max]="10000"
-                       class="w-100" required>
+        <p-inputNumber [(ngModel)]="medicine.minimumStock" name="minimumStock" placeholder="Enter minimum stock"
+          [min]="1" [max]="10000" class="w-100" required>
         </p-inputNumber>
       </div>
-      
+
     </div>
 
     <div class="row mt-3">
-        <div class="col-md-6 d-flex flex-column">
+      <div class="col-md-6 d-flex flex-column">
         <label for="strength">Strength</label>
-        <p-inputNumber [(ngModel)]="medicine.strength" name="strength" placeholder="Enter strength"
-                       [min]="1" [max]="10000" class="w-100">
+        <p-inputNumber [(ngModel)]="medicine.strength" name="strength" placeholder="Enter strength" [min]="1"
+          [max]="10000" class="w-100">
         </p-inputNumber>
       </div>
       <div class="col-md-6 d-flex flex-column">
         <label for="strengthUnitId">Strength Unit</label>
         <p-dropdown [(ngModel)]="medicine.strengthUnitId" name="strengthUnitId" [filter]="true"
-                    [options]="strengthUnitOptions" optionLabel="name" optionValue="id"
-                    placeholder="Select unit" class="w-100">
+          [options]="strengthUnitOptions" optionLabel="name" optionValue="id" placeholder="Select unit" class="w-100">
         </p-dropdown>
       </div>
-      
+
     </div>
 
     <div class="row mt-3">
       <div class="col-md-12 d-flex flex-column">
         <label for="description">Description</label>
-        <textarea pTextarea [(ngModel)]="medicine.description" name="description"
-                  placeholder="Enter description" rows="3" class="w-100"></textarea>
+        <textarea pTextarea [(ngModel)]="medicine.description" name="description" placeholder="Enter description"
+          rows="3" class="w-100"></textarea>
       </div>
     </div>
 
     <div class="row mt-3">
       <div class="col-md-12 d-flex align-items-center">
         <p-checkbox [(ngModel)]="medicine.isAvailable" name="isAvailable" binary="true"
-                    inputId="isAvailable"></p-checkbox>
+          inputId="isAvailable"></p-checkbox>
         <label for="isAvailable" class="ml-2 mb-0">Is Available</label>
       </div>
     </div>
   </div>
 
-  <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="!isFormValid || saving"
-                    (onCancelClick)="bsModalRef.hide()"></abp-modal-footer>
+  <abp-modal-footer style="flex: 0 0 auto;" [cancelDisabled]="saving" [saveDisabled]="!isFormValid || saving"
+    (onCancelClick)="bsModalRef.hide()"></abp-modal-footer>
 </form>

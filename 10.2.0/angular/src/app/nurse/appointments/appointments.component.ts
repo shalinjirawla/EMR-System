@@ -9,7 +9,7 @@ import { LazyLoadEvent, PrimeTemplate } from 'primeng/api';
 import { ActivatedRoute } from '@angular/router';
 import { Paginator, PaginatorModule } from 'primeng/paginator';
 import { FormsModule } from '@angular/forms';
-import { DatePipe, NgIf } from '@angular/common';
+import { CommonModule, DatePipe, NgIf } from '@angular/common';
 import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { CreateAppoinmentComponent } from '../create-appoinment/create-appoinment.component';
 import { EditAppoinmentComponent } from '../edit-appoinment/edit-appoinment.component';
@@ -17,34 +17,34 @@ import { SelectModule } from 'primeng/select';
 import { ChipModule } from 'primeng/chip';
 import { OverlayPanel, OverlayPanelModule } from 'primeng/overlaypanel';
 import { MenuModule } from 'primeng/menu';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { ButtonModule } from 'primeng/button';
 import { ViewAppointmentReceiptComponent } from '../view-appointment-receipt/view-appointment-receipt.component';
 import { TagModule } from 'primeng/tag';
+import { InputTextModule } from 'primeng/inputtext';
+import { CheckboxModule } from 'primeng/checkbox';
+import { MenuItem } from 'primeng/api';
+import { TooltipModule } from 'primeng/tooltip';
+import { CardModule } from 'primeng/card';
+import { AvatarModule } from 'primeng/avatar';
+import { AvatarGroupModule } from 'primeng/avatargroup';
 @Component({
     selector: 'app-appointments',
     templateUrl: './appointments.component.html',
     styleUrl: './appointments.component.css',
     animations: [appModuleAnimation()],
     standalone: true,
-    imports: [FormsModule, TableModule, ChipModule, TagModule, SelectModule, MenuModule, ButtonModule, TagModule, OverlayPanelModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, DatePipe],
+    imports: [FormsModule, TableModule,TooltipModule,CardModule,AvatarModule,AvatarGroupModule,InputTextModule,CheckboxModule,CommonModule, ChipModule,BreadcrumbModule, TagModule, SelectModule, MenuModule, ButtonModule, TagModule, OverlayPanelModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, DatePipe],
     providers: [AppointmentServiceProxy, UserServiceProxy]
 })
 export class AppointmentsComponent extends PagedListingComponentBase<AppointmentDto> implements OnInit {
     @ViewChild('dataTable', { static: true }) dataTable: Table;
     @ViewChild('paginator', { static: true }) paginator: Paginator;
+
     appointMents: AppointmentDto[] = [];
     AppointmentStatus = AppointmentStatus;
     keyword = '';
     selectedStatuses: number[] = [];
-    advancedFiltersVisible = false;
-    patients!: UserDto[];
-    statusOptions = [
-        { label: 'Scheduled', value: AppointmentStatus._0 },
-        { label: 'Rescheduled', value: AppointmentStatus._1 },
-        { label: 'Checked In', value: AppointmentStatus._2 },
-        { label: 'Completed', value: AppointmentStatus._3 },
-        { label: 'Cancelled', value: AppointmentStatus._4 }
-    ];
     statuses = [
         { label: 'Scheduled', value: AppointmentStatus._0, selected: false },
         { label: 'Rescheduled', value: AppointmentStatus._1, selected: false },
@@ -52,7 +52,16 @@ export class AppointmentsComponent extends PagedListingComponentBase<Appointment
         { label: 'Completed', value: AppointmentStatus._3, selected: false },
         { label: 'Cancelled', value: AppointmentStatus._4, selected: false },
     ];
-    appointmentStatus!: any;
+    statusOptions = [
+        { label: 'Scheduled', value: AppointmentStatus._0 },
+        { label: 'Rescheduled', value: AppointmentStatus._1 },
+        { label: 'Checked In', value: AppointmentStatus._2 },
+        { label: 'Completed', value: AppointmentStatus._3 },
+        { label: 'Cancelled', value: AppointmentStatus._4 }
+    ];
+    items: any[];
+  selectedRecord: AppointmentDto;
+
     constructor(
         injector: Injector,
         private _modalService: BsModalService,
@@ -65,20 +74,24 @@ export class AppointmentsComponent extends PagedListingComponentBase<Appointment
         this.keyword = this._activatedRoute.snapshot.queryParams['filterText'] || '';
     }
     ngOnInit(): void {
+        this.items = [
+      { label: 'Home', routerLink: '/' },
+      { label: 'Appointments' }
+    ];
     }
+     getShortName(fullName: string | 'unknown'): string {
+    if (!fullName) return '';
+    const words = fullName.trim().split(' ');
+    const firstInitial = words[0].charAt(0).toUpperCase();
+    const lastInitial = words.length > 1 ? words[words.length - 1].charAt(0).toUpperCase() : '';
+    return firstInitial + lastInitial;
+  }
     clearFilters(): void {
         this.keyword = '';
         this.selectedStatuses = undefined;
         this.list();
     }
 
-    onStatusChange() {
-        this.selectedStatuses = this.statuses
-            .filter(s => s.selected)
-            .map(s => s.value);
-        this.cd.detectChanges();
-        this.list();
-    }
     list(event?: LazyLoadEvent): void {
         if (this.primengTableHelper.shouldResetPaging(event)) {
             this.paginator.changePage(0);
@@ -108,6 +121,14 @@ export class AppointmentsComponent extends PagedListingComponentBase<Appointment
                 this.cd.detectChanges();
             });
     }
+
+    
+  onStatusChange() {
+    this.selectedStatuses = this.statuses.filter(s => s.selected).map(s => s.value);
+    this.cd.detectChanges();
+    this.list();
+  }
+
     delete(appMt: AppointmentDto): void {
         abp.message.confirm(this.l('UserDeleteWarningMessage'), undefined, (result: boolean) => {
             if (result) {
@@ -178,16 +199,16 @@ export class AppointmentsComponent extends PagedListingComponentBase<Appointment
         const status = this.statusOptions.find(s => s.value === value);
         return status ? status.label : '';
     }
-    getStatusSeverity(value: number): 'info' | 'warn' | 'success' | 'danger' | 'secondary' | 'contrast' {
-        switch (value) {
-            case AppointmentStatus._0: return 'info';        // Scheduled
-            case AppointmentStatus._1: return 'secondary';   // Rescheduled
-            case AppointmentStatus._2: return 'success';     // Checked In
-            case AppointmentStatus._3: return 'success';     // Completed
-            case AppointmentStatus._4: return 'danger';      // Cancelled
-            default: return 'contrast';
-        }
+    getStatusSeverity(value: number) {
+    switch (value) {
+      case AppointmentStatus._0: return 'Info';
+      case AppointmentStatus._1: return 'Warn';
+      case AppointmentStatus._2: return 'Secondary';
+      case AppointmentStatus._3: return 'Success';
+      case AppointmentStatus._4: return 'Danger';
+      default: return 'Contrast';
     }
+  }
 
     changeStatusofAppoinment(id: number, status: AppointmentStatus) {
         this._apointMentService.markAsAction(id, status).subscribe(res => {

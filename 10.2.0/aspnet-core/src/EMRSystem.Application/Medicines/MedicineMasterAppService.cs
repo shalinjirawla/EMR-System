@@ -84,7 +84,7 @@ namespace EMRSystem.Medicines
 
             var query = Repository.GetAll()
                 .Include(x => x.StrengthUnit) // strength unit fetch karna hai
-                .Where(x => x.TenantId == tenantId && x.MedicineFormId == formId);
+                .Where(x => x.TenantId == tenantId && x.MedicineFormId == formId && x.IsAvailable);
 
             var medicines = await query.ToListAsync();
 

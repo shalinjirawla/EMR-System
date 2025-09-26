@@ -1,7 +1,9 @@
-<form class="lab-report-form" autocomplete="off" #labResultEditForm="ngForm" (ngSubmit)="save()">
-  <abp-modal-header title="Edit Lab Report - {{ testName }}" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
+<form class="form-horizontal d-flex flex-column"
+  style="height: 90vh; display: flex; flex-direction: column; font-family: Segoe UI, sans-serif;" autocomplete="off"
+  #labResultEditForm="ngForm" (ngSubmit)="save()">
+  <abp-modal-header style="flex: 0 0 auto;" title="Edit Lab Report - {{ testName }}" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
 
-  <div class="modal-body">
+ <div class="modal-body flex-grow-1" style="overflow-y: auto; padding-right: 15px;">
     <div class="patient-info">
       <span class="label">Patient:</span>
       <span class="value">{{ patientName }}</span>
@@ -20,21 +22,15 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let item of labReportItems; let i = index" [class.abnormal]="item.flag==='High' || item.flag==='Low'">
+          <tr *ngFor="let item of labReportItems; let i = index"
+            [class.abnormal]="item.flag==='High' || item.flag==='Low'">
             <td>{{ item.test }}</td>
             <td>{{ item.unit || '–' }}</td>
             <td>{{ item.minValue ?? '–' }}</td>
             <td>{{ item.maxValue ?? '–' }}</td>
             <td>
-              <input
-                type="text"
-                pInputText
-                [(ngModel)]="item.result"
-                [name]="'result' + i"
-                placeholder="—"
-                (ngModelChange)="calculateFlag(item)"
-                class="result-input"
-              />
+              <input type="text" pInputText [(ngModel)]="item.result" [name]="'result' + i" placeholder="—"
+                (ngModelChange)="calculateFlag(item)" class="result-input" />
             </td>
             <td><p-tag [severity]="getSeverity(item.flag)" [value]="item.flag || 'Unset'"></p-tag></td>
           </tr>
@@ -43,6 +39,6 @@
     </div>
   </div>
 
-  <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="isSaveDisabled()" (onCancelClick)="bsModalRef.hide()">
+  <abp-modal-footer style="flex: 0 0 auto;" [cancelDisabled]="saving" [saveDisabled]="isSaveDisabled()" (onCancelClick)="bsModalRef.hide()">
   </abp-modal-footer>
 </form>

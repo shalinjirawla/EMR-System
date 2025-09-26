@@ -1,7 +1,8 @@
-<form class="form-horizontal" autocomplete="off" #purchaseInvoiceForm="ngForm" (ngSubmit)="save()">
+<form class="form-horizontal d-flex flex-column" style="height: 90vh; display: flex; flex-direction: column;"
+    autocomplete="off" #purchaseInvoiceForm="ngForm" (ngSubmit)="save()">
     <abp-modal-header title="Edit Purchase Invoice" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
 
-    <div class="modal-body">
+    <div class="modal-body flex-grow-1" style="overflow-y: auto; padding-right: 15px;">
         <!-- Invoice Info -->
         <div class="row">
             <div class="col-md-6 d-flex flex-column">
@@ -83,14 +84,16 @@
                         <div class="col-md-4 d-flex flex-column">
                             <label>Purchase Price</label>
                             <p-inputNumber [(ngModel)]="item.purchasePrice" name="purchasePrice{{i}}" [min]="1"
-                                [mode]="'decimal'" (onInput)="updateInvoiceTotal()" [minFractionDigits]="2" [maxFractionDigits]="2" required></p-inputNumber>
+                                [mode]="'decimal'" (onInput)="updateInvoiceTotal()" [minFractionDigits]="2"
+                                [maxFractionDigits]="2" required></p-inputNumber>
                         </div>
 
                         <!-- Selling Price -->
                         <div class="col-md-4 d-flex flex-column">
                             <label>Selling Price</label>
                             <p-inputNumber [(ngModel)]="item.sellingPrice" name="sellingPrice{{i}}" [min]="1"
-                                [mode]="'decimal'" required [minFractionDigits]="2" [maxFractionDigits]="2"></p-inputNumber>
+                                [mode]="'decimal'" required [minFractionDigits]="2"
+                                [maxFractionDigits]="2"></p-inputNumber>
                         </div>
                     </div>
                 </div>
@@ -108,6 +111,6 @@
         </div>
     </div>
 
-    <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="!isFormValid || saving"
+    <abp-modal-footer style="flex: 0 0 auto;" [cancelDisabled]="saving" [saveDisabled]="!isFormValid || saving"
         (onCancelClick)="bsModalRef.hide()"></abp-modal-footer>
 </form>

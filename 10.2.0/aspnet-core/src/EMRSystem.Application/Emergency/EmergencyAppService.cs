@@ -61,9 +61,16 @@ namespace EMRSystem.Emergency.EmergencyCase
             var result = await Repository.InsertAndGetIdAsync(entity);
             var res = await _emergencyMasterRepository.GetAllAsync();
             var amount = await res.FirstOrDefaultAsync();
+
             if (input.Status == EmergencyStatus.Admitted)
             {
-                var patient = await _patientRepository.GetAllIncluding(p => p.Admissions).FirstOrDefaultAsync(p => p.Id == input.PatientId);
+                var patient = await _patientRepository
+                    .GetAllIncluding(p => p.Admissions)
+                    .FirstOrDefaultAsync(p => p.Id == input.PatientId);
+
+                if (patient == null)
+                    throw new UserFriendlyException("Patient not found");
+
                 //// Verify admissions exist
                 if (!patient.Admissions.Any())
                     throw new UserFriendlyException("Patient is marked as admitted but has no admission records");
@@ -77,26 +84,20 @@ namespace EMRSystem.Emergency.EmergencyCase
                 if (admission == null)
                     throw new UserFriendlyException("No active admission found for patient");
 
-                // Rest of your IPD logic...
-                //var appointment = ObjectMapper.Map<Appointment>(dto);
-                //appointment.IsPaid = true;
-                //await Repository.InsertAsync(appointment);
-
-                //var doctorFee = await _doctorMasterRepository.FirstOrDefaultAsync(dm =>
-                //    dm.DoctorId == appointment.DoctorId &&
-                //    dm.TenantId == appointment.TenantId);
-
                 var chargeEntry = new EMRSystem.IpdChargeEntry.IpdChargeEntry
                 {
                     AdmissionId = admission.Id,
                     PatientId = patient.Id,
                     ChargeType = ChargeType.Other,
-                    Description = $"Emergency Case Addmitted",
+                    Description = $"Emergency Case Charge",
                     Amount = amount.Fee > 0 ? amount.Fee : 0
-                    //ReferenceId = appointment.Id
                 };
 
                 await _ipdChargeEntryRepository.InsertAsync(chargeEntry);
+
+                // ✅ Mark patient as Emergency
+                patient.IsEmergencyCharge = true;
+                await _patientRepository.UpdateAsync(patient);
             }
             else
             {
@@ -104,15 +105,30 @@ namespace EMRSystem.Emergency.EmergencyCase
                 {
                     PatientId = input.PatientId,
                     ChargeType = ChargeType.Other,
-                    Description = $"Emergency Case Only",
+                    Description = $"Emergency Case Charge",
                     Amount = amount.Fee > 0 ? amount.Fee : 0,
                     EmergencyCaseId = result,
                 };
 
                 await _emergencyChargeEntriesRepository.InsertAsync(chargeEntry);
+
+                if (input.PatientId.HasValue)
+                {
+                    var patient = await _patientRepository.GetAsync(input.PatientId.Value);
+                    if (patient != null)
+                    {
+                        // ✅ Mark patient as Emergency
+                        patient.IsEmergencyCharge = true;
+                        await _patientRepository.UpdateAsync(patient);
+                    }
+                }
             }
+
+            await CurrentUnitOfWork.SaveChangesAsync();
+
             return MapToEntityDto(entity);
         }
+
         public async Task UpdateEmergencyCase(CreateUpdateEmergencyCaseDto input)
         {
             if (string.IsNullOrEmpty(input.EmergencyNumber))
