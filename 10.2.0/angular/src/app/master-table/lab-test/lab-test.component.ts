@@ -14,7 +14,16 @@ import { ButtonModule } from 'primeng/button';
 import { NgIf } from '@angular/common';
 import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { CreateupdateLabTestComponent } from '../createupdate-lab-test/createupdate-lab-test.component';
-
+import { SelectModule } from 'primeng/select';
+import { InputTextModule } from 'primeng/inputtext';
+import { CheckboxModule } from 'primeng/checkbox';
+import { MenuModule } from 'primeng/menu';
+import { MenuItem } from 'primeng/api';
+import { TooltipModule } from 'primeng/tooltip';
+import { CardModule } from 'primeng/card';
+import { TagModule } from 'primeng/tag';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { OverlayPanelModule } from "primeng/overlaypanel";
 @Component({
   selector: 'app-lab-test',
   templateUrl: './lab-test.component.html',
@@ -23,8 +32,8 @@ import { CreateupdateLabTestComponent } from '../createupdate-lab-test/createupd
   animations: [appModuleAnimation()],
   standalone: true,
   imports: [
-    FormsModule,
-    TableModule,
+    FormsModule,SelectModule, InputTextModule, CheckboxModule, MenuModule, TooltipModule, CardModule, TagModule,
+    TableModule,BreadcrumbModule,OverlayPanelModule,
     PaginatorModule,
     ButtonModule,
     NgIf,
@@ -34,9 +43,15 @@ import { CreateupdateLabTestComponent } from '../createupdate-lab-test/createupd
 export class LabTestComponent extends PagedListingComponentBase<LabTestDto> implements OnInit {
   @ViewChild('dataTable', { static: true }) dataTable: Table;
   @ViewChild('paginator', { static: true }) paginator: Paginator;
+
   keyword = '';
   isActive: boolean | undefined = undefined;
   advancedFiltersVisible = false;
+  selectedRecord: LabTestDto;
+  editDeleteMenus: MenuItem[];
+  items: MenuItem[];
+  activeFilter = { all: true, isActive: false, isNotActive: false };
+
   constructor(
     injector: Injector,
     private modalService: BsModalService,
@@ -46,7 +61,13 @@ export class LabTestComponent extends PagedListingComponentBase<LabTestDto> impl
     super(injector, cd);
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.items = [{ label: 'Home', routerLink: '/' }, { label: 'Lab Tests' }];
+    this.editDeleteMenus = [
+      { label: 'Edit', icon: 'pi pi-pencil', command: () => this.editLabTest(this.selectedRecord) },
+      { label: 'Delete', icon: 'pi pi-trash', command: () => this.deleteLabTest(this.selectedRecord) }
+    ];
+  }
 
   list(event?: LazyLoadEvent): void {
     if (this.primengTableHelper.shouldResetPaging(event)) {
@@ -105,9 +126,25 @@ export class LabTestComponent extends PagedListingComponentBase<LabTestDto> impl
     this.deleteLabTest(entity);
   }
 
+  onFilterChange(selected: 'all' | 'active' | 'notActive', event: any) {
+    if (selected === 'all') {
+      this.activeFilter = { all: true, isActive: false, isNotActive: false };
+      this.isActive = undefined;
+    } else if (selected === 'active') {
+      this.activeFilter = { all: false, isActive: true, isNotActive: false };
+      this.isActive = event.checked ? true : undefined;
+    } else if (selected === 'notActive') {
+      this.activeFilter = { all: false, isActive: false, isNotActive: true };
+      this.isActive = event.checked ? false : undefined;
+    }
+    this.list();
+    this.cd.detectChanges();
+  }
+
   clearFilters(): void {
     this.keyword = '';
     this.isActive = undefined;
+    this.activeFilter = { all: true, isActive: false, isNotActive: false };
     this.list();
   }
 }

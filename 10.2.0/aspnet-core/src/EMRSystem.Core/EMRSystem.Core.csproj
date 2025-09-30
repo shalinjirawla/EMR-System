@@ -19,6 +19,8 @@
     <PackageReference Include="Abp.ZeroCore.EntityFrameworkCore" Version="10.3.0" />
     <PackageReference Include="BouncyCastle.NetCore" Version="2.2.1" />
     <PackageReference Include="Castle.Windsor.MsDependencyInjection" Version="4.1.0" />
+    <PackageReference Include="Hangfire" Version="1.8.21" />
+    <PackageReference Include="Hangfire.SqlServer" Version="1.8.21" />
     <PackageReference Include="itext7" Version="9.3.0" />
     <PackageReference Include="itext7.bouncy-castle-adapter" Version="9.3.0" />
     <PackageReference Include="itext7.pdfhtml" Version="6.2.1" />

@@ -405,14 +405,6 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
   // Maximum possible = current quantity + available in batch
   const maxPossible = (itm.qty || 0) + availableInBatch;
   
-  console.log('🧮 Max Qty Calculation:', {
-    batch: batch.batchNo,
-    batchTotal: batchTotalQuantity,
-    allocated: allocatedForThisBatch,
-    available: availableInBatch,
-    currentQty: itm.qty,
-    maxPossible: maxPossible
-  });
   
   return maxPossible;
 }
@@ -567,18 +559,10 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
     const batchTotalQty = currentBatch.quantity || 0;
     const currentQty = itm.qty || 0;
 
-    console.log('🔍 Split Button Check:', {
-      medicine: itm.medicineName,
-      batchQty: batchTotalQty,
-      currentQty: currentQty,
-      isAtLimit: currentQty >= batchTotalQty
-    });
-
     // Check if current quantity has reached or exceeded batch total
     const isAtBatchLimit = currentQty >= batchTotalQty;
     
     if (!isAtBatchLimit) {
-      console.log('❌ Not at batch limit - hiding button');
       return false;
     }
 

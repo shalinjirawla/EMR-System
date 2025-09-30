@@ -21,7 +21,12 @@ import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { CreateLabReportComponent } from '../create-lab-report/create-lab-report.component';
 import {ViewReceiptComponent} from '../view-receipt/view-receipt.component'
 import { OverlayPanelModule } from 'primeng/overlaypanel';
-
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { MenuItem } from 'primeng/api';
+import { MenuModule } from 'primeng/menu';
+import { TooltipModule } from 'primeng/tooltip';
+import { CardModule } from 'primeng/card';
+import { InputTextModule } from 'primeng/inputtext';
 @Component({
   selector: 'app-lab-test-receipt',
   templateUrl: './lab-test-receipt.component.html',
@@ -30,7 +35,7 @@ import { OverlayPanelModule } from 'primeng/overlaypanel';
   animations: [appModuleAnimation()],
   standalone: true,
   imports: [
-    FormsModule,
+    FormsModule,BreadcrumbModule,MenuModule,CardModule,TooltipModule,InputTextModule,
     TableModule,
     PaginatorModule,
     ButtonModule,
@@ -48,6 +53,8 @@ export class LabTestReceiptComponent extends PagedListingComponentBase<LabTestRe
   keyword = '';
   status: string | undefined = undefined;
   advancedFiltersVisible = false;
+  items: MenuItem[] | undefined;
+  editDeleteMenus: MenuItem[] | undefined;
   selectedReceipt: LabTestReceiptDto | null = null;
   constructor(
     injector: Injector,
@@ -58,7 +65,19 @@ export class LabTestReceiptComponent extends PagedListingComponentBase<LabTestRe
     super(injector, cd);
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.items = [
+      { label: 'Home', routerLink: '/' },
+      { label: 'LabTest-Receipt' },
+    ];
+    this.editDeleteMenus = [
+      {
+        label: 'View Receipt',
+        icon: 'pi pi-file',
+        command: () => this.viewReceipt(this.selectedReceipt.id)  // call edit
+      }
+    ];
+  }
 
   list(event?: LazyLoadEvent): void {
     if (this.primengTableHelper.shouldResetPaging(event)) {

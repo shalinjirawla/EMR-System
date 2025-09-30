@@ -8,32 +8,40 @@ import { finalize } from 'rxjs/operators';
 import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { FormsModule } from '@node_modules/@angular/forms';
 import { DatePipe, NgIf } from '@node_modules/@angular/common';
-import { ChangeDetectorRef, Component, Injector, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, Injector, OnInit, ViewChild } from '@angular/core';
 import { BillingDto, BillingDtoPagedResultDto, BillingServiceProxy, InvoiceDto, InvoiceDtoPagedResultDto, InvoiceServiceProxy, PatientServiceProxy, UserServiceProxy } from '@shared/service-proxies/service-proxies';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
 import { CreateInvoiceComponent } from '../create-invoice/create-invoice.component';
 import { ViewInvoiceComponent } from '../view-invoice/view-invoice.component';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { ButtonModule } from 'primeng/button';
-
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { MenuItem } from 'primeng/api';
+import { TooltipModule } from 'primeng/tooltip';
+import { CardModule } from 'primeng/card';
+import { InputTextModule } from 'primeng/inputtext';
+import { MenuModule } from 'primeng/menu';
 
 
 @Component({
   selector: 'app-invoices',
-  imports: [FormsModule, TableModule, PrimeTemplate, NgIf, PaginatorModule,OverlayPanelModule,ButtonModule, LocalizePipe,DatePipe],
+  imports: [FormsModule, TableModule,CardModule, MenuModule,BreadcrumbModule,InputTextModule,TooltipModule, PrimeTemplate, NgIf, 
+    PaginatorModule,OverlayPanelModule,ButtonModule, LocalizePipe,DatePipe],
   animations: [appModuleAnimation()],
   templateUrl: './invoices.component.html',
   styleUrl: './invoices.component.css',
    providers: [BillingServiceProxy,UserServiceProxy,InvoiceServiceProxy]
 })
-export class InvoicesComponent extends PagedListingComponentBase<InvoiceDto> {
+export class InvoicesComponent extends PagedListingComponentBase<InvoiceDto> implements OnInit  {
     @ViewChild('dataTable', { static: true }) dataTable: Table;
     @ViewChild('paginator', { static: true }) paginator: Paginator;
 
     patients: BillingDto[] = [];
     keyword = '';
     isActive: boolean | null;
-    advancedFiltersVisible = false;
+    items: MenuItem[] | undefined;
+        editDeleteMenus: MenuItem[] | undefined;
+        selectedRecord: InvoiceDto;
 
     constructor(
         injector: Injector,
@@ -46,6 +54,27 @@ export class InvoicesComponent extends PagedListingComponentBase<InvoiceDto> {
         this.keyword = this._activatedRoute.snapshot.queryParams['filterText'] || '';
         //this.processPaymentResult();
     }
+
+     ngOnInit(): void {
+        this.items = [
+            { label: 'Home', routerLink: '/' },
+            { label: 'Invoice' },
+        ];
+        this.editDeleteMenus = [
+            {
+                label: 'View Invoice',
+                icon: 'pi pi-eye',
+                command: () => this.viewInvoice(this.selectedRecord)  // call edit
+            }
+            // {
+            //     label: 'Delete',
+            //     icon: 'pi pi-trash',
+            //     command: () => this.delete(this.selectedRecord)  // call edit
+            // }
+            
+        ];
+    }
+
 //     private processPaymentResult(): void {
 //     const params = new URLSearchParams(window.location.search);
 //     const paymentStatus = params.get('payment');
@@ -147,7 +176,7 @@ getPaymentMethodString(method: number): string {
   let viewInvoiceDialog: BsModalRef;
 
   viewInvoiceDialog = this._modalService.show(ViewInvoiceComponent, {
-    class: 'modal-xl',
+    class: 'modal-lg',
     initialState: {
       id: invoice.id,   // Pass invoice id to modal
     },
@@ -157,7 +186,7 @@ getPaymentMethodString(method: number): string {
       let createOrEditUserDialog: BsModalRef;
       if (!id) {
         createOrEditUserDialog = this._modalService.show(CreateInvoiceComponent, {
-          class: 'modal-xl',
+          class: 'modal-lg',
         });
       }
     //    else {

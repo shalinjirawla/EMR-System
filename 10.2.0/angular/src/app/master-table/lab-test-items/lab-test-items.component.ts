@@ -12,13 +12,15 @@ import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { CreateupdateLabTestItemsComponent } from '../createupdate-lab-test-items/createupdate-lab-test-items.component';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { MenuItem } from 'primeng/api';
 
 type LabReportsTypeWithTests = Omit<LabReportsTypeDto, 'tests'> & {
   tests?: LabReportTestWithUnitDto[];
 };
 @Component({
   selector: 'app-lab-test-items',
-  imports: [CommonModule,TableModule,ButtonModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe,],
+  imports: [CommonModule,TableModule,BreadcrumbModule,ButtonModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe,],
   providers: [LabReportsTypeServiceProxy,LabReportTypeItemServiceProxy],
   standalone: true,
   animations:[appModuleAnimation()],
@@ -33,7 +35,7 @@ export class LabTestItemsComponent extends PagedListingComponentBase<LabReportsT
   expandedRows: { [key: number]: boolean } = {};
   keyword = '';
   isActive: boolean | undefined = undefined;
-
+  items: MenuItem[];
   constructor(
     injector: Injector,
     private _labReportsTypeService: LabReportsTypeServiceProxy,
@@ -45,7 +47,7 @@ export class LabTestItemsComponent extends PagedListingComponentBase<LabReportsT
   }
 
   ngOnInit(): void {
-    //this.list();
+  this.items = [{ label: 'Home', routerLink: '/' }, { label: 'Lab Report Items' }];
   }
 
   // Load parent rows with pagination & filtering
@@ -161,10 +163,4 @@ export class LabTestItemsComponent extends PagedListingComponentBase<LabReportsT
     this.list();
   }
 
-  // Clear filters
-  clearFilters(): void {
-    this.keyword = '';
-    this.isActive = undefined;
-    this.list();
-  }
 }

@@ -1,119 +1,81 @@
 <div [@routerTransition]>
   <section class="content-header">
     <div class="container-fluid">
-      <div class="row">
-        <div class="col-6">
-          <h1>Deposit</h1>
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <p-breadcrumb [model]="items" />
         </div>
-        <!-- <div class="col-6 text-right">
-          <a href="javascript:;" class="btn bg-blue" (click)="createDeposit()">
-            <i class="fa fa-plus-square"></i>
-            {{ 'Create' | localize }}
-          </a>
-        </div> -->
+        <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+          <div class="btn-group mr-1" role="group" aria-label="Third group" pTooltip="Refresh" tooltipPosition="top"
+            (click)="refresh()">
+            <button type="button" class="btn btn-md refresh-btn">
+              <span class="pi pi-refresh"></span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
-  <section class="content px-2 pb-3">
+  <section class="content px-2 pb-5">
     <div class="container-fluid">
-      <div class="card table-wrapper">
-        <div class="card-header">
-          <div class="row">
-            <div class="col-md-6">&emsp;</div>
-            <div class="col-md-6">
-              <div class="input-group">
-                <div class="input-group-prepend">
-                  <button type="button" class="btn bg-blue" (click)="list()">
-                    <i class="fas fa-search"></i>
+      <div class="card mb-0 table-wrapper">
+        <div class="card-body">
+          <div class="d-flex justify-content-end align-items-center mb-3">
+            <div>
+              <input class="search-bar-text" type="text" pInputText [(ngModel)]="keyword" pSize="small"
+                [placeholder]="'SearchWithThreeDot' | localize" (input)="list()" />
+            </div>
+          </div>
+          <p-table #dataTable sortMode="multiple" [value]="primengTableHelper.records"
+            rows="{{ primengTableHelper.defaultRecordsCountPerPage }}" [paginator]="false" [lazy]="true"
+            [tableStyle]="{ 'min-width': '50rem' }" (onLazyLoad)="list($event)">
+
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Patient</th>
+                <th>Total Credit Amount</th>
+                <th>Total Debit Amount</th>
+                <th>Total Balance</th>
+                <th>Actions</th>
+              </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-record="$implicit">
+              <tr>
+                <td>{{ record.patientName }}</td>
+                <td>{{ record.totalCreditAmount }}</td>
+                <td>{{ record.totalDebitAmount }}</td>
+                <td>
+                  <span *ngIf="record.totalBalance < 0" class="badge-soft-danger p-1 rounded"><b>{{record.totalBalance}}</b>
+                  </span>
+                  <span *ngIf="record.totalBalance >= 0" class="badge-soft-success p-1 rounded"><b>{{record.totalBalance}}</b>
+                  </span>
+                </td>
+                <td>
+                  <button class="btn btn-sm border rounded-1 px-3" type="button" style="background-color: #f8fafc;"
+                    (click)="rowMenu.toggle($event); selectedRecord = record">
+                    <i class="fa-solid fa-ellipsis-vertical"></i>
                   </button>
-                </div>
-                <input type="text" class="form-control" name="keyword" [placeholder]="'SearchWithThreeDot' | localize"
-                  [(ngModel)]="keyword" (keyup.enter)="list()" />
-              </div>
-            </div>
+                  <p-menu #rowMenu [popup]="true" [style]="{'min-width':'80px', 'max-width':'150px'}"
+                    [model]="editDeleteMenus" appendTo="body"></p-menu>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+
+          <div class="primeng-no-data text-center m-2" *ngIf="primengTableHelper.totalRecordsCount == 0">
+            {{ 'NoData' | localize }}
           </div>
         </div>
 
-        <div class="card-body table-responsive table-striped table-bordered">
-          <div class="primeng-datatable-container">
-            <p-table #dataTable sortMode="multiple" [value]="primengTableHelper.records"
-              rows="{{ primengTableHelper.defaultRecordsCountPerPage }}" [paginator]="false" [lazy]="true"
-              [tableStyle]="{ 'min-width': '50rem' }" (onLazyLoad)="list($event)">
-
-              <ng-template pTemplate="header">
-                <tr>
-                  <th>Patient</th>
-                  <th>Total Credit Amount</th>
-                  <th>Total Debit Amount</th>
-                  <th>Total Balance</th>
-                  <th>Actions</th>
-                </tr>
-              </ng-template>
-
-              <ng-template pTemplate="body" let-record="$implicit">
-                <tr>
-                  <td>{{ record.patientName }}</td>
-                  <td>{{ record.totalCreditAmount }}</td>
-                  <td>{{ record.totalDebitAmount }}</td>
-                  <td>
-                    <p-tag *ngIf="record.totalBalance < 0" [value]="record.totalBalance" severity="danger">
-                    </p-tag>
-
-                    <p-tag *ngIf="record.totalBalance >= 0" [value]="record.totalBalance" severity="success">
-                    </p-tag>
-                  </td>
-                  <td>
-                    <button type="button" pButton icon="pi pi-ellipsis-v" class="p-button-text"
-                      (click)="rowMenu.toggle($event); selectedRecord = record">
-                    </button>
-                    <p-overlayPanel #rowMenu class="custom-overlay" [dismissable]="true">
-                      <ul class="custom-overlay-menu">
-                        <li (click)="collectDeposit(selectedRecord)">
-                          <i class="pi pi-plus-circle"></i> Collect Deposit
-                        </li>
-                        <li (click)="viewReceipts(selectedRecord)">
-                          <i class="pi pi-file"></i> View Deposit Receipts
-                        </li>
-                        <li (click)="viewTransactions(selectedRecord)">
-                          <i class="pi pi-list"></i> View Transactions
-                        </li>
-                      </ul>
-                    </p-overlayPanel>
-                  </td>
-                </tr>
-              </ng-template>
-            </p-table>
-
-            <div class="primeng-no-data text-center m-2" *ngIf="primengTableHelper.totalRecordsCount == 0">
-              {{ 'NoData' | localize }}
-            </div>
-          </div>
-        </div>
-
-        <div class="card-footer table-card-footer bg-white border-top">
-          <div class="row">
-            <div class="col-sm-4 col-12 text-sm-left text-center">
-              <button class="btn btn-secondary" (click)="refresh()">
-                <i class="fas fa-redo-alt"></i>
-              </button>
-            </div>
-            <div class="col-sm-8 col-12">
-              <div class="float-sm-right m-auto">
-                <div class="primeng-paging-container">
-                  <p-paginator [rows]="primengTableHelper.defaultRecordsCountPerPage" #paginator
-                    (onPageChange)="list($event)" [totalRecords]="primengTableHelper.totalRecordsCount"
-                    [rowsPerPageOptions]="primengTableHelper.predefinedRecordsCountPerPage"
-                    [showCurrentPageReport]="true"
-                    [currentPageReportTemplate]="'TotalRecordsCount' | localize: primengTableHelper.totalRecordsCount">
-                  </p-paginator>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
+        <p-paginator [rows]="primengTableHelper.defaultRecordsCountPerPage" #paginator (onPageChange)="list($event)"
+          [totalRecords]="primengTableHelper.totalRecordsCount"
+          [rowsPerPageOptions]="primengTableHelper.predefinedRecordsCountPerPage" [showCurrentPageReport]="true"
+          [currentPageReportTemplate]="'TotalRecordsCount' | localize: primengTableHelper.totalRecordsCount">
+        </p-paginator>
       </div>
+
     </div>
   </section>
 </div>

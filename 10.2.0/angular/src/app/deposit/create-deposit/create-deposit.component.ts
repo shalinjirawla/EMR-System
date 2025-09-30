@@ -74,8 +74,8 @@ export class CreateDepositComponent extends AppComponentBase implements OnInit {
         if (this.paymentMethod === PaymentMethod._0) {
           // Cash case
           this.notify.success('Deposit collected successfully!');
-          this.onSave.emit();
           this.bsModalRef.hide();
+          this.onSave.emit();
         } else {
           // Card case (Stripe redirect)
           if (result) {
