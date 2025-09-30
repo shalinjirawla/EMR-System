@@ -4,9 +4,11 @@ using Abp.AspNetCore.SignalR.Hubs;
 using Abp.Castle.Logging.Log4Net;
 using Abp.Extensions;
 using Castle.Facilities.Logging;
+using EMRSystem.BackgroundJobs;
 using EMRSystem.Configuration;
 using EMRSystem.Identity;
 using EMRSystem.Stripe;
+using Hangfire;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -85,6 +87,12 @@ namespace EMRSystem.Web.Host.Startup
                     )
                 )
             );
+            services.AddHangfire(config =>
+            {
+                config.UseSqlServerStorage(_appConfiguration.GetConnectionString("Default"));
+            });
+            services.AddHangfireServer();
+
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
@@ -128,6 +136,21 @@ namespace EMRSystem.Web.Host.Startup
                     .GetManifestResourceStream("EMRSystem.Web.Host.wwwroot.swagger.ui.index.html");
                 options.DisplayRequestDuration(); // Controls the display of the request duration (in milliseconds) for "Try it out" requests.
             }); // URL: /swagger
+                // Hangfire Dashboard (sirf admin ke liye secure karna ho to filter add karenge)
+            app.UseHangfireDashboard("/hangfire");
+            RecurringJob.AddOrUpdate<IRoomChargeJob>(
+                   "DailyRoomChargeJob",
+                   job => job.ExecuteAsync(),
+                   "0 10 * * *",
+                   timeZone: TimeZoneInfo.FindSystemTimeZoneById("India Standard Time")
+               );
+            GlobalJobFilters.Filters.Add(new AutomaticRetryAttribute
+            {
+                Attempts = 5,             // Retry 5 times if fails
+                DelaysInSeconds = new int[] { 60, 300, 600, 1800, 3600 }, // wait times: 1m, 5m, 10m, 30m, 1h
+                LogEvents = true
+            });
+
         }
 
         private void ConfigureSwagger(IServiceCollection services)

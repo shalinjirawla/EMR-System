@@ -18,29 +18,25 @@ import { FormsModule } from '@angular/forms';
 import { NgIf, DatePipe } from '@angular/common';
 import { appModuleAnimation } from '../../../shared/animations/routerTransition';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
-import { MenuModule } from 'primeng/menu';
 import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
 import { PaginatorModule } from 'primeng/paginator';
 import { TableModule } from 'primeng/table';
 import moment from 'moment';
-import {EditMedicineListComponent} from '../edit-medicine-list/edit-medicine-list.component'
-
+import { EditMedicineListComponent } from '../edit-medicine-list/edit-medicine-list.component'
+import { MenuModule } from 'primeng/menu';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { MenuItem } from 'primeng/api';
+import { TooltipModule } from 'primeng/tooltip';
+import { CardModule } from 'primeng/card';
+import { InputTextModule } from 'primeng/inputtext';
 @Component({
   selector: 'app-medicine-inventory',
   animations: [appModuleAnimation()],
   standalone: true,
   imports: [
-    LocalizePipe,
-    FormsModule,
-    TableModule,
-    CalendarModule,
-    NgIf,
-    PaginatorModule,
-    ButtonModule,
-    OverlayPanelModule,
-    MenuModule,
-  ],
+    LocalizePipe, BreadcrumbModule, TooltipModule, CardModule, InputTextModule,MenuModule,FormsModule,TableModule,
+    CalendarModule,NgIf,PaginatorModule,ButtonModule,OverlayPanelModule,MenuModule],
   providers: [MedicineMasterServiceProxy],
   templateUrl: './medicine-list.component.html',
   styleUrl: './medicine-list.component.css',
@@ -55,8 +51,9 @@ export class MedicineListComponent
   keyword = '';
   minStock: number | undefined;
   isAvailable: boolean | null;
-  advancedFiltersVisible = false;
-
+  items: MenuItem[] | undefined;
+  editDeleteMenus: MenuItem[] | undefined;
+  selectedRecord:MedicineMasterDto
   constructor(
     injector: Injector,
     private _modalService: BsModalService,
@@ -68,7 +65,24 @@ export class MedicineListComponent
     this.keyword = this._activatedRoute.snapshot.queryParams['filterText'] || '';
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.items = [
+      { label: 'Home', routerLink: '/' },
+      { label: 'Medicine-list' },
+    ];
+    this.editDeleteMenus = [
+      {
+        label: 'Edit',
+        icon: 'pi pi-pencil',
+        command: () => this.editNewMedicine(this.selectedRecord)  // call edit
+      },
+      {
+        label: 'Delete',
+        icon: 'pi pi-trash',
+        command: () => this.delete(this.selectedRecord)  // call edit
+      }
+    ];
+  }
 
   clearFilters(): void {
     this.keyword = '';
@@ -128,7 +142,7 @@ export class MedicineListComponent
     let dialog: BsModalRef;
     if (!id) {
       dialog = this._modalService.show(CreateMedicineListComponent, { class: 'modal-lg' });
-    } 
+    }
     else {
       dialog = this._modalService.show(EditMedicineListComponent, {
         class: 'modal-lg',

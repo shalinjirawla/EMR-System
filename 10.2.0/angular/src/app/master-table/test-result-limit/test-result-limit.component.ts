@@ -13,11 +13,17 @@ import { TableModule } from 'primeng/table';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
 import { PaginatorModule } from 'primeng/paginator';
 import { FormsModule } from '@angular/forms';
-
+import { InputTextModule } from 'primeng/inputtext';
+import { MenuModule } from 'primeng/menu';
+import { MenuItem } from 'primeng/api';
+import { TagModule } from 'primeng/tag';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { TooltipModule } from 'primeng/tooltip';
+import { CardModule } from 'primeng/card';
 
 @Component({
   selector: 'app-test-result-limit',
-  imports: [CommonModule,LocalizePipe,TableModule,PaginatorModule,FormsModule],
+  imports: [CommonModule,LocalizePipe,TableModule,PaginatorModule,FormsModule, InputTextModule, MenuModule, TooltipModule, CardModule, TagModule,BreadcrumbModule],
   providers:[TestResultLimitServiceProxy],
   animations: [appModuleAnimation()],
   templateUrl: './test-result-limit.component.html',
@@ -28,7 +34,10 @@ export class TestResultLimitComponent extends PagedListingComponentBase<TestResu
   @ViewChild('paginator', { static: true }) paginator: Paginator;
 
   keyword = '';
-  advancedFiltersVisible = false;
+  selectedRecord: TestResultLimitDto;
+  editDeleteMenus: MenuItem[];
+  items: MenuItem[];
+
   constructor(
     injector: Injector,
     private modalService: BsModalService,
@@ -38,7 +47,13 @@ export class TestResultLimitComponent extends PagedListingComponentBase<TestResu
     super(injector, cd);
   }
 
-  ngOnInit(): void {}
+ ngOnInit(): void {
+    this.items = [{ label: 'Home', routerLink: '/' }, { label: 'Test Result Limits' }];
+    this.editDeleteMenus = [
+      { label: 'Edit', icon: 'pi pi-pencil', command: () => this.edit(this.selectedRecord) },
+      { label: 'Delete', icon: 'pi pi-trash', command: () => this.delete(this.selectedRecord) }
+    ];
+  }
 
   list(event?: LazyLoadEvent): void {
     if (this.primengTableHelper.shouldResetPaging(event)) {

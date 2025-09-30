@@ -34,7 +34,7 @@ import { AvatarGroupModule } from 'primeng/avatargroup';
     styleUrl: './appointments.component.css',
     animations: [appModuleAnimation()],
     standalone: true,
-    imports: [FormsModule, TableModule,TooltipModule,CardModule,AvatarModule,AvatarGroupModule,InputTextModule,CheckboxModule,CommonModule, ChipModule,BreadcrumbModule, TagModule, SelectModule, MenuModule, ButtonModule, TagModule, OverlayPanelModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, DatePipe],
+    imports: [FormsModule, TableModule, TooltipModule, CardModule, AvatarModule, AvatarGroupModule, InputTextModule, CheckboxModule, CommonModule, ChipModule, BreadcrumbModule, TagModule, SelectModule, MenuModule, ButtonModule, TagModule, OverlayPanelModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, DatePipe],
     providers: [AppointmentServiceProxy, UserServiceProxy]
 })
 export class AppointmentsComponent extends PagedListingComponentBase<AppointmentDto> implements OnInit {
@@ -60,7 +60,7 @@ export class AppointmentsComponent extends PagedListingComponentBase<Appointment
         { label: 'Cancelled', value: AppointmentStatus._4 }
     ];
     items: any[];
-  selectedRecord: AppointmentDto;
+    selectedRecord: AppointmentDto;
 
     constructor(
         injector: Injector,
@@ -75,17 +75,46 @@ export class AppointmentsComponent extends PagedListingComponentBase<Appointment
     }
     ngOnInit(): void {
         this.items = [
-      { label: 'Home', routerLink: '/' },
-      { label: 'Appointments' }
-    ];
+            { label: 'Home', routerLink: '/' },
+            { label: 'Appointments' }
+        ];
     }
-     getShortName(fullName: string | 'unknown'): string {
-    if (!fullName) return '';
-    const words = fullName.trim().split(' ');
-    const firstInitial = words[0].charAt(0).toUpperCase();
-    const lastInitial = words.length > 1 ? words[words.length - 1].charAt(0).toUpperCase() : '';
-    return firstInitial + lastInitial;
-  }
+
+    getAppointmentMenu(record: any): MenuItem[] {
+        return [
+            {
+                label: this.l('Edit'),
+                icon: 'pi pi-pencil',
+                visible: this.canEdit(record),
+                command: () => this.editAppoinment(record),
+            },
+            {
+                label: this.l('View Receipt'),
+                icon: 'pi pi-file',
+                visible: this.canViewReceipt(record),
+                command: () => this.viewReceipt(record),
+            },
+            {
+                label: this.l('Pay Now'),
+                icon: 'pi pi-credit-card',
+                visible: this.canPay(record),
+                command: () => this.makePayment(record),
+            },
+            {
+                label: this.l('Cancel'),
+                icon: 'pi pi-times',
+                visible: this.canCancel(record),
+                command: () => this.changeStatusofAppoinment(record.id, 4),
+            },
+        ];
+    }
+    getShortName(fullName: string | 'unknown'): string {
+        if (!fullName) return '';
+        const words = fullName.trim().split(' ');
+        const firstInitial = words[0].charAt(0).toUpperCase();
+        const lastInitial = words.length > 1 ? words[words.length - 1].charAt(0).toUpperCase() : '';
+        return firstInitial + lastInitial;
+    }
     clearFilters(): void {
         this.keyword = '';
         this.selectedStatuses = undefined;
@@ -122,12 +151,12 @@ export class AppointmentsComponent extends PagedListingComponentBase<Appointment
             });
     }
 
-    
-  onStatusChange() {
-    this.selectedStatuses = this.statuses.filter(s => s.selected).map(s => s.value);
-    this.cd.detectChanges();
-    this.list();
-  }
+
+    onStatusChange() {
+        this.selectedStatuses = this.statuses.filter(s => s.selected).map(s => s.value);
+        this.list();
+        this.cd.detectChanges();
+    }
 
     delete(appMt: AppointmentDto): void {
         abp.message.confirm(this.l('UserDeleteWarningMessage'), undefined, (result: boolean) => {
@@ -200,15 +229,16 @@ export class AppointmentsComponent extends PagedListingComponentBase<Appointment
         return status ? status.label : '';
     }
     getStatusSeverity(value: number) {
-    switch (value) {
-      case AppointmentStatus._0: return 'Info';
-      case AppointmentStatus._1: return 'Warn';
-      case AppointmentStatus._2: return 'Secondary';
-      case AppointmentStatus._3: return 'Success';
-      case AppointmentStatus._4: return 'Danger';
-      default: return 'Contrast';
+        debugger
+        switch (value) {
+            case AppointmentStatus._0: return 'badge-soft-primary p-1 rounded';
+            case AppointmentStatus._1: return 'badge-soft-warning p-1 rounded';
+            case AppointmentStatus._2: return 'badge-soft-teal p-1 rounded';
+            case AppointmentStatus._3: return 'badge-soft-success p-1 rounded';
+            case AppointmentStatus._4: return 'badge-soft-danger p-1 rounded';
+            default: return 'badge-soft-teal';
+        }
     }
-  }
 
     changeStatusofAppoinment(id: number, status: AppointmentStatus) {
         this._apointMentService.markAsAction(id, status).subscribe(res => {
@@ -224,7 +254,7 @@ export class AppointmentsComponent extends PagedListingComponentBase<Appointment
     }
 
     canViewReceipt(record: any): boolean {
-        return record.isPaid && !record.patient.isAdmitted &&
+        return record.isPaid&&
             ((record.status === 0 || record.status === 1) || record.status === 4 || record.status === 3);
     }
 

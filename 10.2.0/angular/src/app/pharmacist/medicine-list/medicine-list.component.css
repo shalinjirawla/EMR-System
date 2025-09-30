@@ -1,94 +1,88 @@
-/* Overlay Panel Custom Style */
-.p-overlaypanel.custom-overlay {
-  padding: 0;
-  border: none;
-  border-radius: 8px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-  background-color: #ffffff;
-  min-width: 160px;
-  overflow: hidden;
+
+::ng-deep .p-breadcrumb {
+  background: none !important;
+  padding: 0 !important;
 }
 
-/* List inside panel */
-.custom-overlay-menu {
-  margin: 0;
-  padding: 0;
-  list-style: none;
+::ng-deep .add-btn {
+  background-color: #1F6DB2 !important;
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
 }
 
-/* Individual action item */
-.custom-overlay-menu li {
-  padding: 10px 16px;
+::ng-deep .add-btn:hover {
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+::ng-deep .refresh-btn {
+  background: white;
+  border-radius: 5px;
+  border: 1px solid #E2E8F0;
+}
+
+::ng-deep .p-card-header {
+  border-bottom: 1px solid #E2E8F0;
+}
+
+::ng-deep .p-card {
+  border-radius: 5px;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+::ng-deep .header-content {
+  padding: 1.5rem;
+}
+
+::ng-deep .dropdown-toggle:after {
+  display: inline-block;
+  vertical-align: 0;
+  border: 0;
   font-size: 14px;
-  color: #333;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+  position: relative;
+  content: "\f107";
+  font-family: "FontAwesome";
 }
 
-/* Hover effect */
-.custom-overlay-menu li:hover {
-  background-color: #f6f6f9;
+::ng-deep .search-bar-text {
+  padding: 5px !important;
 }
 
-/* Icon spacing */
-.custom-overlay-menu li i {
-  margin-right: 10px;
-  color: #607d8b;
+::ng-deep .p-popover-content {
+  padding: 0px !important;
 }
 
-/* Add these styles in your component's CSS file */
-.stock-status {
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    font-weight: bold;
-    text-align: center;
-    display: inline-block;
-    min-width: 80px;
+::ng-deep .p-datatable-thead {
+  line-height: 2.5rem !important;
 }
 
-.stock-status.in-stock {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
+::ng-deep .p-datatable {
+  border: 1px solid #E2E8F0;
 }
 
-.stock-status.low-stock {
-    background-color: #fff3cd;
-    color: #856404;
-    border: 1px solid #ffeeba;
+::ng-deep .p-datatable th {
+  padding: 5px 10px !important;
 }
 
-.stock-status.out-of-stock {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
+::ng-deep .p-datatable td {
+  padding: 8px 12px !important;
 }
 
-/* Add these styles for expiry date */
-.expiry-date {
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-weight: bold;
+::ng-deep .edit-delete-btn {
+  background: white;
+  border-radius: 5px;
+  border: 1px solid #E2E8F0;
 }
 
-.expiry-date.expired {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
+::ng-deep .badge-soft-success {
+    color: #09800F;
+    background-color: #EEF9F1;
 }
 
-.expiry-date.near-expiry {
-    background-color: #fff3cd;
-    color: #856404;
-    border: 1px solid #ffeeba;
+::ng-deep .badge-soft-danger {
+    color: #B71C1C;
+    background-color: #FBECEA;
 }
-
-.expiry-date.valid {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-}
-

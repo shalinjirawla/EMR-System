@@ -19,30 +19,22 @@ import { FormsModule } from '@angular/forms';
 import { NgIf, DatePipe, DecimalPipe, CommonModule } from '@angular/common';
 import { appModuleAnimation } from '../../../shared/animations/routerTransition';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
-import { MenuModule } from 'primeng/menu';
 import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
 import { PaginatorModule } from 'primeng/paginator';
 import { TableModule } from 'primeng/table';
-
+import { MenuModule } from 'primeng/menu';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { MenuItem } from 'primeng/api';
+import { TooltipModule } from 'primeng/tooltip';
+import { CardModule } from 'primeng/card';
+import { InputTextModule } from 'primeng/inputtext';
 @Component({
   selector: 'app-purchase-invoice-list',
   animations: [appModuleAnimation()],
   standalone: true,
-  imports: [
-    LocalizePipe,
-    FormsModule,
-    TableModule,
-    CalendarModule,
-    NgIf,
-    PaginatorModule,
-    ButtonModule,
-    DatePipe,
-    DecimalPipe,
-    CommonModule,
-    OverlayPanelModule,
-    MenuModule,
-  ],
+  imports: [LocalizePipe,TooltipModule,CardModule,InputTextModule,FormsModule,BreadcrumbModule,TableModule,CalendarModule,NgIf,PaginatorModule,ButtonModule,DatePipe,
+    DecimalPipe,CommonModule,OverlayPanelModule,MenuModule,],
   providers: [PurchaseInvoiceServiceProxy],
   templateUrl: './purchase-invoice-list.component.html',
   styleUrl: './purchase-invoice-list.component.css',
@@ -56,7 +48,9 @@ export class PurchaseInvoiceListComponent
   keyword = '';
   supplierName = '';
   invoiceDate: Date | null = null;
-  advancedFiltersVisible = false;
+  items: MenuItem[] | undefined;
+  editDeleteMenus: MenuItem[] | undefined;
+  selectedRecord:PurchaseInvoiceDto
 
   constructor(
     injector: Injector,
@@ -69,7 +63,24 @@ export class PurchaseInvoiceListComponent
     this.keyword = this._activatedRoute.snapshot.queryParams['filterText'] || '';
   }
 
-  ngOnInit(): void { }
+ngOnInit(): void {
+    this.items = [
+      { label: 'Home', routerLink: '/' },
+      { label: 'Medicine-Purchase' },
+    ];
+    this.editDeleteMenus = [
+      {
+        label: 'Edit',
+        icon: 'pi pi-pencil',
+        command: () => this.editInvoice(this.selectedRecord)  // call edit
+      },
+      {
+        label: 'View',
+        icon: 'pi pi-eye',
+        command: () => this.viewInvoice(this.selectedRecord)  // call edit
+      }
+    ];
+  }
 
   clearFilters(): void {
     this.keyword = '';
@@ -122,6 +133,7 @@ export class PurchaseInvoiceListComponent
   }
 
   editInvoice(dto: PurchaseInvoiceDto): void {
+    debugger
     this.showCreateOrEditInvoice(dto.id);
   }
   viewInvoice(dto: PurchaseInvoiceDto): void {

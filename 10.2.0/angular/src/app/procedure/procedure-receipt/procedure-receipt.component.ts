@@ -1,9 +1,9 @@
 import { Component, ViewChild, Injector, OnInit, ChangeDetectorRef } from '@angular/core';
 import { PagedListingComponentBase } from '@shared/paged-listing-component-base';
-import { 
-  ProcedureReceiptDto, 
-  ProcedureReceiptDtoPagedResultDto, 
-  ProcedureReceiptServiceProxy 
+import {
+  ProcedureReceiptDto,
+  ProcedureReceiptDtoPagedResultDto,
+  ProcedureReceiptServiceProxy
 } from '@shared/service-proxies/service-proxies';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { Table } from 'primeng/table';
@@ -18,9 +18,14 @@ import { ButtonModule } from 'primeng/button';
 import { CommonModule, DatePipe, NgIf } from '@angular/common';
 import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
-import {ViewProcedureReceiptComponent} from '../view-procedure-receipt/view-procedure-receipt.component';
-import {CreateProcedureReceiptComponent} from '../create-procedure-receipt/create-procedure-receipt.component'
-
+import { ViewProcedureReceiptComponent } from '../view-procedure-receipt/view-procedure-receipt.component';
+import { CreateProcedureReceiptComponent } from '../create-procedure-receipt/create-procedure-receipt.component'
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { MenuItem } from 'primeng/api';
+import { MenuModule } from 'primeng/menu';
+import { TooltipModule } from 'primeng/tooltip';
+import { CardModule } from 'primeng/card';
+import { InputTextModule } from 'primeng/inputtext';
 @Component({
   selector: 'app-procedure-receipt',
   templateUrl: './procedure-receipt.component.html',
@@ -29,7 +34,7 @@ import {CreateProcedureReceiptComponent} from '../create-procedure-receipt/creat
   animations: [appModuleAnimation()],
   standalone: true,
   imports: [
-    FormsModule,
+    FormsModule, BreadcrumbModule, CardModule, InputTextModule, TooltipModule,MenuModule,
     TableModule,
     PaginatorModule,
     ButtonModule,
@@ -38,7 +43,7 @@ import {CreateProcedureReceiptComponent} from '../create-procedure-receipt/creat
     LocalizePipe,
     DatePipe,
     CommonModule
-  ]  
+  ]
 })
 export class ProcedureReceiptComponent extends PagedListingComponentBase<ProcedureReceiptDto> implements OnInit {
   @ViewChild('dataTable', { static: true }) dataTable: Table;
@@ -46,9 +51,9 @@ export class ProcedureReceiptComponent extends PagedListingComponentBase<Procedu
 
   keyword = '';
   status: string | undefined = undefined;
-  advancedFiltersVisible = false;
-  selectedReceipt: ProcedureReceiptDto | null = null;
-
+  selectedReceipt: ProcedureReceiptDto;
+  items: MenuItem[] | undefined;
+  editDeleteMenus: MenuItem[] | undefined;
   constructor(
     injector: Injector,
     private modalService: BsModalService,
@@ -58,7 +63,19 @@ export class ProcedureReceiptComponent extends PagedListingComponentBase<Procedu
     super(injector, cd);
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.items = [
+      { label: 'Home', routerLink: '/' },
+      { label: 'Procedure-receipt' },
+    ];
+    this.editDeleteMenus = [
+      {
+        label: 'View Receipt',
+        icon: 'pi pi-file',
+        command: () => this.viewReceipt(this.selectedReceipt.id)  // call edit
+      }
+    ];
+  }
 
   list(event?: LazyLoadEvent): void {
     if (this.primengTableHelper.shouldResetPaging(event)) {
@@ -91,6 +108,7 @@ export class ProcedureReceiptComponent extends PagedListingComponentBase<Procedu
   }
 
   viewReceipt(id: number): void {
+    debugger
     const dialog: BsModalRef = this.modalService.show(
       ViewProcedureReceiptComponent,
       {

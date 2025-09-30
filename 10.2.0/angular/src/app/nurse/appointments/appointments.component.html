@@ -110,22 +110,19 @@
                                     <p class="m-0">{{ record.appointmentDate | date: 'dd/MM/yyyy' }}</p>
                                     <p class="m-0">{{ record.appointmentTimeSlot }}</p>
                                 </td>
-
                                 <td>
-                                    <p-tag [rounded]="true" [className]="getStatusSeverity(record.status)">
-                                        {{ getStatusLabel(record.status) }}
-                                    </p-tag>
+                                    <span [className]="getStatusSeverity(record.status)">
+                                        <b>{{ getStatusLabel(record.status) }}</b>
+                                    </span>
                                 </td>
-
                                 <td>
-                                    <p-tag *ngIf="record.isPaid; else unpaidTag" value="Paid" severity="success"
-                                        [rounded]="true">
-                                    </p-tag>
+                                    <span *ngIf="record.isPaid; else unpaidTag" class="badge-soft-success p-1 rounded"
+                                        [rounded]="true"><b>Paid</b>
+                                    </span>
                                     <ng-template #unpaidTag>
-                                        <p-tag value="Unpaid" severity="danger" [rounded]="true"></p-tag>
+                                        <span class="badge-soft-danger p-1 rounded" [rounded]="true"><b>UnPaid</b></span>
                                     </ng-template>
                                 </td>
-
                                 <td>
                                     <button class="btn btn-sm border rounded-1 px-3" type="button"
                                         style="background-color: #f8fafc;"
@@ -133,24 +130,11 @@
                                         <i class="fa-solid fa-ellipsis-vertical"></i>
                                     </button>
 
-                                    <p-overlayPanel #rowMenu [dismissable]="true">
-                                        <ul class="custom-overlay-menu">
-                                            <li *ngIf="canEdit(record)" (click)="editAppoinment(record)">
-                                                <i class="pi pi-pencil"></i> Edit
-                                            </li>
-                                            <li *ngIf="canViewReceipt(record)" (click)="viewReceipt(record)">
-                                                <i class="pi pi-file"></i> View Receipt
-                                            </li>
-                                            <li *ngIf="canPay(record)" (click)="makePayment(record)">
-                                                <i class="pi pi-credit-card"></i> Pay Now
-                                            </li>
-                                            <li *ngIf="canCancel(record)"
-                                                (click)="changeStatusofAppoinment(record.id,4)">
-                                                <i class="pi pi-times"></i> Cancel
-                                            </li>
-                                        </ul>
-                                    </p-overlayPanel>
+                                    <p-menu #rowMenu [popup]="true" [style]="{'min-width':'120px','max-width':'180px'}"
+                                        [model]="getAppointmentMenu(record)" appendTo="body">
+                                    </p-menu>
                                 </td>
+
                             </tr>
                         </ng-template>
                     </p-table>

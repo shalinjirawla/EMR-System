@@ -11,12 +11,16 @@ import { CreateupdateHealthPackageComponent } from '../createupdate-health-packa
 import { FormsModule } from '@node_modules/@angular/forms';
 import { CommonModule } from '@node_modules/@angular/common';
 import { LocalizePipe } from '@shared/pipes/localize.pipe';
-
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { TooltipModule } from 'primeng/tooltip';
+import { CardModule } from 'primeng/card';
+import { MenuModule } from 'primeng/menu';
+import { MenuItem } from 'primeng/api';
 
 @Component({
   selector: 'app-health-package',
   standalone: true,
-  imports: [FormsModule, CommonModule, TableModule, PaginatorModule, LocalizePipe],
+  imports: [FormsModule, CommonModule,BreadcrumbModule,TooltipModule, CardModule,MenuModule, TableModule, PaginatorModule, LocalizePipe],
   animations: [appModuleAnimation()],
   providers: [HealthPackageServiceProxy],
   templateUrl: './health-package.component.html',
@@ -26,8 +30,10 @@ export class HealthPackageComponent extends PagedListingComponentBase<HealthPack
   @ViewChild('dataTable', { static: true }) dataTable: Table;
   @ViewChild('paginator', { static: true }) paginator: Paginator;
   keyword = '';
-  isActive: boolean | undefined = undefined;
-  advancedFiltersVisible = false;
+   editDeleteMenus: MenuItem[];
+   items: MenuItem[];
+   isActive: boolean | undefined = undefined;
+   selectedRecord:HealthPackageDto;
   constructor(
     injector: Injector,
     private _modalService: BsModalService,
@@ -37,7 +43,14 @@ export class HealthPackageComponent extends PagedListingComponentBase<HealthPack
     super(injector, cd);
   }
 
-  ngOnInit(): void { }
+  ngOnInit(): void { 
+   this.items = [{ label: 'Home', routerLink: '/' }, { label: 'Health Packages' }];
+   this.editDeleteMenus = [
+      { label: 'Edit', icon: 'pi pi-pencil', command: () => this.editHealthPackage(this.selectedRecord) },
+      { label: 'Delete', icon: 'pi pi-trash', command: () => this.deleteHealthPackage(this.selectedRecord) }
+    ];
+
+  }
 
 
 
@@ -73,14 +86,14 @@ export class HealthPackageComponent extends PagedListingComponentBase<HealthPack
   createHealthPackage(): void {
     const createDialog: BsModalRef = this._modalService.show(CreateupdateHealthPackageComponent, { class: 'modal-lg' });
     createDialog.content.onSave.subscribe(() => {
-      this.list();
+      this.refresh();
     });
   }
 
   editHealthPackage(entity: HealthPackageDto): void {
     const editDialog: BsModalRef = this._modalService.show(CreateupdateHealthPackageComponent, { class: 'modal-lg', initialState: { id: entity.id } });
     editDialog.content.onSave.subscribe(() => {
-      this.list();
+      this.refresh();
     });
   }
   delete(entity: HealthPackageDto): void {
@@ -92,7 +105,7 @@ export class HealthPackageComponent extends PagedListingComponentBase<HealthPack
       if (result) {
         this._healthPackageService.delete(entity.id).subscribe(() => {
           abp.notify.success('Deleted successfully');
-          this.list();
+          this.refresh();
         });
       }
     });

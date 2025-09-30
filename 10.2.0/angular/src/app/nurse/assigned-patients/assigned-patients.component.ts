@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Injector, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, Injector, OnInit, ViewChild } from '@angular/core';
 import { finalize } from 'rxjs/operators';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
@@ -18,20 +18,26 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { TagModule } from 'primeng/tag';
 import { ConfirmationService } from 'primeng/api';
 import { ConfirmDialog } from 'primeng/confirmdialog';
+import { SelectModule } from 'primeng/select';
+import { InputTextModule } from 'primeng/inputtext';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { MenuItem } from 'primeng/api';
+import { CheckboxModule } from 'primeng/checkbox';
 @Component({
   selector: 'app-assigned-patients',
   templateUrl: './assigned-patients.component.html',
   styleUrl: './assigned-patients.component.css',
   animations: [appModuleAnimation()],
-  imports: [ConfirmDialog, FormsModule, TagModule, TableModule, PrimeTemplate, ConfirmDialogModule, NgIf, PaginatorModule, LocalizePipe, OverlayPanelModule, MenuModule, ButtonModule,],
+  imports: [ConfirmDialog, FormsModule, CheckboxModule, BreadcrumbModule, SelectModule, InputTextModule, TagModule, TableModule, PrimeTemplate, ConfirmDialogModule, NgIf, PaginatorModule, LocalizePipe, OverlayPanelModule, MenuModule, ButtonModule,],
   providers: [PatientServiceProxy, NurseServiceProxy, PatientDischargeServiceProxy, ConfirmationService],
 })
-export class AssignedPatientsComponent extends PagedListingComponentBase<PatientDto> {
+export class AssignedPatientsComponent extends PagedListingComponentBase<PatientDto> implements OnInit {
   @ViewChild('dataTable', { static: true }) dataTable: Table;
   @ViewChild('paginator', { static: true }) paginator: Paginator;
 
   users: PatientDto[] = [];
   keyword = '';
+  items: MenuItem[] = [];
   isActive: boolean | null;
   advancedFiltersVisible = false;
   nurseID: number;
@@ -61,6 +67,13 @@ export class AssignedPatientsComponent extends PagedListingComponentBase<Patient
     super(injector, cd);
     this.keyword = this._activatedRoute.snapshot.queryParams['filterText'] || '';
   }
+  ngOnInit(): void {
+    this.items = [
+      { label: 'Home', routerLink: '/' },
+      { label: this.l('Patients') }
+    ];
+  }
+
   clearFilters(): void {
     this.keyword = '';
     this.isActive = undefined;
@@ -154,18 +167,21 @@ export class AssignedPatientsComponent extends PagedListingComponentBase<Patient
     return dataa;
   }
   getStatusSeverity(value: number) {
+    debugger
     switch (value) {
-      case DischargeStatus._0: return 'warn';
-      case DischargeStatus._1: return 'warn';
-      case DischargeStatus._2: return 'warn';
-      case DischargeStatus._3: return 'warn';
-      case DischargeStatus._4: return 'warn';
-      case DischargeStatus._5: return 'warn';
-      case DischargeStatus._6: return 'warn';
-      case DischargeStatus._7: return 'warn';
-      case DischargeStatus._8: return 'success';
-      case DischargeStatus._9: return 'success';
-      default: return 'warn';
+      case DischargeStatus._0:
+      case DischargeStatus._1:
+      case DischargeStatus._2:
+      case DischargeStatus._3:
+      case DischargeStatus._4:
+      case DischargeStatus._5:
+      case DischargeStatus._6:
+      case DischargeStatus._7:
+            return 'badge-soft-primary p-1 rounded';
+      case DischargeStatus._8:
+      case DischargeStatus._9:
+            return 'badge-soft-success p-1 rounded';
+      default: return 'badge-soft-teal p-1 rounded';
     }
   }
 }

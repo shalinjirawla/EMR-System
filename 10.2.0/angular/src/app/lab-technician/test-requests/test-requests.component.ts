@@ -8,7 +8,7 @@ import { finalize } from 'rxjs/operators';
 import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { FormsModule } from '@node_modules/@angular/forms';
 import { CommonModule, NgIf } from '@node_modules/@angular/common';
-import { ChangeDetectorRef, Component, Injector, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, Injector, OnInit, ViewChild } from '@angular/core';
 import { CreatePrescriptionLabTestsServiceProxy, LabRequestListDto, LabTestReceiptServiceProxy, LabTestStatus, PaymentMethod, PrescriptionLabTestDto, PrescriptionLabTestServiceProxy } from '@shared/service-proxies/service-proxies';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
 import { ChipModule } from 'primeng/chip';
@@ -21,22 +21,27 @@ import { ViewLabReportComponent } from '@app/lab-technician/view-lab-report/view
 import { TagModule } from 'primeng/tag';
 import { CreateLabReportComponent } from '../create-lab-report/create-lab-report.component';
 import { LabTestReceiptComponent } from '../lab-test-receipt/lab-test-receipt.component'
-
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { MenuItem } from 'primeng/api';
+import { TooltipModule } from 'primeng/tooltip';
+import { CardModule } from 'primeng/card';
+import { InputTextModule } from 'primeng/inputtext';
 @Component({
     selector: 'app-test-requests',
-    imports: [FormsModule, TableModule, TagModule, CommonModule, PrimeTemplate, OverlayPanelModule, MenuModule, ButtonModule, NgIf, PaginatorModule, ChipModule, LocalizePipe],
+    imports: [FormsModule, TableModule, BreadcrumbModule, CardModule, InputTextModule, TooltipModule, TagModule, CommonModule, PrimeTemplate, OverlayPanelModule, MenuModule, ButtonModule, NgIf, PaginatorModule, ChipModule, LocalizePipe],
     animations: [appModuleAnimation()],
     templateUrl: './test-requests.component.html',
     styleUrl: './test-requests.component.css',
     providers: [PrescriptionLabTestServiceProxy, CreatePrescriptionLabTestsServiceProxy, LabTestReceiptServiceProxy]
 })
-export class TestRequestsComponent extends PagedListingComponentBase<PrescriptionLabTestDto> {
+export class TestRequestsComponent extends PagedListingComponentBase<PrescriptionLabTestDto> implements OnInit {
     @ViewChild('dataTable', { static: true }) dataTable: Table;
     @ViewChild('paginator', { static: true }) paginator: Paginator;
     PaymentMethod = PaymentMethod;
     keyword = '';
     isActive: boolean | null;
-    advancedFiltersVisible = false;
+    items: MenuItem[] | undefined;
+    editDeleteMenus: MenuItem[] | undefined;
     testStatus = [
         { label: 'Pending', value: LabTestStatus._0 },
         { label: 'In Progress', value: LabTestStatus._1 },
@@ -62,6 +67,41 @@ export class TestRequestsComponent extends PagedListingComponentBase<Prescriptio
     clearFilters(): void {
         this.keyword = '';
         this.isActive = undefined;
+    }
+    ngOnInit(): void {
+        this.items = [
+            { label: 'Home', routerLink: '/' },
+            { label: 'Test-Requests' },
+        ];
+    }
+
+    getMenu(record: any): MenuItem[] {
+        return [
+            {
+                label: this.l('Create'),
+                icon: 'pi pi-plus',
+                visible: record.testStatus == 0 && record.isPaid,
+                command: () => this.CreateReport(record),
+            },
+            {
+                label: this.l('Edit'),
+                icon: 'pi pi-pencil',
+                visible: record.testStatus == 1,
+                command: () => this.EditReport(record),
+            },
+            {
+                label: this.l('Mark As Completed'),
+                icon: 'pi pi-check',
+                visible: record.testStatus == 1,
+                command: () => this.CompleteReport(record.id),
+            },
+            {
+                label: this.l('View Report'),
+                icon: 'pi pi-eye',
+                visible: record.testStatus != 0,
+                command: () => this.ViewLabReport(record.id),
+            },
+        ];
     }
     list(event?: LazyLoadEvent): void {
         if (this.primengTableHelper.shouldResetPaging(event)) {
@@ -98,48 +138,6 @@ export class TestRequestsComponent extends PagedListingComponentBase<Prescriptio
         });
     }
 
-    // makePayment(record: LabRequestListDto): void {
-    //     if (!record.id) {
-    //         abp.message.warn('Invalid lab test record.');
-    //         return;
-    //     }
-
-    //     abp.ui.setBusy();
-    //     this._createprescriptionLabTest
-    //         .initiatePaymentForLabTest(record.id)
-    //         .pipe(finalize(() => abp.ui.clearBusy()))
-    //         .subscribe({
-    //             next: (sessionUrl: string) => {
-    //                 // Redirect user to Stripe
-    //                 window.location.href = sessionUrl;
-    //             },
-    //             error: (err) => {
-    //                 abp.message.error(err.message || 'Payment initiation failed.');
-    //             }
-    //         });
-    // }
-    // pay(record: PrescriptionLabTestDto, method: PaymentMethod): void {
-    //     abp.ui.setBusy();
-
-    //     if (method === PaymentMethod._1) {
-    //         // Card → existing Stripe flow
-    //         this._createprescriptionLabTest
-    //             .initiatePaymentForLabTest(record.id)
-    //             .pipe(finalize(() => abp.ui.clearBusy()))
-    //             .subscribe(
-    //                 (sessionUrl: string) => window.location.href = sessionUrl,
-    //                 (err: any) => abp.message.error(err.message || 'Payment initiation failed.')
-    //             );
-    //     } else {
-    //         // Cash → generate receipt immediately
-    //         const methodName = this.PAYMENT_METHOD_NAMES[method]; // "Cash"
-    //         this._labtestrecipt
-    //             .generateLabTestReceipt(record.id, methodName)
-    //             .pipe(finalize(() => abp.ui.clearBusy()))
-    //             .subscribe();
-    //     }
-    // }
-
     viewReceipt(prescriptionLabTestId: number): void {
         if (prescriptionLabTestId) {
             const modalRef: BsModalRef = this._modalService.show(
@@ -159,17 +157,17 @@ export class TestRequestsComponent extends PagedListingComponentBase<Prescriptio
     }
     getStatusClass(value: number): string {
         switch (value) {
-            case LabTestStatus._0: return 'status-pending';    // Scheduled
-            case LabTestStatus._1: return 'status-in-progress';    // Checked In
-            case LabTestStatus._2: return 'status-completed';    // Completed
+            case LabTestStatus._0: return 'badge-soft-warning p-1 rounded';    // Scheduled
+            case LabTestStatus._1: return 'badge-soft-primary p-1 rounded';    // Checked In
+            case LabTestStatus._2: return 'badge-soft-success p-1 rounded';    // Completed
             default: return '';
         }
     }
-    getStatusSeverity(value: number): 'info' | 'warn' | 'success' | 'danger' | 'secondary' | 'contrast' {
+    getStatusSeverity(value: number){
         switch (value) {
-            case LabTestStatus._0: return 'info';        // Pending
-            case LabTestStatus._1: return 'secondary';   // In Progress
-            case LabTestStatus._2: return 'success';     // Completed
+            case LabTestStatus._0: return 'badge-soft-warning p-1 rounded';        // Pending
+            case LabTestStatus._1: return 'badge-soft-primary p-1 rounded';   // In Progress
+            case LabTestStatus._2: return 'badge-soft-success p-1 rounded';     // Completed
             default: return 'contrast';
         }
     }
@@ -198,7 +196,7 @@ export class TestRequestsComponent extends PagedListingComponentBase<Prescriptio
                     testName: record.labReportTypeName,
                     patientName: record.patientName,
                     emergencyCaseId: record.emergencyCaseId,
-                    isEmergencyCase: record.isEmergencyPrescription,  
+                    isEmergencyCase: record.isEmergencyPrescription,
                 },
             });
         }
@@ -235,6 +233,7 @@ export class TestRequestsComponent extends PagedListingComponentBase<Prescriptio
         // });
     }
     CompleteReport(id?: number) {
+        debugger
         if (id > 0) {
             this._prescriptionLabTests.makeCompleteReport(id).subscribe(res => {
                 this.refresh();

@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Injector, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, Injector, OnInit, ViewChild } from '@angular/core';
 import { Paginator, PaginatorModule } from 'primeng/paginator';
 import { Table, TableModule } from 'primeng/table';
 import { ActivatedRoute } from '@angular/router';
@@ -11,7 +11,6 @@ import { NgIf, DatePipe, CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
-import { MenuModule } from 'primeng/menu';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { appModuleAnimation } from "../../../shared/animations/routerTransition";
@@ -22,30 +21,37 @@ import { DialogModule } from 'primeng/dialog';
 import { TagModule } from 'primeng/tag';
 import { SelectModule } from 'primeng/select';
 import { CheckboxModule } from 'primeng/checkbox';
+import { MenuModule } from 'primeng/menu';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { MenuItem } from 'primeng/api';
+import { TooltipModule } from 'primeng/tooltip';
+import { CardModule } from 'primeng/card';
+import { InputTextModule } from 'primeng/inputtext';
 @Component({
     selector: 'app-pharmacist-prescriptions',
     animations: [appModuleAnimation()],
-    imports: [FormsModule, TableModule, PrimeTemplate, CalendarModule, NgIf, PaginatorModule,
+    imports: [FormsModule, BreadcrumbModule, InputTextModule, TooltipModule, CardModule, TableModule, PrimeTemplate, CalendarModule, NgIf, PaginatorModule,
         ButtonModule, LocalizePipe, DatePipe, SelectModule, CheckboxModule, CommonModule, TagModule, OverlayPanelModule, MenuModule, DialogModule],
     templateUrl: './pharmacist-prescriptions.component.html',
     styleUrl: './pharmacist-prescriptions.component.css',
     providers: [NurseServiceProxy, PharmacistPrescriptionsServiceProxy]
 
 })
-export class PharmacistPrescriptionsComponent extends PagedListingComponentBase<PharmacistPrescriptionsDto> {
+export class PharmacistPrescriptionsComponent extends PagedListingComponentBase<PharmacistPrescriptionsDto> implements OnInit {
     @ViewChild('dataTable', { static: true }) dataTable: Table;
     @ViewChild('paginator', { static: true }) paginator: Paginator;
     visible: boolean = false;
     medicineorder: MedicineOrderDto[] = [];
     keyword = '';
     isActive: boolean | null;
-    advancedFiltersVisible = false;
     selectedRecordForView!: PharmacistPrescriptionsDto;
     statusOptions = [
         { label: 'Not PickedUp', value: CollectionStatus._0 },
         { label: 'Picked Up', value: CollectionStatus._1 },
     ];
     pickupDialog: boolean = false;
+    items: MenuItem[] | undefined;
+    editDeleteMenus: MenuItem[] | undefined;
     selectedID!: number;
     selectedNurseId!: number;
     nurseOptions: NurseDto[] = []; // Load from backend
@@ -61,6 +67,36 @@ export class PharmacistPrescriptionsComponent extends PagedListingComponentBase<
         super(injector, cd);
         this.keyword = this._activatedRoute.snapshot.queryParams['filterText'] || '';
     }
+
+    ngOnInit(): void {
+        this.items = [
+            { label: 'Home', routerLink: '/' },
+            { label: 'Pharmacist-prescription' },
+        ];
+    }
+  getPrescriptionMenu(record: PharmacistPrescriptionsDto): MenuItem[] {
+    return [
+        {
+            label: 'Edit',
+            icon: 'pi pi-pencil',
+            visible: record.collectionStatus === CollectionStatus._0,
+            command: () => this.createUpdate(record.id),
+        },
+        {
+            label: 'View',
+            icon: 'pi pi-eye',
+            visible: record.collectionStatus === CollectionStatus._1,
+            command: () => this.ViewPharmacistPrescriptions(record.prescriptionId, record.id),
+        },
+        {
+            label: 'Mark as PickedUp',
+            icon: 'pi pi-check',
+            visible: record.collectionStatus === CollectionStatus._0 && record.grandTotal > 0,
+            command: () => this.openPickupDialog(record.id),
+        },
+    ];
+}
+
     clearFilters(): void {
         this.keyword = '';
         this.isActive = undefined;
@@ -142,11 +178,11 @@ export class PharmacistPrescriptionsComponent extends PagedListingComponentBase<
         const dataa = status ? status.label : '';
         return dataa;
     }
-    getStatusSeverity(value: number): 'info' | 'warn' | 'success' {
+    getStatusSeverity(value: number) {
         switch (value) {
-            case CollectionStatus._0: return 'warn';        // Pending
-            case CollectionStatus._1: return 'success';   // In_review
-            default: return 'info';
+            case CollectionStatus._0: return 'badge-soft-warning p-1 rounded';        // Pending
+            case CollectionStatus._1: return 'badge-soft-success p-1 rounded';   // In_review
+            default: return 'badge-soft-primary p-1 rounded';
         }
     }
     dispensePrescription(record: PharmacistPrescriptionItemWithUnitPriceDto[]) {

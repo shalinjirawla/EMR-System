@@ -1,85 +1,41 @@
 <div [@routerTransition]>
   <section class="content-header">
     <div class="container-fluid">
-      <div class="row">
-        <div class="col-6">
-          <h1>Purchase Invoices</h1>
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <p-breadcrumb [model]="items" />
         </div>
-        <div class="col-6 text-right">
-          <a href="javascript:;" class="btn bg-blue" (click)="addNewInvoice()">
-            <i class="fa fa-plus-square"></i>
-            {{ 'Create' | localize }}
-          </a>
+        <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+          <div class="btn-group mr-1" role="group" aria-label="Third group" pTooltip="Refresh" tooltipPosition="top"
+            (click)="refresh()">
+            <button type="button" class="btn btn-md refresh-btn">
+              <span class="pi pi-refresh"></span>
+            </button>
+          </div>
+          <div class="btn-group mr-2" role="group" aria-label="Fourth group" (click)="addNewInvoice()">
+            <button type="button" class="btn btn-md add-btn">
+              <div class="d-flex align-items-center justify-content-between">
+                <span class="pi pi-plus-circle mr-2"></span>
+                <span>Add New Medicine</span>
+              </div>
+            </button>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
+
   <section class="content px-2 pb-3">
     <div class="container-fluid">
-      <div class="card table-wrapper">
-
-        <!-- 🔎 Search & Filters -->
-        <div class="card-header">
-          <div class="row">
-            <div class="col-md-6">&emsp;</div>
-            <div class="col-md-6">
-              <div class="input-group">
-                <div class="input-group-prepend">
-                  <button type="button" class="btn bg-blue" (click)="list()">
-                    <i class="fas fa-search"></i>
-                  </button>
-                </div>
-                <input type="text" class="form-control" name="keyword" [placeholder]="'SearchWithThreeDot' | localize"
-                  [(ngModel)]="keyword" (keyup.enter)="list()" />
-                <div class="input-group-append">
-                  <button type="button" class="btn btn-default"
-                    (click)="advancedFiltersVisible = !advancedFiltersVisible">
-                    <i class="fas" [class.fa-angle-up]="advancedFiltersVisible"
-                      [class.fa-angle-down]="!advancedFiltersVisible"></i>
-                  </button>
-                </div>
-              </div>
+      <div class="card mb-0 table-wrapper">
+        <div class="card-body">
+          <div class="d-flex justify-content-end align-items-center mb-3">
+            <div>
+              <input class="search-bar-text" type="text" pInputText [(ngModel)]="keyword" pSize="small"
+                [placeholder]="'SearchWithThreeDot' | localize" (input)="list()" />
             </div>
           </div>
-
-          <div *ngIf="advancedFiltersVisible" class="card mb-0 mt-1">
-            <div class="card-body">
-              <form class="form-horizontal">
-                <div class="row">
-                  <div class="col-md-4">
-                    <div class="form-group row">
-                      <label class="col-md-4 col-form-label">Supplier</label>
-                      <div class="col-md-8">
-                        <input type="text" class="form-control" [(ngModel)]="supplierName" name="supplierName" />
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-md-4">
-                    <div class="form-group row">
-                      <label class="col-md-4 col-form-label">Invoice Date</label>
-                      <div class="col-md-8">
-                        <p-calendar [(ngModel)]="invoiceDate" name="invoiceDate" [showIcon]="true"
-                          [maxDate]="maxDate"></p-calendar>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </form>
-            </div>
-            <div class="card-footer">
-              <button type="button" class="btn bg-blue" (click)="list()">
-                {{ 'Search' | localize }}
-              </button>
-              <button type="button" class="btn btn-default float-right" (click)="clearFilters()">
-                {{ 'Clear' | localize }}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 📋 Table -->
-        <div class="card-body table-responsive table-striped table-bordered">
           <p-table #dataTable sortMode="multiple" (onLazyLoad)="list($event)" [value]="primengTableHelper.records"
             rows="{{ primengTableHelper.defaultRecordsCountPerPage }}" [paginator]="false" [lazy]="true"
             [tableStyle]="{ 'min-width': '50rem' }">
@@ -100,21 +56,12 @@
                 <td>{{ record.invoiceDate | date: 'dd/MM/yyyy' }}</td>
                 <td>{{ record.totalAmount | number:'1.2-2' }}</td>
                 <td>
-                  <button type="button" pButton icon="pi pi-ellipsis-v" class="p-button-text"
-                    (click)="rowMenu.toggle($event); selectedRecord = record"></button>
-                  <p-overlayPanel #rowMenu class="custom-overlay" [dismissable]="true">
-                    <ul class="custom-overlay-menu">
-                      <li (click)="editInvoice(selectedRecord)">
-                        <i class="pi pi-pencil"></i> Edit
-                      </li>
-                      <!-- <li (click)="delete(selectedRecord)">
-                        <i class="pi pi-trash"></i> Delete
-                      </li> -->
-                      <li (click)="viewInvoice(selectedRecord)">
-                        <i class="pi pi-eye"></i> View
-                      </li>
-                    </ul>
-                  </p-overlayPanel>
+                  <button class="btn btn-sm border rounded-1 px-3" type="button" style="background-color: #f8fafc;"
+                    (click)="rowMenu.toggle($event); selectedRecord = record">
+                    <i class="fa-solid fa-ellipsis-vertical"></i>
+                  </button>
+                  <p-menu #rowMenu [popup]="true" [style]="{'min-width':'80px', 'max-width':'150px'}"
+                    [model]="editDeleteMenus" appendTo="body"></p-menu>
                 </td>
               </tr>
             </ng-template>
@@ -123,27 +70,13 @@
           <div class="primeng-no-data text-center m-2" *ngIf="primengTableHelper.totalRecordsCount == 0">
             {{ 'NoData' | localize }}
           </div>
-        </div>
 
-        <!-- 📌 Pagination -->
-        <div class="card-footer table-card-footer bg-white border-top">
-          <div class="row">
-            <div class="col-sm-4 col-12 text-sm-left text-center">
-              <button class="btn btn-secondary" (click)="refresh()">
-                <i class="fas fa-redo-alt"></i>
-              </button>
-            </div>
-            <div class="col-sm-8 col-12">
-              <div class="float-sm-right m-auto">
-                <p-paginator [rows]="primengTableHelper.defaultRecordsCountPerPage" #paginator
-                  (onPageChange)="list($event)" [totalRecords]="primengTableHelper.totalRecordsCount"
-                  [rowsPerPageOptions]="primengTableHelper.predefinedRecordsCountPerPage" [showCurrentPageReport]="true"
-                  [currentPageReportTemplate]="'TotalRecordsCount' | localize: primengTableHelper.totalRecordsCount">
-                </p-paginator>
-              </div>
-            </div>
-          </div>
         </div>
+        <p-paginator [rows]="primengTableHelper.defaultRecordsCountPerPage" #paginator (onPageChange)="list($event)"
+          [totalRecords]="primengTableHelper.totalRecordsCount"
+          [rowsPerPageOptions]="primengTableHelper.predefinedRecordsCountPerPage" [showCurrentPageReport]="true"
+          [currentPageReportTemplate]="'TotalRecordsCount' | localize: primengTableHelper.totalRecordsCount">
+        </p-paginator>
 
       </div>
     </div>

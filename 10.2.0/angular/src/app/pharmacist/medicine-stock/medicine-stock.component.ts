@@ -21,23 +21,18 @@ import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
 import { PaginatorModule } from 'primeng/paginator';
 import { TableModule } from 'primeng/table';
-
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { MenuItem } from 'primeng/api';
+import { TooltipModule } from 'primeng/tooltip';
+import { CardModule } from 'primeng/card';
+import { InputTextModule } from 'primeng/inputtext';
 @Component({
   selector: 'app-medicine-stock',
   animations: [appModuleAnimation()],
   standalone: true,
   imports: [
-    LocalizePipe,
-    FormsModule,
-    TableModule,
-    CalendarModule,
-    CommonModule,
-    NgIf,
-    PaginatorModule,
-    ButtonModule,
-    OverlayPanelModule,
-    MenuModule,
-  ],
+    LocalizePipe,BreadcrumbModule,TooltipModule,CardModule,InputTextModule,FormsModule,TableModule,CalendarModule,
+    CommonModule,NgIf,PaginatorModule,ButtonModule,OverlayPanelModule,MenuModule],
   providers: [MedicineStockServiceProxy],
   templateUrl: './medicine-stock.component.html',
   styleUrl: './medicine-stock.component.css',
@@ -52,7 +47,7 @@ export class MedicineStockComponent
   keyword = '';
   minStock: number | undefined;
   isAvailable: boolean | null;
-  advancedFiltersVisible = false;
+  items: MenuItem[] | undefined;
 
   selectedRecord: MedicineStockDto;
 
@@ -67,7 +62,12 @@ export class MedicineStockComponent
     this.keyword = this._activatedRoute.snapshot.queryParams['filterText'] || '';
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.items = [
+      { label: 'Home', routerLink: '/' },
+      { label: 'Medicine-Stock' },
+    ];
+  }
 
   clearFilters(): void {
     this.keyword = '';
