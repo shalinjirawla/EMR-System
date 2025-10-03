@@ -41298,6 +41298,7 @@ export class PharmacistPrescriptionItemWithUnitPriceDto implements IPharmacistPr
     totalPayableAmount: number;
     isPrescribe: boolean;
     medicineFormId: number;
+    batchId: number;
 
     constructor(data?: IPharmacistPrescriptionItemWithUnitPriceDto) {
         if (data) {
@@ -41323,6 +41324,7 @@ export class PharmacistPrescriptionItemWithUnitPriceDto implements IPharmacistPr
             this.totalPayableAmount = _data["totalPayableAmount"];
             this.isPrescribe = _data["isPrescribe"];
             this.medicineFormId = _data["medicineFormId"];
+            this.batchId = _data["batchId"];
         }
     }
 
@@ -41348,6 +41350,7 @@ export class PharmacistPrescriptionItemWithUnitPriceDto implements IPharmacistPr
         data["totalPayableAmount"] = this.totalPayableAmount;
         data["isPrescribe"] = this.isPrescribe;
         data["medicineFormId"] = this.medicineFormId;
+        data["batchId"] = this.batchId;
         return data;
     }
 
@@ -41373,6 +41376,7 @@ export interface IPharmacistPrescriptionItemWithUnitPriceDto {
     totalPayableAmount: number;
     isPrescribe: boolean;
     medicineFormId: number;
+    batchId: number;
 }
 
 export class PharmacistPrescriptions implements IPharmacistPrescriptions {

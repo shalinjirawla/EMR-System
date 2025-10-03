@@ -16,7 +16,7 @@
   <section class="content px-2 pb-5">
     <div class="container-fluid">
       <div class="card table-wrapper">
-        <div class="card-body table-responsive table-striped table-bordered">
+        <div class="card-body">
           <p-table #dataTable [value]="primengTableHelper.records" [lazy]="true"
                    (onLazyLoad)="list($event)" [paginator]="false"
                    [rows]="primengTableHelper.defaultRecordsCountPerPage"

@@ -11,7 +11,12 @@ import { ButtonModule } from 'primeng/button';
 import { NgIf } from '@angular/common';
 import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { MedicineFormMasterDto, MedicineFormMasterDtoPagedResultDto, MedicineFormMasterServiceProxy } from '@shared/service-proxies/service-proxies';
-
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { InputTextModule } from 'primeng/inputtext';
+import { MenuItem } from 'primeng/api';
+import { TooltipModule } from 'primeng/tooltip';
+import { CardModule } from 'primeng/card';
+import { MenuModule } from 'primeng/menu';
 @Component({
   selector: 'app-medicine-form-type',
   templateUrl: './medicine-form-type.component.html',
@@ -20,7 +25,7 @@ import { MedicineFormMasterDto, MedicineFormMasterDtoPagedResultDto, MedicineFor
   animations: [appModuleAnimation()],
   standalone: true,
   imports: [
-    FormsModule,
+    FormsModule,BreadcrumbModule,InputTextModule,TooltipModule,CardModule,MenuModule,
     TableModule,
     Paginator,
     ButtonModule,
@@ -35,7 +40,9 @@ export class MedicineFormTypeComponent extends PagedListingComponentBase<Medicin
 
   keyword = '';
   isActive: boolean | undefined = undefined;
-  advancedFiltersVisible = false;
+ selectedRecord: MedicineFormMasterDto;
+items: MenuItem[];
+editDeleteMenus: MenuItem[];
 
   constructor(
     injector: Injector,
@@ -46,7 +53,33 @@ export class MedicineFormTypeComponent extends PagedListingComponentBase<Medicin
     super(injector, cd);
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+  this.items = [
+    { label: 'Home', routerLink: '/' },
+    { label: 'Medicine Form Types' }
+  ];
+
+  this.editDeleteMenus = [
+    {
+      label: 'Edit',
+      icon: 'pi pi-pencil',
+      command: () => {
+        if (this.selectedRecord) {
+          this.editMedicineFormType(this.selectedRecord);
+        }
+      }
+    },
+    {
+      label: 'Delete',
+      icon: 'pi pi-trash',
+      command: () => {
+        if (this.selectedRecord) {
+          this.deleteMedicineFormType(this.selectedRecord);
+        }
+      }
+    }
+  ];
+}
 
   list(event?: LazyLoadEvent): void {
     if (this.primengTableHelper.shouldResetPaging(event)) {

@@ -18,7 +18,7 @@
   <section class="content px-2 pb-5">
     <div class="container-fluid">
       <div class="card table-wrapper">
-        <div class="card-body table-responsive table-striped table-bordered">
+        <div class="card-body">
           <p-table #dataTable [value]="reportTypes" [lazy]="true" [paginator]="false"
             [rows]="primengTableHelper.defaultRecordsCountPerPage" [totalRecords]="primengTableHelper.totalRecordsCount"
             [expandedRowKeys]="expandedRows" (onLazyLoad)="list($event)" (onRowExpand)="onRowExpand($event)"

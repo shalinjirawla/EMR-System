@@ -10,7 +10,7 @@
 
     <div class="modal-body flex-grow-1" style="overflow-y: auto; padding-right: 15px;">
 
-      <!-- Patient Selection -->
+
       <div class="row">
         <div class="col-md-12">
           <label><b>Select Patient</b></label>
@@ -20,7 +20,6 @@
         </div>
       </div>
 
-      <!-- Prescription Selection -->
       <div class="row mt-3">
         <div class="col-md-12">
           <label>Select Prescription</label>
@@ -31,7 +30,6 @@
         </div>
       </div>
 
-      <!-- Selected Prescription Items Table -->
       <div class="mt-3" *ngIf="selectedPrescriptionItem?.length > 0">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h5>Selected Prescription Items</h5>
@@ -82,14 +80,11 @@
               <td class="text-right">{{ (itm.unitPrice * itm.qty) | number:'1.2-2' }}</td>
               <td>
                 <div class="d-flex flex-column">
-                  <!-- Remove button -->
                   <p-button *ngIf="itm._isNew" variant="text" severity="danger" (click)="removeItem(i)"
                     icon="fa-solid fa-xmark" class="mb-1" />
-
-                  <!-- Split Batch button - Only shows when at max, no special styling -->
                   <p-button *ngIf="canSplitToNewBatch(itm)" variant="text" severity="info"
-                    (click)="splitToNewBatch(itm)" icon="fa-solid fa-code-branch" title="Add from another batch"
-                    class="mb-1" />
+                    (click)="splitToNewBatch(itm)" icon="fa-solid fa-code-branch"
+                    title="Remaining quantity add from another batch" class="mb-1" />
                 </div>
               </td>
             </tr>
@@ -108,7 +103,6 @@
         <p-toast></p-toast>
       </div>
 
-      <!-- New Prescription Item Form -->
       <div *ngIf="newPrescriptionItem as item" class="d-flex align-items-center justify-content-between mt-3">
         <div class="card p-3 mb-0 w-100 mr-3">
           <div class="row mb-3">
@@ -124,8 +118,12 @@
               <label><b>Medicine</b></label>
               <p-dropdown name="itemMedicine" appendTo="self" class="w-100" [(ngModel)]="item.medicineId"
                 [options]="medicinesByType" optionLabel="medicineName" optionValue="id" placeholder="Select Medicine"
-                (onChange)="onMedicineSelect(item)" required>
+                (onChange)="onMedicineSelect(item)" [disabled]="!item.medicineFormId"
+                [optionDisabled]="isMedicineDisabled.bind(this)" required>
               </p-dropdown>
+              <small *ngIf="item.medicineId && isMedicineDisabled(item.medicineId)" class="text-warning d-block mt-1">
+                This medicine is already included from prescription
+              </small>
             </div>
 
             <div class="col-md-3 d-flex flex-column">
@@ -183,7 +181,7 @@
         </div>
       </div>
 
-      <!-- Notes -->
+
       <div class="row mt-2">
         <div class="col-md-12">
           <label>Notes</label>
@@ -192,7 +190,6 @@
         </div>
       </div>
 
-      <!-- Payment Method -->
       <div class="row mt-3">
         <div class="col-md-12">
           <label>Payment Method</label>
@@ -204,7 +201,6 @@
           </div>
         </div>
       </div>
-
     </div>
 
     <abp-modal-footer style="flex: 0 0 auto;" [cancelDisabled]="isSaving"

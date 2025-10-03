@@ -12,6 +12,13 @@ import { ButtonModule } from 'primeng/button';
 import { NgIf } from '@angular/common';
 import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { StrengthUnitMasterDto, StrengthUnitMasterDtoPagedResultDto, StrengthUnitMasterServiceProxy } from '@shared/service-proxies/service-proxies';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { InputTextModule } from 'primeng/inputtext';
+import { TooltipModule } from 'primeng/tooltip';
+import { CardModule } from 'primeng/card';
+import { MenuModule } from 'primeng/menu';
+import { MenuItem } from 'primeng/api';
+
 @Component({
   selector: 'app-medicine-strength-type',
   templateUrl: './medicine-strength-type.component.html',
@@ -20,7 +27,7 @@ import { StrengthUnitMasterDto, StrengthUnitMasterDtoPagedResultDto, StrengthUni
   animations: [appModuleAnimation()],
   standalone: true,
   imports: [
-    FormsModule,
+    FormsModule, BreadcrumbModule, InputTextModule, TooltipModule, CardModule, MenuModule,
     TableModule,
     Paginator,
     ButtonModule,
@@ -35,7 +42,9 @@ export class MedicineStrengthTypeComponent extends PagedListingComponentBase<Str
 
   keyword = '';
   isActive: boolean | undefined = undefined;
-  advancedFiltersVisible = false;
+  selectedRecord: StrengthUnitMasterDto;
+  items: MenuItem[];
+  editDeleteMenus: MenuItem[];
 
   constructor(
     injector: Injector,
@@ -46,7 +55,29 @@ export class MedicineStrengthTypeComponent extends PagedListingComponentBase<Str
     super(injector, cd);
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.items = [
+      { label: 'Home', routerLink: '/' },
+      { label: 'Medicine Strength Types' }
+    ];
+
+    this.editDeleteMenus = [
+      {
+        label: 'Edit',
+        icon: 'pi pi-pencil',
+        command: () => {
+          if (this.selectedRecord) this.editMedicineStrengthType(this.selectedRecord);
+        }
+      },
+      {
+        label: 'Delete',
+        icon: 'pi pi-trash',
+        command: () => {
+          if (this.selectedRecord) this.deleteMedicineStrengthType(this.selectedRecord);
+        }
+      }
+    ];
+  }
 
   list(event?: LazyLoadEvent): void {
     if (this.primengTableHelper.shouldResetPaging(event)) {

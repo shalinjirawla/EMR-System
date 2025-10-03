@@ -11,14 +11,21 @@ import { PagedListingComponentBase } from 'shared/paged-listing-component-base';
 import { FormsModule } from '@angular/forms';
 import { NgIf } from '@angular/common';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
-import {CreateupdateBedsComponent} from '../createupdate-beds/createupdate-beds.component'
+import { CreateupdateBedsComponent } from '../createupdate-beds/createupdate-beds.component'
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
+import { RadioButtonModule } from 'primeng/radiobutton';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { InputTextModule } from 'primeng/inputtext';
+import { MenuItem } from 'primeng/api';
+import { TooltipModule } from 'primeng/tooltip';
+import { CardModule } from 'primeng/card';
+import { MenuModule } from 'primeng/menu';
 
 @Component({
   selector: 'app-beds',
-  standalone:true,
-  imports: [FormsModule, TableModule, Paginator,TagModule, OverlayPanelModule, NgIf, LocalizePipe,ButtonModule],
+  standalone: true,
+  imports: [FormsModule,CardModule,MenuModule,TooltipModule,InputTextModule,BreadcrumbModule,RadioButtonModule, TableModule, Paginator, TagModule, OverlayPanelModule, NgIf, LocalizePipe, ButtonModule],
   animations: [appModuleAnimation()],
   providers: [BedServiceProxy],
   templateUrl: './beds.component.html',
@@ -30,10 +37,13 @@ export class BedsComponent extends PagedListingComponentBase<BedDto> implements 
 
   beds: BedDto[] = [];
   keyword = '';
-  roomTypeId:number|undefined;
+  roomTypeId: number | undefined;
   roomId: number | undefined;
   status: BedStatus | undefined;
-
+  items: MenuItem[] | undefined;
+  statusFilter: string = 'all';
+  selectedRecord: BedDto;
+  editDeleteMenus: MenuItem[];
   advancedFiltersVisible = false;
 
   constructor(
@@ -47,7 +57,29 @@ export class BedsComponent extends PagedListingComponentBase<BedDto> implements 
     this.keyword = this._activatedRoute.snapshot.queryParams['filterText'] || '';
   }
 
-  ngOnInit(): void { }
+ 
+ngOnInit(): void {
+  this.items = [
+    { label: 'Home', routerLink: '/' },
+    { label: 'Beds' },
+  ];
+
+  this.editDeleteMenus = [
+    { label: 'Edit', icon: 'pi pi-pencil', command: () => this.EditNewBed(this.selectedRecord) },
+    { label: 'Delete', icon: 'pi pi-trash', command: () => this.delete(this.selectedRecord) }
+  ];
+}
+
+onFilterChange(selected: string) {
+  switch (selected) {
+    case 'all': this.status = undefined; break;
+    case 'available': this.status = 0; break;
+    case 'occupied': this.status = 1; break;
+    case 'reserved': this.status = 2; break;
+    case 'maintenance': this.status = 3; break;
+  }
+  this.list();
+}
 
   clearFilters(): void {
     this.keyword = '';

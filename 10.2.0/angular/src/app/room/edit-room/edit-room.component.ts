@@ -84,9 +84,8 @@ export class EditRoomComponent extends AppComponentBase implements OnInit {
     next: () => {
       this.saving = false;
       this.notify.info(this.l('SavedSuccessfully'));
-      this.bsModalRef.hide();  // Close modal first
       this.onSave.emit();      // Then emit event
-      this.cd.detectChanges(); // Finally detect changes
+      this.bsModalRef.hide();  // Close modal first
     },
     error: () => this.saving = false
   });

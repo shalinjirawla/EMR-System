@@ -4,16 +4,9 @@ import { BsModalRef } from 'ngx-bootstrap/modal';
 import { AbpModalHeaderComponent } from "../../../shared/components/modal/abp-modal-header.component";
 import { AbpModalFooterComponent } from "../../../shared/components/modal/abp-modal-footer.component";
 import {
-  CollectionStatus,
-  CreateUpdatePharmacistPrescriptionsDto,
-  MedicineFormMasterServiceProxy,
-  MedicineMasterServiceProxy,
-  PatientServiceProxy,
-  PaymentMethod,
-  PharmacistInventoryServiceProxy,
-  PharmacistPrescriptionItemWithUnitPriceDto,
-  PharmacistPrescriptionsServiceProxy,
-  PrescriptionItemsServiceProxy,
+  CollectionStatus, CreateUpdatePharmacistPrescriptionsDto, MedicineFormMasterServiceProxy,
+  MedicineMasterServiceProxy, PatientServiceProxy, PaymentMethod, PharmacistInventoryServiceProxy,
+  PharmacistPrescriptionItemWithUnitPriceDto, PharmacistPrescriptionsServiceProxy, PrescriptionItemsServiceProxy,
   PrescriptionServiceProxy,
 } from '@shared/service-proxies/service-proxies';
 import { MessageService } from 'primeng/api';
@@ -30,10 +23,6 @@ import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
 
-/**
- * Local UI item type — use Partial so plain server objects or newly created objects both can be assigned.
- * Add UI-only props here (durationValue/durationUnit/_rowId/_isNew/batchId etc).
- */
 interface LocalPharmacistItem extends Partial<PharmacistPrescriptionItemWithUnitPriceDto> {
   _rowId?: number;
   _isNew?: boolean;
@@ -58,6 +47,7 @@ interface LocalPharmacistItem extends Partial<PharmacistPrescriptionItemWithUnit
 export class CreatePharmacistPrescriptionComponent extends AppComponentBase implements OnInit {
   @ViewChild('createPharmacistPrescriptionForm', { static: true }) createPharmacistPrescriptionForm: NgForm;
   @Output() onSave = new EventEmitter<void>();
+
   patients: any[] = [];
   prescriptions: any[] = [];
   selectedPrescription: any = null;
@@ -66,20 +56,18 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
   selectedPatient: any;
   PaymentMethod = PaymentMethod;
 
-  // Use LocalPharmacistItem
   selectedPrescriptionItem: LocalPharmacistItem[] = [];
   newPrescriptionItem!: LocalPharmacistItem | null;
   selectedPrescriptionID!: number;
   _pharmacyNotes!: string;
   total: number = 0;
 
-  // caches & helpers
   medicineTypes: any[] = [];
   medicinesByType: any[] = [];
-  medicineBatches: { [medicineId: number]: any[] } = {}; // cached batches from getMedicineWithStockById
-  medicineStocks: { [medicineId: number]: number } = {}; // total available count
-  batchAllocations: { [medicineId: number]: { [batchId: number]: number } } = {}; // allocated qty per batch
-
+  medicineBatches: { [medicineId: number]: any[] } = {};
+  medicineStocks: { [medicineId: number]: number } = {};
+  batchAllocations: { [medicineId: number]: { [batchId: number]: number } } = {};
+  disabledMedicineIds: Set<number> = new Set<number>();
   frequencyOptions = [
     { label: 'Once a day', value: 'Once a day' },
     { label: 'Twice a day', value: 'Twice a day' },
@@ -96,7 +84,6 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
     { label: 'Months', value: 'Months' }
   ];
 
-  // row id generator for stable dataKey
   private _rowCounter = 1;
   private nextRowId(): number { return this._rowCounter++; }
 
@@ -121,7 +108,6 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
     this.loadMedicineTypes();
   }
 
-  /* ========== Medicine types & meds ========== */
   loadMedicineTypes() {
     this._medicineForm_service_getAll();
   }
@@ -154,6 +140,19 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
   }
 
   onMedicineSelect(item: LocalPharmacistItem) {
+    if (item.medicineId && this.isMedicineDisabled({ id: item.medicineId })) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Medicine Already Added',
+        detail: 'This medicine is already included from the selected prescription. Please select another medicine.'
+      });
+      item.medicineId = null;
+      item.medicineName = '';
+      item.dosage = '';
+      item.unitPrice = 0;
+      this.cdRef.detectChanges();
+      return;
+    }
     const selected = this.medicinesByType.find(m => m.id === item.medicineId);
     if (selected) {
       item.medicineName = selected.medicineName;
@@ -165,12 +164,10 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
     } else {
       item.medicineName = '';
       item.dosage = '';
+      item.unitPrice = 0;
     }
   }
 
-  /**
-   * Fetch and cache batch list and total for a medicine using MedicineMaster service
-   */
   private fetchBatchesForMedicine(medicineMasterId: number, done?: () => void) {
     if (!medicineMasterId) { if (done) done(); return; }
     if (this.medicineBatches[medicineMasterId]) { if (done) done(); return; }
@@ -182,7 +179,7 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
           ...s,
           expiryDateObj: s.expiryDate ? new Date(s.expiryDate) : null
         }));
-        // sort using daysToExpire ascending
+
         stocks.sort((a: any, b: any) => (a.daysToExpire ?? Number.MAX_SAFE_INTEGER) - (b.daysToExpire ?? Number.MAX_SAFE_INTEGER));
         this.medicineBatches[medicineMasterId] = stocks;
         const totalAvailable = stocks.reduce((sum: number, s: any) => sum + (s.quantity || 0), 0);
@@ -214,7 +211,6 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
       }
     });
   }
-  /* ========== allocation helpers ========== */
   private getAllocatedForBatch(medicineId: number, batchId: number): number {
     return (this.batchAllocations[medicineId] && this.batchAllocations[medicineId][batchId]) || 0;
   }
@@ -230,10 +226,6 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
     }
   }
 
-  /**
-   * Allocate requestedQty across available batches and create rows for UI.
-   * Returns array of LocalPharmacistItem rows.
-   */
   private allocateAcrossBatchesAndCreateRows(templateItem: LocalPharmacistItem, requestedQty: number): LocalPharmacistItem[] {
     const rows: LocalPharmacistItem[] = [];
     const medId = templateItem.medicineId as number;
@@ -250,7 +242,7 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
     const batches = this.medicineBatches[medId] || [];
     let remaining = requestedQty;
 
-    // Sort batches by expiry (FIFO)
+
     const sortedBatches = [...batches].sort((a, b) => {
       const aExpiry = a.daysToExpire ?? Number.MAX_SAFE_INTEGER;
       const bExpiry = b.daysToExpire ?? Number.MAX_SAFE_INTEGER;
@@ -284,7 +276,7 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
       remaining -= take;
     }
 
-    // If we couldn't allocate full quantity, show warning
+
     if (remaining > 0) {
       const allocated = requestedQty - remaining;
       this.messageService.add({
@@ -297,7 +289,6 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
     return rows;
   }
 
-  /* ========== New item flow ========== */
   NewItem(): void {
     const dto = new PharmacistPrescriptionItemWithUnitPriceDto();
     dto.init({
@@ -324,11 +315,22 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
   addItem() {
     if (!this.newPrescriptionItem) return;
     const medId = this.newPrescriptionItem.medicineId as number;
+
+    if (medId && this.isMedicineDisabled({ id: medId })) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Invalid Selection',
+        detail: 'Cannot add medicine that is already in prescription.'
+      });
+      return;
+    }
     if (!medId) {
       this.messageService.add({ severity: 'warn', summary: 'Select medicine', detail: 'Please select a medicine.' });
       return;
     }
-
+    if (this.newPrescriptionItem.durationValue && this.newPrescriptionItem.durationUnit) {
+      this.newPrescriptionItem.duration = `${this.newPrescriptionItem.durationValue} ${this.newPrescriptionItem.durationUnit}`;
+    }
     this.fetchBatchesForMedicine(medId, () => {
       const totalAvailable = this.medicineStocks[medId] || 0;
       let requested = Number(this.newPrescriptionItem!.qty) || 1;
@@ -347,9 +349,16 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
 
       const createdRows = this.allocateAcrossBatchesAndCreateRows(this.newPrescriptionItem!, requested);
       if (createdRows.length) {
+        this.disabledMedicineIds.add(medId);
         createdRows.forEach(r => this.selectedPrescriptionItem.push(r));
         this.selectedPrescriptionItem = [...this.selectedPrescriptionItem];
         this.total = this.getPrescriptionTotal();
+
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Medicine Added',
+          detail: `${this.newPrescriptionItem.medicineName} added successfully and disabled for future selection`
+        });
       }
 
       this.newPrescriptionItem = null;
@@ -357,372 +366,207 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
     });
   }
 
-
-  getRowMaxQty(itm: LocalPharmacistItem): number {
-    const currentQty = Number(itm?.qty || 0);
-
-    if (!itm || !itm.medicineId) return currentQty;
-
-    const medId = itm.medicineId as number;
-
-    // If this row already has a batch assigned -> compute batch-limited max
-    if (itm.batchId) {
-      const batch = (this.medicineBatches[medId] || []).find((b: any) => b.id === itm.batchId);
-      const batchQty = batch ? (batch.quantity || 0) : 0;
-
-      // allocated for this batch includes this row's qty, so subtract currentQty to get "other allocated"
-      const allocatedIncludingThis = this.getAllocatedForBatch(medId, itm.batchId as number);
-      const otherAllocated = Math.max(0, allocatedIncludingThis - currentQty);
-
-      // available in this batch for increasing THIS row:
-      const availableInThisBatch = Math.max(0, batchQty - otherAllocated);
-
-      // absolute max for this row = currentQty + availableInThisBatch
-      return currentQty + availableInThisBatch;
-    }
-
-    // If row has no batchId (template/unassigned), limit by global remaining
-    const total = this.medicineStocks[medId] || 0;
-    const allocated = Object.values(this.batchAllocations[medId] || {}).reduce((s, v) => s + v, 0);
-    const remainingGlobal = Math.max(0, total - allocated);
-
-    return currentQty + remainingGlobal;
-  }
   private getMaxPossibleQtyForCurrentBatch(itm: LocalPharmacistItem, medId: number): number {
-  if (!itm.batchId) return 0;
+    if (!itm.batchId) return 0;
 
-  const batch = this.medicineBatches[medId]?.find((b: any) => b.id === itm.batchId);
-  if (!batch) return 0;
+    const batch = this.medicineBatches[medId]?.find((b: any) => b.id === itm.batchId);
+    if (!batch) return 0;
 
-  const batchTotalQuantity = batch.quantity || 0;
-  
-  // Calculate allocated quantity for this batch (including current item's quantity)
-  const allocatedForThisBatch = this.getAllocatedForBatch(medId, itm.batchId) || 0;
-  
-  // Available quantity in this batch = total - allocated
-  const availableInBatch = Math.max(0, batchTotalQuantity - allocatedForThisBatch);
-  
-  // Maximum possible = current quantity + available in batch
-  const maxPossible = (itm.qty || 0) + availableInBatch;
-  
-  
-  return maxPossible;
-}
- splitToNewBatch(itm: LocalPharmacistItem) {
-  const medId = itm.medicineId as number;
-  if (!medId) return;
-
-  // Ensure batches are loaded
-  if (!this.medicineBatches[medId]) {
-    this.fetchBatchesForMedicine(medId, () => {
-      this.splitToNewBatch(itm);
-    });
-    return;
+    const batchTotalQuantity = batch.quantity || 0;
+    const allocatedForThisBatch = this.getAllocatedForBatch(medId, itm.batchId) || 0;
+    const availableInBatch = Math.max(0, batchTotalQuantity - allocatedForThisBatch);
+    const maxPossible = (itm.qty || 0) + availableInBatch;
+    return maxPossible;
   }
-
-  // Find available batches (excluding current batch)
-  const availableBatches = (this.medicineBatches[medId] || [])
-    .filter(b => {
-      const isDifferentBatch = b.id !== itm.batchId;
-      const hasStock = (b.quantity || 0) > 0;
-      const allocated = this.getAllocatedForBatch(medId, b.id) || 0;
-      const remaining = Math.max(0, (b.quantity || 0) - allocated);
-      return isDifferentBatch && hasStock && remaining > 0;
-    })
-    .sort((a, b) => (a.daysToExpire ?? Number.MAX_SAFE_INTEGER) - (b.daysToExpire ?? Number.MAX_SAFE_INTEGER));
-
-  if (availableBatches.length === 0) {
-    this.messageService.add({
-      severity: 'warn',
-      summary: 'No Batches Available',
-      detail: 'No other batches available with stock for this medicine.'
-    });
-    return;
-  }
-
-  // Pick the best batch (earliest expiry)
-  const bestBatch = availableBatches[0];
-  const allocated = this.getAllocatedForBatch(medId, bestBatch.id) || 0;
-  const availableInBatch = Math.max(0, (bestBatch.quantity || 0) - allocated);
-
-  if (availableInBatch <= 0) return;
-
-  // Create new item for the split
-  const newItem: LocalPharmacistItem = {
-    prescriptionId: itm.prescriptionId,
-    pharmacistPrescriptionId: itm.pharmacistPrescriptionId,
-    medicineId: itm.medicineId,
-    medicineName: itm.medicineName,
-    dosage: itm.dosage,
-    frequency: itm.frequency,
-    duration: itm.duration,
-    instructions: itm.instructions,
-    isPrescribe: itm.isPrescribe ?? false,
-    medicineFormId: itm.medicineFormId,
-    
-    qty: 1,
-    unitPrice: bestBatch.sellingPrice ?? (itm.unitPrice ?? 0),
-    totalPayableAmount: (bestBatch.sellingPrice ?? (itm.unitPrice ?? 0)) * 1,
-    batchId: bestBatch.id,
-    batchNo: bestBatch.batchNo,
-    expiryDate: bestBatch.expiryDate ? new Date(bestBatch.expiryDate) : null,
-    
-    _isNew: true,
-    _rowId: this.nextRowId()
-  };
-
-  // Allocate the quantity to the new batch
-  this.changeAllocatedForBatch(medId, bestBatch.id, 1);
-
-  // Add the new item to the list
-  this.selectedPrescriptionItem.push(newItem);
-  this.selectedPrescriptionItem = [...this.selectedPrescriptionItem];
-
-  this.messageService.add({
-    severity: 'success',
-    summary: 'Batch Added',
-    detail: `1 unit added from batch ${bestBatch.batchNo}`
-  });
-
-  this.updateUI();
-}
-
-  private autoSplitToNewBatch(itm: LocalPharmacistItem) {
+  splitToNewBatch(itm: LocalPharmacistItem) {
     const medId = itm.medicineId as number;
-    const currentQty = itm.qty || 0;
+    if (!medId) return;
 
-    // Find the best batch (earliest expiry)
-    const bestBatch = this.pickBestBatch(
-      (this.medicineBatches[medId] || [])
-        .filter(b => b.id !== itm.batchId && (b.quantity || 0) > 0)
-    );
-
-    if (!bestBatch) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'No Stock Available',
-        detail: 'No additional stock available in other batches.'
+    if (!this.medicineBatches[medId]) {
+      this.fetchBatchesForMedicine(medId, () => {
+        this.splitToNewBatch(itm);
       });
       return;
     }
 
-    const batchAvailable = Math.max(0, (bestBatch.quantity || 0) -
-      (this.getAllocatedForBatch(medId, bestBatch.id) || 0));
+    const availableBatches = (this.medicineBatches[medId] || [])
+      .filter(b => {
+        const isDifferentBatch = b.id !== itm.batchId;
+        const hasStock = (b.quantity || 0) > 0;
+        const allocated = this.getAllocatedForBatch(medId, b.id) || 0;
+        const remaining = Math.max(0, (b.quantity || 0) - allocated);
+        return isDifferentBatch && hasStock && remaining > 0;
+      })
+      .sort((a, b) => (a.daysToExpire ?? Number.MAX_SAFE_INTEGER) - (b.daysToExpire ?? Number.MAX_SAFE_INTEGER));
 
-    if (batchAvailable <= 0) {
+    if (availableBatches.length === 0) {
       this.messageService.add({
         severity: 'warn',
-        summary: 'Batch Full',
-        detail: 'No more stock available for this medicine.'
+        summary: 'No Batches Available',
+        detail: 'No other batches available with stock for this medicine.'
       });
       return;
     }
 
-    // Create new row for the split quantity
-    const splitQty = Math.min(1, batchAvailable); // Start with 1 unit in new batch
+    const bestBatch = availableBatches[0];
+    const allocated = this.getAllocatedForBatch(medId, bestBatch.id) || 0;
+    const availableInBatch = Math.max(0, (bestBatch.quantity || 0) - allocated);
 
-    const newRow: LocalPharmacistItem = {
-      ...this.createItemTemplate(itm),
-      qty: splitQty,
+    if (availableInBatch <= 0) return;
+
+    const newItem: LocalPharmacistItem = {
+      prescriptionId: null,
+      pharmacistPrescriptionId: itm.pharmacistPrescriptionId,
+      medicineId: itm.medicineId,
+      medicineName: itm.medicineName,
+      dosage: itm.dosage,
+      frequency: itm.frequency,
+      duration: itm.duration,
+      instructions: itm.instructions,
+      isPrescribe: false,
+      medicineFormId: itm.medicineFormId,
+
+      qty: 1,
       unitPrice: bestBatch.sellingPrice ?? (itm.unitPrice ?? 0),
+      totalPayableAmount: 0,
       batchId: bestBatch.id,
       batchNo: bestBatch.batchNo,
       expiryDate: bestBatch.expiryDate ? new Date(bestBatch.expiryDate) : null,
+
       _isNew: true,
       _rowId: this.nextRowId()
     };
 
-    // Update allocations
-    this.changeAllocatedForBatch(medId, bestBatch.id, splitQty);
+    this.changeAllocatedForBatch(medId, bestBatch.id, 1);
 
-    // Add new row
-    this.selectedPrescriptionItem.push(newRow);
+    this.selectedPrescriptionItem.push(newItem);
     this.selectedPrescriptionItem = [...this.selectedPrescriptionItem];
 
     this.messageService.add({
       severity: 'success',
-      summary: 'Batch Split',
-      detail: `1 unit moved to batch ${bestBatch.batchNo}`
+      summary: 'Batch Added',
+      detail: `1 unit added from batch ${bestBatch.batchNo}`
     });
 
     this.updateUI();
   }
+
   canSplitToNewBatch(itm: LocalPharmacistItem): boolean {
-  try {
-    const medId = itm.medicineId as number;
-    if (!medId || !itm.batchId) return false;
+    try {
+      const medId = itm.medicineId as number;
+      if (!medId || !itm.batchId) return false;
 
-    // Get the current batch
-    const currentBatch = this.medicineBatches[medId]?.find((b: any) => b.id === itm.batchId);
-    if (!currentBatch) return false;
+      const currentBatch = this.medicineBatches[medId]?.find((b: any) => b.id === itm.batchId);
+      if (!currentBatch) return false;
 
-    const batchTotalQty = currentBatch.quantity || 0;
-    const currentQty = itm.qty || 0;
+      const batchTotalQty = currentBatch.quantity || 0;
+      const currentQty = itm.qty || 0;
 
-    // Check if current quantity has reached or exceeded batch total
-    const isAtBatchLimit = currentQty >= batchTotalQty;
-    
-    if (!isAtBatchLimit) {
+      const isAtBatchLimit = currentQty >= batchTotalQty;
+
+      if (!isAtBatchLimit) {
+        return false;
+      }
+
+      const otherBatches = (this.medicineBatches[medId] || [])
+        .filter(b => {
+          if (b.id === itm.batchId) return false;
+          if ((b.quantity || 0) <= 0) return false;
+
+          const allocated = this.getAllocatedForBatch(medId, b.id) || 0;
+          const remaining = Math.max(0, (b.quantity || 0) - allocated);
+          return remaining > 0;
+        });
+      const result = otherBatches.length > 0;
+
+      return result;
+    } catch (error) {
       return false;
     }
-
-    // Check if other batches are available
-    const otherBatches = (this.medicineBatches[medId] || [])
-      .filter(b => {
-        if (b.id === itm.batchId) return false; // Exclude current batch
-        if ((b.quantity || 0) <= 0) return false; // Exclude empty batches
-        
-        // Check if batch has available stock considering allocations
-        const allocated = this.getAllocatedForBatch(medId, b.id) || 0;
-        const remaining = Math.max(0, (b.quantity || 0) - allocated);
-        return remaining > 0;
-      });
-
-    console.log('📦 Other batches available:', otherBatches.length);
-
-    const result = otherBatches.length > 0;
-    console.log('🎯 Split button should show:', result);
-    
-    return result;
-  } catch (error) {
-    console.error('Error in canSplitToNewBatch:', error);
-    return false;
   }
-}
-getStockForItem(itm: LocalPharmacistItem) {
-  const mid = itm.medicineId as number;
-  if (!mid) return '-';
-  
-  const total = this.medicineStocks[mid];
-  if (total === undefined || total === null) return '-';
-  
-  const allocated = Object.values(this.batchAllocations[mid] || {}).reduce((a, v) => a + v, 0);
-  const remaining = Math.max(0, total - allocated);
-  
-  // Show current batch info if available
-  if (itm.batchId) {
-    const batch = this.medicineBatches[mid]?.find(b => b.id === itm.batchId);
-    if (batch) {
-      const batchAllocated = this.getAllocatedForBatch(mid, itm.batchId);
-      const batchRemaining = Math.max(0, (batch.quantity || 0) - batchAllocated);
-      return `Batch Stock: ${batchRemaining} | Total: ${remaining}/${total}`;
+  getStockForItem(itm: LocalPharmacistItem) {
+    const mid = itm.medicineId as number;
+    if (!mid) return '-';
+
+    const total = this.medicineStocks[mid];
+    if (total === undefined || total === null) return '-';
+
+    const allocated = Object.values(this.batchAllocations[mid] || {}).reduce((a, v) => a + v, 0);
+    const remaining = Math.max(0, total - allocated);
+
+    if (itm.batchId) {
+      const batch = this.medicineBatches[mid]?.find(b => b.id === itm.batchId);
+      if (batch) {
+        const batchAllocated = this.getAllocatedForBatch(mid, itm.batchId);
+        const batchRemaining = Math.max(0, (batch.quantity || 0) - batchAllocated);
+        return `Batch Stock: ${batchRemaining} | Total: ${remaining}/${total}`;
+      }
     }
+
+    return `${remaining} / ${total}`;
   }
-  
-  return `${remaining} / ${total}`;
-}
   onQtyChange(itm: LocalPharmacistItem, newQty: any) {
-  console.log('🚀 onQtyChange called', { 
-    medicine: itm.medicineName, 
-    oldQty: itm.qty, 
-    newQty: newQty,
-    batchId: itm.batchId 
-  });
-  
-  // Convert and validate new quantity
-  newQty = Number(newQty) || 1;
-  if (newQty < 1) newQty = 1;
+    newQty = Number(newQty) || 1;
+    if (newQty < 1) newQty = 1;
+    const medId = itm.medicineId as number;
+    const oldQty = Number(itm.qty) || 1;
+    if (newQty === oldQty) {
+      return;
+    }
+    if (newQty < oldQty) {
+      itm.qty = newQty;
+      this.handleQtyDecrease(itm, oldQty, newQty);
+      return;
+    }
+    const currentBatchMaxQty = this.getMaxPossibleQtyForCurrentBatch(itm, medId);
+    if (newQty <= currentBatchMaxQty) {
 
-  const medId = itm.medicineId as number;
-  const oldQty = Number(itm.qty) || 1;
-  
-  // ✅ No actual change
-  if (newQty === oldQty) {
-    console.log('✅ No change in quantity');
-    return;
+      itm.qty = newQty;
+      this.handleQtyIncreaseWithinBatch(itm, oldQty, newQty);
+      return;
+    }
+
+    this.messageService.add({
+      severity: 'warn',
+      summary: 'Batch Limit',
+      detail: `Batch ${itm.batchNo} has only ${currentBatchMaxQty} units available.`
+    });
+    itm.qty = currentBatchMaxQty;
+    this.updateUI();
   }
+  private handleQtyIncreaseWithinBatch(itm: LocalPharmacistItem, oldQty: number, newQty: number) {
+    const delta = newQty - oldQty;
+    const medId = itm.medicineId as number;
 
-  // 🚨 IMMEDIATE VALIDATION: Check if decrease
-  if (newQty < oldQty) {
-    console.log('🔻 Decreasing quantity from', oldQty, 'to', newQty);
-    itm.qty = newQty; // Immediate UI update
-    this.handleQtyDecrease(itm, oldQty, newQty);
-    return;
+    if (itm.batchId) {
+      this.changeAllocatedForBatch(medId, itm.batchId, delta);
+
+    }
+    this.updateUI();
   }
-
-  // 🚨 For increase: First check current batch limits
-  const currentBatchMaxQty = this.getMaxPossibleQtyForCurrentBatch(itm, medId);
-  
-  // ✅ If within current batch limits - allow immediately
-  if (newQty <= currentBatchMaxQty) {
-    console.log('✅ Within current batch limits');
-    itm.qty = newQty;
-    this.handleQtyIncreaseWithinBatch(itm, oldQty, newQty);
-    return;
-  }
-
-  // ❌ If exceeds current batch limits
-  console.log('❌ Exceeds current batch limits');
-  
-  // Show warning message
-  this.messageService.add({
-    severity: 'warn',
-    summary: 'Batch Limit',
-    detail: `Batch ${itm.batchNo} has only ${currentBatchMaxQty} units available.`
-  });
-  
-  // Reset to current batch maximum
-  itm.qty = currentBatchMaxQty;
-  this.updateUI();
-}
-private handleQtyIncreaseWithinBatch(itm: LocalPharmacistItem, oldQty: number, newQty: number) {
-  const delta = newQty - oldQty;
-  const medId = itm.medicineId as number;
-  
-  console.log('📈 Handling quantity increase within batch:', {
-    medicine: itm.medicineName,
-    delta: delta
-  });
-
-  if (itm.batchId) {
-    this.changeAllocatedForBatch(medId, itm.batchId, delta);
-    console.log('📊 Increased allocation for batch:', itm.batchId);
-  }
-  
-  // Force UI update to show/hide split button
-  this.updateUI();
-}
 
   private handleQtyDecrease(itm: LocalPharmacistItem, oldQty: number, newQty: number) {
-  const decreaseAmount = oldQty - newQty;
-  const medId = itm.medicineId as number;
+    const decreaseAmount = oldQty - newQty;
+    const medId = itm.medicineId as number;
 
-  console.log('🔻 Handling quantity decrease:', {
-    medicine: itm.medicineName,
-    oldQty: oldQty,
-    newQty: newQty,
-    decreaseAmount: decreaseAmount
-  });
 
-  if (itm.batchId) {
-    // Decrease allocation for the batch
-    this.changeAllocatedForBatch(medId, itm.batchId, -decreaseAmount);
-    console.log('📉 Decreased allocation for batch:', itm.batchId);
-  }
-
-  // Remove item if quantity becomes zero
-  if (newQty <= 0) {
-    const idx = this.selectedPrescriptionItem.findIndex(x => x._rowId === itm._rowId);
-    if (idx >= 0) {
-      this.selectedPrescriptionItem.splice(idx, 1);
-      console.log('🗑️ Item removed due to zero quantity');
+    if (itm.batchId) {
+      this.changeAllocatedForBatch(medId, itm.batchId, -decreaseAmount);
     }
+    if (newQty <= 0) {
+      const idx = this.selectedPrescriptionItem.findIndex(x => x._rowId === itm._rowId);
+      if (idx >= 0) {
+        this.selectedPrescriptionItem.splice(idx, 1);
+      }
+    }
+    this.updateUI();
+
   }
-
-  // Force UI update to hide/show split button
-  this.updateUI();
-  
-  console.log('✅ Quantity decrease handled');
-}
-
-
 
   private handleQtyIncrease(itm: LocalPharmacistItem, oldQty: number, newQty: number) {
     const medId = itm.medicineId as number;
     const delta = newQty - oldQty;
 
-
-    // Check if batches are loaded
     if (!this.medicineBatches[medId]) {
       this.fetchBatchesForMedicine(medId, () => {
         this.handleQtyIncrease(itm, oldQty, newQty);
@@ -730,14 +574,11 @@ private handleQtyIncreaseWithinBatch(itm: LocalPharmacistItem, oldQty: number, n
       return;
     }
 
-    // Calculate MAXIMUM POSSIBLE quantity for current batch
     const currentBatchMaxQty = this.getMaxPossibleQtyForCurrentBatch(itm, medId);
     const totalAvailable = this.medicineStocks[medId] || 0;
     const alreadyAllocatedTotalForMed = Object.values(this.batchAllocations[medId] || {}).reduce((s, v) => s + v, 0);
     const remainingGlobal = Math.max(0, totalAvailable - alreadyAllocatedTotalForMed);
 
-
-    // 🚨 STRICT VALIDATION: Check if requested quantity exceeds current batch limit
     if (itm.batchId && newQty > currentBatchMaxQty) {
       this.messageService.add({
         severity: 'warn',
@@ -745,13 +586,11 @@ private handleQtyIncreaseWithinBatch(itm: LocalPharmacistItem, oldQty: number, n
         detail: `Batch ${itm.batchNo} has only ${currentBatchMaxQty - oldQty} units available. You can add ${currentBatchMaxQty - oldQty} more units to this batch.`
       });
 
-      // Reset to current batch maximum
       itm.qty = currentBatchMaxQty;
       this.updateUI();
       return;
     }
 
-    // 🚨 STRICT VALIDATION: Check if requested quantity exceeds total available stock
     if (newQty > (oldQty + remainingGlobal)) {
       this.messageService.add({
         severity: 'warn',
@@ -759,38 +598,25 @@ private handleQtyIncreaseWithinBatch(itm: LocalPharmacistItem, oldQty: number, n
         detail: `Only ${remainingGlobal} units available for ${itm.medicineName}. Maximum possible: ${oldQty + remainingGlobal}`
       });
 
-      // Reset to maximum available quantity
       const maxPossibleQty = oldQty + remainingGlobal;
       itm.qty = maxPossibleQty;
       this.updateUI();
       return;
     }
 
-    // Allocate the increased quantity
     this.allocateIncreasedQuantity(itm, oldQty, newQty, delta, medId);
   }
 
-
-
   private allocateIncreasedQuantity(itm: LocalPharmacistItem, oldQty: number, newQty: number, delta: number, medId: number) {
     let remainingIncrease = delta;
-
-    // ✅ FIRST: Try to allocate to current batch (within its limits)
     if (itm.batchId) {
       const batch = this.medicineBatches[medId].find((b: any) => b.id === itm.batchId);
       if (batch) {
         const allocatedForThisBatch = this.getAllocatedForBatch(medId, itm.batchId);
         const batchAvailable = Math.max(0, (batch.quantity || 0) - allocatedForThisBatch);
-
-
         if (batchAvailable > 0) {
           const take = Math.min(batchAvailable, remainingIncrease);
-
-          // 🚨 IMPORTANT: Only allocate what's actually available in current batch
           if (take > 0) {
-
-
-            // Update allocation for current batch
             this.changeAllocatedForBatch(medId, itm.batchId, take);
             remainingIncrease -= take;
           }
@@ -798,30 +624,19 @@ private handleQtyIncreaseWithinBatch(itm: LocalPharmacistItem, oldQty: number, n
         }
       }
     }
-
-    // ✅ SECOND: Allocate remaining quantity to new batches (create new rows)
     if (remainingIncrease > 0) {
-
       const newRows = this.createNewRowsForRemainingQuantity(itm, remainingIncrease, medId);
       if (newRows.length > 0) {
-        // Add new rows to the main array
         newRows.forEach(row => {
           this.selectedPrescriptionItem.push(row);
-
         });
-
-
-
-        // Show success message for batch allocation
         this.messageService.add({
           severity: 'success',
           summary: 'Batch Allocation',
           detail: `Quantity distributed into ${newRows.length} additional batch(es) for ${itm.medicineName}.`
         });
+
       } else {
-
-
-        // 🚨 REVERT if no new batches available
         const actuallyAllocated = delta - remainingIncrease;
         itm.qty = oldQty + actuallyAllocated;
 
@@ -832,40 +647,26 @@ private handleQtyIncreaseWithinBatch(itm: LocalPharmacistItem, oldQty: number, n
         });
       }
     } else {
-
     }
-
-    // Final update
     this.updateUI();
   }
 
-  // ---------- more robust createNewRowsForRemainingQuantity (with logs and guaranteed _rowId) ----------
   private createNewRowsForRemainingQuantity(itm: LocalPharmacistItem, remainingQty: number, medId: number): LocalPharmacistItem[] {
 
     const newRows: LocalPharmacistItem[] = [];
     if (remainingQty <= 0) return newRows;
-
     const batches = this.medicineBatches[medId] || [];
-    // sort by earliest expiry first
     const availableBatches = batches
-      .filter(b => b.id !== itm.batchId) // exclude current batch (we already used it)
+      .filter(b => b.id !== itm.batchId)
       .sort((a, b) => (a.daysToExpire ?? Number.MAX_SAFE_INTEGER) - (b.daysToExpire ?? Number.MAX_SAFE_INTEGER));
-
     let remaining = remainingQty;
-
     for (const batch of availableBatches) {
       if (remaining <= 0) break;
-
       const batchId = batch.id;
       const allocatedForBatch = this.getAllocatedForBatch(medId, batchId);
       const batchAvailable = Math.max(0, (batch.quantity || 0) - allocatedForBatch);
-
-
-
       if (batchAvailable <= 0) continue;
-
       const take = Math.min(batchAvailable, remaining);
-
       const row: LocalPharmacistItem = {
         prescriptionId: itm.prescriptionId,
         pharmacistPrescriptionId: itm.pharmacistPrescriptionId,
@@ -886,23 +687,21 @@ private handleQtyIncreaseWithinBatch(itm: LocalPharmacistItem, oldQty: number, n
         _isNew: true,
         _rowId: this.nextRowId()
       };
-
-      // update allocation
       this.changeAllocatedForBatch(medId, batchId, take);
-
       newRows.push(row);
       remaining -= take;
-
     }
-
     if (newRows.length === 0) {
-
     }
-
     return newRows;
   }
 
   private createItemTemplate(itm: LocalPharmacistItem): LocalPharmacistItem {
+
+    let duration = itm.duration;
+    if (!duration && itm.durationValue && itm.durationUnit) {
+      duration = `${itm.durationValue} ${itm.durationUnit}`;
+    }
     return {
       prescriptionId: itm.prescriptionId,
       pharmacistPrescriptionId: itm.pharmacistPrescriptionId,
@@ -910,7 +709,7 @@ private handleQtyIncreaseWithinBatch(itm: LocalPharmacistItem, oldQty: number, n
       medicineName: itm.medicineName,
       dosage: itm.dosage,
       frequency: itm.frequency,
-      duration: itm.duration,
+      duration: duration,
       instructions: itm.instructions,
       qty: 0,
       unitPrice: itm.unitPrice ?? 0,
@@ -920,34 +719,13 @@ private handleQtyIncreaseWithinBatch(itm: LocalPharmacistItem, oldQty: number, n
       _isNew: true
     };
   }
-  // --- new helper: remaining capacity in a specific batch for this row (excluding this row's current qty) ---
-  private getBatchAvailableForRow(medId: number, batchId: number, currentRow?: LocalPharmacistItem): number {
-    if (!medId || !batchId) return 0;
-    const batch = (this.medicineBatches[medId] || []).find((b: any) => b.id === batchId);
-    if (!batch) return 0;
-    // allocated includes currentRow.qty; subtract currentRow.qty so we get "other allocated" amount
-    const allocatedIncludingThis = this.getAllocatedForBatch(medId, batchId);
-    const excludingThis = allocatedIncludingThis - (currentRow?.qty || 0);
-    const available = Math.max(0, (batch.quantity || 0) - excludingThis);
-    return available;
+
+  private updateUI() {
+    this.selectedPrescriptionItem = [...this.selectedPrescriptionItem];
+    this.total = this.getPrescriptionTotal();
+    this.cdRef.detectChanges();
   }
-private updateUI() {
-  console.log('🔄 Updating UI...');
 
-  // Force Angular to detect changes by creating new array reference
-  this.selectedPrescriptionItem = [...this.selectedPrescriptionItem];
-  this.total = this.getPrescriptionTotal();
-
-  console.log('✅ UI updated', {
-    itemsCount: this.selectedPrescriptionItem.length,
-    total: this.total
-  });
-
-  // Force change detection
-  this.cdRef.detectChanges();
-  console.log('🎊 Change detection completed');
-}
-  /* ========== UI helpers ========== */
   getPrescriptionTotal(): number {
     if (!this.selectedPrescriptionItem?.length) return 0;
     return this.selectedPrescriptionItem
@@ -958,12 +736,11 @@ private updateUI() {
   getRemainingStock(itm: LocalPharmacistItem): number {
     const mid = itm.medicineId as number;
     if (!mid) return 0;
-
     const total = this.medicineStocks[mid] || 0;
     const allocated = Object.values(this.batchAllocations[mid] || {}).reduce((a, v) => a + v, 0);
     return Math.max(0, total - allocated);
   }
-  /* ========== other existing methods ========== */
+
   loadPatients() {
     this.patientService.getOpdPatients().subscribe({
       next: (res) => this.patients = res,
@@ -974,10 +751,12 @@ private updateUI() {
   onPatientChange() {
     if (this.selectedPatient) {
       this.selectedPrescriptionItem = [];
+      this.disabledMedicineIds.clear();
       this.loadPrescriptions(this.selectedPatient);
     } else {
       this.prescriptions = [];
       this.selectedPrescription = null;
+      this.disabledMedicineIds.clear();
     }
   }
 
@@ -993,43 +772,50 @@ private updateUI() {
   }
 
   onPrescriptionChange(prescriptionId: number) {
-
-
     if (!prescriptionId) {
       this.selectedPrescriptionItem = [];
+      this.disabledMedicineIds.clear();
       return;
     }
-
     this.selectedPrescriptionID = prescriptionId;
-
     const prescription = this.prescriptions.find(x => x.id === prescriptionId);
     const items = prescription?.pharmacistPrescription || [];
     const items1 = items.filter(x => x.isPrescribe == true);
-
-    // Clear existing items and allocations
     this.selectedPrescriptionItem = [];
     this.batchAllocations = {};
+    this.disabledMedicineIds.clear();
 
-    // Process each prescription item
+    items1.forEach(item => {
+      if (item.medicineId) {
+        this.disabledMedicineIds.add(item.medicineId);
+      }
+    });
     items1.forEach((it: any) => {
       if (!it.qty || it.qty < 1) it.qty = 1;
-
-
-
       this.fetchBatchesForMedicine(it.medicineId, () => {
         this.createItemsForPrescription(it);
       });
     });
   }
 
+  getFilteredMedicines(): any[] {
+    if (!this.medicinesByType || this.medicinesByType.length === 0) {
+      return [];
+    }
+    return this.medicinesByType.filter(medicine =>
+      !this.disabledMedicineIds.has(medicine.id)
+    );
+  }
+
+  isMedicineDisabled(medicine: any): boolean {
+    return this.disabledMedicineIds.has(medicine.id);
+  }
+
   private createItemsForPrescription(prescriptionItem: any) {
     const medId = prescriptionItem.medicineId;
     const requestedQty = prescriptionItem.qty || 1;
-
     if (!medId) return;
-
     const totalAvailable = this.medicineStocks[medId] || 0;
-
     if (totalAvailable <= 0) {
       this.messageService.add({
         severity: 'warn',
@@ -1038,24 +824,18 @@ private updateUI() {
       });
       return;
     }
-
     const template: LocalPharmacistItem = {
       ...prescriptionItem,
       _isNew: false,
       _rowId: this.nextRowId()
     };
-
     const createdRows = this.allocateAcrossBatchesAndCreateRows(template, requestedQty);
-
     if (createdRows.length > 0) {
       createdRows.forEach(row => {
         this.selectedPrescriptionItem.push(row);
       });
-
       this.selectedPrescriptionItem = [...this.selectedPrescriptionItem];
       this.total = this.getPrescriptionTotal();
-
-      // Show toast if quantity was split into multiple batches
       if (createdRows.length > 1) {
         this.messageService.add({
           severity: 'info',
@@ -1064,7 +844,6 @@ private updateUI() {
         });
       }
     }
-
     this.cdRef.detectChanges();
   }
 
@@ -1086,10 +865,8 @@ private updateUI() {
     input.pickedUpByPatient = this.selectedPatient;
     input.grandTotal = this.getPrescriptionTotal();
 
-    // If backend expects DTOs without UI props, strip UI-only props here before sending.
     const itemsToSend = this.selectedPrescriptionItem.map(itm => {
       const copy = { ...itm } as any;
-      // remove UI-only fields:
       delete copy._rowId; delete copy._isNew; delete copy.batchNo; delete copy.expiryDate; delete copy.durationValue; delete copy.durationUnit;
       return copy;
     });
@@ -1098,7 +875,7 @@ private updateUI() {
       pharmacistPrescriptionsDto: input,
       pharmacistPrescriptionsListOfItem: itemsToSend,
     };
-
+    debugger
     this.pharmacistPrescriptionService.handlePharmacistPrescriptionPayment(resBody).subscribe({
       next: (result: any) => {
         if (this.paymentMethod === PaymentMethod._0) {
@@ -1116,14 +893,24 @@ private updateUI() {
 
   removeItem(index: number): void {
     const itm = this.selectedPrescriptionItem[index];
-    if (itm && itm.batchId) {
-      this.changeAllocatedForBatch(itm.medicineId as number, itm.batchId as number, -(itm.qty || 0));
+    if (itm) {
+      const medicineId = itm.medicineId as number;
+      if (medicineId) {
+        const otherItemsWithSameMedicine = this.selectedPrescriptionItem.filter(
+          (item, idx) => idx !== index && item.medicineId === medicineId
+        );
+        if (otherItemsWithSameMedicine.length === 0) {
+          this.disabledMedicineIds.delete(medicineId);
+        }
+      }
+      if (itm.batchId) {
+        this.changeAllocatedForBatch(medicineId, itm.batchId as number, -(itm.qty || 0));
+      }
     }
     this.selectedPrescriptionItem.splice(index, 1);
     this.selectedPrescriptionItem = [...this.selectedPrescriptionItem];
     this.total = this.getPrescriptionTotal();
   }
-
 
   private pickBestBatch(stocks: any[]): any | null {
     if (!stocks || !stocks.length) return null;

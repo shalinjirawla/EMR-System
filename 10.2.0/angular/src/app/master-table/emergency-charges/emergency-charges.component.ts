@@ -18,11 +18,14 @@ import { CreateupdateEmergencyChargesComponent } from '../createupdate-emergency
 import { appModuleAnimation } from '@shared/animations/routerTransition';
 import { ChipModule } from 'primeng/chip';
 import { TagModule } from 'primeng/tag';
-
+import { MenuItem } from 'primeng/api';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { TooltipModule } from 'primeng/tooltip';
+import { CardModule } from 'primeng/card';
 
 @Component({
     selector: 'app-emergency-charges',
-    imports: [FormsModule, TableModule, TagModule, SelectModule, MenuModule,
+    imports: [FormsModule, BreadcrumbModule,TooltipModule,CardModule,TableModule, TagModule, SelectModule, MenuModule,
         ButtonModule, OverlayPanelModule, PrimeTemplate, NgIf, PaginatorModule, ChipModule, LocalizePipe],
     animations: [appModuleAnimation()],
     providers: [EmergencyMasterServiceProxy],
@@ -34,6 +37,9 @@ export class EmergencyChargesComponent extends PagedListingComponentBase<Emergen
     @ViewChild('paginator', { static: true }) paginator: Paginator;
     isOneRecords = false;
     _list!: EmergencyMasterDto[];
+     selectedRecord: EmergencyMasterDto;
+      items: MenuItem[];
+      editDeleteMenus: MenuItem[];
     constructor(
         injector: Injector,
         private _modalService: BsModalService,
@@ -43,9 +49,14 @@ export class EmergencyChargesComponent extends PagedListingComponentBase<Emergen
     ) {
         super(injector, cd);
     }
-    ngOnInit(): void {
+     ngOnInit(): void {
+    this.items = [{ label: 'Home', routerLink: '/' }, { label: 'Emergency Charges' }];
 
-    }
+    this.editDeleteMenus = [
+      { label: 'Edit', icon: 'pi pi-pencil', command: () => this.selectedRecord && this.showCreateOrEditDialog(this.selectedRecord.id) },
+      { label: 'Delete', icon: 'pi pi-trash', command: () => this.selectedRecord && this.delete(this.selectedRecord) }
+    ];
+  }
 
     list(event?: LazyLoadEvent): void {
         if (this.primengTableHelper.shouldResetPaging(event)) {
