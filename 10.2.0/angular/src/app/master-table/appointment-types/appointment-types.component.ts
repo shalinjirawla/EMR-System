@@ -12,10 +12,14 @@ import { CommonModule, DatePipe, NgIf } from '@angular/common';
 import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { AppointmentTypeDto, AppointmentTypeDtoPagedResultDto, AppointmentTypeServiceProxy, RoomFacilityMasterDto, RoomFacilityMasterServiceProxy } from '@shared/service-proxies/service-proxies';
 import { CreateupdateAppointmentTypesComponent } from '../createupdate-appointment-types/createupdate-appointment-types.component';
-
+import { MenuItem } from 'primeng/api';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { TooltipModule } from 'primeng/tooltip';
+import { CardModule } from 'primeng/card';
+import { MenuModule } from 'primeng/menu';
 @Component({
   selector: 'app-appointment-types',
-  imports: [FormsModule, TableModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe],
+  imports: [FormsModule, TableModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, CardModule, BreadcrumbModule, TooltipModule, MenuModule,],
   providers: [AppointmentTypeServiceProxy],
   animations: [appModuleAnimation()],
   standalone: true,
@@ -26,7 +30,9 @@ export class AppointmentTypesComponent extends PagedListingComponentBase<Appoint
   @ViewChild('dataTable', { static: true }) dataTable: Table;
   @ViewChild('paginator', { static: true }) paginator: Paginator;
   appointmentTypes: AppointmentTypeDto[] = [];
-
+    selectedRecord: AppointmentTypeDto;
+  items: MenuItem[];
+  editDeleteMenus: MenuItem[];
   constructor(
       injector: Injector,
       private _modalService: BsModalService,
@@ -38,6 +44,12 @@ export class AppointmentTypesComponent extends PagedListingComponentBase<Appoint
   }
 
   ngOnInit(): void {
+    this.items = [{ label: 'Home', routerLink: '/' }, { label: 'Appointment Types' }];
+
+    this.editDeleteMenus = [
+      { label: 'Edit', icon: 'pi pi-pencil', command: () => this.selectedRecord && this.editAppointmentType(this.selectedRecord) },
+      { label: 'Delete', icon: 'pi pi-trash', command: () => this.selectedRecord && this.deleteAppointmentType(this.selectedRecord) }
+    ];
   }
 
   list(event?: LazyLoadEvent): void {

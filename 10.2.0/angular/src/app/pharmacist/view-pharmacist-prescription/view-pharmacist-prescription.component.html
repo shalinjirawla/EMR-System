@@ -59,7 +59,7 @@
     <div class="card-section">
       <h4>💳 Payment</h4>
       <p>
-        <strong>Status:</strong>
+        <strong>Status:</strong>&nbsp;
         <span class="badge" [ngClass]="prescription.isPaid ? 'success' : 'danger'">
           {{ prescription.isPaid ? "Paid" : "Unpaid" }}
         </span>
@@ -73,7 +73,7 @@
     <div class="card-section">
       <h4>📦 Pickup</h4>
       <p>
-        <strong>Status:</strong>
+        <strong>Status:</strong>&nbsp;
         <span class="badge" [ngClass]="prescription.collectionStatus === 1 ? 'info' : 'warning'">
           {{ prescription.collectionStatus === 1 ? "Collected" : "Pending" }}
         </span>

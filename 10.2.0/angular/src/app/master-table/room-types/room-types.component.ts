@@ -17,7 +17,10 @@ import { MenuModule } from 'primeng/menu';
 import { ButtonModule } from 'primeng/button';
 import { CreateupdateRoomTypesComponent } from '../createupdate-room-types/createupdate-room-types.component';
 import { LocalizePipe } from '@shared/pipes/localize.pipe';
-
+import { MenuItem } from 'primeng/api';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { TooltipModule } from 'primeng/tooltip';
+import { CardModule } from 'primeng/card';
 
 @Component({
     selector: 'app-room-types',
@@ -26,13 +29,15 @@ import { LocalizePipe } from '@shared/pipes/localize.pipe';
     providers: [RoomTypeMasterServiceProxy],
     animations: [appModuleAnimation()],
     standalone: true,
-    imports: [FormsModule, TableModule, ChipModule, SelectModule, MenuModule, ButtonModule, OverlayPanelModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe],
+    imports: [FormsModule, BreadcrumbModule, CommonModule,TooltipModule, CardModule, TableModule, ChipModule, SelectModule, MenuModule, ButtonModule, OverlayPanelModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe],
 })
 export class RoomTypesComponent extends PagedListingComponentBase<RoomTypeMasterDto> implements OnInit {
     @ViewChild('dataTable', { static: true }) dataTable: Table;
     @ViewChild('paginator', { static: true }) paginator: Paginator;
     roomTypes: RoomTypeMasterDto[] = [];
-
+    selectedRecord: RoomTypeMasterDto;
+    items: MenuItem[];
+    editDeleteMenus: MenuItem[];
     constructor(
         injector: Injector,
         private _modalService: BsModalService,
@@ -44,6 +49,28 @@ export class RoomTypesComponent extends PagedListingComponentBase<RoomTypeMaster
     }
 
     ngOnInit(): void {
+        this.items = [{ label: 'Home', routerLink: '/' }, { label: 'Room Types' }];
+
+        this.editDeleteMenus = [
+            {
+                label: 'Edit',
+                icon: 'pi pi-pencil',
+                command: () => {
+                    if (this.selectedRecord) {
+                        this.editRoomType(this.selectedRecord);
+                    }
+                }
+            },
+            {
+                label: 'Delete',
+                icon: 'pi pi-trash',
+                command: () => {
+                    if (this.selectedRecord) {
+                        this.deleteRoomType(this.selectedRecord);
+                    }
+                }
+            }
+        ];
     }
 
     list(event?: LazyLoadEvent): void {
@@ -74,17 +101,17 @@ export class RoomTypesComponent extends PagedListingComponentBase<RoomTypeMaster
     }
 
     createRoomType(): void {
-      let createDialog: BsModalRef = this._modalService.show(CreateupdateRoomTypesComponent, { class: 'modal-lg' });
-      createDialog.content.onSave.subscribe(() => {
-        this.list();
-      });
+        let createDialog: BsModalRef = this._modalService.show(CreateupdateRoomTypesComponent, { class: 'modal-lg' });
+        createDialog.content.onSave.subscribe(() => {
+            this.list();
+        });
     }
 
     editRoomType(roomType: RoomTypeMasterDto): void {
-      let editDialog: BsModalRef = this._modalService.show(CreateupdateRoomTypesComponent, { class: 'modal-lg', initialState: { id: roomType.id } });
-      editDialog.content.onSave.subscribe(() => {
-        this.list();
-      });
+        let editDialog: BsModalRef = this._modalService.show(CreateupdateRoomTypesComponent, { class: 'modal-lg', initialState: { id: roomType.id } });
+        editDialog.content.onSave.subscribe(() => {
+            this.list();
+        });
     }
 
     deleteRoomType(roomType: RoomTypeMasterDto): void {

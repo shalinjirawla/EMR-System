@@ -21,7 +21,7 @@
   <section class="content px-2 pb-5">
     <div class="container-fluid">
       <div class="card table-wrapper">
-        <div class="card-body table-responsive table-striped table-bordered">
+        <div class="card-body">
           <p-table #dataTable [value]="primengTableHelper.records"
                    [lazy]="true"
                    (onLazyLoad)="list($event)"
@@ -71,8 +71,6 @@
           </div>
         </div>
 
-        <!-- Footer + Paginator -->
-        <div class="card-footer table-card-footer bg-white border-top">
           <p-paginator #paginator
                        [rows]="primengTableHelper.defaultRecordsCountPerPage"
                        [totalRecords]="primengTableHelper.totalRecordsCount"
@@ -81,7 +79,6 @@
                        [showCurrentPageReport]="true"
                        [currentPageReportTemplate]="'TotalRecordsCount' | localize: primengTableHelper.totalRecordsCount">
           </p-paginator>
-        </div>
       </div>
     </div>
   </section>

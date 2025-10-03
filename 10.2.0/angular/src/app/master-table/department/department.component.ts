@@ -11,11 +11,17 @@ import { CommonModule, NgIf } from '@angular/common';
 import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { ButtonModule } from 'primeng/button';
 import { DepartmentDto, DepartmentDtoPagedResultDto, DepartmentServiceProxy } from '@shared/service-proxies/service-proxies';
-import {CreateupdateDepartmentComponent} from '../createupdate-department/createupdate-department.component'
+import { CreateupdateDepartmentComponent } from '../createupdate-department/createupdate-department.component';
+import { MenuItem } from 'primeng/api';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { TooltipModule } from 'primeng/tooltip';
+import { CardModule } from 'primeng/card';
+import { MenuModule } from 'primeng/menu';
+
 @Component({
   selector: 'app-department',
- imports: [
-    FormsModule,
+  imports: [
+    FormsModule, CardModule, BreadcrumbModule, TooltipModule, MenuModule,
     TableModule,
     ButtonModule,
     PrimeTemplate,
@@ -34,7 +40,9 @@ export class DepartmentComponent extends PagedListingComponentBase<DepartmentDto
   @ViewChild('paginator', { static: true }) paginator: Paginator;
 
   departments: DepartmentDto[] = [];
-
+  selectedRecord: DepartmentDto;
+  items: MenuItem[];
+  editDeleteMenus: MenuItem[];
   constructor(
     injector: Injector,
     private _modalService: BsModalService,
@@ -44,7 +52,14 @@ export class DepartmentComponent extends PagedListingComponentBase<DepartmentDto
     super(injector, cd);
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.items = [{ label: 'Home', routerLink: '/' }, { label: 'Department Master' }];
+
+    this.editDeleteMenus = [
+      { label: 'Edit', icon: 'pi pi-pencil', command: () => this.selectedRecord && this.editDepartment(this.selectedRecord) },
+      { label: 'Delete', icon: 'pi pi-trash', command: () => this.selectedRecord && this.deleteDepartment(this.selectedRecord) }
+    ];
+  }
 
   list(event?: LazyLoadEvent): void {
     if (this.primengTableHelper.shouldResetPaging(event)) {

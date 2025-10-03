@@ -108,7 +108,7 @@ export class EmergencyCaseComponent extends PagedListingComponentBase<EmergencyC
     this.primengTableHelper.showLoadingIndicator();
     this._emergencyService
       .getAll(
-        this.primengTableHelper.getSorting(this.dataTable),
+        this.keyword,
         this.primengTableHelper.getSkipCount(this.paginator, event),
         this.primengTableHelper.getMaxResultCount(this.paginator, event)
       )

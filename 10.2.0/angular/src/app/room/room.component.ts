@@ -19,11 +19,15 @@ import { AddRoomComponent } from '../room/add-room/add-room.component'
 import { appModuleAnimation } from '@shared/animations/routerTransition';
 import { ChipModule } from 'primeng/chip';
 import { TagModule } from 'primeng/tag';
-
-
+import { RadioButtonModule } from 'primeng/radiobutton';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { InputTextModule } from 'primeng/inputtext';
+import { MenuItem } from 'primeng/api';
+import { TooltipModule } from 'primeng/tooltip';
+import { CardModule } from 'primeng/card';
 @Component({
     selector: 'app-room',
-    imports: [FormsModule, TableModule,TagModule, SelectModule, MenuModule,
+    imports: [FormsModule,BreadcrumbModule,InputTextModule,CardModule, TooltipModule,TableModule,RadioButtonModule, TagModule, SelectModule, MenuModule,
         ButtonModule, OverlayPanelModule, PrimeTemplate, NgIf, PaginatorModule, ChipModule, LocalizePipe],
     animations: [appModuleAnimation()],
     providers: [RoomServiceProxy],
@@ -36,10 +40,11 @@ export class RoomComponent extends PagedListingComponentBase<RoomDto> implements
     rooms: RoomDto[] = [];
     keyword = '';
     roomTypeMasterId: number | undefined;
-
-    status: RoomStatus |undefined;   // default = “All”
-
-    advancedFiltersVisible = false;
+    selectedRecord: RoomDto;
+    statusFilter: string = 'all';
+    status: RoomStatus | undefined;   // default = “All”
+    editDeleteMenus: MenuItem[];
+    items: MenuItem[] | undefined;
 
     constructor(
         injector: Injector,
@@ -52,11 +57,19 @@ export class RoomComponent extends PagedListingComponentBase<RoomDto> implements
         this.keyword = this._activatedRoute.snapshot.queryParams['filterText'] || '';
     }
     ngOnInit(): void {
-        
+        this.items = [
+            { label: 'Home', routerLink: '/' },
+            { label: 'Rooms' },
+        ];
+
+        this.editDeleteMenus = [
+            { label: 'Edit', icon: 'pi pi-pencil', command: () => this.EditNewRoom(this.selectedRecord) },
+            { label: 'Delete', icon: 'pi pi-trash', command: () => this.delete(this.selectedRecord) }
+        ];
     }
     clearFilters(): void {
         this.keyword = '';
-        this.status=undefined;
+        this.status = undefined;
         this.list();
     }
 
@@ -67,7 +80,7 @@ export class RoomComponent extends PagedListingComponentBase<RoomDto> implements
         if (this.primengTableHelper.shouldResetPaging(event)) {
             this.paginator.changePage(0);
 
-            if ( this.primengTableHelper.records && this.primengTableHelper.records.length > 0) {
+            if (this.primengTableHelper.records && this.primengTableHelper.records.length > 0) {
                 return;
             }
         }
@@ -127,11 +140,11 @@ export class RoomComponent extends PagedListingComponentBase<RoomDto> implements
 
         CreateOrEditRoomDialog.content.onSave.subscribe(() => {
             this.refresh();
-            });
+        });
     }
 
     getStatusClass(status: RoomStatus): string {
-        
+
         switch (status) {
             case RoomStatus._0: return 'status-available';
             case RoomStatus._1: return 'status-occupied';
@@ -142,7 +155,7 @@ export class RoomComponent extends PagedListingComponentBase<RoomDto> implements
     }
 
     getStatusLabel(status: RoomStatus): string {
-        
+
         switch (status) {
             case RoomStatus._0: return 'Available';
             case RoomStatus._1: return 'Occupied';
@@ -161,5 +174,25 @@ export class RoomComponent extends PagedListingComponentBase<RoomDto> implements
             default: return 'contrast';
         }
     }
+    onFilterChange(selected: string) {
+  switch (selected) {
+    case 'all':
+      this.status = undefined;
+      break;
+    case 'available':
+      this.status = 0;
+      break;
+    case 'occupied':
+      this.status = 1;
+      break;
+    case 'reserved':
+      this.status = 2;
+      break;
+    case 'maintenance':
+      this.status = 3;
+      break;
+  }
+  this.list();
+}
 
 }

@@ -127,8 +127,8 @@ export class AddRoomComponent extends AppComponentBase implements OnInit {
     this._roomSvc.createBulkRooms(bulkRooms).subscribe({
       next: () => {
         this.notify.success(this.l('SavedSuccessfully'));
-        this.bsModalRef.hide();
         this.onSave.emit();
+        this.bsModalRef.hide();
       },
       error: () => {
         this.saving = false;

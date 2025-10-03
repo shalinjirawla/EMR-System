@@ -12,6 +12,13 @@ import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { PaginatorModule } from 'primeng/paginator';
+import { RadioButtonModule } from 'primeng/radiobutton';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { InputTextModule } from 'primeng/inputtext';
+import { MenuItem } from 'primeng/api';
+import { TooltipModule } from 'primeng/tooltip';
+import { CardModule } from 'primeng/card';
+import { OverlayPanel, OverlayPanelModule } from 'primeng/overlaypanel';
 
 import { 
   EmergencyProcedureDto, 
@@ -26,8 +33,8 @@ import { CreateupdateEmergencyProcedureComponent } from '../createupdate-emergen
   selector: 'app-emergency-procedure',
   standalone: true,
   imports: [
-    FormsModule,
-    TableModule,
+    FormsModule,BreadcrumbModule,InputTextModule,CardModule, TooltipModule,RadioButtonModule,
+    TableModule,OverlayPanelModule,
     ButtonModule,
     NgIf,
     PaginatorModule,
@@ -46,7 +53,10 @@ export class EmergencyProcedureComponent extends PagedListingComponentBase<Emerg
   procedures: EmergencyProcedureDto[] = [];
    keyword = '';
   category: ProcedureCategory | undefined;
-  advancedFiltersVisible = false;
+  selectedRecord: EmergencyProcedureDto;
+  items: MenuItem[];
+  editDeleteMenus: MenuItem[];
+   ProcedureCategory = ProcedureCategory;
 
    procedureCategories = [
     { label: 'All', value: undefined },
@@ -64,7 +74,17 @@ export class EmergencyProcedureComponent extends PagedListingComponentBase<Emerg
     super(injector, cd);
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.items = [
+      { label: 'Home', routerLink: '/' },
+      { label: 'Emergency Procedures' }
+    ];
+
+    this.editDeleteMenus = [
+      { label: 'Edit', icon: 'pi pi-pencil', command: () => this.editProcedure(this.selectedRecord) },
+      { label: 'Delete', icon: 'pi pi-trash', command: () => this.deleteProcedure(this.selectedRecord) }
+    ];
+  }
 
   list(event?: LazyLoadEvent): void {
     if (this.primengTableHelper.shouldResetPaging(event)) {
@@ -124,9 +144,14 @@ export class EmergencyProcedureComponent extends PagedListingComponentBase<Emerg
     this.deleteProcedure(entity);
   }
 
-   clearFilters(): void {
-    this.keyword = '';
-    this.category = undefined;
+   onFilterChange(selected: string) {
+    switch (selected) {
+      case 'all': this.category = undefined; break;
+      case 'minor': this.category = ProcedureCategory._0; break;
+      case 'major': this.category = ProcedureCategory._1; break;
+      case 'life-saving': this.category = ProcedureCategory._2; break;
+    }
     this.list();
   }
+
 }

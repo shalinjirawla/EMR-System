@@ -49,8 +49,14 @@ namespace EMRSystem.Emergency.EmergencyCase
                 .Include(x => x.Doctor)
                 .Include(x => x.Nurse)
                 .WhereIf(!input.Keyword.IsNullOrWhiteSpace(),
-                    x => x.Patient.FullName.Contains(input.Keyword));
+                    x =>
+                        x.Patient.FullName.Contains(input.Keyword) ||
+                        x.Doctor.FullName.Contains(input.Keyword) ||
+                        x.Nurse.FullName.Contains(input.Keyword) ||
+                        x.EmergencyNumber.Contains(input.Keyword)
+                );
         }
+
         public override async Task<EmergencyCaseDto> CreateAsync(CreateUpdateEmergencyCaseDto input)
         {
             input.ArrivalTime = DateTime.Now;

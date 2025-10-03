@@ -17,7 +17,10 @@ import { MenuModule } from 'primeng/menu';
 import { ButtonModule } from 'primeng/button';
 import { CreateupdateRoomFacilitiesComponent } from '../createupdate-room-facilities/createupdate-room-facilities.component';
 import { RoomFacilityMasterDto, RoomFacilityMasterDtoPagedResultDto, RoomFacilityMasterServiceProxy } from '@shared/service-proxies/service-proxies';
-
+import { MenuItem } from 'primeng/api';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { TooltipModule } from 'primeng/tooltip';
+import { CardModule } from 'primeng/card';
 @Component({
     selector: 'app-room-facilities',
     templateUrl: './room-facilities.component.html',
@@ -25,13 +28,15 @@ import { RoomFacilityMasterDto, RoomFacilityMasterDtoPagedResultDto, RoomFacilit
     providers: [RoomFacilityMasterServiceProxy],
     animations: [appModuleAnimation()],
     standalone: true,
-    imports: [FormsModule, TableModule, ChipModule, SelectModule, MenuModule, ButtonModule, OverlayPanelModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe],
+    imports: [FormsModule, CardModule, BreadcrumbModule, TooltipModule, TableModule, ChipModule, SelectModule, MenuModule, ButtonModule, OverlayPanelModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe],
 })
 export class RoomFacilitiesComponent extends PagedListingComponentBase<RoomFacilityMasterDto> implements OnInit {
     @ViewChild('dataTable', { static: true }) dataTable: Table;
     @ViewChild('paginator', { static: true }) paginator: Paginator;
     facilities: RoomFacilityMasterDto[] = [];
-
+    selectedRecord: RoomFacilityMasterDto;
+    items: MenuItem[];
+    editDeleteMenus: MenuItem[];
     constructor(
         injector: Injector,
         private _modalService: BsModalService,
@@ -43,6 +48,28 @@ export class RoomFacilitiesComponent extends PagedListingComponentBase<RoomFacil
     }
 
     ngOnInit(): void {
+        this.items = [{ label: 'Home', routerLink: '/' }, { label: 'Room Facilities' }];
+
+        this.editDeleteMenus = [
+            {
+                label: 'Edit',
+                icon: 'pi pi-pencil',
+                command: () => {
+                    if (this.selectedRecord) {
+                        this.editRoomFacility(this.selectedRecord);
+                    }
+                }
+            },
+            {
+                label: 'Delete',
+                icon: 'pi pi-trash',
+                command: () => {
+                    if (this.selectedRecord) {
+                        this.deleteRoomFacility(this.selectedRecord);
+                    }
+                }
+            }
+        ];
     }
 
     list(event?: LazyLoadEvent): void {
@@ -73,17 +100,17 @@ export class RoomFacilitiesComponent extends PagedListingComponentBase<RoomFacil
     }
 
     createRoomFacility(): void {
-      let createDialog: BsModalRef = this._modalService.show(CreateupdateRoomFacilitiesComponent, { class: 'modal-lg' });
-      createDialog.content.onSave.subscribe(() => {
-        this.list();
-      });
+        let createDialog: BsModalRef = this._modalService.show(CreateupdateRoomFacilitiesComponent, { class: 'modal-lg' });
+        createDialog.content.onSave.subscribe(() => {
+            this.list();
+        });
     }
 
     editRoomFacility(facility: RoomFacilityMasterDto): void {
-      let editDialog: BsModalRef = this._modalService.show(CreateupdateRoomFacilitiesComponent, { class: 'modal-lg', initialState: { id: facility.id } });
-      editDialog.content.onSave.subscribe(() => {
-        this.list();
-      });
+        let editDialog: BsModalRef = this._modalService.show(CreateupdateRoomFacilitiesComponent, { class: 'modal-lg', initialState: { id: facility.id } });
+        editDialog.content.onSave.subscribe(() => {
+            this.list();
+        });
     }
 
     deleteRoomFacility(facility: RoomFacilityMasterDto): void {
