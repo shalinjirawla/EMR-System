@@ -84,6 +84,7 @@ export class LabOrdersComponent extends PagedListingComponentBase<PrescriptionLa
 
     this._prescriptionLabTests
       .getAllLabOrders(
+        this.keyword,
         this.primengTableHelper.getSorting(this.dataTable),
         this.primengTableHelper.getSkipCount(this.paginator, event),
         this.primengTableHelper.getMaxResultCount(this.paginator, event)

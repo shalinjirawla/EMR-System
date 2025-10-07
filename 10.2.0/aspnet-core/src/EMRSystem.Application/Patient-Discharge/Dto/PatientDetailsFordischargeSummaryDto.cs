@@ -13,14 +13,22 @@ namespace EMRSystem.Patient_Discharge.Dto
         public string LastName { get; set; }
         public string UserName { get; set; }
         public string EmailAddress { get; set; }
-        public string Gender { get; set; }
         public DateTime Dob { get; set; }
-        public int Age { get; set; }
         public string BloodGroup { get; set; }
         public string MobileNumber { get; set; }
         public string EmergencyNumber { get; set; }
         public string EmergencyPersonName { get; set; }
         public string Address { get; set; }
+        public string FullName { get; set; }
+        public string DoctorName { get; set; }
+        public string Gender { get; set; }
+        public int Age { get; set; }
         public DateTime AdmissionDateTime { get; set; }
+        public DateTime DischargeDateTime { get; set; }
+        public long AdmissionId { get; set; }
+        public string Room { get; set; }
+        public string BedNumber { get; set; }
+        public string ReasonForAdmit { get; set; }
+
     }
 }

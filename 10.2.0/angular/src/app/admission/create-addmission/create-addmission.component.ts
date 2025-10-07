@@ -9,6 +9,8 @@ import { AbpModalFooterComponent } from '../../../shared/components/modal/abp-mo
 import { SelectModule } from 'primeng/select';
 import { DatePickerModule } from 'primeng/datepicker';
 import moment from 'moment';
+import { TextareaModule } from 'primeng/textarea';
+
 
 @Component({
   selector: 'app-create-addmission',
@@ -16,7 +18,7 @@ import moment from 'moment';
   styleUrl: './create-addmission.component.css',
   providers: [PatientServiceProxy, DoctorServiceProxy, BedServiceProxy, NurseServiceProxy, RoomServiceProxy, AdmissionServiceProxy],
   imports: [
-    FormsModule,
+    FormsModule,TextareaModule,
     CommonModule,
     SelectModule,
     DatePickerModule,
@@ -61,6 +63,7 @@ export class CreateAddmissionComponent extends AppComponentBase implements OnIni
     nurseId: null,
     roomId: null,
     admissionType: null,
+    reasonForAdmit:null
   };
   @Output() onSave = new EventEmitter<any>();
   constructor(
@@ -147,6 +150,7 @@ export class CreateAddmissionComponent extends AppComponentBase implements OnIni
     input.roomId = this.admission.roomId;
     input.bedId = this.admission.bedId
     input.admissionType = this.admission.admissionType;
+    input.reasonForAdmit =this.admission.reasonForAdmit;
 
     this._admissionService.create(input).subscribe({
       next: (res) => {

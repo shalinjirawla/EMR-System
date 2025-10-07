@@ -25,6 +25,8 @@ namespace EMRSystem.Admissions.Dto
         public string RoomNumber { get; set; }
         public string RoomTypeName { get; set; }
         public decimal? RoomTypePricePerDay { get; set; }
+        public string ReasonForAdmit { get; set; }
+
         public bool IsDischarged { get; set; }
         public AdmissionType AdmissionType { get; set; }
     }

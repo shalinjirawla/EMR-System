@@ -22,5 +22,16 @@ namespace EMRSystem.Patient_Discharge.Dto
         public DateTime? DischargeDate { get; set; }
         public string DischargeSummary { get; set; }
         public DischargeStatus DischargeStatus { get; set; }
+        public string? ProvisionalDiagnosis { get; set; }
+        public string? FinalDiagnosis { get; set; }
+        public string? InvestigationSummary { get; set; }
+        public string? ConditionAtDischarge { get; set; }
+        public string? DietAdvice { get; set; }
+        public string? Activity { get; set; }
+        public DateTime? FollowUpDate { get; set; }
+
+        public long? FollowUpDoctorId { get; set; }
+        public DoctorDto FollowUpDoctor { get; set; }
+
     }
 }

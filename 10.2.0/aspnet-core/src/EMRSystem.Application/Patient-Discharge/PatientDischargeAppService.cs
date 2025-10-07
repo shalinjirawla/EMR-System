@@ -74,6 +74,9 @@ namespace EMRSystem.Patient_Discharge
 
         protected override IQueryable<EMRSystem.PatientDischarge.PatientDischarge> CreateFilteredQuery(PagedPatientDischargeResultRequestDto input)
         {
+            try
+            {
+
             var data = Repository.GetAllIncluding(
                 x => x.Admission,
                 x => x.Admission.Room,
@@ -84,6 +87,11 @@ namespace EMRSystem.Patient_Discharge
                 .WhereIf(!input.Keyword.IsNullOrWhiteSpace(), x => x.Patient.FullName.Contains(input.Keyword))
                 .Where(x => x.Admission.IsDischarged == true);
             return data;
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
         }
         public async Task DischargeStatusChange(long patientID, DischargeStatus status)
         {
@@ -103,7 +111,7 @@ namespace EMRSystem.Patient_Discharge
         }
 
         [HttpGet]
-        public async Task<DischargeSummaryDto> PatientDischargeSummaryAsync(long patientID)
+        public async Task<DischargeSummaryDto> PatientDetailsAsync(long patientID)
         {
             var data = await Repository
             .GetAll().IgnoreQueryFilters()
@@ -141,19 +149,53 @@ namespace EMRSystem.Patient_Discharge
             return res;
 
         }
+        [HttpGet]
+        public async Task<DischargeSummaryDto> PatientDischargeSummaryAsync(long patientId)
+        {
+            var discharge = await Repository.GetAll()
+                .Include(x => x.Patient).ThenInclude(x => x.AbpUser)
+                .Include(x => x.Admission).ThenInclude(a => a.Room)
+                .Include(x => x.Admission).ThenInclude(a => a.Bed)
+                .Include(x => x.Doctor)
+                .Include(x => x.FollowUpDoctor)
+                .FirstOrDefaultAsync(x => x.PatientId == patientId);
+
+            if (discharge == null)
+                throw new UserFriendlyException("No discharge record found for the selected patient.");
+
+            var dischargeSummary = ObjectMapper.Map<DischargeSummaryDto>(discharge);
+
+            // Step: fetch emergency procedures manually
+            dischargeSummary.SelectedEmergencyProcedures =
+                await _selectedEmergencyProceduresAppService.GetSelectedProceduresByPatientID(patientId);
+
+            return dischargeSummary;
+        }
 
         [HttpPost]
-        public async Task FinalApproval(string summary, long patientID, long doctorID)
+        public async Task FinalApproval(CreateUpdatePatientDischargeDto input)
         {
-            var discharge = await Repository.GetAll().FirstOrDefaultAsync(x => x.PatientId == patientID);
-            if (discharge != null)
-            {
-                discharge.DischargeStatus = DischargeStatus.FinalApproval;
-                discharge.DoctorId = doctorID;
-                discharge.DischargeSummary = summary?.Trim();
-                await Repository.UpdateAsync(discharge);
-            }
+            var discharge = await Repository.GetAll()
+                .FirstOrDefaultAsync(x => x.PatientId == input.PatientId);
+
+            if (discharge == null)
+                throw new UserFriendlyException("Patient discharge record not found.");
+
+            discharge.DischargeStatus = DischargeStatus.FinalApproval;
+            discharge.DoctorId = input.DoctorId;
+            discharge.DischargeSummary = input.DischargeSummary?.Trim();
+            discharge.ProvisionalDiagnosis = input.ProvisionalDiagnosis?.Trim();
+            discharge.FinalDiagnosis = input.FinalDiagnosis?.Trim();
+            discharge.InvestigationSummary = input.InvestigationSummary?.Trim();
+            discharge.ConditionAtDischarge = input.ConditionAtDischarge?.Trim();
+            discharge.DietAdvice = input.DietAdvice?.Trim();
+            discharge.Activity = input.Activity?.Trim();
+            discharge.FollowUpDate = input.FollowUpDate;
+            discharge.FollowUpDoctorId = input.FollowUpDoctorId;
+
+            await Repository.UpdateAsync(discharge);
         }
+
 
         [HttpPost]
         public async Task FinalDischarge(long patientID)

@@ -489,47 +489,143 @@
                                                         <div>
                                                             <b>Final Approval</b>
                                                         </div>
-                                                        <div *ngIf="data?.patientDischarge?.dischargeStatus ==8"
+                                                        <div *ngIf="data?.patientDischarge?.dischargeStatus == 8"
                                                             class="final-approved-cls">
                                                             <p-button icon="pi pi-check" [rounded]="true"
-                                                                severity="success" />
+                                                                severity="success"></p-button>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="card-body">
-                                                    <p-editor [(ngModel)]="data.patientDischarge.dischargeSummary"
-                                                        [style]="{ height: '130px' }" required
-                                                        [readonly]="data?.patientDischarge?.dischargeStatus ==8" />
 
+                                                <div class="card-body">
+
+                                                    <!-- 🔹 Diagnosis Section -->
+                                                    <div class="card mb-3">
+                                                        <div class="card-header bg-light">
+                                                            <b>Diagnosis</b>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <div class="form-group mb-2">
+                                                                <label>Provisional Diagnosis</label>
+                                                                <textarea class="form-control"
+                                                                    [(ngModel)]="data.patientDischarge.provisionalDiagnosis"
+                                                                    rows="2" placeholder="Enter provisional diagnosis"
+                                                                    [readonly]="data?.patientDischarge?.dischargeStatus == 8"></textarea>
+                                                            </div>
+
+                                                            <div class="form-group">
+                                                                <label>Final Diagnosis</label>
+                                                                <textarea class="form-control"
+                                                                    [(ngModel)]="data.patientDischarge.finalDiagnosis"
+                                                                    rows="2" placeholder="Enter final diagnosis"
+                                                                    [readonly]="data?.patientDischarge?.dischargeStatus == 8"></textarea>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- 🔹 Investigation Summary -->
+                                                    <div class="card mb-3">
+                                                        <div class="card-header bg-light">
+                                                            <b>Investigation Summary</b>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <textarea class="form-control"
+                                                                [(ngModel)]="data.patientDischarge.investigationSummary"
+                                                                rows="3" placeholder="Enter investigation summary"
+                                                                [readonly]="data?.patientDischarge?.dischargeStatus == 8"></textarea>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- 🔹 Condition at Discharge -->
+                                                    <div class="card mb-3">
+                                                        <div class="card-header bg-light">
+                                                            <b>Condition at Discharge</b>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <input type="text" class="form-control"
+                                                                [(ngModel)]="data.patientDischarge.conditionAtDischarge"
+                                                                placeholder="Enter condition at discharge"
+                                                                [readonly]="data?.patientDischarge?.dischargeStatus == 8" />
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- 🔹 Discharge Advice, Activity & Follow-up -->
+                                                    <div class="card mb-3">
+                                                        <div class="card-header bg-light">
+                                                            <b>Discharge Advice & Follow-up Details</b>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <div class="form-group mb-2">
+                                                                <label>Discharge Advice</label>
+                                                                <p-editor [(ngModel)]="data.patientDischarge.dietAdvice"
+                                                                    [style]="{ height: '130px' }"
+                                                                    [readonly]="data?.patientDischarge?.dischargeStatus == 8"></p-editor>
+                                                            </div>
+
+                                                            <div class="form-group mb-2">
+                                                                <label>Activity</label>
+                                                                <input type="text" class="form-control"
+                                                                    [(ngModel)]="data.patientDischarge.activity"
+                                                                    placeholder="Enter activity or physical advice"
+                                                                    [readonly]="data?.patientDischarge?.dischargeStatus == 8" />
+                                                            </div>
+
+                                                            <div class="row">
+                                                                <div class="col-md-6 mb-2">
+                                                                    <label>Follow-up Date</label>
+                                                                    <p-date-picker
+                                                                        [(ngModel)]="data.patientDischarge.followUpDate"
+                                                                        dateFormat="dd/mm/yy" showIcon="true"
+                                                                        class="w-100"
+                                                                        [disabled]="data?.patientDischarge?.dischargeStatus == 8"></p-date-picker>
+                                                                </div>
+
+                                                                <div class="col-md-6 mb-2">
+                                                                    <label>Follow-up Doctor</label>
+                                                                    <p-select
+                                                                        [(ngModel)]="data.patientDischarge.followUpDoctorId"
+                                                                        [options]="doctors" optionLabel="fullName"
+                                                                        optionValue="id"
+                                                                        placeholder="Select follow-up doctor"
+                                                                        class="w-100" appendTo="body"
+                                                                        [disabled]="data?.patientDischarge?.dischargeStatus == 8"></p-select>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- 🔹 Approval Controls -->
                                                     <div class="d-flex flex-column mt-2"
-                                                        *ngIf="data?.patientDischarge?.dischargeStatus <=7">
+                                                        *ngIf="data?.patientDischarge?.dischargeStatus <= 7">
                                                         <label>Discharge Approved by:</label>
                                                         <p-select [(ngModel)]="data.patientDischarge.doctorId"
-                                                            [optionValue]="'id'" name="doctorId" [options]="doctors"
-                                                            optionLabel="fullName" placeholder="Select doctor"
-                                                            class="w-100" appendTo="body" />
+                                                            [options]="doctors" optionLabel="fullName" optionValue="id"
+                                                            placeholder="Select doctor" class="w-100"
+                                                            appendTo="body"></p-select>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="d-flex justify-content-between">
+
+                                            <!-- 🔹 Navigation Buttons -->
+                                            <div class="d-flex justify-content-between mt-3">
                                                 <div>
-                                                    <button class="btn btn-sm next-btn " (click)="activateCallback(4)">
-                                                        Back
-                                                    </button>
+                                                    <button class="btn btn-sm next-btn"
+                                                        (click)="activateCallback(4)">Back</button>
                                                 </div>
                                                 <div class="d-flex justify-content-end">
-                                                    <button class="btn btn-sm btn-success " (click)="FinalApproval()"
-                                                        *ngIf="data?.patientDischarge?.dischargeStatus ==7">
+                                                    <button class="btn btn-sm btn-success" (click)="FinalApproval()"
+                                                        *ngIf="data?.patientDischarge?.dischargeStatus == 7">
                                                         <span class="pi pi-check mr-2"></span>Final Approval
                                                     </button>
                                                     <button class="btn btn-sm btn-danger" (click)="Discharge()"
-                                                        *ngIf="data?.patientDischarge?.dischargeStatus ==8">Discharge
-                                                        Patient
+                                                        *ngIf="data?.patientDischarge?.dischargeStatus == 8">
+                                                        <span class="pi pi-sign-out mr-2"></span>Discharge Patient
                                                     </button>
                                                 </div>
                                             </div>
                                         </ng-template>
                                     </p-step-panel>
+
                                 </p-step-panels>
                             </div>
                         </div>

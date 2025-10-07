@@ -25,8 +25,8 @@ namespace EMRSystem.Admission
         public AdmissionType AdmissionType { get; set; }
         public bool IsDischarged { get; set; } = false;
         public DateTime? DischargeDateTime { get; set; }
-        public decimal TotalCharges { get; set; } = 0;
-        public decimal TotalDeposits { get; set; } = 0; 
+        public string ReasonForAdmit { get; set; }
+
         public virtual ICollection<EMRSystem.IpdChargeEntry.IpdChargeEntry> IpdChargeEntries { get; set; }
         //public virtual ICollection<EMRSystem.Deposit.Deposit> Deposits { get; set; }
         public virtual ICollection<EMRSystem.Emergency.EmergencyCase.EmergencyCase> EmergencyCases { get; set; }

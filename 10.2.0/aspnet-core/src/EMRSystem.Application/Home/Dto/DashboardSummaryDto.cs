@@ -1,5 +1,6 @@
 ﻿using EMRSystem.Appointments.Dto;
 using EMRSystem.Doctor.Dto;
+using EMRSystem.Medicines.Dto;
 using EMRSystem.Patients.Dto;
 using EMRSystem.Pharmacist.Dto;
 using System;
@@ -29,7 +30,7 @@ namespace EMRSystem.Home.Dto
         public List<AppointmentDto> TotalAppointmentList { get; set; }
         public List<PatientDto> TotalPatientList { get; set; }
         public List<DoctorDto> TotalDoctorList { get; set; }
-        public List<PharmacistInventoryDto> TotalMedicineList { get; set; }
+        public List<MedicineMasterDto> TotalMedicineList { get; set; }
     }
 
     public class ChartDataDto

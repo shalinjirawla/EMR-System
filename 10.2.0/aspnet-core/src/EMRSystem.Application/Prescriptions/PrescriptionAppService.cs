@@ -972,60 +972,6 @@ namespace EMRSystem.Prescriptions
                 await _consultationRequestsRepository.InsertAsync(mappedEntity);
             }
         }
-        private (int value, string unit) ParseDuration(string duration)
-        {
-            if (string.IsNullOrWhiteSpace(duration))
-                return (0, "Days");
-
-            var parts = duration.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            if (parts.Length < 2) return (0, "Days");
-
-            return (int.TryParse(parts[0], out int val) ? val : 0, parts[1]);
-        }
-
-        private int CalculateQty(string frequency, string duration)
-        {
-            var (value, unit) = ParseDuration(duration);
-
-            // Convert duration to days
-            int totalDays = unit switch
-            {
-                "Days" => value,
-                "Weeks" => value * 7,
-                "Months" => value * 30,
-                _ => value
-            };
-
-            // Map frequency to times per day
-            int timesPerDay = frequency switch
-            {
-                "Once a day" => 1,
-                "Twice a day" => 2,
-                "Three times a day" => 3,
-                "Four times a day" => 4,
-                "Every 6 hours" => 4,
-                "Every 8 hours" => 3,
-                "Every 12 hours" => 2,
-                "As needed" => 0, // PRN can't be predicted
-                _ => 0
-            };
-
-            var res = totalDays * timesPerDay;
-            return res;
-        }
-
-        public async Task<decimal> GetGrandTotal(long _id)
-        {
-            var list = Repository.GetAllIncluding(x => x.Items).FirstOrDefault(x => x.Id == _id);
-            if (list != null && list.Items != null)
-            {
-                return list.Items.Sum(x => x.Qty * (_pharmacistInventoryRepository.Get(x.MedicineId).SellingPrice));
-            }
-            else
-            {
-                return 0;
-            }
-        }
 
         public override async Task DeleteAsync(EntityDto<long> input)
         {

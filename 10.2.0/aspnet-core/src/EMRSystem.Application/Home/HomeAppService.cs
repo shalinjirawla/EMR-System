@@ -6,6 +6,7 @@ using EMRSystem.Authorization.Users;
 using EMRSystem.Doctor;
 using EMRSystem.Doctor.Dto;
 using EMRSystem.Home.Dto;
+using EMRSystem.Medicines.Dto;
 using EMRSystem.Patients;
 using EMRSystem.Patients.Dto;
 using EMRSystem.Pharmacist.Dto;
@@ -24,14 +25,14 @@ namespace EMRSystem.Home
         private readonly IRepository<EMRSystem.Appointments.Appointment, long> _appointmentRepository;
         private readonly IRepository<EMRSystem.Nurses.Nurse, long> _nurseRepository;
         private readonly IRepository<EMRSystem.Doctors.Doctor, long> _doctorRepository;
-        private readonly IRepository<EMRSystem.Pharmacists.PharmacistInventory, long> _pharmacistInventoryRepository;
+        private readonly IRepository<EMRSystem.Medicines.MedicineMaster, long> _pharmacistInventoryRepository;
         private readonly UserManager _userManager;
         private readonly IDoctorAppService _doctorAppService;
         public HomeAppService(IRepository<Patient, long> patientRepository,
             IRepository<Appointments.Appointment, long> appointmentRepository
             , IRepository<EMRSystem.Nurses.Nurse, long> nurseRepository,
             IRepository<Doctors.Doctor, long> doctorRepository, UserManager userManager,
-            IRepository<EMRSystem.Pharmacists.PharmacistInventory, long> pharmacistInventoryRepository,
+            IRepository<EMRSystem.Medicines.MedicineMaster, long> pharmacistInventoryRepository,
         IDoctorAppService doctorAppService)
         {
             _patientRepository = patientRepository;
@@ -62,7 +63,7 @@ namespace EMRSystem.Home
                 dto.TotalAppointmentList = ObjectMapper.Map<List<AppointmentDto>>(totalAppointmentList.Take(5));
                 dto.TotalPatientList = ObjectMapper.Map<List<PatientDto>>(totalPatientList.Take(5));
                 dto.TotalDoctorList = ObjectMapper.Map<List<DoctorDto>>(totalDoctorList.Take(5));
-                dto.TotalMedicineList = ObjectMapper.Map<List<PharmacistInventoryDto>>(medicineList.Take(8));
+                dto.TotalMedicineList = ObjectMapper.Map<List<MedicineMasterDto>>(medicineList.Take(8));
                 var departmentWise = totalAppointmentList
                                     .Where(a => a.Department != null)
                                     .GroupBy(a => a.Department.DepartmentName)

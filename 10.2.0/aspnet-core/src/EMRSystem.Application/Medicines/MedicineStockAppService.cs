@@ -1,21 +1,22 @@
 ﻿using Abp.Application.Services;
 using Abp.Application.Services.Dto;
 using Abp.Domain.Repositories;
+using Abp.Extensions;
+using Abp.Linq.Extensions;
 using Abp.UI;
-using EMRSystem.Medicines.Dto;
 using EMRSystem.Medicines;
+using EMRSystem.Medicines.Dto;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Abp.Linq.Extensions;
 
 namespace EMRSystem.Medicines
 {
     public class MedicineStockAppService :
-        AsyncCrudAppService<MedicineStock, MedicineStockDto, long, PagedAndSortedResultRequestDto, CreateUpdateMedicineStockDto>,
+        AsyncCrudAppService<MedicineStock, MedicineStockDto, long, PagedMedicineStockResultRequestDto, CreateUpdateMedicineStockDto>,
         IMedicineStockAppService
     {
         public MedicineStockAppService(IRepository<MedicineStock, long> repository)
@@ -23,10 +24,13 @@ namespace EMRSystem.Medicines
         {
 
         }
-        protected override IQueryable<MedicineStock> CreateFilteredQuery(PagedAndSortedResultRequestDto input)
+        protected override IQueryable<MedicineStock> CreateFilteredQuery(PagedMedicineStockResultRequestDto input)
         {
             return Repository.GetAll()
-                             .Include(s => s.MedicineMaster);
+                .Include(s => s.MedicineMaster)
+                .WhereIf(!input.Keyword.IsNullOrWhiteSpace(),
+                    s => s.MedicineMaster.Name.Contains(input.Keyword) ||
+                         s.BatchNo.Contains(input.Keyword)); // if you have Medicine Code
         }
 
         protected override MedicineStockDto MapToEntityDto(MedicineStock entity)
@@ -50,24 +54,16 @@ namespace EMRSystem.Medicines
                               entity.MedicineMaster != null && entity.Quantity <= entity.MedicineMaster.MinimumStock ? "Low Stock" :
                               "In Stock";
 
-            // Expiry status using nearest batch
-            var nearestExpiry = Repository.GetAll()
-                .Where(s => s.MedicineMasterId == entity.MedicineMasterId
-                            && !s.IsExpire
-                            && s.ExpiryDate.HasValue
-                            && s.ExpiryDate.Value >= DateTime.Today)
-                .OrderBy(s => s.ExpiryDate)
-                .Select(s => s.ExpiryDate.Value)
-                .FirstOrDefault();
-
-            if (nearestExpiry == default)
+            if (!entity.ExpiryDate.HasValue)
             {
-                dto.ExpiryStatus = "No Active Batch";
+                dto.ExpiryStatus = "No Expiry Date";
             }
             else
             {
-                var daysToExpire = (nearestExpiry - DateTime.Now).TotalDays;
-                dto.ExpiryStatus = nearestExpiry < DateTime.Now ? "Expired" :
+                var expiryDate = entity.ExpiryDate.Value;
+                var daysToExpire = (expiryDate - DateTime.Today).TotalDays;
+
+                dto.ExpiryStatus = expiryDate < DateTime.Today ? "Expired" :
                                    daysToExpire <= 30 ? "Expires Soon" : "Valid";
             }
 

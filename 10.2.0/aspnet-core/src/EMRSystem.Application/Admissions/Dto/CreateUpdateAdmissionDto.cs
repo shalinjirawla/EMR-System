@@ -18,6 +18,7 @@ namespace EMRSystem.Admissions.Dto
         public long? NurseId { get; set; }
         public long? RoomId { get; set; }
         public long? BedId { get; set; }
+        public string ReasonForAdmit { get; set; }
 
         public AdmissionType AdmissionType { get; set; }
 

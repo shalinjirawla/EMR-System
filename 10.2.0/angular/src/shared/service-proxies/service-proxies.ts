@@ -12806,13 +12806,18 @@ export class MedicineStockServiceProxy {
     }
 
     /**
+     * @param keyword (optional) 
      * @param sorting (optional) 
      * @param skipCount (optional) 
      * @param maxResultCount (optional) 
      * @return OK
      */
-    getAll(sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<MedicineStockDtoPagedResultDto> {
+    getAll(keyword: string | undefined, sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<MedicineStockDtoPagedResultDto> {
         let url_ = this.baseUrl + "/api/services/app/MedicineStock/GetAll?";
+        if (keyword === null)
+            throw new Error("The parameter 'keyword' cannot be null.");
+        else if (keyword !== undefined)
+            url_ += "Keyword=" + encodeURIComponent("" + keyword) + "&";
         if (sorting === null)
             throw new Error("The parameter 'sorting' cannot be null.");
         else if (sorting !== undefined)
@@ -14679,12 +14684,68 @@ export class PatientDischargeServiceProxy {
      * @param patientID (optional) 
      * @return OK
      */
-    patientDischargeSummary(patientID: number | undefined): Observable<DischargeSummaryDto> {
-        let url_ = this.baseUrl + "/api/services/app/PatientDischarge/PatientDischargeSummary?";
+    patientDetails(patientID: number | undefined): Observable<DischargeSummaryDto> {
+        let url_ = this.baseUrl + "/api/services/app/PatientDischarge/PatientDetails?";
         if (patientID === null)
             throw new Error("The parameter 'patientID' cannot be null.");
         else if (patientID !== undefined)
             url_ += "patientID=" + encodeURIComponent("" + patientID) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processPatientDetails(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processPatientDetails(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<DischargeSummaryDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<DischargeSummaryDto>;
+        }));
+    }
+
+    protected processPatientDetails(response: HttpResponseBase): Observable<DischargeSummaryDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DischargeSummaryDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param patientId (optional) 
+     * @return OK
+     */
+    patientDischargeSummary(patientId: number | undefined): Observable<DischargeSummaryDto> {
+        let url_ = this.baseUrl + "/api/services/app/PatientDischarge/PatientDischargeSummary?";
+        if (patientId === null)
+            throw new Error("The parameter 'patientId' cannot be null.");
+        else if (patientId !== undefined)
+            url_ += "patientId=" + encodeURIComponent("" + patientId) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -14732,31 +14793,21 @@ export class PatientDischargeServiceProxy {
     }
 
     /**
-     * @param summary (optional) 
-     * @param patientID (optional) 
-     * @param doctorID (optional) 
+     * @param body (optional) 
      * @return OK
      */
-    finalApproval(summary: string | undefined, patientID: number | undefined, doctorID: number | undefined): Observable<void> {
-        let url_ = this.baseUrl + "/api/services/app/PatientDischarge/FinalApproval?";
-        if (summary === null)
-            throw new Error("The parameter 'summary' cannot be null.");
-        else if (summary !== undefined)
-            url_ += "summary=" + encodeURIComponent("" + summary) + "&";
-        if (patientID === null)
-            throw new Error("The parameter 'patientID' cannot be null.");
-        else if (patientID !== undefined)
-            url_ += "patientID=" + encodeURIComponent("" + patientID) + "&";
-        if (doctorID === null)
-            throw new Error("The parameter 'doctorID' cannot be null.");
-        else if (doctorID !== undefined)
-            url_ += "doctorID=" + encodeURIComponent("" + doctorID) + "&";
+    finalApproval(body: CreateUpdatePatientDischargeDto | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/PatientDischarge/FinalApproval";
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(body);
+
         let options_ : any = {
+            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
+                "Content-Type": "application/json",
             })
         };
 
@@ -17265,63 +17316,6 @@ export class PrescriptionServiceProxy {
     }
 
     /**
-     * @param _id (optional) 
-     * @return OK
-     */
-    getGrandTotal(_id: number | undefined): Observable<number> {
-        let url_ = this.baseUrl + "/api/services/app/Prescription/GetGrandTotal?";
-        if (_id === null)
-            throw new Error("The parameter '_id' cannot be null.");
-        else if (_id !== undefined)
-            url_ += "_id=" + encodeURIComponent("" + _id) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "text/plain"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetGrandTotal(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processGetGrandTotal(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<number>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<number>;
-        }));
-    }
-
-    protected processGetGrandTotal(response: HttpResponseBase): Observable<number> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result200 = resultData200 !== undefined ? resultData200 : <any>null;
-    
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    /**
      * @param id (optional) 
      * @return OK
      */
@@ -17999,13 +17993,18 @@ export class PrescriptionLabTestServiceProxy {
     }
 
     /**
+     * @param keyword (optional) 
      * @param sorting (optional) 
      * @param skipCount (optional) 
      * @param maxResultCount (optional) 
      * @return OK
      */
-    getAllLabOrders(sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<LabOrderListDtoPagedResultDto> {
+    getAllLabOrders(keyword: string | undefined, sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<LabOrderListDtoPagedResultDto> {
         let url_ = this.baseUrl + "/api/services/app/PrescriptionLabTest/GetAllLabOrders?";
+        if (keyword === null)
+            throw new Error("The parameter 'keyword' cannot be null.");
+        else if (keyword !== undefined)
+            url_ += "Keyword=" + encodeURIComponent("" + keyword) + "&";
         if (sorting === null)
             throw new Error("The parameter 'sorting' cannot be null.");
         else if (sorting !== undefined)
@@ -25166,8 +25165,7 @@ export class Admission implements IAdmission {
     admissionType: AdmissionType;
     isDischarged: boolean;
     dischargeDateTime: moment.Moment | undefined;
-    totalCharges: number;
-    totalDeposits: number;
+    reasonForAdmit: string | undefined;
     ipdChargeEntries: IpdChargeEntry[] | undefined;
     emergencyCases: EmergencyCase[] | undefined;
     patientDeposits: PatientDeposit[] | undefined;
@@ -25200,8 +25198,7 @@ export class Admission implements IAdmission {
             this.admissionType = _data["admissionType"];
             this.isDischarged = _data["isDischarged"];
             this.dischargeDateTime = _data["dischargeDateTime"] ? moment(_data["dischargeDateTime"].toString()) : <any>undefined;
-            this.totalCharges = _data["totalCharges"];
-            this.totalDeposits = _data["totalDeposits"];
+            this.reasonForAdmit = _data["reasonForAdmit"];
             if (Array.isArray(_data["ipdChargeEntries"])) {
                 this.ipdChargeEntries = [] as any;
                 for (let item of _data["ipdChargeEntries"])
@@ -25246,8 +25243,7 @@ export class Admission implements IAdmission {
         data["admissionType"] = this.admissionType;
         data["isDischarged"] = this.isDischarged;
         data["dischargeDateTime"] = this.dischargeDateTime ? this.dischargeDateTime.toISOString() : <any>undefined;
-        data["totalCharges"] = this.totalCharges;
-        data["totalDeposits"] = this.totalDeposits;
+        data["reasonForAdmit"] = this.reasonForAdmit;
         if (Array.isArray(this.ipdChargeEntries)) {
             data["ipdChargeEntries"] = [];
             for (let item of this.ipdChargeEntries)
@@ -25292,8 +25288,7 @@ export interface IAdmission {
     admissionType: AdmissionType;
     isDischarged: boolean;
     dischargeDateTime: moment.Moment | undefined;
-    totalCharges: number;
-    totalDeposits: number;
+    reasonForAdmit: string | undefined;
     ipdChargeEntries: IpdChargeEntry[] | undefined;
     emergencyCases: EmergencyCase[] | undefined;
     patientDeposits: PatientDeposit[] | undefined;
@@ -25321,6 +25316,7 @@ export class AdmissionDto implements IAdmissionDto {
     roomNumber: string | undefined;
     roomTypeName: string | undefined;
     roomTypePricePerDay: number | undefined;
+    reasonForAdmit: string | undefined;
     isDischarged: boolean;
     admissionType: AdmissionType;
 
@@ -25350,6 +25346,7 @@ export class AdmissionDto implements IAdmissionDto {
             this.roomNumber = _data["roomNumber"];
             this.roomTypeName = _data["roomTypeName"];
             this.roomTypePricePerDay = _data["roomTypePricePerDay"];
+            this.reasonForAdmit = _data["reasonForAdmit"];
             this.isDischarged = _data["isDischarged"];
             this.admissionType = _data["admissionType"];
         }
@@ -25379,6 +25376,7 @@ export class AdmissionDto implements IAdmissionDto {
         data["roomNumber"] = this.roomNumber;
         data["roomTypeName"] = this.roomTypeName;
         data["roomTypePricePerDay"] = this.roomTypePricePerDay;
+        data["reasonForAdmit"] = this.reasonForAdmit;
         data["isDischarged"] = this.isDischarged;
         data["admissionType"] = this.admissionType;
         return data;
@@ -25408,6 +25406,7 @@ export interface IAdmissionDto {
     roomNumber: string | undefined;
     roomTypeName: string | undefined;
     roomTypePricePerDay: number | undefined;
+    reasonForAdmit: string | undefined;
     isDischarged: boolean;
     admissionType: AdmissionType;
 }
@@ -27814,6 +27813,7 @@ export class CreateUpdateAdmissionDto implements ICreateUpdateAdmissionDto {
     nurseId: number | undefined;
     roomId: number | undefined;
     bedId: number | undefined;
+    reasonForAdmit: string | undefined;
     admissionType: AdmissionType;
 
     constructor(data?: ICreateUpdateAdmissionDto) {
@@ -27835,6 +27835,7 @@ export class CreateUpdateAdmissionDto implements ICreateUpdateAdmissionDto {
             this.nurseId = _data["nurseId"];
             this.roomId = _data["roomId"];
             this.bedId = _data["bedId"];
+            this.reasonForAdmit = _data["reasonForAdmit"];
             this.admissionType = _data["admissionType"];
         }
     }
@@ -27856,6 +27857,7 @@ export class CreateUpdateAdmissionDto implements ICreateUpdateAdmissionDto {
         data["nurseId"] = this.nurseId;
         data["roomId"] = this.roomId;
         data["bedId"] = this.bedId;
+        data["reasonForAdmit"] = this.reasonForAdmit;
         data["admissionType"] = this.admissionType;
         return data;
     }
@@ -27877,6 +27879,7 @@ export interface ICreateUpdateAdmissionDto {
     nurseId: number | undefined;
     roomId: number | undefined;
     bedId: number | undefined;
+    reasonForAdmit: string | undefined;
     admissionType: AdmissionType;
 }
 
@@ -29998,6 +30001,17 @@ export class CreateUpdatePatientDischargeDto implements ICreateUpdatePatientDisc
     dischargeDate: moment.Moment | undefined;
     dischargeSummary: string | undefined;
     dischargeStatus: DischargeStatus;
+    provisionalDiagnosis: string | undefined;
+    finalDiagnosis: string | undefined;
+    investigationSummary: string | undefined;
+    conditionAtDischarge: string | undefined;
+    dietAdvice: string | undefined;
+    activity: string | undefined;
+    followUpDate: moment.Moment | undefined;
+    followUpDoctorId: number | undefined;
+    doctorName: string | undefined;
+    followUpDoctorName: string | undefined;
+    doctorQualification: string | undefined;
 
     constructor(data?: ICreateUpdatePatientDischargeDto) {
         if (data) {
@@ -30018,6 +30032,17 @@ export class CreateUpdatePatientDischargeDto implements ICreateUpdatePatientDisc
             this.dischargeDate = _data["dischargeDate"] ? moment(_data["dischargeDate"].toString()) : <any>undefined;
             this.dischargeSummary = _data["dischargeSummary"];
             this.dischargeStatus = _data["dischargeStatus"];
+            this.provisionalDiagnosis = _data["provisionalDiagnosis"];
+            this.finalDiagnosis = _data["finalDiagnosis"];
+            this.investigationSummary = _data["investigationSummary"];
+            this.conditionAtDischarge = _data["conditionAtDischarge"];
+            this.dietAdvice = _data["dietAdvice"];
+            this.activity = _data["activity"];
+            this.followUpDate = _data["followUpDate"] ? moment(_data["followUpDate"].toString()) : <any>undefined;
+            this.followUpDoctorId = _data["followUpDoctorId"];
+            this.doctorName = _data["doctorName"];
+            this.followUpDoctorName = _data["followUpDoctorName"];
+            this.doctorQualification = _data["doctorQualification"];
         }
     }
 
@@ -30038,6 +30063,17 @@ export class CreateUpdatePatientDischargeDto implements ICreateUpdatePatientDisc
         data["dischargeDate"] = this.dischargeDate ? this.dischargeDate.toISOString() : <any>undefined;
         data["dischargeSummary"] = this.dischargeSummary;
         data["dischargeStatus"] = this.dischargeStatus;
+        data["provisionalDiagnosis"] = this.provisionalDiagnosis;
+        data["finalDiagnosis"] = this.finalDiagnosis;
+        data["investigationSummary"] = this.investigationSummary;
+        data["conditionAtDischarge"] = this.conditionAtDischarge;
+        data["dietAdvice"] = this.dietAdvice;
+        data["activity"] = this.activity;
+        data["followUpDate"] = this.followUpDate ? this.followUpDate.toISOString() : <any>undefined;
+        data["followUpDoctorId"] = this.followUpDoctorId;
+        data["doctorName"] = this.doctorName;
+        data["followUpDoctorName"] = this.followUpDoctorName;
+        data["doctorQualification"] = this.doctorQualification;
         return data;
     }
 
@@ -30058,6 +30094,17 @@ export interface ICreateUpdatePatientDischargeDto {
     dischargeDate: moment.Moment | undefined;
     dischargeSummary: string | undefined;
     dischargeStatus: DischargeStatus;
+    provisionalDiagnosis: string | undefined;
+    finalDiagnosis: string | undefined;
+    investigationSummary: string | undefined;
+    conditionAtDischarge: string | undefined;
+    dietAdvice: string | undefined;
+    activity: string | undefined;
+    followUpDate: moment.Moment | undefined;
+    followUpDoctorId: number | undefined;
+    doctorName: string | undefined;
+    followUpDoctorName: string | undefined;
+    doctorQualification: string | undefined;
 }
 
 export class CreateUpdatePatientDto implements ICreateUpdatePatientDto {
@@ -31649,7 +31696,7 @@ export class DashboardSummaryDto implements IDashboardSummaryDto {
     totalAppointmentList: AppointmentDto[] | undefined;
     totalPatientList: PatientDto[] | undefined;
     totalDoctorList: DoctorDto[] | undefined;
-    totalMedicineList: PharmacistInventoryDto[] | undefined;
+    totalMedicineList: MedicineMasterDto[] | undefined;
 
     constructor(data?: IDashboardSummaryDto) {
         if (data) {
@@ -31709,7 +31756,7 @@ export class DashboardSummaryDto implements IDashboardSummaryDto {
             if (Array.isArray(_data["totalMedicineList"])) {
                 this.totalMedicineList = [] as any;
                 for (let item of _data["totalMedicineList"])
-                    this.totalMedicineList.push(PharmacistInventoryDto.fromJS(item));
+                    this.totalMedicineList.push(MedicineMasterDto.fromJS(item));
             }
         }
     }
@@ -31796,7 +31843,7 @@ export interface IDashboardSummaryDto {
     totalAppointmentList: AppointmentDto[] | undefined;
     totalPatientList: PatientDto[] | undefined;
     totalDoctorList: DoctorDto[] | undefined;
-    totalMedicineList: PharmacistInventoryDto[] | undefined;
+    totalMedicineList: MedicineMasterDto[] | undefined;
 }
 
 export class Department implements IDepartment {
@@ -39829,15 +39876,22 @@ export class PatientDetailsFordischargeSummaryDto implements IPatientDetailsFord
     lastName: string | undefined;
     userName: string | undefined;
     emailAddress: string | undefined;
-    gender: string | undefined;
     dob: moment.Moment;
-    age: number;
     bloodGroup: string | undefined;
     mobileNumber: string | undefined;
     emergencyNumber: string | undefined;
     emergencyPersonName: string | undefined;
     address: string | undefined;
+    fullName: string | undefined;
+    doctorName: string | undefined;
+    gender: string | undefined;
+    age: number;
     admissionDateTime: moment.Moment;
+    dischargeDateTime: moment.Moment;
+    admissionId: number;
+    room: string | undefined;
+    bedNumber: string | undefined;
+    reasonForAdmit: string | undefined;
 
     constructor(data?: IPatientDetailsFordischargeSummaryDto) {
         if (data) {
@@ -39855,15 +39909,22 @@ export class PatientDetailsFordischargeSummaryDto implements IPatientDetailsFord
             this.lastName = _data["lastName"];
             this.userName = _data["userName"];
             this.emailAddress = _data["emailAddress"];
-            this.gender = _data["gender"];
             this.dob = _data["dob"] ? moment(_data["dob"].toString()) : <any>undefined;
-            this.age = _data["age"];
             this.bloodGroup = _data["bloodGroup"];
             this.mobileNumber = _data["mobileNumber"];
             this.emergencyNumber = _data["emergencyNumber"];
             this.emergencyPersonName = _data["emergencyPersonName"];
             this.address = _data["address"];
+            this.fullName = _data["fullName"];
+            this.doctorName = _data["doctorName"];
+            this.gender = _data["gender"];
+            this.age = _data["age"];
             this.admissionDateTime = _data["admissionDateTime"] ? moment(_data["admissionDateTime"].toString()) : <any>undefined;
+            this.dischargeDateTime = _data["dischargeDateTime"] ? moment(_data["dischargeDateTime"].toString()) : <any>undefined;
+            this.admissionId = _data["admissionId"];
+            this.room = _data["room"];
+            this.bedNumber = _data["bedNumber"];
+            this.reasonForAdmit = _data["reasonForAdmit"];
         }
     }
 
@@ -39881,15 +39942,22 @@ export class PatientDetailsFordischargeSummaryDto implements IPatientDetailsFord
         data["lastName"] = this.lastName;
         data["userName"] = this.userName;
         data["emailAddress"] = this.emailAddress;
-        data["gender"] = this.gender;
         data["dob"] = this.dob ? this.dob.toISOString() : <any>undefined;
-        data["age"] = this.age;
         data["bloodGroup"] = this.bloodGroup;
         data["mobileNumber"] = this.mobileNumber;
         data["emergencyNumber"] = this.emergencyNumber;
         data["emergencyPersonName"] = this.emergencyPersonName;
         data["address"] = this.address;
+        data["fullName"] = this.fullName;
+        data["doctorName"] = this.doctorName;
+        data["gender"] = this.gender;
+        data["age"] = this.age;
         data["admissionDateTime"] = this.admissionDateTime ? this.admissionDateTime.toISOString() : <any>undefined;
+        data["dischargeDateTime"] = this.dischargeDateTime ? this.dischargeDateTime.toISOString() : <any>undefined;
+        data["admissionId"] = this.admissionId;
+        data["room"] = this.room;
+        data["bedNumber"] = this.bedNumber;
+        data["reasonForAdmit"] = this.reasonForAdmit;
         return data;
     }
 
@@ -39907,15 +39975,22 @@ export interface IPatientDetailsFordischargeSummaryDto {
     lastName: string | undefined;
     userName: string | undefined;
     emailAddress: string | undefined;
-    gender: string | undefined;
     dob: moment.Moment;
-    age: number;
     bloodGroup: string | undefined;
     mobileNumber: string | undefined;
     emergencyNumber: string | undefined;
     emergencyPersonName: string | undefined;
     address: string | undefined;
+    fullName: string | undefined;
+    doctorName: string | undefined;
+    gender: string | undefined;
+    age: number;
     admissionDateTime: moment.Moment;
+    dischargeDateTime: moment.Moment;
+    admissionId: number;
+    room: string | undefined;
+    bedNumber: string | undefined;
+    reasonForAdmit: string | undefined;
 }
 
 export class PatientDischarge implements IPatientDischarge {
@@ -39927,9 +40002,18 @@ export class PatientDischarge implements IPatientDischarge {
     dischargeDate: moment.Moment | undefined;
     dischargeSummary: string | undefined;
     dischargeStatus: DischargeStatus;
+    provisionalDiagnosis: string | undefined;
+    finalDiagnosis: string | undefined;
+    investigationSummary: string | undefined;
+    conditionAtDischarge: string | undefined;
+    dietAdvice: string | undefined;
+    activity: string | undefined;
+    followUpDate: moment.Moment | undefined;
+    followUpDoctorId: number | undefined;
     admission: Admission;
     patient: Patient;
     doctor: Doctor;
+    followUpDoctor: Doctor;
 
     constructor(data?: IPatientDischarge) {
         if (data) {
@@ -39950,9 +40034,18 @@ export class PatientDischarge implements IPatientDischarge {
             this.dischargeDate = _data["dischargeDate"] ? moment(_data["dischargeDate"].toString()) : <any>undefined;
             this.dischargeSummary = _data["dischargeSummary"];
             this.dischargeStatus = _data["dischargeStatus"];
+            this.provisionalDiagnosis = _data["provisionalDiagnosis"];
+            this.finalDiagnosis = _data["finalDiagnosis"];
+            this.investigationSummary = _data["investigationSummary"];
+            this.conditionAtDischarge = _data["conditionAtDischarge"];
+            this.dietAdvice = _data["dietAdvice"];
+            this.activity = _data["activity"];
+            this.followUpDate = _data["followUpDate"] ? moment(_data["followUpDate"].toString()) : <any>undefined;
+            this.followUpDoctorId = _data["followUpDoctorId"];
             this.admission = _data["admission"] ? Admission.fromJS(_data["admission"]) : <any>undefined;
             this.patient = _data["patient"] ? Patient.fromJS(_data["patient"]) : <any>undefined;
             this.doctor = _data["doctor"] ? Doctor.fromJS(_data["doctor"]) : <any>undefined;
+            this.followUpDoctor = _data["followUpDoctor"] ? Doctor.fromJS(_data["followUpDoctor"]) : <any>undefined;
         }
     }
 
@@ -39973,9 +40066,18 @@ export class PatientDischarge implements IPatientDischarge {
         data["dischargeDate"] = this.dischargeDate ? this.dischargeDate.toISOString() : <any>undefined;
         data["dischargeSummary"] = this.dischargeSummary;
         data["dischargeStatus"] = this.dischargeStatus;
+        data["provisionalDiagnosis"] = this.provisionalDiagnosis;
+        data["finalDiagnosis"] = this.finalDiagnosis;
+        data["investigationSummary"] = this.investigationSummary;
+        data["conditionAtDischarge"] = this.conditionAtDischarge;
+        data["dietAdvice"] = this.dietAdvice;
+        data["activity"] = this.activity;
+        data["followUpDate"] = this.followUpDate ? this.followUpDate.toISOString() : <any>undefined;
+        data["followUpDoctorId"] = this.followUpDoctorId;
         data["admission"] = this.admission ? this.admission.toJSON() : <any>undefined;
         data["patient"] = this.patient ? this.patient.toJSON() : <any>undefined;
         data["doctor"] = this.doctor ? this.doctor.toJSON() : <any>undefined;
+        data["followUpDoctor"] = this.followUpDoctor ? this.followUpDoctor.toJSON() : <any>undefined;
         return data;
     }
 
@@ -39996,9 +40098,18 @@ export interface IPatientDischarge {
     dischargeDate: moment.Moment | undefined;
     dischargeSummary: string | undefined;
     dischargeStatus: DischargeStatus;
+    provisionalDiagnosis: string | undefined;
+    finalDiagnosis: string | undefined;
+    investigationSummary: string | undefined;
+    conditionAtDischarge: string | undefined;
+    dietAdvice: string | undefined;
+    activity: string | undefined;
+    followUpDate: moment.Moment | undefined;
+    followUpDoctorId: number | undefined;
     admission: Admission;
     patient: Patient;
     doctor: Doctor;
+    followUpDoctor: Doctor;
 }
 
 export class PatientDischargeDto implements IPatientDischargeDto {
@@ -40010,6 +40121,15 @@ export class PatientDischargeDto implements IPatientDischargeDto {
     dischargeDate: moment.Moment | undefined;
     dischargeSummary: string | undefined;
     dischargeStatus: DischargeStatus;
+    provisionalDiagnosis: string | undefined;
+    finalDiagnosis: string | undefined;
+    investigationSummary: string | undefined;
+    conditionAtDischarge: string | undefined;
+    dietAdvice: string | undefined;
+    activity: string | undefined;
+    followUpDate: moment.Moment | undefined;
+    followUpDoctorId: number | undefined;
+    followUpDoctor: DoctorDto;
 
     constructor(data?: IPatientDischargeDto) {
         if (data) {
@@ -40030,6 +40150,15 @@ export class PatientDischargeDto implements IPatientDischargeDto {
             this.dischargeDate = _data["dischargeDate"] ? moment(_data["dischargeDate"].toString()) : <any>undefined;
             this.dischargeSummary = _data["dischargeSummary"];
             this.dischargeStatus = _data["dischargeStatus"];
+            this.provisionalDiagnosis = _data["provisionalDiagnosis"];
+            this.finalDiagnosis = _data["finalDiagnosis"];
+            this.investigationSummary = _data["investigationSummary"];
+            this.conditionAtDischarge = _data["conditionAtDischarge"];
+            this.dietAdvice = _data["dietAdvice"];
+            this.activity = _data["activity"];
+            this.followUpDate = _data["followUpDate"] ? moment(_data["followUpDate"].toString()) : <any>undefined;
+            this.followUpDoctorId = _data["followUpDoctorId"];
+            this.followUpDoctor = _data["followUpDoctor"] ? DoctorDto.fromJS(_data["followUpDoctor"]) : <any>undefined;
         }
     }
 
@@ -40050,6 +40179,15 @@ export class PatientDischargeDto implements IPatientDischargeDto {
         data["dischargeDate"] = this.dischargeDate ? this.dischargeDate.toISOString() : <any>undefined;
         data["dischargeSummary"] = this.dischargeSummary;
         data["dischargeStatus"] = this.dischargeStatus;
+        data["provisionalDiagnosis"] = this.provisionalDiagnosis;
+        data["finalDiagnosis"] = this.finalDiagnosis;
+        data["investigationSummary"] = this.investigationSummary;
+        data["conditionAtDischarge"] = this.conditionAtDischarge;
+        data["dietAdvice"] = this.dietAdvice;
+        data["activity"] = this.activity;
+        data["followUpDate"] = this.followUpDate ? this.followUpDate.toISOString() : <any>undefined;
+        data["followUpDoctorId"] = this.followUpDoctorId;
+        data["followUpDoctor"] = this.followUpDoctor ? this.followUpDoctor.toJSON() : <any>undefined;
         return data;
     }
 
@@ -40070,6 +40208,15 @@ export interface IPatientDischargeDto {
     dischargeDate: moment.Moment | undefined;
     dischargeSummary: string | undefined;
     dischargeStatus: DischargeStatus;
+    provisionalDiagnosis: string | undefined;
+    finalDiagnosis: string | undefined;
+    investigationSummary: string | undefined;
+    conditionAtDischarge: string | undefined;
+    dietAdvice: string | undefined;
+    activity: string | undefined;
+    followUpDate: moment.Moment | undefined;
+    followUpDoctorId: number | undefined;
+    followUpDoctor: DoctorDto;
 }
 
 export class PatientDischargeDtoPagedResultDto implements IPatientDischargeDtoPagedResultDto {

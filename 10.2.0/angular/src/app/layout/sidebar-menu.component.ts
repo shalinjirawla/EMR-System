@@ -126,6 +126,7 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
             new MenuItem(this.l('Role Management'), '/app/roles', 'fas fa-user-shield', 'Pages.Roles'),
             new MenuItem(this.l('Tenant Management'), '/app/tenants', 'fas fa-city', 'Pages.Tenants'),
             new MenuItem(this.l('Patient Admission'), '/app/admission', 'fas fa-procedures', 'Pages.Users'),
+            new MenuItem(this.l('Discharged Patient'), '/app/patient-discharge/list', 'fas fa-file-medical-alt', 'Pages.Users'),
 
             new MenuItem(this.l('Emergency Portal'), '', 'fas fa-ambulance', 'Pages.Users', [
                 new MenuItem(this.l('Emergency Cases'), '/app/emergency/cases', 'fas fa-notes-medical', 'Pages.Users'),
@@ -133,6 +134,15 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
                 new MenuItem(this.l('Emergency Prescriptions'), '/app/emergency/prescriptions', 'fas fa-prescription', 'Pages.Users'),
                 new MenuItem(this.l('Emergency Lab Order'), '/app/emergency/lab-order', 'fas fa-vials', 'Pages.Users'),
             ]),
+
+            // Nurse Section
+            new MenuItem(this.l('Nurse Portal'), '', 'fas fa-user-nurse', 'Pages.Nurse', [
+                new MenuItem(this.l('Manage Appointments'), '/app/nurse/appointments', 'fas fa-calendar-plus', 'Pages.Doctors.Appointments.Schedule'),
+                new MenuItem(this.l('Patient Assignments'), '/app/nurse/assigned-patients', 'fas fa-procedures', 'Pages.Nurse.Patients.View'),
+                new MenuItem(this.l('Vitals Monitoring'), '/app/nurse/vitals-notes', 'fas fa-heartbeat', 'Pages.Nurse.Vitals.View'),
+                //new MenuItem(this.l('Medication Orders'), '/app/nurse/order-medicine', 'fas fa-pills', 'Pages.Nurse.Medication.View'),
+            ]),
+            
             // Doctor Section
             new MenuItem(this.l('Doctor Portal'), '', 'fas fa-user-md', 'Pages.Doctors', [
                 new MenuItem(this.l('Appointments'), '/app/doctors/view-appointments', 'fas fa-calendar-check', 'Pages.Doctors.Appointments.View'),
@@ -143,24 +153,10 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
                 new MenuItem(this.l('Consultation Requests'), '/app/doctors/consultation-requests', 'fas fa-person-circle-question', 'Pages.Users'),
             ]),
 
-            // Nurse Section
-            new MenuItem(this.l('Nurse Portal'), '', 'fas fa-user-nurse', 'Pages.Nurse', [
-                new MenuItem(this.l('Manage Appointments'), '/app/nurse/appointments', 'fas fa-calendar-plus', 'Pages.Doctors.Appointments.Schedule'),
-                new MenuItem(this.l('Patient Assignments'), '/app/nurse/assigned-patients', 'fas fa-procedures', 'Pages.Nurse.Patients.View'),
-                new MenuItem(this.l('Vitals Monitoring'), '/app/nurse/vitals-notes', 'fas fa-heartbeat', 'Pages.Nurse.Vitals.View'),
-                //new MenuItem(this.l('Medication Orders'), '/app/nurse/order-medicine', 'fas fa-pills', 'Pages.Nurse.Medication.View'),
-            ]),
-
-            // Billing Staff Section
-            new MenuItem(this.l('Billing Portal'), '', 'fas fa-file-invoice-dollar', 'Pages.BillingStaff', [
-                new MenuItem(this.l('Invoices'), '/app/billing-staff/invoices', 'fas fa-receipt', 'Pages.BillingStaff.Invoices.View'),
-                new MenuItem(this.l('Patient Deposits'), '/app/deposit', 'fas fa-hand-holding-usd', 'Pages.BillingStaff'),
-            ]),
             new MenuItem(this.l('Procedure Portal'), '', 'fas fa-vial', 'Pages.Users', [
                 new MenuItem(this.l('Procedure Requests'), '/app/procedure/procedure-requests', 'fas fa-microscope', 'Pages.Users'),
                 new MenuItem(this.l('Procedure Receipts'), '/app/procedure/procedure-receipts', 'fas fa-file-medical', 'Pages.Users'),
             ]),
-
 
             // Lab Technician Section
             new MenuItem(this.l('Lab Technician Portal'), '', 'fas fa-vial', 'Pages.LabTechnician', [
@@ -177,7 +173,12 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
                 new MenuItem(this.l('Prescription Fulfillment'), '/app/pharmacist/pharmacist-prescriptions', 'fas fa-prescription-bottle-alt', 'Pages.Pharmacist.Prescriptions.View'),
             ]),
 
-            new MenuItem(this.l('Discharged Patient'), '/app/patient-discharge/list', 'fas fa-file-medical-alt', 'Pages.Users'),
+            // Billing Staff Section
+            new MenuItem(this.l('Billing Portal'), '', 'fas fa-file-invoice-dollar', 'Pages.BillingStaff', [
+                new MenuItem(this.l('Invoices'), '/app/billing-staff/invoices', 'fas fa-receipt', 'Pages.BillingStaff.Invoices.View'),
+                new MenuItem(this.l('Patient Deposits'), '/app/deposit', 'fas fa-hand-holding-usd', 'Pages.BillingStaff'),
+            ]),
+
             // Master Section
             new MenuItem(this.l('Masters'), '', 'fas fa-cogs', 'Pages.Users', [
 

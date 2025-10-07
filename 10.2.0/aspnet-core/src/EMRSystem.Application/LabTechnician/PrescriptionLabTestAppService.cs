@@ -75,7 +75,7 @@ namespace EMRSystem.LabTechnician
             return new PagedResultDto<LabRequestListDto>(totalCount, mapped);
         }
         [HttpGet]
-        public async Task<PagedResultDto<LabOrderListDto>> GetAllLabOrders(PagedAndSortedResultRequestDto input)
+        public async Task<PagedResultDto<LabOrderListDto>> GetAllLabOrders(PagedLabRequestResultRequestDto input)
         {
             var userId = AbpSession.UserId;
 
@@ -87,7 +87,11 @@ namespace EMRSystem.LabTechnician
                 .Where(x => x.Prescription != null)
                 .WhereIf(AbpSession.TenantId.HasValue, x => x.TenantId == AbpSession.TenantId.Value)
                 .WhereIf(doctor != null, x => x.Prescription.DoctorId == doctor.Id)
-                .Where(x => x.TestStatus == LabTestStatus.Completed);
+                .Where(x => x.TestStatus == LabTestStatus.Completed)
+                 .WhereIf(!string.IsNullOrWhiteSpace(input.Keyword),
+                x =>
+                x.Prescription.Patient.FullName.Contains(input.Keyword) ||
+                x.Prescription.Doctor.FullName.Contains(input.Keyword));
 
             // totalCount -> runs SELECT COUNT(*) ...
             var totalCount = await baseQuery.CountAsync();

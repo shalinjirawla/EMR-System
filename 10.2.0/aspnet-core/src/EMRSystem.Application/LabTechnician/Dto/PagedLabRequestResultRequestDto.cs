@@ -27,7 +27,7 @@ namespace EMRSystem.LabTechnician.Dto
             }
             else
             {
-                Sorting = "FullName";
+                Sorting = "Id";
             }
             Keyword = Keyword?.Trim();
         }

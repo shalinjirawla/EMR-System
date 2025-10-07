@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace EMRSystem.Medicines
 {
     public interface IMedicineStockAppService :
-       IAsyncCrudAppService<MedicineStockDto, long, PagedAndSortedResultRequestDto, CreateUpdateMedicineStockDto>
+       IAsyncCrudAppService<MedicineStockDto, long, PagedMedicineStockResultRequestDto, CreateUpdateMedicineStockDto>
     {
     }
 }
