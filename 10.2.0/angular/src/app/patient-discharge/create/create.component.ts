@@ -20,7 +20,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { CheckboxModule } from 'primeng/checkbox';
 import { StepperModule } from 'primeng/stepper';
 import { StepsModule } from 'primeng/steps';
-import { CollectionStatus, CreatePrescriptionLabTestsServiceProxy, DischargeStatus, DischargeSummaryDto, DoctorDto, DoctorServiceProxy, EmergencyProcedureStatus, InvoiceDto, LabTestStatus, PatientDischargeServiceProxy, PrescriptionServiceProxy, VitalDto } from '@shared/service-proxies/service-proxies';
+import { CollectionStatus, CreatePrescriptionLabTestsServiceProxy, CreateUpdatePatientDischargeDto, DischargeStatus, DischargeSummaryDto, DoctorDto, DoctorServiceProxy, EmergencyProcedureStatus, InvoiceDto, LabTestStatus, PatientDischargeServiceProxy, PrescriptionServiceProxy, VitalDto } from '@shared/service-proxies/service-proxies';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { TextareaModule } from 'primeng/textarea';
@@ -34,13 +34,15 @@ import { CreatePrescriptionsComponent } from '@app/doctors/create-prescriptions/
 import { ViewInvoiceComponent } from '@app/billing-staff/view-invoice/view-invoice.component';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
+import { DatePickerModule } from 'primeng/datepicker';
+
 @Component({
   selector: 'app-create',
   animations: [appModuleAnimation()],
   templateUrl: './create.component.html',
   styleUrl: './create.component.css',
   providers: [PatientDischargeServiceProxy, DoctorServiceProxy, PrescriptionServiceProxy, CreatePrescriptionLabTestsServiceProxy, MessageService],
-  imports: [StepperModule, FormsModule, EditorModule, RouterLink, AccordionModule, DialogModule, StepsModule, TextareaModule, InputGroupModule, InputGroupAddonModule, CommonModule, TableModule, AvatarModule, BadgeModule, TabsModule, PaginatorModule, CheckboxModule,
+  imports: [StepperModule,DatePickerModule, FormsModule, EditorModule, RouterLink, AccordionModule, DialogModule, StepsModule, TextareaModule, InputGroupModule, InputGroupAddonModule, CommonModule, TableModule, AvatarModule, BadgeModule, TabsModule, PaginatorModule, CheckboxModule,
     BreadcrumbModule, TooltipModule, ToastModule, CardModule, TagModule, SelectModule, InputTextModule, MenuModule, ButtonModule],
 })
 export class CreateComponent implements OnInit {
@@ -88,7 +90,7 @@ export class CreateComponent implements OnInit {
 
   // ----listing----
   GetSummaryDetails() {
-    this._summaryService.patientDischargeSummary(this.patientId).subscribe({
+    this._summaryService.patientDetails(this.patientId).subscribe({
       next: (res) => {
         this.data = res;
         console.log("1111111111:", res)
@@ -108,35 +110,61 @@ export class CreateComponent implements OnInit {
 
   // ---- post -----
   FinalApproval() {
-    const rawSummary = this.data.patientDischarge.dischargeSummary || '';
-    const plainText = rawSummary
-      .replace(/<[^>]*>/g, '')  // remove HTML tags
-      .replace(/&nbsp;/g, '')   // remove non-breaking spaces
-      .trim();
+  const rawSummary = this.data.patientDischarge.dietAdvice|| '';
+  const plainText = rawSummary
+    .replace(/<[^>]*>/g, '')  // remove HTML tags
+    .replace(/&nbsp;/g, '')   // remove non-breaking spaces
+    .trim();
 
-    if (!plainText) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Validation Error',
-        detail: 'Discharge summary cannot be empty.'
-      });
-      return;
-    }
-
-    this._summaryService.finalApproval(rawSummary, this.patientId, this.data.patientDischarge.doctorId).subscribe({
-      next: (res) => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Discharge Approved',
-          detail: 'The patient has been successfully approved for discharge.'
-        });
-        this.GetSummaryDetails();
-        this.cd.detectChanges();
-      }, error: (err) => {
-
-      }
-    })
+  if (!plainText) {
+    this.messageService.add({
+      severity: 'warn',
+      summary: 'Validation Error',
+      detail: 'Discharge summary cannot be empty.'
+    });
+    return;
   }
+
+ const dto = {
+  id: this.data.patientDischarge.id,
+  tenantId: this.data.patientDischarge.tenantId,
+  admissionId: this.data.patientDischarge.admissionId,
+  patientId: this.patientId,
+  doctorId: this.data.patientDischarge.doctorId,
+  dischargeSummary: rawSummary,
+  dischargeStatus: this.data.patientDischarge.dischargeStatus,
+  provisionalDiagnosis: this.data.patientDischarge.provisionalDiagnosis,
+  finalDiagnosis: this.data.patientDischarge.finalDiagnosis,
+  investigationSummary: this.data.patientDischarge.investigationSummary,
+  conditionAtDischarge: this.data.patientDischarge.conditionAtDischarge,
+  dietAdvice: this.data.patientDischarge.dietAdvice,
+  activity: this.data.patientDischarge.activity,
+  followUpDate: this.data.patientDischarge.followUpDate,
+  followUpDoctorId: this.data.patientDischarge.followUpDoctorId,
+  dischargeDate: this.data.patientDischarge.dischargeDate
+} as CreateUpdatePatientDischargeDto;
+
+
+  this._summaryService.finalApproval(dto).subscribe({
+    next: () => {
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Discharge Approved',
+        detail: 'The patient has been successfully approved for discharge.'
+      });
+      this.GetSummaryDetails();
+      this.cd.detectChanges();
+    },
+    error: (err) => {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'An error occurred during final approval.'
+      });
+    }
+  });
+}
+
   Discharge() {
     this._summaryService.finalDischarge(this.patientId).subscribe({
       next: (res) => {
@@ -182,7 +210,7 @@ export class CreateComponent implements OnInit {
   showCreatePrescriptionDialog() {
     let createPrescriptionDialog: BsModalRef;
     createPrescriptionDialog = this._modalService.show(CreatePrescriptionsComponent, {
-      class: 'modal-xl',
+      class: 'modal-lg',
       initialState: {
         dischargePatientID: this.patientId,
       }
@@ -199,7 +227,7 @@ export class CreateComponent implements OnInit {
     let viewInvoiceDialog: BsModalRef;
 
     viewInvoiceDialog = this._modalService.show(ViewInvoiceComponent, {
-      class: 'modal-xl',
+      class: 'modal-lg',
       initialState: {
         id: invoiceId,   // Pass invoice id to modal
       },

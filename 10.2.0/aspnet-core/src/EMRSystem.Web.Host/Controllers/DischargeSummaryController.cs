@@ -1,13 +1,14 @@
 ﻿using Abp.AspNetCore.Mvc.Controllers;
-using Microsoft.AspNetCore.Mvc;
-using System.IO;
-using System.Threading.Tasks;
+using Abp.UI;
 using EMRSystem.Patient_Discharge;
-using System;
 using iText.Html2pdf;
-using iText.Layout.Font;
-using iText.StyledXmlParser.Css.Media;
 using iText.Html2pdf.Resolver.Font;
+using iText.Layout.Font;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace EMRSystem.Web.Host.Controllers
 {
@@ -23,69 +24,67 @@ namespace EMRSystem.Web.Host.Controllers
         public async Task<IActionResult> DownloadDischarge(long patientId)
         {
             var dto = await _dischargeAppService.PatientDischargeSummaryAsync(patientId);
-            // Load your HTML template
+
+            // Load HTML template
             var templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "DischargeSummary.html");
             var html = await System.IO.File.ReadAllTextAsync(templatePath);
 
-            html = html.Replace("{{fullName}}", (dto.PatientDetails.FirstName + " " + dto.PatientDetails.LastName) ?? "")
-                  .Replace("{{dateOfBirth}}", dto.PatientDetails.Dob.ToString("dd MM yyyy") ?? "")
-                  .Replace("{{gender}}", dto.PatientDetails.Gender.ToString() ?? "")
-                  .Replace("{{patientId}}", dto.PatientDetails.PatientId.ToString() ?? "")
-                  .Replace("{{admissionDate}}", dto.PatientDetails.AdmissionDateTime.ToString("dd MM yyyy") ?? "")
-                  .Replace("{{dischargeDate}}", dto.PatientDetails.AdmissionDateTime.ToString("dd MM yyyy") ?? "")
-                  .Replace("{{diagnosis}}", dto.PatientDetails.FirstName ?? "")
-                  .Replace("{{physicianName}}", dto.PatientDetails.FirstName ?? "")
-                  .Replace("{{physicianContact}}", dto.PatientDetails.FirstName ?? "")
-                  .Replace("{{hospitalCourseDescription}}", dto.PatientDetails.FirstName ?? "")
-                  .Replace("{{treatmentName}}", dto.PatientDetails.FirstName ?? "")
-                  .Replace("{{treatmentDuration}}", dto.PatientDetails.FirstName ?? "")
-                  .Replace("{{treatmentNotes}}", dto.PatientDetails.FirstName ?? "")
-                  .Replace("{{medicationName}}", dto.PatientDetails.FirstName ?? "")
-                  .Replace("{{dosage}}", dto.PatientDetails.FirstName ?? "")
-                  .Replace("{{frequency}}", dto.PatientDetails.FirstName ?? "")
-                  .Replace("{{medicationDuration}}", dto.PatientDetails.FirstName ?? "")
-                  .Replace("{{instruction}}", dto.PatientDetails.FirstName  )
-                  .Replace("{{appointmentDate}}", dto.PatientDetails.FirstName ?? "")
-                  .Replace("{{department}}", dto.PatientDetails.FirstName   )
-                  .Replace("{{provider}}", dto.PatientDetails.FirstName ?? "")
-                  .Replace("{{additionalNotes}}", dto.PatientDetails.FirstName ?? "")
-                  .Replace("{{emergencyContactName}}", dto.PatientDetails.FirstName ?? "")
-                  .Replace("{{emergencyContactPhone}}", dto.PatientDetails.FirstName ?? "")
-                  .Replace("{{emergencyContactRelation}}", dto.PatientDetails.FirstName ?? "")
-                  .Replace("{{bedStatus}}", dto.PatientDetails.FirstName ?? "")
-                  .Replace("{{generatedDate}}", DateTime.Now.ToString("dd/MM/yyyy HH:mm") ?? "");
+            // Generate TreatmentSummary from SelectedEmergencyProcedures
+            string treatmentSummaryHtml = "<ul>";
+            if (dto.SelectedEmergencyProcedures != null && dto.SelectedEmergencyProcedures.Any())
+            {
+                foreach (var procedure in dto.SelectedEmergencyProcedures)
+                {
+                    treatmentSummaryHtml += $"<li>{procedure.ProcedureName}</li>";
+                }
+            }
+            else
+            {
+                treatmentSummaryHtml += "<li>No procedures performed.</li>";
+            }
+            treatmentSummaryHtml += "</ul>";
 
+            // Replace placeholders
+            html = html.Replace("{{PatientName}}", dto.PatientDetails.FullName)
+                       .Replace("{{PatientId}}", dto.PatientDetails.PatientId.ToString())
+                       .Replace("{{AgeGender}}", $"{dto.PatientDetails.Age} / {dto.PatientDetails.Gender}")
+                       .Replace("{{AdmissionNumber}}", dto.PatientDetails.AdmissionId.ToString())
+                       .Replace("{{AdmissionDate}}", dto.PatientDetails.AdmissionDateTime.ToString("dd/MM/yyyy"))
+                       .Replace("{{DischargeDate}}", dto.PatientDischarge.DischargeDate?.ToString("dd/MM/yyyy") ?? "")
+                       .Replace("{{DoctorName}}", dto.PatientDischarge.DoctorName ?? "")
+                       .Replace("{{WardBed}}", $"{dto.PatientDetails.Room} / {dto.PatientDetails.BedNumber}")
+                       .Replace("{{ChiefComplaint}}", dto.PatientDetails.ReasonForAdmit ?? "")
+                       .Replace("{{ProvisionalDiagnosis}}", dto.PatientDischarge.ProvisionalDiagnosis ?? "")
+                       .Replace("{{FinalDiagnosis}}", dto.PatientDischarge.FinalDiagnosis ?? "")
+                       .Replace("{{TreatmentSummary}}", treatmentSummaryHtml)
+                       .Replace("{{InvestigationSummary}}", dto.PatientDischarge.InvestigationSummary ?? "")
+                       .Replace("{{ConditionAtDischarge}}", dto.PatientDischarge.ConditionAtDischarge ?? "")
+                       .Replace("{{DietAdvice}}", dto.PatientDischarge.DietAdvice ?? "")
+                       .Replace("{{ActivityAdvice}}", dto.PatientDischarge.Activity ?? "")
+                       .Replace("{{FollowUpDate}}", dto.PatientDischarge.FollowUpDate?.ToString("dd/MM/yyyy") ?? "")
+                       .Replace("{{FollowUpDoctor}}", dto.PatientDischarge.FollowUpDoctorName ?? "")
+                       .Replace("{{DoctorQualification}}", dto.PatientDischarge.DoctorQualification ?? "")
+                       .Replace("{{GeneratedDate}}", DateTime.Now.ToString("dd/MM/yyyy HH:mm"))
+                       .Replace("{{HospitalName}}", "Helthspan Hospital"); // Add dynamically if available
+
+            // Convert to PDF
             byte[] pdfBytes;
             var props = new ConverterProperties();
             props.SetFontProvider(new DefaultFontProvider(true, true, true));
-            props.SetMediaDeviceDescription(new MediaDeviceDescription(MediaType.SCREEN));
+
             try
             {
-                string css = @"
-                        body { font-family: Arial, sans-serif; font-size: 14px; color: #111827; margin:0; padding:20px; background:#fff; }
-                        h1, h2 { color: #0b5ed7; }
-                        table { width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 12px; }
-                        th, td { padding: 8px; border: 1px solid #e6e9ee; text-align: left; }
-                        th { background-color: #f8fafc; font-weight: bold; }
-                        .section { margin-top: 18px; }
-                        .footer { margin-top: 20px; border-top: 1px dashed #e6e9ee; padding-top: 12px; font-size: 13px; color:#6b7280; }
-                        ";
-
-                if (!html.Contains("<style>"))
-                {
-                    html = html.Replace("</head>", $"<style>{css}</style></head>");
-                }
-
                 using (var ms = new MemoryStream())
                 {
                     HtmlConverter.ConvertToPdf(html, ms, props);
                     pdfBytes = ms.ToArray();
                 }
+
                 return File(pdfBytes, "application/pdf", $"DischargeSummary_{patientId}.pdf");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                throw new UserFriendlyException("PDF generation failed: " + ex.Message);
             }
         }
     }

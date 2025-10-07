@@ -64,7 +64,7 @@
                 <td>{{ record.description }}</td>
                 <td>
                   <button class="btn btn-sm border rounded-1 px-3" type="button" style="background-color: #f8fafc;"
-                    (click)="rowMenu.toggle($event); selectedReceipt = receipt">
+                    (click)="rowMenu.toggle($event); selectedRecord = record">
                     <i class="fa-solid fa-ellipsis-vertical"></i>
                   </button>
                   <p-menu #rowMenu [popup]="true" [style]="{'min-width':'80px', 'max-width':'150px'}"

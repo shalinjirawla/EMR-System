@@ -167,7 +167,6 @@ export class AssignedPatientsComponent extends PagedListingComponentBase<Patient
     return dataa;
   }
   getStatusSeverity(value: number) {
-    debugger
     switch (value) {
       case DischargeStatus._0:
       case DischargeStatus._1:

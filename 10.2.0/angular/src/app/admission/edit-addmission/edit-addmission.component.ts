@@ -8,6 +8,8 @@ import { AbpModalHeaderComponent } from '../../../shared/components/modal/abp-mo
 import { AbpModalFooterComponent } from '../../../shared/components/modal/abp-modal-footer.component';
 import { SelectModule } from 'primeng/select';
 import { DatePickerModule } from 'primeng/datepicker';
+import { TextareaModule } from 'primeng/textarea';
+
 
 @Component({
   selector: 'app-edit-addmission',
@@ -15,7 +17,7 @@ import { DatePickerModule } from 'primeng/datepicker';
   styleUrl: './edit-addmission.component.css',
   providers: [PatientServiceProxy, DoctorServiceProxy,BedServiceProxy, NurseServiceProxy, RoomServiceProxy, AdmissionServiceProxy],
   imports: [
-    FormsModule,
+    FormsModule,TextareaModule,
     CommonModule,
     SelectModule,
     DatePickerModule,
@@ -59,7 +61,9 @@ export class EditAddmissionComponent extends AppComponentBase implements OnInit 
     roomId: null,
      bedId: null,
     admissionType: null,
-    billingMethod: null
+    billingMethod: null,
+    reasonForAdmit:null
+
   };
   constructor(
     injector: Injector,
@@ -94,7 +98,8 @@ export class EditAddmissionComponent extends AppComponentBase implements OnInit 
         nurseId: res.nurseId,
         roomId: res.roomId,
         admissionType: res.admissionType,
-        bedId:res.bedId
+        bedId:res.bedId,
+        reasonForAdmit:res.reasonForAdmit
       };
       if (res.roomId) {
         this.loadBeds(res.roomId); // ✅ Load beds when admission data loaded
@@ -155,6 +160,7 @@ export class EditAddmissionComponent extends AppComponentBase implements OnInit 
     input.roomId = this.admission.roomId;
      input.bedId = this.admission.bedId;
     input.admissionType = this.admission.admissionType;
+    input.reasonForAdmit =this.admission.reasonForAdmit;
     
     this._admissionService.update(input).subscribe({
       next: (res) => {

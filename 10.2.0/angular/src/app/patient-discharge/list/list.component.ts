@@ -16,6 +16,7 @@ import { MenuItem } from 'primeng/api';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { AvatarModule } from 'primeng/avatar';
+import { HttpClient } from '@angular/common/http';
 @Component({
   selector: 'app-list',
   templateUrl: './list.component.html',
@@ -36,6 +37,7 @@ export class ListComponent extends PagedListingComponentBase<PatientDischargeDto
     injector: Injector,
     private _patientDischargeService: PatientDischargeServiceProxy,
     private _activatedRoute: ActivatedRoute,
+    private http: HttpClient,
     cd: ChangeDetectorRef
   ) {
     super(injector, cd);
@@ -86,6 +88,23 @@ export class ListComponent extends PagedListingComponentBase<PatientDischargeDto
     return firstInitial + lastInitial;
   }
   downloadPDF(pID: number) {
-    alert("only backend api configure front end logic pending");
-  }
+  const url = `https://localhost:44311/Download?patientId=${pID}`;
+
+  this.http.get(url, { responseType: 'blob' }).subscribe({
+    next: (res: Blob) => {
+      // Create a link element to download
+      const blob = new Blob([res], { type: 'application/pdf' });
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.download = `DischargeSummary_${pID}.pdf`;
+      link.click();
+      window.URL.revokeObjectURL(link.href); // Clean up
+    },
+    error: (err) => {
+      console.error('PDF download failed', err);
+      alert('Failed to download PDF');
+    }
+  });
+}
+
 }

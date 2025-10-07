@@ -1,11 +1,18 @@
 <form class="form-horizontal" autocomplete="off" #createAdmissionForm="ngForm" (ngSubmit)="save()">
     <abp-modal-header title="Create New Admission" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
     <div class="modal-body">
-        <div class="row">
-            <div class="col-md-12">
+        <div class="row mt-3">
+            <div class="col-md-6 d-flex flex-column">
                 <label><b>Select Patient</b></label>
                 <p-select [options]="patients" optionLabel="fullName" placeholder="Select a patient"
-                    [optionValue]="'id'" [(ngModel)]="admission.patientId" [disabled]="disableRoleSelection" name="patientId" class="w-100" required />
+                    [optionValue]="'id'" [(ngModel)]="admission.patientId" [disabled]="disableRoleSelection"
+                    name="patientId" class="w-100" required />
+            </div>
+            <div class="col-md-6 d-flex flex-column">
+                <label>Admission Type</label>
+                <p-select [(ngModel)]="admission.admissionType" name="admissionType" [options]="admissionTypeOptions"
+                    optionLabel="label" optionValue="value" placeholder="Select admission type" class="w-100"
+                    required />
             </div>
         </div>
         <div class="row mt-3">
@@ -17,7 +24,7 @@
             <div class="col-md-6 d-flex flex-column">
                 <label>Select Nurse</label>
                 <p-select [(ngModel)]="admission.nurseId" [optionValue]="'id'" name="nurseId" [options]="nurses"
-                    optionLabel="fullName" placeholder="Select nurse" class="w-100" [disabled]="disableRoleSelection"/>
+                    optionLabel="fullName" placeholder="Select nurse" class="w-100" [disabled]="disableRoleSelection" />
             </div>
         </div>
         <div class="row mt-3">
@@ -31,16 +38,17 @@
             </div>
             <div class="col-md-6 d-flex flex-column">
                 <label>Select Bed</label>
-                <p-select [(ngModel)]="admission.bedId" name="bedId" [filter]="true" [options]="beds" optionLabel="bedNumber"
-                    optionValue="id" placeholder="Select bed" class="w-100" required>
+                <p-select [(ngModel)]="admission.bedId" name="bedId" [filter]="true" [options]="beds"
+                    optionLabel="bedNumber" optionValue="id" placeholder="Select bed" class="w-100" required>
                 </p-select>
             </div>
         </div>
         <div class="row mt-3">
             <div class="col-md-12 d-flex flex-column">
-                <label>Admission Type</label>
-                <p-select [(ngModel)]="admission.admissionType" name="admissionType" [options]="admissionTypeOptions"
-                    optionLabel="label" optionValue="value" placeholder="Select admission type" class="w-100" required />
+                <label>Reason</label>
+                <textarea pTextarea [(ngModel)]="admission.reasonForAdmit" name="reasonForVisit"
+                    placeholder="Reason for visit" rows="3" class="w-100" required>
+        </textarea>
             </div>
         </div>
     </div>
