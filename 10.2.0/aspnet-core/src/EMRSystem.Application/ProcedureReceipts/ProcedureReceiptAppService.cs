@@ -2,8 +2,10 @@
 using Abp.Application.Services.Dto;
 using Abp.Domain.Repositories;
 using Abp.Domain.Uow;
+using Abp.Linq.Extensions;
 using AutoMapper.Internal.Mappers;
 using EMRSystem.EmergencyProcedure;
+using EMRSystem.EmergencyProcedure.Dto;
 using EMRSystem.Invoices;
 using EMRSystem.NumberingService;
 using EMRSystem.ProcedureReceipts.Dto;
@@ -19,7 +21,7 @@ using System.Threading.Tasks;
 namespace EMRSystem.ProcedureReceipts
 {
     public class ProcedureReceiptAppService :
-        AsyncCrudAppService<ProcedureReceipt, ProcedureReceiptDto, long, PagedAndSortedResultRequestDto, CreateUpdateProcedureReceiptDto, CreateUpdateProcedureReceiptDto>,
+        AsyncCrudAppService<ProcedureReceipt, ProcedureReceiptDto, long, PagedProcedureReceiptDto, CreateUpdateProcedureReceiptDto, CreateUpdateProcedureReceiptDto>,
         IProcedureReceiptAppService
     {
         private readonly IRepository<SelectedEmergencyProcedures, long> _selectedProcedureRepository;
@@ -37,10 +39,14 @@ namespace EMRSystem.ProcedureReceipts
             _numberingService = numberingService;
             _unitOfWorkManager = unitOfWorkManager;
         }
-        protected override IQueryable<ProcedureReceipt> CreateFilteredQuery(PagedAndSortedResultRequestDto input)
+        protected override IQueryable<ProcedureReceipt> CreateFilteredQuery(PagedProcedureReceiptDto input)
         {
             return Repository.GetAll()
-                .Include(x => x.Patient); // 👈 Patient include kiya
+                .Include(x => x.Patient)
+               .WhereIf(!string.IsNullOrWhiteSpace(input.Keyword),
+                x =>
+                x.ReceiptNumber.Contains(input.Keyword) ||
+                x.Patient.FullName.Contains(input.Keyword));// 👈 Patient include kiya
         }
 
 

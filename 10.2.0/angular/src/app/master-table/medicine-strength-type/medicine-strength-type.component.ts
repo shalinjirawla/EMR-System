@@ -18,7 +18,8 @@ import { TooltipModule } from 'primeng/tooltip';
 import { CardModule } from 'primeng/card';
 import { MenuModule } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
-
+import { OverlayPanelModule } from "primeng/overlaypanel";
+import { CheckboxModule } from 'primeng/checkbox';
 @Component({
   selector: 'app-medicine-strength-type',
   templateUrl: './medicine-strength-type.component.html',
@@ -27,14 +28,8 @@ import { MenuItem } from 'primeng/api';
   animations: [appModuleAnimation()],
   standalone: true,
   imports: [
-    FormsModule, BreadcrumbModule, InputTextModule, TooltipModule, CardModule, MenuModule,
-    TableModule,
-    Paginator,
-    ButtonModule,
-    PrimeTemplate,
-    NgIf,
-    LocalizePipe
-  ],
+    FormsModule, BreadcrumbModule, InputTextModule, TooltipModule, CardModule, MenuModule,TableModule,
+    OverlayPanelModule,CheckboxModule,Paginator,ButtonModule,PrimeTemplate,NgIf,LocalizePipe],
 })
 export class MedicineStrengthTypeComponent extends PagedListingComponentBase<StrengthUnitMasterDto> implements OnInit {
   @ViewChild('dataTable', { static: true }) dataTable: Table;
@@ -42,6 +37,7 @@ export class MedicineStrengthTypeComponent extends PagedListingComponentBase<Str
 
   keyword = '';
   isActive: boolean | undefined = undefined;
+  activeFilter = { all: true, isActive: false, isNotActive: false };
   selectedRecord: StrengthUnitMasterDto;
   items: MenuItem[];
   editDeleteMenus: MenuItem[];
@@ -89,6 +85,8 @@ export class MedicineStrengthTypeComponent extends PagedListingComponentBase<Str
 
     this._medicineStrengthTypeService
       .getAll(
+         this.keyword,
+        this.isActive,
         this.primengTableHelper.getSorting(this.dataTable),
         this.primengTableHelper.getSkipCount(this.paginator, event),
         this.primengTableHelper.getMaxResultCount(this.paginator, event)
@@ -133,6 +131,20 @@ export class MedicineStrengthTypeComponent extends PagedListingComponentBase<Str
 
   delete(entity: StrengthUnitMasterDto): void {
     this.deleteMedicineStrengthType(entity);
+  }
+   onFilterChange(selected: 'all' | 'active' | 'notActive', event: any) {
+    if (selected === 'all') {
+      if (event.checked) { this.activeFilter = { all: true, isActive: false, isNotActive: false }; this.isActive = undefined; }
+      else { this.activeFilter.all = true; this.isActive = undefined; }
+    } else if (selected === 'active') {
+      if (event.checked) { this.activeFilter = { all: false, isActive: true, isNotActive: false }; this.isActive = true; }
+      else { this.activeFilter.all = true; this.isActive = undefined; }
+    } else if (selected === 'notActive') {
+      if (event.checked) { this.activeFilter = { all: false, isActive: false, isNotActive: true }; this.isActive = false; }
+      else { this.activeFilter.all = true; this.isActive = undefined; }
+    }
+    this.list();
+    this.cd.detectChanges();
   }
 
   clearFilters(): void {

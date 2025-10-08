@@ -20,7 +20,8 @@ type LabReportsTypeWithTests = Omit<LabReportsTypeDto, 'tests'> & {
 };
 @Component({
   selector: 'app-lab-test-items',
-  imports: [CommonModule,TableModule,BreadcrumbModule,ButtonModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe,],
+  imports: [CommonModule,TableModule,BreadcrumbModule,ButtonModule, PrimeTemplate, NgIf, PaginatorModule, 
+    LocalizePipe,],
   providers: [LabReportsTypeServiceProxy,LabReportTypeItemServiceProxy],
   standalone: true,
   animations:[appModuleAnimation()],

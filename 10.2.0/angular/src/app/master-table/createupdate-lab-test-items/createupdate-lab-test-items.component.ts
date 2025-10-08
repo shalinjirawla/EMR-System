@@ -28,15 +28,8 @@ import { AbpModalFooterComponent } from '@shared/components/modal/abp-modal-foot
 @Component({
   selector: 'app-createupdate-lab-test-items',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    DropdownModule,
-    MultiSelectModule,
-    CheckboxModule,
-    AbpModalHeaderComponent,
-    AbpModalFooterComponent,
-  ],
+  imports: [CommonModule,FormsModule,DropdownModule,MultiSelectModule,CheckboxModule,
+    AbpModalHeaderComponent,AbpModalFooterComponent,],
   providers: [LabReportTypeItemServiceProxy, LabReportsTypeServiceProxy, LabTestServiceProxy],
   templateUrl: './createupdate-lab-test-items.component.html',
   styleUrl: './createupdate-lab-test-items.component.css'

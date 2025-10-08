@@ -30,16 +30,8 @@ import { DropdownModule } from 'primeng/dropdown';
   standalone: true,
   templateUrl: './createupdate-lab-test.component.html',
   styleUrl: './createupdate-lab-test.component.css',
-  imports: [
-    CommonModule,
-    FormsModule,
-    InputTextModule,
-    CheckboxModule,
-    AutoCompleteModule,
-    AbpModalHeaderComponent,
-    AbpModalFooterComponent,
-    DropdownModule
-  ],
+  imports: [CommonModule,FormsModule,InputTextModule,CheckboxModule,AutoCompleteModule,
+    AbpModalHeaderComponent,AbpModalFooterComponent,DropdownModule],
   providers: [LabTestServiceProxy,MeasureUnitServiceProxy],
 })
 export class CreateupdateLabTestComponent extends AppComponentBase implements OnInit {

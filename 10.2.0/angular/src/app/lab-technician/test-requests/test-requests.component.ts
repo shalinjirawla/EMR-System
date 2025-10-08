@@ -114,6 +114,7 @@ export class TestRequestsComponent extends PagedListingComponentBase<Prescriptio
 
         this._prescriptionLabTests
             .getAllLabTestRequests(
+                this.keyword,
                 this.primengTableHelper.getSorting(this.dataTable),
                 this.primengTableHelper.getSkipCount(this.paginator, event),
                 this.primengTableHelper.getMaxResultCount(this.paginator, event)

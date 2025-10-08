@@ -1,6 +1,8 @@
 ﻿using Abp.Application.Services;
 using Abp.Application.Services.Dto;
 using Abp.Domain.Repositories;
+using Abp.Extensions;
+using Abp.Linq.Extensions;
 using EMRSystem.Medicines.Dto;
 using EMRSystem.Pharmacist.Dto;
 using Microsoft.EntityFrameworkCore;
@@ -13,18 +15,22 @@ using System.Threading.Tasks;
 namespace EMRSystem.Medicines
 {
     public class MedicineMasterAppService :
-        AsyncCrudAppService<MedicineMaster, MedicineMasterDto, long, PagedAndSortedResultRequestDto, CreateUpdateMedicineMasterDto>,
+        AsyncCrudAppService<MedicineMaster, MedicineMasterDto, long, PagedMedicineListResultRequestDto, CreateUpdateMedicineMasterDto>,
         IMedicineMasterAppService
     {
         public MedicineMasterAppService(IRepository<MedicineMaster, long> repository)
             : base(repository)
         {
         }
-        protected override IQueryable<MedicineMaster> CreateFilteredQuery(PagedAndSortedResultRequestDto input)
+        protected override IQueryable<MedicineMaster> CreateFilteredQuery(PagedMedicineListResultRequestDto input)
         {
             return Repository.GetAll()
                 .Include(x => x.Form)
-                .Include(x => x.StrengthUnit);
+                .Include(x => x.StrengthUnit)
+                .WhereIf(!input.Keyword.IsNullOrWhiteSpace(),
+                    s => s.Form.Name.Contains(input.Keyword) ||
+                         s.Name.Contains(input.Keyword)||
+                         s.StrengthUnit.Name.Contains(input.Keyword));
         }
 
         // Map entity to DTO including names

@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace EMRSystem.LabTechnician
 {
     public interface IPrescriptionLabTestAppService : IAsyncCrudAppService<
-   LabRequestListDto, long, PagedAndSortedResultRequestDto, CreateUpdateLabRequestDto, CreateUpdateLabRequestDto>
+   LabRequestListDto, long, PagedLabRequestResultRequestDto, CreateUpdateLabRequestDto, CreateUpdateLabRequestDto>
     {
         EMRSystem.LabReports.PrescriptionLabTest GetPrescriptionLabTestDetailsById(long id);
         EMRSystem.LabReports.PrescriptionLabTest GetPrescriptionLabTestDetailsForViewReportById(long id);

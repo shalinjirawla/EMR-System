@@ -88,6 +88,7 @@ export class ProcedureReceiptComponent extends PagedListingComponentBase<Procedu
     this.receiptService
       .getAll(
         this.keyword,
+        this.primengTableHelper.getSorting(this.dataTable),
         this.primengTableHelper.getSkipCount(this.paginator, event),
         this.primengTableHelper.getMaxResultCount(this.paginator, event)
       )

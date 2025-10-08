@@ -28,7 +28,9 @@ import { CardModule } from 'primeng/card';
     providers: [RoomFacilityMasterServiceProxy],
     animations: [appModuleAnimation()],
     standalone: true,
-    imports: [FormsModule, CardModule, BreadcrumbModule, TooltipModule, TableModule, ChipModule, SelectModule, MenuModule, ButtonModule, OverlayPanelModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe],
+    imports: [FormsModule, CardModule, BreadcrumbModule, TooltipModule, TableModule, ChipModule,
+        SelectModule, MenuModule, ButtonModule, OverlayPanelModule,
+        PrimeTemplate, NgIf, PaginatorModule, LocalizePipe],
 })
 export class RoomFacilitiesComponent extends PagedListingComponentBase<RoomFacilityMasterDto> implements OnInit {
     @ViewChild('dataTable', { static: true }) dataTable: Table;

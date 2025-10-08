@@ -27,16 +27,8 @@ import { DropdownModule } from 'primeng/dropdown';
 @Component({
   selector: 'app-createupdate-department',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    InputTextModule,
-    AutoCompleteModule,
-    DropdownModule,
-    InputSwitchModule,
-    AbpModalHeaderComponent,
-    AbpModalFooterComponent,
-  ],
+  imports: [CommonModule,FormsModule,InputTextModule,AutoCompleteModule,DropdownModule,InputSwitchModule,
+    AbpModalHeaderComponent,AbpModalFooterComponent,],
   providers: [DepartmentServiceProxy],
   templateUrl: './createupdate-department.component.html',
   styleUrl: './createupdate-department.component.css',

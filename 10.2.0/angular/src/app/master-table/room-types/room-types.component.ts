@@ -29,7 +29,9 @@ import { CardModule } from 'primeng/card';
     providers: [RoomTypeMasterServiceProxy],
     animations: [appModuleAnimation()],
     standalone: true,
-    imports: [FormsModule, BreadcrumbModule, CommonModule,TooltipModule, CardModule, TableModule, ChipModule, SelectModule, MenuModule, ButtonModule, OverlayPanelModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe],
+    imports: [FormsModule, BreadcrumbModule, CommonModule,TooltipModule, CardModule, TableModule, ChipModule,
+         SelectModule, MenuModule, ButtonModule, OverlayPanelModule, PrimeTemplate, NgIf, PaginatorModule, 
+         LocalizePipe],
 })
 export class RoomTypesComponent extends PagedListingComponentBase<RoomTypeMasterDto> implements OnInit {
     @ViewChild('dataTable', { static: true }) dataTable: Table;

@@ -20,10 +20,33 @@
     <div class="container-fluid">
       <div class="card mb-0 table-wrapper">
         <div class="card-body">
-          <!-- Search -->
-          <div class="d-flex justify-content-end align-items-center mb-3">
-            <input class="search-bar-text" type="text" pInputText [(ngModel)]="keyword" placeholder="Search by name..."
-              (keyup.enter)="list()" />
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="ml-2 btn-group mr-1" role="group" pTooltip="Filter" tooltipPosition="top"
+              (click)="filterMenu.toggle($event)">
+              <button type="button" class="btn btn-md refresh-btn">
+                <span class="pi pi-filter"></span>
+              </button>
+            </div>
+            <p-overlayPanel #filterMenu [dismissable]="true">
+              <ul class="list-unstyled mb-0 p-3">
+                <li class="mb-2">
+                  <p-checkbox [binary]="true" [(ngModel)]="activeFilter.all" size="small"
+                    (onChange)="onFilterChange('all', $event)"></p-checkbox> All
+                </li>
+                <li class="mb-2">
+                  <p-checkbox [binary]="true" [(ngModel)]="activeFilter.isActive" size="small"
+                    (onChange)="onFilterChange('active', $event)"></p-checkbox> Active
+                </li>
+                <li class="mb-2">
+                  <p-checkbox [binary]="true" [(ngModel)]="activeFilter.isNotActive" size="small"
+                    (onChange)="onFilterChange('notActive', $event)"></p-checkbox> Inactive
+                </li>
+              </ul>
+            </p-overlayPanel>
+            <div>
+              <input class="search-bar-text" type="text" pInputText [(ngModel)]="keyword"
+                [placeholder]="'SearchByName' | localize" (input)="list()" />
+            </div>
           </div>
 
           <!-- Table -->
@@ -62,13 +85,11 @@
         </div>
 
         <!-- Footer + Paginator -->
-        <div class="card-footer table-card-footer bg-white border-top">
           <p-paginator #paginator [rows]="primengTableHelper.defaultRecordsCountPerPage" (onPageChange)="list($event)"
             [totalRecords]="primengTableHelper.totalRecordsCount"
             [rowsPerPageOptions]="primengTableHelper.predefinedRecordsCountPerPage" [showCurrentPageReport]="true"
             [currentPageReportTemplate]="'TotalRecordsCount' | localize: primengTableHelper.totalRecordsCount">
           </p-paginator>
-        </div>
       </div>
     </div>
   </section>

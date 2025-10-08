@@ -2,6 +2,7 @@
 using Abp.Application.Services.Dto;
 using Abp.Domain.Repositories;
 using Abp.EntityFrameworkCore;
+using Abp.Extensions;
 using EMRSystem.EntityFrameworkCore;
 using EMRSystem.LabMasters.Dto.MeasureUnit;
 using EMRSystem.MedicineForms.Dto;
@@ -15,7 +16,7 @@ using System.Threading.Tasks;
 namespace EMRSystem.StrengthUnitMaster
 {
     public class StrengthUnitMasterAppService :
-        AsyncCrudAppService<StrengthUnitMaster, StrengthUnitMasterDto, long, PagedAndSortedResultRequestDto, CreateUpdateStrengthUnitMasterDto, CreateUpdateStrengthUnitMasterDto>,
+        AsyncCrudAppService<StrengthUnitMaster, StrengthUnitMasterDto, long, PagedStrengthUnitMasterDto, CreateUpdateStrengthUnitMasterDto, CreateUpdateStrengthUnitMasterDto>,
         IStrengthUnitMasterAppService
     {
         private readonly IDbContextProvider<EMRSystemDbContext> _dbContextProvider;
@@ -24,6 +25,24 @@ namespace EMRSystem.StrengthUnitMaster
             : base(repository)
         {
             _dbContextProvider = dbContextProvider;
+        }
+
+        protected override IQueryable<StrengthUnitMaster> CreateFilteredQuery(PagedStrengthUnitMasterDto input)
+        {
+            var query = Repository.GetAll()
+                .Where(x => x.TenantId == AbpSession.TenantId);
+
+            if (!input.Keyword.IsNullOrWhiteSpace())
+            {
+                query = query.Where(x => x.Name.Contains(input.Keyword));
+            }
+
+            if (input.IsActive.HasValue)
+            {
+                query = query.Where(x => x.IsActive == input.IsActive.Value);
+            }
+
+            return query;
         }
         public async Task<List<StrengthUnitMasterDto>> CreateBulkAsync(List<CreateUpdateStrengthUnitMasterDto> inputs)
         {

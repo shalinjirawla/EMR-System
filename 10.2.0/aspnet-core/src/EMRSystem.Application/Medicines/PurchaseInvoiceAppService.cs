@@ -4,6 +4,8 @@ using Abp.Application.Services.Dto;
 using Abp.Domain.Repositories;
 using Abp.Domain.Uow;
 using Abp.EntityFrameworkCore.Repositories;
+using Abp.Extensions;
+using Abp.Linq.Extensions;
 using Abp.UI;
 using EFCore.BulkExtensions;
 using EMRSystem.Medicines.Dto;
@@ -16,7 +18,7 @@ using System.Threading.Tasks;
 namespace EMRSystem.Medicines
 {
     public class PurchaseInvoiceAppService :
-        AsyncCrudAppService<PurchaseInvoice, PurchaseInvoiceDto, long, PagedAndSortedResultRequestDto, CreateUpdatePurchaseInvoiceDto, CreateUpdatePurchaseInvoiceDto>,
+        AsyncCrudAppService<PurchaseInvoice, PurchaseInvoiceDto, long, PagedPurchaseMedicineDto, CreateUpdatePurchaseInvoiceDto, CreateUpdatePurchaseInvoiceDto>,
         IPurchaseInvoiceAppService
     {
         private readonly IRepository<PurchaseInvoiceItem, long> _invoiceItemRepository;
@@ -30,6 +32,13 @@ namespace EMRSystem.Medicines
         {
             _invoiceItemRepository = invoiceItemRepository;
             _stockRepository = stockRepository;
+        }
+        protected override IQueryable<PurchaseInvoice> CreateFilteredQuery(PagedPurchaseMedicineDto input)
+        {
+            return Repository.GetAll()
+                .WhereIf(!input.Keyword.IsNullOrWhiteSpace(),
+                    s => s.SupplierName.Contains(input.Keyword) ||
+                         s.InvoiceNo.Contains(input.Keyword)); // if you have Medicine Code
         }
         public override async Task<PurchaseInvoiceDto> GetAsync(EntityDto<long> input)
         {

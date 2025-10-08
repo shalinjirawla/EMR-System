@@ -13,8 +13,7 @@ import { CreateUpdateEmergencyMasterDto, EmergencyMasterServiceProxy } from '@sh
 import { AppComponentBase } from '@shared/app-component-base';
 @Component({
   selector: 'app-createupdate-emergency-charges',
-  imports: [
-    FormsModule, CommonModule, AbpModalHeaderComponent, AbpModalFooterComponent,
+  imports: [FormsModule, CommonModule, AbpModalHeaderComponent, AbpModalFooterComponent,
     InputTextModule, ButtonModule
   ],
   templateUrl: './createupdate-emergency-charges.component.html',

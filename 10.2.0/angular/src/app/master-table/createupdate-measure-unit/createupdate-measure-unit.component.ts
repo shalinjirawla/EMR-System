@@ -25,15 +25,8 @@ import {
 @Component({
   selector: 'app-createupdate-measure-unit',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    InputTextModule,
-    CheckboxModule,
-    AbpModalHeaderComponent,
-    AbpModalFooterComponent,
-    AutoCompleteModule
-  ],
+  imports: [CommonModule,FormsModule,InputTextModule,CheckboxModule,AbpModalHeaderComponent,
+    AbpModalFooterComponent,AutoCompleteModule],
   providers: [MeasureUnitServiceProxy],
   templateUrl: './createupdate-measure-unit.component.html',
   styleUrl: './createupdate-measure-unit.component.css'

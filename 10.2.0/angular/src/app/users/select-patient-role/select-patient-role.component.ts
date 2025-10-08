@@ -27,11 +27,6 @@ export class SelectPatientRoleComponent implements OnInit {
   @ViewChild('patientForm', { static: true }) patientForm: NgForm;
   today: Date = new Date();
   genders = ['Male', 'Female', 'Other'];
-  roomList!: RoomDto[];
-  paymentMethodOptions = [
-    { label: 'Cash', value: PaymentMethod._0 },
-    { label: 'Card', value: PaymentMethod._1 }
-  ];
   bloodGroups = [
     { label: 'A+', value: 'A+' },
     { label: 'A−', value: 'A−' },
@@ -42,15 +37,6 @@ export class SelectPatientRoleComponent implements OnInit {
     { label: 'O+', value: 'O+' },
     { label: 'O-', value: 'O-' },
   ];
-  billingMethods = [
-    { label: 'Insurance Only', value: BillingMethod._0 },
-    { label: 'Self Pay', value: BillingMethod._1 },
-    { label: 'Insurance + SelfPay', value: BillingMethod._2 }
-  ];
-  BillingMethod = BillingMethod; // Add this line
-  nurseList!: NurseDto[];
-  doctorList!: DoctorDto[];
-  isDoctorLoggedIn: boolean = false;
   patient = {
     gender: '',
     dateOfBirth: null,

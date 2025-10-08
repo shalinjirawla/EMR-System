@@ -2,6 +2,7 @@
 using Abp.Application.Services.Dto;
 using Abp.Domain.Repositories;
 using Abp.EntityFrameworkCore;
+using Abp.Extensions;
 using EMRSystem.EntityFrameworkCore;
 using EMRSystem.LabMasters;
 using EMRSystem.LabMasters.Dto.MeasureUnit;
@@ -16,7 +17,7 @@ using System.Threading.Tasks;
 namespace EMRSystem.MedicineForms
 {
     public class MedicineFormMasterAppService :
-        AsyncCrudAppService<EMRSystem.MedicineFormMaster.MedicineFormMaster, MedicineFormMasterDto, long, PagedAndSortedResultRequestDto, CreateUpdateMedicineFormMasterDto, CreateUpdateMedicineFormMasterDto>,
+        AsyncCrudAppService<EMRSystem.MedicineFormMaster.MedicineFormMaster, MedicineFormMasterDto, long, PagedMedicineFormTypeDto, CreateUpdateMedicineFormMasterDto, CreateUpdateMedicineFormMasterDto>,
         IMedicineFormMasterAppService
     {
         private readonly IDbContextProvider<EMRSystemDbContext> _dbContextProvider;
@@ -25,6 +26,23 @@ namespace EMRSystem.MedicineForms
             : base(repository)
         {
             _dbContextProvider = dbContextProvider;
+        }
+        protected override IQueryable<EMRSystem.MedicineFormMaster.MedicineFormMaster> CreateFilteredQuery(PagedMedicineFormTypeDto input)
+        {
+            var query = Repository.GetAll()
+                .Where(x => x.TenantId == AbpSession.TenantId);
+
+            if (!input.Keyword.IsNullOrWhiteSpace())
+            {
+                query = query.Where(x => x.Name.Contains(input.Keyword));
+            }
+
+            if (input.IsActive.HasValue)
+            {
+                query = query.Where(x => x.IsActive == input.IsActive.Value);
+            }
+
+            return query;
         }
         public async Task<List<MedicineFormMasterDto>> CreateBulkAsync(List<CreateUpdateMedicineFormMasterDto> inputs)
         {

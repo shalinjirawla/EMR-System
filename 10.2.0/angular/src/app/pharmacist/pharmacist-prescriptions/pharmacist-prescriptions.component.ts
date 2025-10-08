@@ -114,6 +114,7 @@ export class PharmacistPrescriptionsComponent extends PagedListingComponentBase<
 
         this._pharmacistPrescriptionsService
             .getPrescriptionFulfillment(
+                this.keyword,
                 this.primengTableHelper.getSorting(this.dataTable),
                 this.primengTableHelper.getSkipCount(this.paginator, event),
                 this.primengTableHelper.getMaxResultCount(this.paginator, event)

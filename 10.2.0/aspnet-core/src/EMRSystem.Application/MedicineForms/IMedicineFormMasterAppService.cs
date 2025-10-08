@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace EMRSystem.MedicineForms
 {
     public interface IMedicineFormMasterAppService :
-        IAsyncCrudAppService<MedicineFormMasterDto, long, PagedAndSortedResultRequestDto, CreateUpdateMedicineFormMasterDto, CreateUpdateMedicineFormMasterDto>
+        IAsyncCrudAppService<MedicineFormMasterDto, long, PagedMedicineFormTypeDto, CreateUpdateMedicineFormMasterDto, CreateUpdateMedicineFormMasterDto>
     {
     }
 }

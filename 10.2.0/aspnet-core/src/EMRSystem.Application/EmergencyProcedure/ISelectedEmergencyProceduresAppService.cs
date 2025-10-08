@@ -13,7 +13,7 @@ namespace EMRSystem.EmergencyProcedure
         IAsyncCrudAppService<
             SelectedEmergencyProceduresDto, // DTO to return
             long,                           // Primary key
-            PagedAndSortedResultRequestDto, // Paging input
+            PagedProcedureRequestDto, // Paging input
             CreateUpdateSelectedEmergencyProceduresDto, // Create input
             CreateUpdateSelectedEmergencyProceduresDto  // Update input
         >

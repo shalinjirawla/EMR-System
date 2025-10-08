@@ -23,7 +23,8 @@ import { CardModule } from 'primeng/card';
 
 @Component({
   selector: 'app-test-result-limit',
-  imports: [CommonModule,LocalizePipe,TableModule,PaginatorModule,FormsModule, InputTextModule, MenuModule, TooltipModule, CardModule, TagModule,BreadcrumbModule],
+  imports: [CommonModule,LocalizePipe,TableModule,PaginatorModule,FormsModule, InputTextModule, MenuModule, 
+    TooltipModule, CardModule, TagModule,BreadcrumbModule],
   providers:[TestResultLimitServiceProxy],
   animations: [appModuleAnimation()],
   templateUrl: './test-result-limit.component.html',

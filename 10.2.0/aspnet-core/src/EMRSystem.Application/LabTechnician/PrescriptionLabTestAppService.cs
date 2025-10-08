@@ -25,7 +25,7 @@ namespace EMRSystem.LabTechnician
 {
    
     public class PrescriptionLabTestAppService :
-        AsyncCrudAppService<LabReports.PrescriptionLabTest, LabRequestListDto, long, PagedAndSortedResultRequestDto, CreateUpdateLabRequestDto, CreateUpdateLabRequestDto>,
+        AsyncCrudAppService<LabReports.PrescriptionLabTest, LabRequestListDto, long, PagedLabRequestResultRequestDto, CreateUpdateLabRequestDto, CreateUpdateLabRequestDto>,
             IPrescriptionLabTestAppService
     {
         private readonly IDoctorAppService _doctorAppService;
@@ -38,7 +38,7 @@ namespace EMRSystem.LabTechnician
             _userManager = userManager;
         }
         [HttpGet]
-        public async Task<PagedResultDto<LabRequestListDto>> GetAllLabTestRequests(PagedAndSortedResultRequestDto input)
+        public async Task<PagedResultDto<LabRequestListDto>> GetAllLabTestRequests(PagedLabRequestResultRequestDto input)
         {
             // Repository.GetAll() returns IQueryable<TEntity> — important
             var query = Repository.GetAll()
@@ -48,7 +48,11 @@ namespace EMRSystem.LabTechnician
                         .Include(x => x.Prescription).ThenInclude(p => p.LabTests)
                         .Include(x => x.LabReportsType)
                         .WhereIf(AbpSession.TenantId.HasValue, x => x.TenantId == AbpSession.TenantId.Value)
-                        .Where(x => x.IsPaid == true);
+                        .Where(x => x.IsPaid == true)
+                        .WhereIf(!string.IsNullOrWhiteSpace(input.Keyword),
+                                x =>
+                                x.Prescription.Patient.FullName.ToLower().Contains(input.Keyword.ToLower()) ||
+                                x.LabReportsType.ReportType.ToLower().Contains(input.Keyword.ToLower()));
 
             // total count before pagination
             var totalCount = await query.CountAsync();

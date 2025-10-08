@@ -33,12 +33,7 @@ import { OverlayPanelModule } from "primeng/overlaypanel";
   standalone: true,
   imports: [
     FormsModule,SelectModule, InputTextModule, CheckboxModule, MenuModule, TooltipModule, CardModule, TagModule,
-    TableModule,BreadcrumbModule,OverlayPanelModule,
-    PaginatorModule,
-    ButtonModule,
-    NgIf,
-    LocalizePipe
-  ]
+    TableModule,BreadcrumbModule,OverlayPanelModule,PaginatorModule,ButtonModule,NgIf,LocalizePipe]
 })
 export class LabTestComponent extends PagedListingComponentBase<LabTestDto> implements OnInit {
   @ViewChild('dataTable', { static: true }) dataTable: Table;

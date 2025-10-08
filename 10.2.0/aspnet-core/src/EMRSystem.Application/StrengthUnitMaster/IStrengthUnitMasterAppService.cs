@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace EMRSystem.StrengthUnitMaster
 {
     public interface IStrengthUnitMasterAppService :
-        IAsyncCrudAppService<StrengthUnitMasterDto, long, PagedAndSortedResultRequestDto, CreateUpdateStrengthUnitMasterDto, CreateUpdateStrengthUnitMasterDto>
+        IAsyncCrudAppService<StrengthUnitMasterDto, long, PagedStrengthUnitMasterDto, CreateUpdateStrengthUnitMasterDto, CreateUpdateStrengthUnitMasterDto>
     {
     }
 }

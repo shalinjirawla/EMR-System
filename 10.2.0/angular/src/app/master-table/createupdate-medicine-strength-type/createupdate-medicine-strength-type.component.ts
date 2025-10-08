@@ -21,15 +21,8 @@ import { CreateUpdateStrengthUnitMasterDto, StrengthUnitMasterDto, StrengthUnitM
 @Component({
   selector: 'app-createupdate-medicine-strength-type',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    InputTextModule,
-    CheckboxModule,
-    AbpModalHeaderComponent,
-    AbpModalFooterComponent,
-    AutoCompleteModule,
-  ],
+  imports: [CommonModule,FormsModule,InputTextModule,CheckboxModule,AbpModalHeaderComponent,
+    AbpModalFooterComponent,AutoCompleteModule,],
   providers: [StrengthUnitMasterServiceProxy],
   templateUrl: './createupdate-medicine-strength-type.component.html',
   styleUrl: './createupdate-medicine-strength-type.component.css',

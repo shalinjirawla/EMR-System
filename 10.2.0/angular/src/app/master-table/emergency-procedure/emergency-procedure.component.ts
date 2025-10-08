@@ -34,13 +34,7 @@ import { CreateupdateEmergencyProcedureComponent } from '../createupdate-emergen
   standalone: true,
   imports: [
     FormsModule,BreadcrumbModule,InputTextModule,CardModule, TooltipModule,RadioButtonModule,
-    TableModule,OverlayPanelModule,
-    ButtonModule,
-    NgIf,
-    PaginatorModule,
-    LocalizePipe,
-    CommonModule
-  ],
+    TableModule,OverlayPanelModule,ButtonModule,NgIf,PaginatorModule,LocalizePipe,CommonModule],
   providers: [EmergencyProcedureServiceProxy],
   animations: [appModuleAnimation()],
   templateUrl: './emergency-procedure.component.html',

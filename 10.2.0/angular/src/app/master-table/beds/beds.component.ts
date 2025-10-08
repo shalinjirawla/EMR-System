@@ -25,7 +25,8 @@ import { MenuModule } from 'primeng/menu';
 @Component({
   selector: 'app-beds',
   standalone: true,
-  imports: [FormsModule,CardModule,MenuModule,TooltipModule,InputTextModule,BreadcrumbModule,RadioButtonModule, TableModule, Paginator, TagModule, OverlayPanelModule, NgIf, LocalizePipe, ButtonModule],
+  imports: [FormsModule,CardModule,MenuModule,TooltipModule,InputTextModule,BreadcrumbModule,
+    RadioButtonModule, TableModule, Paginator, TagModule, OverlayPanelModule, NgIf, LocalizePipe, ButtonModule],
   animations: [appModuleAnimation()],
   providers: [BedServiceProxy],
   templateUrl: './beds.component.html',

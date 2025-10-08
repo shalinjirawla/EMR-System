@@ -12,7 +12,8 @@ import { CreateUpdateLabReportTypeDto, LabReportsTypeDto, LabReportsTypeServiceP
 
 @Component({
   selector: 'app-createupdate-lab-report-type',
-  imports: [AbpModalHeaderComponent, AbpModalFooterComponent, FormsModule, CommonModule, InputTextModule, ButtonModule ],
+  imports: [AbpModalHeaderComponent, AbpModalFooterComponent, FormsModule, CommonModule,
+     InputTextModule, ButtonModule ],
   templateUrl: './createupdate-lab-report-type.component.html',
   styleUrl: './createupdate-lab-report-type.component.css',
   providers: [LabReportsTypeServiceProxy],
