@@ -25,9 +25,9 @@
                             <tr>
                                 <th> Patient ID </th>
                                 <th> Patient Name </th>
+                                <th> Discharge By</th>
                                 <th> Admission Date</th>
                                 <th> Discharge Date</th>
-                                <th> Discharge By</th>
                                 <th></th>
                             </tr>
                         </ng-template>
@@ -40,13 +40,13 @@
                                         size="small" />
                                     {{ record.patient.fullName }}
                                 </td>
-                                <td> {{ record.admission.admissionDateTime | date:'dd/MM/yyyy hh:mm a' }} </td>
-                                <td> {{ record.dischargeDate | date:'dd/MM/yyyy hh:mm a' }} </td>
                                 <td>
                                     <p-avatar [label]="getShortName(record.doctor.fullName)" class="mr-1"
                                         size="small" />
                                     Dr. {{ record.doctor.fullName }}
                                 </td>
+                                <td> {{ record.admission.admissionDateTime | date:'dd/MM/yyyy hh:mm a' }} </td>
+                                <td> {{ record.dischargeDate | date:'dd/MM/yyyy hh:mm a' }} </td>
                                 <td>
                                     <a class="pi pi-download" (click)="downloadPDF(record.patient.id)"></a>
                                 </td>

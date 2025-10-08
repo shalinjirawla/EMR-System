@@ -15,7 +15,8 @@ import { CreateUpdateHealthPackageDto, CreateUpdateHealthPackageLabReportsTypeDt
 @Component({
   selector: 'app-createupdate-health-package',
   standalone: true,
-  imports: [AbpModalHeaderComponent, AbpModalFooterComponent, FormsModule, CommonModule, InputTextModule, ButtonModule, MultiSelectModule],
+  imports: [AbpModalHeaderComponent, AbpModalFooterComponent, FormsModule, CommonModule, 
+    InputTextModule, ButtonModule, MultiSelectModule],
   providers: [HealthPackageServiceProxy, LabReportsTypeServiceProxy],
   templateUrl: './createupdate-health-package.component.html',
   styleUrl: './createupdate-health-package.component.css'

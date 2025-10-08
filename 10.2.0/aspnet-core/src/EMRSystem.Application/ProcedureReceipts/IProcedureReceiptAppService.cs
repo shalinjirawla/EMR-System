@@ -1,12 +1,13 @@
 ﻿using Abp.Application.Services;
 using Abp.Application.Services.Dto;
+using EMRSystem.EmergencyProcedure.Dto;
 using EMRSystem.ProcedureReceipts.Dto;
 using System.Threading.Tasks;
 
 namespace EMRSystem.ProcedureReceipts
 {
     public interface IProcedureReceiptAppService :
-        IAsyncCrudAppService<ProcedureReceiptDto, long, PagedAndSortedResultRequestDto, CreateUpdateProcedureReceiptDto, CreateUpdateProcedureReceiptDto>
+        IAsyncCrudAppService<ProcedureReceiptDto, long, PagedProcedureReceiptDto, CreateUpdateProcedureReceiptDto, CreateUpdateProcedureReceiptDto>
     {
         // Normal create (cash/payment counter case)
         Task<ProcedureReceiptDto> CreateProcedureReceiptAsync(CreateProcedureReceiptWithIdsDto dto);

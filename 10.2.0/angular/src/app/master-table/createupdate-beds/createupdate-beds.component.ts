@@ -27,15 +27,8 @@ import {
 @Component({
   selector: 'app-createupdate-beds',
    standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    InputTextModule,
-    CheckboxModule,
-    AbpModalHeaderComponent,
-    AbpModalFooterComponent,
-    DropdownModule
-  ],
+  imports: [CommonModule,FormsModule,InputTextModule,CheckboxModule,AbpModalHeaderComponent,
+    AbpModalFooterComponent,DropdownModule],
   providers: [BedServiceProxy, RoomServiceProxy],
   templateUrl: './createupdate-beds.component.html',
   styleUrl: './createupdate-beds.component.css'

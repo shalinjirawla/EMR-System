@@ -2,6 +2,7 @@
 using Abp.Application.Services.Dto;
 using Abp.Domain.Repositories;
 using Abp.EntityFrameworkCore.Repositories;
+using Abp.Linq.Extensions;
 using Abp.UI;
 using EMRSystem.Admission;
 using EMRSystem.Appointments;
@@ -30,6 +31,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 using static Castle.MicroKernel.ModelBuilder.Descriptors.InterceptorDescriptor;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
@@ -37,7 +39,13 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 namespace EMRSystem.Pharmacist
 {
 
-    public class PharmacistPrescriptionsAppService : AsyncCrudAppService<EMRSystem.Pharmacists.PharmacistPrescriptions, PharmacistPrescriptionsDto, long, PagedAndSortedResultRequestDto, CreateUpdatePharmacistPrescriptionsDto, CreateUpdatePharmacistPrescriptionsDto>,
+    public class PharmacistPrescriptionsAppService : AsyncCrudAppService<
+        EMRSystem.Pharmacists.PharmacistPrescriptions, 
+        PharmacistPrescriptionsDto,
+        long,
+        PagedPharmacistPrescriptionDto,
+        CreateUpdatePharmacistPrescriptionsDto,
+        CreateUpdatePharmacistPrescriptionsDto>,
      IPharmacistPrescriptionsAppService
     {
 
@@ -72,19 +80,34 @@ namespace EMRSystem.Pharmacist
         }
 
         [HttpGet]
-        public async Task<PagedResultDto<PharmacistPrescriptionsDto>> GetPrescriptionFulfillment(PagedAndSortedResultRequestDto input)
+        public async Task<PagedResultDto<PharmacistPrescriptionsDto>> GetPrescriptionFulfillment(PagedPharmacistPrescriptionDto input)
         {
             try
             {
-                var list = await Repository.GetAllIncluding
-                        (
-                            x => x.Prescriptions,
-                            x => x.Prescriptions.Patient,
-                            x => x.Prescriptions.Doctor,
-                            x => x.Prescriptions.Items
-                        )
-                        .Where(x => x.Prescriptions != null && x.Prescriptions.Items != null)
-                        .ToListAsync();
+                var query = Repository.GetAllIncluding(
+                        x => x.Prescriptions,
+                        x => x.Prescriptions.Patient,
+                        x => x.Prescriptions.Doctor,
+                        x => x.Prescriptions.Items
+                    )
+                    .Where(x => x.Prescriptions != null && x.Prescriptions.Items != null)
+                    .WhereIf(!string.IsNullOrWhiteSpace(input.Keyword),
+                        x =>
+                            x.Prescriptions.Patient.FullName.ToLower().Contains(input.Keyword.ToLower()) ||
+                            x.Prescriptions.Doctor.FullName.ToLower().Contains(input.Keyword.ToLower())
+                    );
+
+                var totalCount = await query.CountAsync();
+
+                // ✅ Use Dynamic LINQ for string sorting
+                query = !string.IsNullOrWhiteSpace(input.Sorting)
+                    ? query.OrderBy(input.Sorting)
+                    : query.OrderByDescending(x => x.Id);
+
+                var list = await query
+                    .Skip(input.SkipCount)
+                    .Take(input.MaxResultCount)
+                    .ToListAsync();
 
                 var mappedItems = ObjectMapper.Map<List<PharmacistPrescriptionsDto>>(list);
 
@@ -106,10 +129,7 @@ namespace EMRSystem.Pharmacist
                     }
                 }
 
-                return new PagedResultDto<PharmacistPrescriptionsDto>(
-                    list.Count,
-                    mappedItems
-                );
+                return new PagedResultDto<PharmacistPrescriptionsDto>(totalCount, mappedItems);
             }
             catch (Exception ex)
             {

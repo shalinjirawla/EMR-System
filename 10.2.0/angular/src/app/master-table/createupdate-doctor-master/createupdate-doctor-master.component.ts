@@ -25,15 +25,8 @@ import { ButtonModule } from 'primeng/button';
   templateUrl: './createupdate-doctor-master.component.html',
   styleUrls: ['./createupdate-doctor-master.component.css'],
   standalone: true,
-  imports: [
-    FormsModule,
-    CommonModule,
-    AbpModalHeaderComponent,
-    AbpModalFooterComponent,
-    MultiSelectModule,
-    InputTextModule,
-    ButtonModule
-  ],
+  imports: [FormsModule,CommonModule,AbpModalHeaderComponent,AbpModalFooterComponent,MultiSelectModule,
+    InputTextModule,ButtonModule],
   providers: [DoctorMasterServiceProxy, DoctorServiceProxy]
 })
 export class CreateupdateDoctorMasterComponent extends AppComponentBase implements OnInit {

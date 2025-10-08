@@ -10,6 +10,6 @@ using System.Threading.Tasks;
 namespace EMRSystem.Medicines
 {
     public interface IPurchaseInvoiceAppService :
-        IAsyncCrudAppService<PurchaseInvoiceDto, long, PagedAndSortedResultRequestDto, CreateUpdatePurchaseInvoiceDto, CreateUpdatePurchaseInvoiceDto>
+        IAsyncCrudAppService<PurchaseInvoiceDto, long, PagedPurchaseMedicineDto, CreateUpdatePurchaseInvoiceDto, CreateUpdatePurchaseInvoiceDto>
     { }
 }

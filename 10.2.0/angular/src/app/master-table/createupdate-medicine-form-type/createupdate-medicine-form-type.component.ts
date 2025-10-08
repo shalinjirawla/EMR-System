@@ -25,15 +25,8 @@ import {
 @Component({
   selector: 'app-createupdate-medicine-form-type',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    InputTextModule,
-    CheckboxModule,
-    AbpModalHeaderComponent,
-    AbpModalFooterComponent,
-    AutoCompleteModule,
-  ],
+  imports: [CommonModule,FormsModule,InputTextModule,CheckboxModule,AbpModalHeaderComponent,
+    AbpModalFooterComponent,AutoCompleteModule,],
   providers: [MedicineFormMasterServiceProxy],
   templateUrl: './createupdate-medicine-form-type.component.html',
   styleUrl: './createupdate-medicine-form-type.component.css',

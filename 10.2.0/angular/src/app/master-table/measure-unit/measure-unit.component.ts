@@ -32,14 +32,7 @@ import { OverlayPanelModule } from "primeng/overlaypanel";
   standalone: true,
   imports: [
     FormsModule, SelectModule, InputTextModule, CheckboxModule, MenuModule, TooltipModule, CardModule, TagModule,
-    TableModule, BreadcrumbModule,
-    PaginatorModule,
-    ButtonModule,
-    PrimeTemplate,
-    NgIf,
-    LocalizePipe,
-    OverlayPanelModule
-  ],
+    TableModule, BreadcrumbModule,PaginatorModule,ButtonModule,PrimeTemplate,NgIf,LocalizePipe,OverlayPanelModule],
 })
 export class MeasureUnitsComponent extends PagedListingComponentBase<MeasureUnitDto> implements OnInit {
   @ViewChild('dataTable', { static: true }) dataTable: Table;

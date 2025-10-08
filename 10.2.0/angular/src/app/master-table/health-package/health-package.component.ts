@@ -20,7 +20,8 @@ import { MenuItem } from 'primeng/api';
 @Component({
   selector: 'app-health-package',
   standalone: true,
-  imports: [FormsModule, CommonModule,BreadcrumbModule,TooltipModule, CardModule,MenuModule, TableModule, PaginatorModule, LocalizePipe],
+  imports: [FormsModule, CommonModule,BreadcrumbModule,TooltipModule, CardModule,MenuModule, TableModule,
+     PaginatorModule, LocalizePipe],
   animations: [appModuleAnimation()],
   providers: [HealthPackageServiceProxy],
   templateUrl: './health-package.component.html',

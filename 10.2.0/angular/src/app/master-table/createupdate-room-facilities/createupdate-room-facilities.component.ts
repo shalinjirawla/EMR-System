@@ -15,14 +15,7 @@ import { ButtonModule } from 'primeng/button';
   templateUrl: './createupdate-room-facilities.component.html',
   styleUrls: ['./createupdate-room-facilities.component.css'],
   standalone: true,
-  imports: [
-    FormsModule,
-    CommonModule,
-    AbpModalHeaderComponent,
-    AbpModalFooterComponent,
-    InputTextModule,
-    ButtonModule
-  ],
+  imports: [FormsModule,CommonModule,AbpModalHeaderComponent,AbpModalFooterComponent,InputTextModule,ButtonModule],
   providers: [RoomFacilityMasterServiceProxy]
 })
 export class CreateupdateRoomFacilitiesComponent extends AppComponentBase implements OnInit {

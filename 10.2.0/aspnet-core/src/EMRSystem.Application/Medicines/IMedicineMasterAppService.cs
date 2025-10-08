@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace EMRSystem.Medicines
 {
     public interface IMedicineMasterAppService :
-        IAsyncCrudAppService<MedicineMasterDto, long, PagedAndSortedResultRequestDto, CreateUpdateMedicineMasterDto>
+        IAsyncCrudAppService<MedicineMasterDto, long, PagedMedicineListResultRequestDto, CreateUpdateMedicineMasterDto>
     {
         Task<List<MedicineLookupDto>> GetMedicinesByFormIdAsync(long formId);
 

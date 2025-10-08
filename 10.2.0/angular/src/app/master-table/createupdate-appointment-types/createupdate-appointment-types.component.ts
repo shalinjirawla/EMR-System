@@ -14,7 +14,8 @@ import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'app-createupdate-appointment-types',
-  imports: [FormsModule, CommonModule, AbpModalHeaderComponent, AbpModalFooterComponent, InputTextModule, ButtonModule],
+  imports: [FormsModule, CommonModule, AbpModalHeaderComponent, AbpModalFooterComponent, 
+    InputTextModule, ButtonModule],
   providers: [AppointmentTypeServiceProxy],
   standalone: true,
   templateUrl: './createupdate-appointment-types.component.html',

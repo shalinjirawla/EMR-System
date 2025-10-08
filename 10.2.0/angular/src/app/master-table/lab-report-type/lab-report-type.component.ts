@@ -21,7 +21,8 @@ import { MenuItem } from 'primeng/api';
 import { InputTextModule } from 'primeng/inputtext';
 @Component({
   selector: 'app-lab-report-type',
-  imports: [FormsModule, TableModule, ButtonModule,BreadcrumbModule,TooltipModule, CardModule,MenuModule,InputTextModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe,CommonModule],
+  imports: [FormsModule, TableModule, ButtonModule,BreadcrumbModule,TooltipModule, CardModule,MenuModule,
+    InputTextModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe,CommonModule],
   animations:[appModuleAnimation()],
   templateUrl: './lab-report-type.component.html',
   styleUrl: './lab-report-type.component.css',

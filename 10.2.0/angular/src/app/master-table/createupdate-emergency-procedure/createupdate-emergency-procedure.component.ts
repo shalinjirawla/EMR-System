@@ -16,14 +16,7 @@ import {
 @Component({
   selector: 'app-createupdate-emergency-procedure',
   standalone: true,
-  imports: [
-    FormsModule,
-    CommonModule,
-    DropdownModule,
-    InputSwitchModule,
-    AbpModalFooterComponent,
-    AbpModalHeaderComponent
-  ],
+  imports: [FormsModule,CommonModule,DropdownModule,InputSwitchModule,AbpModalFooterComponent,AbpModalHeaderComponent],
   providers: [EmergencyProcedureServiceProxy],
   templateUrl: './createupdate-emergency-procedure.component.html',
   styleUrl: './createupdate-emergency-procedure.component.css'

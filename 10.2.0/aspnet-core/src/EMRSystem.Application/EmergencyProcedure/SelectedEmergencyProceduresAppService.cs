@@ -17,7 +17,7 @@ namespace EMRSystem.EmergencyProcedure
             SelectedEmergencyProcedures,
             SelectedEmergencyProceduresDto,
             long,
-            PagedAndSortedResultRequestDto,
+            PagedProcedureRequestDto,
             CreateUpdateSelectedEmergencyProceduresDto,
             CreateUpdateSelectedEmergencyProceduresDto>,
         ISelectedEmergencyProceduresAppService
@@ -27,13 +27,17 @@ namespace EMRSystem.EmergencyProcedure
         ) : base(repository)
         {
         }
-        protected override IQueryable<SelectedEmergencyProcedures> CreateFilteredQuery(PagedAndSortedResultRequestDto input)
+        protected override IQueryable<SelectedEmergencyProcedures> CreateFilteredQuery(PagedProcedureRequestDto input)
         {
             return Repository.GetAll()
                 .Include(x => x.EmergencyProcedures)
                 .Include(x => x.Prescriptions)
                     .ThenInclude(p => p.Patient)
-                .Where(x => x.IsPaid == true);
+                .Where(x => x.IsPaid == true)
+                .WhereIf(!string.IsNullOrWhiteSpace(input.Keyword),
+                x =>
+                x.EmergencyProcedures.Name.Contains(input.Keyword) ||
+                x.Prescriptions.Patient.FullName.Contains(input.Keyword));
         }
         public async Task MarkAsCompleteAsync(long id)
         {

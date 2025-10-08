@@ -19,7 +19,8 @@ import { CardModule } from 'primeng/card';
 import { MenuModule } from 'primeng/menu';
 @Component({
   selector: 'app-appointment-types',
-  imports: [FormsModule, TableModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, CardModule, BreadcrumbModule, TooltipModule, MenuModule,],
+  imports: [FormsModule, TableModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, 
+    CardModule, BreadcrumbModule, TooltipModule, MenuModule,],
   providers: [AppointmentTypeServiceProxy],
   animations: [appModuleAnimation()],
   standalone: true,

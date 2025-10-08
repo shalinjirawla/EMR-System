@@ -23,7 +23,8 @@ import { TooltipModule } from 'primeng/tooltip';
 import { CardModule } from 'primeng/card';
 @Component({
     selector: 'app-doctor-master',
-    imports: [FormsModule, TableModule, CardModule, BreadcrumbModule, TooltipModule, ChipModule, SelectModule, MenuModule, ButtonModule, OverlayPanelModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe],
+    imports: [FormsModule, TableModule, CardModule, BreadcrumbModule, TooltipModule, ChipModule, SelectModule, 
+        MenuModule, ButtonModule, OverlayPanelModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe],
     providers: [DoctorMasterServiceProxy],
     standalone: true,
     animations: [appModuleAnimation()],

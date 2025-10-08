@@ -11,7 +11,8 @@ import { AbpModalHeaderComponent } from "@shared/components/modal/abp-modal-head
 
 @Component({
   selector: 'app-createupdate-test-result-limit',
-  imports: [FormsModule, MultiSelectModule, CommonModule, AbpModalFooterComponent, AbpModalHeaderComponent, LocalizePipe],
+  imports: [FormsModule, MultiSelectModule, CommonModule, AbpModalFooterComponent,
+     AbpModalHeaderComponent, LocalizePipe],
   providers:[LabTestServiceProxy,TestResultLimitServiceProxy],
   templateUrl: './createupdate-test-result-limit.component.html',
   styleUrl: './createupdate-test-result-limit.component.css'

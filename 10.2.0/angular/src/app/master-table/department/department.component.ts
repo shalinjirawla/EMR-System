@@ -20,15 +20,8 @@ import { MenuModule } from 'primeng/menu';
 
 @Component({
   selector: 'app-department',
-  imports: [
-    FormsModule, CardModule, BreadcrumbModule, TooltipModule, MenuModule,
-    TableModule,
-    ButtonModule,
-    PrimeTemplate,
-    NgIf,
-    PaginatorModule,
-    LocalizePipe
-  ],
+  imports: [FormsModule, CardModule, BreadcrumbModule, TooltipModule, MenuModule,TableModule,ButtonModule,
+    PrimeTemplate,NgIf,PaginatorModule,LocalizePipe],
   providers: [DepartmentServiceProxy],
   standalone: true,
   animations: [appModuleAnimation()],

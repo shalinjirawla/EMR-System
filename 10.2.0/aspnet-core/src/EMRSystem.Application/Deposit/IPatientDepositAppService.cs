@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace EMRSystem.Deposit
 {
     public interface IPatientDepositAppService :
-        IAsyncCrudAppService<PatientDepositDto, long, PagedAndSortedResultRequestDto, CreateUpdatePatientDepositDto>
+        IAsyncCrudAppService<PatientDepositDto, long, PagedPatientDepositDto, CreateUpdatePatientDepositDto>
     {
     }
 }

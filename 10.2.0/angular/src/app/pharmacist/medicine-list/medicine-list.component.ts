@@ -103,6 +103,7 @@ export class MedicineListComponent
 
     this._medicineService
       .getAll(
+        this.keyword,
         this.primengTableHelper.getSorting(this.dataTable),
         this.primengTableHelper.getSkipCount(this.paginator, event),
         this.primengTableHelper.getMaxResultCount(this.paginator, event)

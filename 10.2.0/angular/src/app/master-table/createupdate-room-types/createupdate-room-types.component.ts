@@ -13,7 +13,8 @@ import { MultiSelectModule } from 'primeng/multiselect';
 
 @Component({
   selector: 'app-createupdate-room-types',
-  imports: [AbpModalHeaderComponent, AbpModalFooterComponent, FormsModule, CommonModule, InputTextModule, ButtonModule,MultiSelectModule ],
+  imports: [AbpModalHeaderComponent, AbpModalFooterComponent, FormsModule, CommonModule,
+     InputTextModule, ButtonModule,MultiSelectModule ],
   providers: [RoomTypeMasterServiceProxy,RoomFacilityMasterServiceProxy],
   templateUrl: './createupdate-room-types.component.html',
   styleUrl: './createupdate-room-types.component.css'

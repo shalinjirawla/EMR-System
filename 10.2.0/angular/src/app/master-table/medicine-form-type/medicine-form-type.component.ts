@@ -17,6 +17,9 @@ import { MenuItem } from 'primeng/api';
 import { TooltipModule } from 'primeng/tooltip';
 import { CardModule } from 'primeng/card';
 import { MenuModule } from 'primeng/menu';
+import { OverlayPanelModule } from "primeng/overlaypanel";
+import { CheckboxModule } from 'primeng/checkbox';
+
 @Component({
   selector: 'app-medicine-form-type',
   templateUrl: './medicine-form-type.component.html',
@@ -25,14 +28,8 @@ import { MenuModule } from 'primeng/menu';
   animations: [appModuleAnimation()],
   standalone: true,
   imports: [
-    FormsModule,BreadcrumbModule,InputTextModule,TooltipModule,CardModule,MenuModule,
-    TableModule,
-    Paginator,
-    ButtonModule,
-    PrimeTemplate,
-    NgIf,
-    LocalizePipe
-  ],
+    FormsModule,BreadcrumbModule,InputTextModule,TooltipModule,CardModule,MenuModule,TableModule,
+    OverlayPanelModule,CheckboxModule,Paginator,ButtonModule,PrimeTemplate,NgIf,LocalizePipe],
 })
 export class MedicineFormTypeComponent extends PagedListingComponentBase<MedicineFormMasterDto> implements OnInit {
   @ViewChild('dataTable', { static: true }) dataTable: Table;
@@ -40,6 +37,7 @@ export class MedicineFormTypeComponent extends PagedListingComponentBase<Medicin
 
   keyword = '';
   isActive: boolean | undefined = undefined;
+  activeFilter = { all: true, isActive: false, isNotActive: false };
  selectedRecord: MedicineFormMasterDto;
 items: MenuItem[];
 editDeleteMenus: MenuItem[];
@@ -91,6 +89,8 @@ editDeleteMenus: MenuItem[];
 
     this._medicineFormTypeService
       .getAll(
+        this.keyword,
+        this.isActive,
         this.primengTableHelper.getSorting(this.dataTable),
         this.primengTableHelper.getSkipCount(this.paginator, event),
         this.primengTableHelper.getMaxResultCount(this.paginator, event)
@@ -135,6 +135,21 @@ editDeleteMenus: MenuItem[];
 
   delete(entity: MedicineFormMasterDto): void {
     this.deleteMedicineFormType(entity);
+  }
+
+  onFilterChange(selected: 'all' | 'active' | 'notActive', event: any) {
+    if (selected === 'all') {
+      if (event.checked) { this.activeFilter = { all: true, isActive: false, isNotActive: false }; this.isActive = undefined; }
+      else { this.activeFilter.all = true; this.isActive = undefined; }
+    } else if (selected === 'active') {
+      if (event.checked) { this.activeFilter = { all: false, isActive: true, isNotActive: false }; this.isActive = true; }
+      else { this.activeFilter.all = true; this.isActive = undefined; }
+    } else if (selected === 'notActive') {
+      if (event.checked) { this.activeFilter = { all: false, isActive: false, isNotActive: true }; this.isActive = false; }
+      else { this.activeFilter.all = true; this.isActive = undefined; }
+    }
+    this.list();
+    this.cd.detectChanges();
   }
 
   clearFilters(): void {

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace EMRSystem.Pharmacist
 {
     public interface IPharmacistPrescriptionsAppService : IAsyncCrudAppService<
-    PharmacistPrescriptionsDto, long, PagedAndSortedResultRequestDto, CreateUpdatePharmacistPrescriptionsDto, CreateUpdatePharmacistPrescriptionsDto>
+    PharmacistPrescriptionsDto, long, PagedPharmacistPrescriptionDto, CreateUpdatePharmacistPrescriptionsDto, CreateUpdatePharmacistPrescriptionsDto>
     {
         Task CreatePharmacistPrescriptionsWithItem(CreatePharmacistPrescriptionsWithItemDto withItemDto);
 
