@@ -65,14 +65,6 @@
 
       <!-- Summary (Above Footer) -->
       <div class="invoice-summary">
-        <div class="summary-row">
-          <div class="label">Sub Total:</div>
-          <div class="value">₹{{ invoice.subTotal | number:'1.2-2' }}</div>
-        </div>
-        <div class="summary-row">
-          <div class="label">GST (18%):</div>
-          <div class="value">₹{{ invoice.gstAmount | number:'1.2-2' }}</div>
-        </div>
         <div class="summary-row total">
           <div class="label">Total Amount:</div>
           <div class="value">₹{{ invoice.totalAmount | number:'1.2-2' }}</div>

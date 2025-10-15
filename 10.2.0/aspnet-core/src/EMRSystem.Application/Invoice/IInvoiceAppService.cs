@@ -16,11 +16,7 @@ namespace EMRSystem.Invoice
     public interface IInvoiceAppService : IAsyncCrudAppService<
    InvoiceDto, long, PagedInvoiceResultRequestDto, CreateUpdateInvoiceDto, CreateUpdateInvoiceDto>
     {
-        Task<InvoiceDetailsDto> GetInvoiceDetailsByAppointmentIdUsingSp(long appointmentId);
-        //Task MarkAsPaid(long invoiceId, decimal? amount = null);
         Task<List<IpdChargeEntryDto>> GetChargesByPatientAsync(long patientId, InvoiceType invoiceType);
-
-        public Task<string> CreateStripeCheckoutSession(long invoiceId, decimal amount, string successUrl, string cancelUrl);
         Task<List<InvoiceDto>> GetInvoicesByPatientID(long patientID);
     }
 

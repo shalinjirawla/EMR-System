@@ -1,3 +1,4 @@
+<div style="height: 90vh; overflow-y: auto;">
 <div class="modal-header bg-primary text-white">
   <h5 class="modal-title">
     <i class="fa fa-file-invoice"></i> View Purchase Invoice
@@ -5,7 +6,7 @@
   <button type="button" class="close text-white" (click)="close()">&times;</button>
 </div>
 
-<div class="modal-body" *ngIf="invoice">
+<div class="modal-body" *ngIf="invoice" >
   <!-- Invoice Info Card -->
   <div class="card mb-3 shadow-sm border-primary">
     <div class="card-body">
@@ -60,4 +61,5 @@
   <button type="button" class="btn btn-secondary" (click)="close()">
     <i class="fa fa-times"></i> Close
   </button>
+</div>
 </div>

@@ -6,6 +6,7 @@ using Abp.UI;
 using AutoMapper.Internal.Mappers;
 using EMRSystem.Admissions.Dto;
 using EMRSystem.Deposit;
+using EMRSystem.Insurances;
 using EMRSystem.IpdChargeEntry;
 using EMRSystem.PatientDischarge;
 using EMRSystem.Patients;
@@ -25,6 +26,7 @@ namespace EMRSystem.Admissions
         private readonly IRepository<EMRSystem.Admission.Admission, long> _repository;
         private readonly IRepository<EMRSystem.PatientDischarge.PatientDischarge, long> _patientDischargeRepository;
         private readonly IRepository<Patient, long> _patientRepo;
+        private readonly IRepository<PatientInsurance, long> _patientInsuranceRepo;
         private readonly IRepository<EMRSystem.Room.Room, long> _roomRepo;
         private readonly IRepository<Bed, long> _bedRepo;
         private readonly IRepository<PatientDeposit, long> _patientDepositRepo;
@@ -35,6 +37,7 @@ namespace EMRSystem.Admissions
             IRepository<EMRSystem.Admission.Admission, long> repository,
             IRepository<EMRSystem.PatientDischarge.PatientDischarge, long> patientDischargeRepository,
             IRepository<EMRSystem.Room.Room, long> roomRepo,
+            IRepository<PatientInsurance, long> patientInsuranceRepo,
             IRepository<RoomTypeMaster, long> roomTypeRepo,
             IRepository<Bed, long> bedRepo,
             IRepository<PatientDeposit, long> patientDepositRepo,
@@ -42,6 +45,7 @@ namespace EMRSystem.Admissions
             IRepository<Patient, long> patientRepo) : base(repository)
         {
             _repository = repository;
+            _patientInsuranceRepo = patientInsuranceRepo;
             _patientRepo = patientRepo;
             _patientDepositRepo = patientDepositRepo;
             _ipdChargeRepo = ipdChargeRepo;
@@ -129,8 +133,6 @@ namespace EMRSystem.Admissions
             // ✅ Step 1: Map and insert admission
             var admission = ObjectMapper.Map<EMRSystem.Admission.Admission>(input);
             var newAdmissionId = await _repository.InsertAndGetIdAsync(admission);
-
-            // Save so that Admission Id is generated
             await CurrentUnitOfWork.SaveChangesAsync();
 
             // ✅ Step 2: Create PatientDeposit entry
@@ -144,11 +146,8 @@ namespace EMRSystem.Admissions
             };
             await _patientDepositRepo.InsertAsync(deposit);
 
-            // ✅ Step 3: Create IpdChargeEntry (Room Charge)
-            // Room Price fetch karna hoga RoomTypeMaster se
             var room = await _roomRepo.GetAsync(admission.RoomId);
             var roomType = await _roomTypeRepo.GetAsync(room.RoomTypeMasterId);
-
             var ipdCharge = new EMRSystem.IpdChargeEntry.IpdChargeEntry
             {
                 TenantId = admission.TenantId,
@@ -156,6 +155,7 @@ namespace EMRSystem.Admissions
                 PatientId = admission.PatientId,
                 ChargeType = ChargeType.Room,
                 Description = $"Room Charge (Room No: {room.RoomNumber})",
+                Quantity = 1,
                 Amount = roomType.DefaultPricePerDay, // daily charge
                 EntryDate = DateTime.Now,
                 IsProcessed = false,
@@ -177,6 +177,16 @@ namespace EMRSystem.Admissions
             patientDischarge.DoctorId = null;
             await _patientDischargeRepository.InsertAsync(patientDischarge);
 
+            if (input.BillingMode == BillingMethod.InsuranceOnly || input.BillingMode == BillingMethod.InsuranceSelfPay)
+            {
+                if (input.PatientInsurance != null)
+                {
+                    var insurance = ObjectMapper.Map<PatientInsurance>(input.PatientInsurance);
+                    insurance.PatientId = admission.PatientId;
+                    insurance.TenantId = admission.TenantId;
+                    await _patientInsuranceRepo.InsertAsync(insurance);
+                }
+            }
             return res;
         }
 

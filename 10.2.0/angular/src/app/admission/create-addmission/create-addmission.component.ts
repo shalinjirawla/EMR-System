@@ -2,7 +2,7 @@ import { Component, Injector, OnInit, ViewChild, ChangeDetectorRef, EventEmitter
 import { FormsModule, NgForm } from '@angular/forms';
 import { AppComponentBase } from '@shared/app-component-base';
 import { BsModalRef } from 'ngx-bootstrap/modal';
-import { PatientDropDownDto, PatientServiceProxy, DoctorDto, DoctorServiceProxy, NurseDto, NurseServiceProxy, RoomDto, RoomServiceProxy, AdmissionType, BillingMethod, CreateUpdateAdmissionDto, AdmissionServiceProxy, BedServiceProxy } from '@shared/service-proxies/service-proxies';
+import { PatientDropDownDto, PatientServiceProxy, DoctorDto, DoctorServiceProxy, NurseDto, NurseServiceProxy, RoomDto, RoomServiceProxy, AdmissionType, BillingMethod, CreateUpdateAdmissionDto, AdmissionServiceProxy, BedServiceProxy, InsuranceMasterDto, InsuranceMasterServiceProxy, CreateUpdatePatientInsuranceDto } from '@shared/service-proxies/service-proxies';
 import { CommonModule } from '@angular/common';
 import { AbpModalHeaderComponent } from '../../../shared/components/modal/abp-modal-header.component';
 import { AbpModalFooterComponent } from '../../../shared/components/modal/abp-modal-footer.component';
@@ -16,9 +16,9 @@ import { TextareaModule } from 'primeng/textarea';
   selector: 'app-create-addmission',
   templateUrl: './create-addmission.component.html',
   styleUrl: './create-addmission.component.css',
-  providers: [PatientServiceProxy, DoctorServiceProxy, BedServiceProxy, NurseServiceProxy, RoomServiceProxy, AdmissionServiceProxy],
+  providers: [PatientServiceProxy, DoctorServiceProxy, InsuranceMasterServiceProxy, BedServiceProxy, NurseServiceProxy, RoomServiceProxy, AdmissionServiceProxy],
   imports: [
-    FormsModule,TextareaModule,
+    FormsModule, TextareaModule,
     CommonModule,
     SelectModule,
     DatePickerModule,
@@ -29,11 +29,15 @@ import { TextareaModule } from 'primeng/textarea';
 export class CreateAddmissionComponent extends AppComponentBase implements OnInit {
   @ViewChild('createAdmissionForm', { static: true }) createAdmissionForm: NgForm;
   saving = false;
+
+  BillingMethod = BillingMethod;
   patients: PatientDropDownDto[] = [];
   doctors: DoctorDto[] = [];
   nurses: NurseDto[] = [];
   rooms: RoomDto[] = [];
   beds: any[] = [];
+  insurances: InsuranceMasterDto[] = [];
+
   get roomOptions() {
     return this.rooms.map(room => ({
       label: `${room.roomNumber} – ${room.roomTypeName}`,
@@ -46,9 +50,9 @@ export class CreateAddmissionComponent extends AppComponentBase implements OnIni
     { label: 'Emergency', value: AdmissionType._2 }
   ];
   billingMethodOptions = [
-    //{ label: 'Insurance Only', value: BillingMethod._0 },
-    { label: 'Self Pay(No Insurance)', value: BillingMethod._1 },
-    { label: 'Insurance + Self Pay(Insurance But not Cashless)', value: BillingMethod._2 }
+    { label: 'Self Pay (No Insurance)', value: BillingMethod._0 },
+    { label: 'Insurance + Self Pay', value: BillingMethod._1 },
+    { label: 'Insurance Only (Cashless)', value: BillingMethod._2 }
   ];
   @Input() disableRoleSelection: boolean = false;
   @Input() selectedPatientId: number = 0;
@@ -63,7 +67,12 @@ export class CreateAddmissionComponent extends AppComponentBase implements OnIni
     nurseId: null,
     roomId: null,
     admissionType: null,
-    reasonForAdmit:null
+    reasonForAdmit: null,
+    billingMode: BillingMethod._0,
+    insuranceId: null,
+    policyNumber: null,
+    coverageLimit: null,
+    coPayPercentage: null
   };
   @Output() onSave = new EventEmitter<any>();
   constructor(
@@ -75,7 +84,8 @@ export class CreateAddmissionComponent extends AppComponentBase implements OnIni
     private _doctorService: DoctorServiceProxy,
     private _nurseService: NurseServiceProxy,
     private _roomService: RoomServiceProxy,
-    private _admissionService: AdmissionServiceProxy
+    private _admissionService: AdmissionServiceProxy,
+    private _insuranceService: InsuranceMasterServiceProxy
   ) {
     super(injector);
   }
@@ -84,17 +94,18 @@ export class CreateAddmissionComponent extends AppComponentBase implements OnIni
     this.loadDoctors();
     this.loadNurses();
     this.loadRooms();
-    if (this.selectedPatientId>0) {
+    this.loadInsurances();
+    if (this.selectedPatientId > 0) {
       this.admission.patientId = this.selectedPatientId;
     }
-    if (this.selectDoctorId>0) {
+    if (this.selectDoctorId > 0) {
       this.admission.doctorId = this.selectDoctorId;
     }
-    if (this.selectedNurseId>0) {
+    if (this.selectedNurseId > 0) {
       this.admission.nurseId = this.selectedNurseId;
     }
-    if (this.admissionType>0) {
-      this.admission.admissionType=AdmissionType._2;
+    if (this.admissionType > 0) {
+      this.admission.admissionType = AdmissionType._2;
     }
   }
   loadPatients() {
@@ -121,7 +132,12 @@ export class CreateAddmissionComponent extends AppComponentBase implements OnIni
       this.cd.detectChanges();
     });
   }
-
+  loadInsurances() {
+    this._insuranceService.getAllInsuranceForDropdown().subscribe(res => {
+      this.insurances = res.items;
+      this.cd.detectChanges();
+    });
+  }
   onRoomChange(roomId: number) {
     if (!roomId) {
       this.beds = [];
@@ -129,7 +145,7 @@ export class CreateAddmissionComponent extends AppComponentBase implements OnIni
       return;
     }
 
-    this._bedService.getAvailableBedsByRoom(this.admission.tenantId, roomId,this.admission.id).subscribe(res => {
+    this._bedService.getAvailableBedsByRoom(this.admission.tenantId, roomId, this.admission.id).subscribe(res => {
       this.beds = res;
       this.cd.detectChanges();
     });
@@ -150,8 +166,23 @@ export class CreateAddmissionComponent extends AppComponentBase implements OnIni
     input.roomId = this.admission.roomId;
     input.bedId = this.admission.bedId
     input.admissionType = this.admission.admissionType;
-    input.reasonForAdmit =this.admission.reasonForAdmit;
+    input.reasonForAdmit = this.admission.reasonForAdmit;
+    input.billingMode = this.admission.billingMode;
 
+    if (this.admission.billingMode != BillingMethod._0) {
+      const patientInsurance = new CreateUpdatePatientInsuranceDto();
+      patientInsurance.id = 0;
+      patientInsurance.tenantId = this.admission.tenantId;
+      patientInsurance.patientId = this.admission.patientId;
+      patientInsurance.insuranceId = this.admission.insuranceId;
+      patientInsurance.policyNumber = this.admission.policyNumber;
+      patientInsurance.coverageLimit = this.admission.coverageLimit;
+      patientInsurance.coPayPercentage = this.admission.coPayPercentage;
+      patientInsurance.isActive = true; // required property
+
+      input.patientInsurance = patientInsurance;
+    }
+    debugger
     this._admissionService.create(input).subscribe({
       next: (res) => {
         this.notify.info(this.l('SavedSuccessfully'));

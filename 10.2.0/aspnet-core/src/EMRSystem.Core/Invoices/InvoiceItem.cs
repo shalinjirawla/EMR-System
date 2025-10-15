@@ -8,13 +8,16 @@ namespace EMRSystem.Invoices
     {
         public long InvoiceId { get; set; }
         public virtual Invoice Invoice { get; set; }
-        //public ChargeType ItemType { get; set; }
+
         public string Description { get; set; }
         public int Quantity { get; set; } = 1;
         public decimal UnitPrice { get; set; }
+
         public DateTime EntryDate { get; set; } = DateTime.Now;
 
-
+        public bool IsCoveredByInsurance { get; set; } = false;
+        public decimal? ApprovedAmount { get; set; }
+        public decimal? NotApprovedAmount { get; set; }
 
     }
 }

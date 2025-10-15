@@ -456,34 +456,46 @@ namespace EMRSystem.Pharmacist
         public async Task MarkAsPickedUp(long? pharmacistPrescriptionId, long? pickedUpById, bool isPickedUpByNurse = false)
         {
             var prescription = await Repository.GetAllIncluding(
-         x => x.Prescriptions.Patient.Admissions
-     ).FirstOrDefaultAsync(x => x.Id == pharmacistPrescriptionId);
+                                    x => x.Prescriptions.Patient.Admissions
+                                )
+                                .FirstOrDefaultAsync(x => x.Id == pharmacistPrescriptionId);
 
-            if (prescription != null)
+            if (prescription == null)
+                return;
+
+            prescription.CollectionStatus = CollectionStatus.PickedUp;
+
+            if (isPickedUpByNurse)
             {
-                prescription.CollectionStatus = CollectionStatus.PickedUp;
+                prescription.PickedUpByNurse = pickedUpById;
+            }
+            else
+            {
+                prescription.PickedUpByPatient = prescription?.Prescriptions.Patient?.Id;
+            }
 
-                if (isPickedUpByNurse)
-                {
-                    prescription.PickedUpByNurse = pickedUpById;
-                }
-                else
-                {
-                    prescription.PickedUpByPatient = prescription?.Prescriptions.Patient?.Id;
-                }
+            // ✅ Get medicine items only for this PharmacistPrescriptionId
+            var medicineItems = await _prescriptionItemRepository
+                .GetAll()
+                .Where(x => x.PharmacistPrescriptionId == pharmacistPrescriptionId)
+                .ToListAsync();
 
-                // 💡 Charge Entry logic
-                if (prescription.Prescriptions != null)
+            if (medicineItems != null && medicineItems.Any())
+            {
+                foreach (var item in medicineItems)
                 {
-                    if (prescription.Prescriptions.IsEmergencyPrescription) // emergency
+
+                    if (prescription.Prescriptions.IsEmergencyPrescription)
                     {
+                        // 🔹 Emergency Charge Entry
                         var emergencyCharge = new EmergencyChargeEntry
                         {
                             TenantId = prescription.TenantId,
                             PatientId = prescription.Prescriptions.PatientId,
                             ChargeType = ChargeType.Medicine,
-                            Description = $"Emergency Medicine Charges",
-                            Amount = prescription.GrandTotal,
+                            Description = $"Medicine: {item.MedicineName} ({item.Dosage})",
+                            Amount = item.UnitPrice,
+                            Quantity = item.Qty,
                             EntryDate = DateTime.Now,
                             IsProcessed = false,
                             PrescriptionId = prescription.PrescriptionId,
@@ -493,30 +505,33 @@ namespace EMRSystem.Pharmacist
 
                         await _emergencyChargeRepository.InsertAsync(emergencyCharge);
                     }
-                    else // ipd
+                    else
                     {
+                        // 🔹 IPD Charge Entry
                         var currentAdmission = prescription.Prescriptions.Patient?.Admissions
-                    ?.FirstOrDefault(a => !a.IsDischarged);
+                            ?.FirstOrDefault(a => !a.IsDischarged);
+
                         var ipdCharge = new EMRSystem.IpdChargeEntry.IpdChargeEntry
                         {
                             TenantId = prescription.TenantId,
                             PatientId = prescription.Prescriptions.PatientId ?? 0,
                             ChargeType = ChargeType.Medicine,
-                            Description = $"IPD Medicine Charges",
-                            Amount = prescription.GrandTotal,
+                            Description = $"Medicine: {item.MedicineName} ({item.Dosage})",
+                            Quantity = item.Qty,
+                            Amount = item.UnitPrice,
                             EntryDate = DateTime.Now,
                             IsProcessed = false,
                             PrescriptionId = prescription.PrescriptionId,
-                            AdmissionId = currentAdmission?.Id ?? 0, // 🔹 yaha tumko AdmissionId set karna padega (agar available hai to)
+                            AdmissionId = currentAdmission?.Id ?? 0,
                             ReferenceId = prescription.Id
                         };
 
                         await _ipdChargeRepository.InsertAsync(ipdCharge);
                     }
                 }
-
-                await Repository.UpdateAsync(prescription);
             }
+
+            await Repository.UpdateAsync(prescription);
         }
 
         [HttpGet]

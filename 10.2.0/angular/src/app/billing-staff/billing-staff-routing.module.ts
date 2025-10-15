@@ -2,16 +2,10 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { BillingStaffComponent } from './billing-staff.component';
 import { AppRouteGuard } from '../../shared/auth/auth-route-guard';
-import { InsuranceComponent } from './insurance/insurance.component';
 import { InvoicesComponent } from './invoices/invoices.component';
 import { PaymentsComponent } from './payments/payments.component';
 import { ReportsComponent } from './reports/reports.component';
-
-
-
-
-
-
+import { InsuranceClaimComponent } from "./insurance-claim/insurance-claim.component";
 
 const routes: Routes = [
     {
@@ -19,10 +13,6 @@ const routes: Routes = [
         component: BillingStaffComponent,
           canActivate: [AppRouteGuard],
         children: [
-            {
-                path: 'insurance',
-                component: InsuranceComponent,
-            },
             {
                 path: 'invoices',
                 component: InvoicesComponent,
@@ -34,6 +24,10 @@ const routes: Routes = [
             {
                 path: 'reports',
                 component: ReportsComponent,
+            },
+            {
+                path:'insurance-claim',
+                component:InsuranceClaimComponent
             },
             {
                 path: '',

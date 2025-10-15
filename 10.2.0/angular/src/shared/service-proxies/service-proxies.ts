@@ -6965,7 +6965,7 @@ export class HomeServiceProxy {
 }
 
 @Injectable()
-export class InvoiceServiceProxy {
+export class InsuranceClaimServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
@@ -6976,15 +6976,71 @@ export class InvoiceServiceProxy {
     }
 
     /**
-     * @param appointmentId (optional) 
+     * @param body (optional) 
      * @return OK
      */
-    getInvoiceDetailsByAppointmentIdUsingSp(appointmentId: number | undefined): Observable<InvoiceDetailsDto> {
-        let url_ = this.baseUrl + "/api/services/app/Invoice/GetInvoiceDetailsByAppointmentIdUsingSp?";
-        if (appointmentId === null)
-            throw new Error("The parameter 'appointmentId' cannot be null.");
-        else if (appointmentId !== undefined)
-            url_ += "appointmentId=" + encodeURIComponent("" + appointmentId) + "&";
+    create(body: CreateUpdateInsuranceClaimDto | undefined): Observable<InsuranceClaimDto> {
+        let url_ = this.baseUrl + "/api/services/app/InsuranceClaim/Create";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<InsuranceClaimDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<InsuranceClaimDto>;
+        }));
+    }
+
+    protected processCreate(response: HttpResponseBase): Observable<InsuranceClaimDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = InsuranceClaimDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param invoiceId (optional) 
+     * @return OK
+     */
+    getByInvoiceId(invoiceId: number | undefined): Observable<InsuranceClaimDto> {
+        let url_ = this.baseUrl + "/api/services/app/InsuranceClaim/GetByInvoiceId?";
+        if (invoiceId === null)
+            throw new Error("The parameter 'invoiceId' cannot be null.");
+        else if (invoiceId !== undefined)
+            url_ += "invoiceId=" + encodeURIComponent("" + invoiceId) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -6996,20 +7052,20 @@ export class InvoiceServiceProxy {
         };
 
         return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetInvoiceDetailsByAppointmentIdUsingSp(response_);
+            return this.processGetByInvoiceId(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processGetInvoiceDetailsByAppointmentIdUsingSp(response_ as any);
+                    return this.processGetByInvoiceId(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<InvoiceDetailsDto>;
+                    return _observableThrow(e) as any as Observable<InsuranceClaimDto>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<InvoiceDetailsDto>;
+                return _observableThrow(response_) as any as Observable<InsuranceClaimDto>;
         }));
     }
 
-    protected processGetInvoiceDetailsByAppointmentIdUsingSp(response: HttpResponseBase): Observable<InvoiceDetailsDto> {
+    protected processGetByInvoiceId(response: HttpResponseBase): Observable<InsuranceClaimDto> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -7020,7 +7076,7 @@ export class InvoiceServiceProxy {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = InvoiceDetailsDto.fromJS(resultData200);
+            result200 = InsuranceClaimDto.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -7029,6 +7085,716 @@ export class InvoiceServiceProxy {
             }));
         }
         return _observableOf(null as any);
+    }
+
+    /**
+     * @param claimId (optional) 
+     * @return OK
+     */
+    submitClaim(claimId: number | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/InsuranceClaim/SubmitClaim?";
+        if (claimId === null)
+            throw new Error("The parameter 'claimId' cannot be null.");
+        else if (claimId !== undefined)
+            url_ += "claimId=" + encodeURIComponent("" + claimId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processSubmitClaim(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processSubmitClaim(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processSubmitClaim(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param paidAmount (optional) 
+     * @param body (optional) 
+     * @return OK
+     */
+    markAsPaid(paidAmount: number | undefined, body: Int64EntityDto | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/InsuranceClaim/MarkAsPaid?";
+        if (paidAmount === null)
+            throw new Error("The parameter 'paidAmount' cannot be null.");
+        else if (paidAmount !== undefined)
+            url_ += "paidAmount=" + encodeURIComponent("" + paidAmount) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processMarkAsPaid(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processMarkAsPaid(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processMarkAsPaid(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    update(body: CreateUpdateInsuranceClaimDto | undefined): Observable<InsuranceClaimDto> {
+        let url_ = this.baseUrl + "/api/services/app/InsuranceClaim/Update";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<InsuranceClaimDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<InsuranceClaimDto>;
+        }));
+    }
+
+    protected processUpdate(response: HttpResponseBase): Observable<InsuranceClaimDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = InsuranceClaimDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    get(id: number | undefined): Observable<InsuranceClaimDto> {
+        let url_ = this.baseUrl + "/api/services/app/InsuranceClaim/Get?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGet(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<InsuranceClaimDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<InsuranceClaimDto>;
+        }));
+    }
+
+    protected processGet(response: HttpResponseBase): Observable<InsuranceClaimDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = InsuranceClaimDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param keyword (optional) 
+     * @param skipCount (optional) 
+     * @param maxResultCount (optional) 
+     * @return OK
+     */
+    getAll(keyword: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<InsuranceClaimDtoPagedResultDto> {
+        let url_ = this.baseUrl + "/api/services/app/InsuranceClaim/GetAll?";
+        if (keyword === null)
+            throw new Error("The parameter 'keyword' cannot be null.");
+        else if (keyword !== undefined)
+            url_ += "Keyword=" + encodeURIComponent("" + keyword) + "&";
+        if (skipCount === null)
+            throw new Error("The parameter 'skipCount' cannot be null.");
+        else if (skipCount !== undefined)
+            url_ += "SkipCount=" + encodeURIComponent("" + skipCount) + "&";
+        if (maxResultCount === null)
+            throw new Error("The parameter 'maxResultCount' cannot be null.");
+        else if (maxResultCount !== undefined)
+            url_ += "MaxResultCount=" + encodeURIComponent("" + maxResultCount) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAll(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAll(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<InsuranceClaimDtoPagedResultDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<InsuranceClaimDtoPagedResultDto>;
+        }));
+    }
+
+    protected processGetAll(response: HttpResponseBase): Observable<InsuranceClaimDtoPagedResultDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = InsuranceClaimDtoPagedResultDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    delete(id: number | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/InsuranceClaim/Delete?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDelete(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDelete(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDelete(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
+export class InsuranceMasterServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @return OK
+     */
+    getAllInsuranceForDropdown(): Observable<InsuranceMasterDtoListResultDto> {
+        let url_ = this.baseUrl + "/api/services/app/InsuranceMaster/GetAllInsuranceForDropdown";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAllInsuranceForDropdown(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAllInsuranceForDropdown(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<InsuranceMasterDtoListResultDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<InsuranceMasterDtoListResultDto>;
+        }));
+    }
+
+    protected processGetAllInsuranceForDropdown(response: HttpResponseBase): Observable<InsuranceMasterDtoListResultDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = InsuranceMasterDtoListResultDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    get(id: number | undefined): Observable<InsuranceMasterDto> {
+        let url_ = this.baseUrl + "/api/services/app/InsuranceMaster/Get?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGet(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<InsuranceMasterDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<InsuranceMasterDto>;
+        }));
+    }
+
+    protected processGet(response: HttpResponseBase): Observable<InsuranceMasterDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = InsuranceMasterDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param keyword (optional) 
+     * @param isActive (optional) 
+     * @param sorting (optional) 
+     * @param skipCount (optional) 
+     * @param maxResultCount (optional) 
+     * @return OK
+     */
+    getAll(keyword: string | undefined, isActive: boolean | undefined, sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<InsuranceMasterDtoPagedResultDto> {
+        let url_ = this.baseUrl + "/api/services/app/InsuranceMaster/GetAll?";
+        if (keyword === null)
+            throw new Error("The parameter 'keyword' cannot be null.");
+        else if (keyword !== undefined)
+            url_ += "Keyword=" + encodeURIComponent("" + keyword) + "&";
+        if (isActive === null)
+            throw new Error("The parameter 'isActive' cannot be null.");
+        else if (isActive !== undefined)
+            url_ += "IsActive=" + encodeURIComponent("" + isActive) + "&";
+        if (sorting === null)
+            throw new Error("The parameter 'sorting' cannot be null.");
+        else if (sorting !== undefined)
+            url_ += "Sorting=" + encodeURIComponent("" + sorting) + "&";
+        if (skipCount === null)
+            throw new Error("The parameter 'skipCount' cannot be null.");
+        else if (skipCount !== undefined)
+            url_ += "SkipCount=" + encodeURIComponent("" + skipCount) + "&";
+        if (maxResultCount === null)
+            throw new Error("The parameter 'maxResultCount' cannot be null.");
+        else if (maxResultCount !== undefined)
+            url_ += "MaxResultCount=" + encodeURIComponent("" + maxResultCount) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAll(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAll(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<InsuranceMasterDtoPagedResultDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<InsuranceMasterDtoPagedResultDto>;
+        }));
+    }
+
+    protected processGetAll(response: HttpResponseBase): Observable<InsuranceMasterDtoPagedResultDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = InsuranceMasterDtoPagedResultDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    create(body: CreateUpdateInsuranceMasterDto | undefined): Observable<InsuranceMasterDto> {
+        let url_ = this.baseUrl + "/api/services/app/InsuranceMaster/Create";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<InsuranceMasterDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<InsuranceMasterDto>;
+        }));
+    }
+
+    protected processCreate(response: HttpResponseBase): Observable<InsuranceMasterDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = InsuranceMasterDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    update(body: CreateUpdateInsuranceMasterDto | undefined): Observable<InsuranceMasterDto> {
+        let url_ = this.baseUrl + "/api/services/app/InsuranceMaster/Update";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<InsuranceMasterDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<InsuranceMasterDto>;
+        }));
+    }
+
+    protected processUpdate(response: HttpResponseBase): Observable<InsuranceMasterDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = InsuranceMasterDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    delete(id: number | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/InsuranceMaster/Delete?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDelete(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDelete(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDelete(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
+export class InvoiceServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
     }
 
     /**
@@ -7201,78 +7967,6 @@ export class InvoiceServiceProxy {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = InvoiceDto.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    /**
-     * @param invoiceId (optional) 
-     * @param amount (optional) 
-     * @param successUrl (optional) 
-     * @param cancelUrl (optional) 
-     * @return OK
-     */
-    createStripeCheckoutSession(invoiceId: number | undefined, amount: number | undefined, successUrl: string | undefined, cancelUrl: string | undefined): Observable<string> {
-        let url_ = this.baseUrl + "/api/services/app/Invoice/CreateStripeCheckoutSession?";
-        if (invoiceId === null)
-            throw new Error("The parameter 'invoiceId' cannot be null.");
-        else if (invoiceId !== undefined)
-            url_ += "invoiceId=" + encodeURIComponent("" + invoiceId) + "&";
-        if (amount === null)
-            throw new Error("The parameter 'amount' cannot be null.");
-        else if (amount !== undefined)
-            url_ += "amount=" + encodeURIComponent("" + amount) + "&";
-        if (successUrl === null)
-            throw new Error("The parameter 'successUrl' cannot be null.");
-        else if (successUrl !== undefined)
-            url_ += "successUrl=" + encodeURIComponent("" + successUrl) + "&";
-        if (cancelUrl === null)
-            throw new Error("The parameter 'cancelUrl' cannot be null.");
-        else if (cancelUrl !== undefined)
-            url_ += "cancelUrl=" + encodeURIComponent("" + cancelUrl) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "text/plain"
-            })
-        };
-
-        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processCreateStripeCheckoutSession(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processCreateStripeCheckoutSession(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<string>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<string>;
-        }));
-    }
-
-    protected processCreateStripeCheckoutSession(response: HttpResponseBase): Observable<string> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result200 = resultData200 !== undefined ? resultData200 : <any>null;
-    
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -15156,6 +15850,304 @@ export class PatientDischargeServiceProxy {
      */
     delete(id: number | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/services/app/PatientDischarge/Delete?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDelete(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDelete(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDelete(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
+export class PatientInsuranceServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    get(id: number | undefined): Observable<PatientInsuranceDto> {
+        let url_ = this.baseUrl + "/api/services/app/PatientInsurance/Get?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGet(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PatientInsuranceDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PatientInsuranceDto>;
+        }));
+    }
+
+    protected processGet(response: HttpResponseBase): Observable<PatientInsuranceDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PatientInsuranceDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param sorting (optional) 
+     * @param skipCount (optional) 
+     * @param maxResultCount (optional) 
+     * @return OK
+     */
+    getAll(sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<PatientInsuranceDtoPagedResultDto> {
+        let url_ = this.baseUrl + "/api/services/app/PatientInsurance/GetAll?";
+        if (sorting === null)
+            throw new Error("The parameter 'sorting' cannot be null.");
+        else if (sorting !== undefined)
+            url_ += "Sorting=" + encodeURIComponent("" + sorting) + "&";
+        if (skipCount === null)
+            throw new Error("The parameter 'skipCount' cannot be null.");
+        else if (skipCount !== undefined)
+            url_ += "SkipCount=" + encodeURIComponent("" + skipCount) + "&";
+        if (maxResultCount === null)
+            throw new Error("The parameter 'maxResultCount' cannot be null.");
+        else if (maxResultCount !== undefined)
+            url_ += "MaxResultCount=" + encodeURIComponent("" + maxResultCount) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAll(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAll(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PatientInsuranceDtoPagedResultDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PatientInsuranceDtoPagedResultDto>;
+        }));
+    }
+
+    protected processGetAll(response: HttpResponseBase): Observable<PatientInsuranceDtoPagedResultDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PatientInsuranceDtoPagedResultDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    create(body: CreateUpdatePatientInsuranceDto | undefined): Observable<PatientInsuranceDto> {
+        let url_ = this.baseUrl + "/api/services/app/PatientInsurance/Create";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PatientInsuranceDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PatientInsuranceDto>;
+        }));
+    }
+
+    protected processCreate(response: HttpResponseBase): Observable<PatientInsuranceDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PatientInsuranceDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    update(body: CreateUpdatePatientInsuranceDto | undefined): Observable<PatientInsuranceDto> {
+        let url_ = this.baseUrl + "/api/services/app/PatientInsurance/Update";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PatientInsuranceDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PatientInsuranceDto>;
+        }));
+    }
+
+    protected processUpdate(response: HttpResponseBase): Observable<PatientInsuranceDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PatientInsuranceDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    delete(id: number | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/PatientInsurance/Delete?";
         if (id === null)
             throw new Error("The parameter 'id' cannot be null.");
         else if (id !== undefined)
@@ -25231,6 +26223,7 @@ export class Admission implements IAdmission {
     isDischarged: boolean;
     dischargeDateTime: moment.Moment | undefined;
     reasonForAdmit: string | undefined;
+    billingMode: BillingMethod;
     ipdChargeEntries: IpdChargeEntry[] | undefined;
     emergencyCases: EmergencyCase[] | undefined;
     patientDeposits: PatientDeposit[] | undefined;
@@ -25264,6 +26257,7 @@ export class Admission implements IAdmission {
             this.isDischarged = _data["isDischarged"];
             this.dischargeDateTime = _data["dischargeDateTime"] ? moment(_data["dischargeDateTime"].toString()) : <any>undefined;
             this.reasonForAdmit = _data["reasonForAdmit"];
+            this.billingMode = _data["billingMode"];
             if (Array.isArray(_data["ipdChargeEntries"])) {
                 this.ipdChargeEntries = [] as any;
                 for (let item of _data["ipdChargeEntries"])
@@ -25309,6 +26303,7 @@ export class Admission implements IAdmission {
         data["isDischarged"] = this.isDischarged;
         data["dischargeDateTime"] = this.dischargeDateTime ? this.dischargeDateTime.toISOString() : <any>undefined;
         data["reasonForAdmit"] = this.reasonForAdmit;
+        data["billingMode"] = this.billingMode;
         if (Array.isArray(this.ipdChargeEntries)) {
             data["ipdChargeEntries"] = [];
             for (let item of this.ipdChargeEntries)
@@ -25354,6 +26349,7 @@ export interface IAdmission {
     isDischarged: boolean;
     dischargeDateTime: moment.Moment | undefined;
     reasonForAdmit: string | undefined;
+    billingMode: BillingMethod;
     ipdChargeEntries: IpdChargeEntry[] | undefined;
     emergencyCases: EmergencyCase[] | undefined;
     patientDeposits: PatientDeposit[] | undefined;
@@ -25384,6 +26380,7 @@ export class AdmissionDto implements IAdmissionDto {
     reasonForAdmit: string | undefined;
     isDischarged: boolean;
     admissionType: AdmissionType;
+    billingMode: BillingMethod;
 
     constructor(data?: IAdmissionDto) {
         if (data) {
@@ -25414,6 +26411,7 @@ export class AdmissionDto implements IAdmissionDto {
             this.reasonForAdmit = _data["reasonForAdmit"];
             this.isDischarged = _data["isDischarged"];
             this.admissionType = _data["admissionType"];
+            this.billingMode = _data["billingMode"];
         }
     }
 
@@ -25444,6 +26442,7 @@ export class AdmissionDto implements IAdmissionDto {
         data["reasonForAdmit"] = this.reasonForAdmit;
         data["isDischarged"] = this.isDischarged;
         data["admissionType"] = this.admissionType;
+        data["billingMode"] = this.billingMode;
         return data;
     }
 
@@ -25474,6 +26473,7 @@ export interface IAdmissionDto {
     reasonForAdmit: string | undefined;
     isDischarged: boolean;
     admissionType: AdmissionType;
+    billingMode: BillingMethod;
 }
 
 export class AdmissionDtoPagedResultDto implements IAdmissionDtoPagedResultDto {
@@ -27313,6 +28313,15 @@ export interface IChartDataDto {
     value: number;
 }
 
+export enum ClaimStatus {
+    _0 = 0,
+    _1 = 1,
+    _2 = 2,
+    _3 = 3,
+    _4 = 4,
+    _5 = 5,
+}
+
 export enum CollectionStatus {
     _0 = 0,
     _1 = 1,
@@ -27879,7 +28888,9 @@ export class CreateUpdateAdmissionDto implements ICreateUpdateAdmissionDto {
     roomId: number | undefined;
     bedId: number | undefined;
     reasonForAdmit: string | undefined;
+    billingMode: BillingMethod;
     admissionType: AdmissionType;
+    patientInsurance: CreateUpdatePatientInsuranceDto;
 
     constructor(data?: ICreateUpdateAdmissionDto) {
         if (data) {
@@ -27901,7 +28912,9 @@ export class CreateUpdateAdmissionDto implements ICreateUpdateAdmissionDto {
             this.roomId = _data["roomId"];
             this.bedId = _data["bedId"];
             this.reasonForAdmit = _data["reasonForAdmit"];
+            this.billingMode = _data["billingMode"];
             this.admissionType = _data["admissionType"];
+            this.patientInsurance = _data["patientInsurance"] ? CreateUpdatePatientInsuranceDto.fromJS(_data["patientInsurance"]) : <any>undefined;
         }
     }
 
@@ -27923,7 +28936,9 @@ export class CreateUpdateAdmissionDto implements ICreateUpdateAdmissionDto {
         data["roomId"] = this.roomId;
         data["bedId"] = this.bedId;
         data["reasonForAdmit"] = this.reasonForAdmit;
+        data["billingMode"] = this.billingMode;
         data["admissionType"] = this.admissionType;
+        data["patientInsurance"] = this.patientInsurance ? this.patientInsurance.toJSON() : <any>undefined;
         return data;
     }
 
@@ -27945,7 +28960,9 @@ export interface ICreateUpdateAdmissionDto {
     roomId: number | undefined;
     bedId: number | undefined;
     reasonForAdmit: string | undefined;
+    billingMode: BillingMethod;
     admissionType: AdmissionType;
+    patientInsurance: CreateUpdatePatientInsuranceDto;
 }
 
 export class CreateUpdateAppointmentDto implements ICreateUpdateAppointmentDto {
@@ -28922,14 +29939,170 @@ export interface ICreateUpdateHealthPackageLabReportsTypeDto {
     labReportsTypeId: number;
 }
 
+export class CreateUpdateInsuranceClaimDto implements ICreateUpdateInsuranceClaimDto {
+    id: number;
+    tenantId: number;
+    invoiceId: number;
+    patientInsuranceId: number | undefined;
+    totalAmount: number;
+    amountPayByInsurance: number;
+    amountPayByPatient: number;
+    status: ClaimStatus;
+    items: InvoiceItemDto[] | undefined;
+
+    constructor(data?: ICreateUpdateInsuranceClaimDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.invoiceId = _data["invoiceId"];
+            this.patientInsuranceId = _data["patientInsuranceId"];
+            this.totalAmount = _data["totalAmount"];
+            this.amountPayByInsurance = _data["amountPayByInsurance"];
+            this.amountPayByPatient = _data["amountPayByPatient"];
+            this.status = _data["status"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(InvoiceItemDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): CreateUpdateInsuranceClaimDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateUpdateInsuranceClaimDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["invoiceId"] = this.invoiceId;
+        data["patientInsuranceId"] = this.patientInsuranceId;
+        data["totalAmount"] = this.totalAmount;
+        data["amountPayByInsurance"] = this.amountPayByInsurance;
+        data["amountPayByPatient"] = this.amountPayByPatient;
+        data["status"] = this.status;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): CreateUpdateInsuranceClaimDto {
+        const json = this.toJSON();
+        let result = new CreateUpdateInsuranceClaimDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ICreateUpdateInsuranceClaimDto {
+    id: number;
+    tenantId: number;
+    invoiceId: number;
+    patientInsuranceId: number | undefined;
+    totalAmount: number;
+    amountPayByInsurance: number;
+    amountPayByPatient: number;
+    status: ClaimStatus;
+    items: InvoiceItemDto[] | undefined;
+}
+
+export class CreateUpdateInsuranceMasterDto implements ICreateUpdateInsuranceMasterDto {
+    id: number;
+    tenantId: number;
+    insuranceName: string | undefined;
+    coversRoomCharge: boolean;
+    coversDoctorVisit: boolean;
+    coversLabTests: boolean;
+    coversProcedures: boolean;
+    coversMedicines: boolean;
+    isActive: boolean;
+
+    constructor(data?: ICreateUpdateInsuranceMasterDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.insuranceName = _data["insuranceName"];
+            this.coversRoomCharge = _data["coversRoomCharge"];
+            this.coversDoctorVisit = _data["coversDoctorVisit"];
+            this.coversLabTests = _data["coversLabTests"];
+            this.coversProcedures = _data["coversProcedures"];
+            this.coversMedicines = _data["coversMedicines"];
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): CreateUpdateInsuranceMasterDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateUpdateInsuranceMasterDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["insuranceName"] = this.insuranceName;
+        data["coversRoomCharge"] = this.coversRoomCharge;
+        data["coversDoctorVisit"] = this.coversDoctorVisit;
+        data["coversLabTests"] = this.coversLabTests;
+        data["coversProcedures"] = this.coversProcedures;
+        data["coversMedicines"] = this.coversMedicines;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+
+    clone(): CreateUpdateInsuranceMasterDto {
+        const json = this.toJSON();
+        let result = new CreateUpdateInsuranceMasterDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ICreateUpdateInsuranceMasterDto {
+    id: number;
+    tenantId: number;
+    insuranceName: string | undefined;
+    coversRoomCharge: boolean;
+    coversDoctorVisit: boolean;
+    coversLabTests: boolean;
+    coversProcedures: boolean;
+    coversMedicines: boolean;
+    isActive: boolean;
+}
+
 export class CreateUpdateInvoiceDto implements ICreateUpdateInvoiceDto {
     id: number;
     tenantId: number;
     patientId: number;
     invoiceType: InvoiceType;
     invoiceDate: moment.Moment;
-    subTotal: number;
-    gstAmount: number;
     totalAmount: number;
     status: InvoiceStatus;
     paymentMethod: PaymentMethod;
@@ -28951,8 +30124,6 @@ export class CreateUpdateInvoiceDto implements ICreateUpdateInvoiceDto {
             this.patientId = _data["patientId"];
             this.invoiceType = _data["invoiceType"];
             this.invoiceDate = _data["invoiceDate"] ? moment(_data["invoiceDate"].toString()) : <any>undefined;
-            this.subTotal = _data["subTotal"];
-            this.gstAmount = _data["gstAmount"];
             this.totalAmount = _data["totalAmount"];
             this.status = _data["status"];
             this.paymentMethod = _data["paymentMethod"];
@@ -28978,8 +30149,6 @@ export class CreateUpdateInvoiceDto implements ICreateUpdateInvoiceDto {
         data["patientId"] = this.patientId;
         data["invoiceType"] = this.invoiceType;
         data["invoiceDate"] = this.invoiceDate ? this.invoiceDate.toISOString() : <any>undefined;
-        data["subTotal"] = this.subTotal;
-        data["gstAmount"] = this.gstAmount;
         data["totalAmount"] = this.totalAmount;
         data["status"] = this.status;
         data["paymentMethod"] = this.paymentMethod;
@@ -29005,8 +30174,6 @@ export interface ICreateUpdateInvoiceDto {
     patientId: number;
     invoiceType: InvoiceType;
     invoiceDate: moment.Moment;
-    subTotal: number;
-    gstAmount: number;
     totalAmount: number;
     status: InvoiceStatus;
     paymentMethod: PaymentMethod;
@@ -29020,6 +30187,9 @@ export class CreateUpdateInvoiceItemDto implements ICreateUpdateInvoiceItemDto {
     quantity: number;
     unitPrice: number;
     entryDate: moment.Moment;
+    isCoveredByInsurance: boolean;
+    approvedAmount: number | undefined;
+    notApprovedAmount: number | undefined;
 
     constructor(data?: ICreateUpdateInvoiceItemDto) {
         if (data) {
@@ -29038,6 +30208,9 @@ export class CreateUpdateInvoiceItemDto implements ICreateUpdateInvoiceItemDto {
             this.quantity = _data["quantity"];
             this.unitPrice = _data["unitPrice"];
             this.entryDate = _data["entryDate"] ? moment(_data["entryDate"].toString()) : <any>undefined;
+            this.isCoveredByInsurance = _data["isCoveredByInsurance"];
+            this.approvedAmount = _data["approvedAmount"];
+            this.notApprovedAmount = _data["notApprovedAmount"];
         }
     }
 
@@ -29056,6 +30229,9 @@ export class CreateUpdateInvoiceItemDto implements ICreateUpdateInvoiceItemDto {
         data["quantity"] = this.quantity;
         data["unitPrice"] = this.unitPrice;
         data["entryDate"] = this.entryDate ? this.entryDate.toISOString() : <any>undefined;
+        data["isCoveredByInsurance"] = this.isCoveredByInsurance;
+        data["approvedAmount"] = this.approvedAmount;
+        data["notApprovedAmount"] = this.notApprovedAmount;
         return data;
     }
 
@@ -29074,6 +30250,9 @@ export interface ICreateUpdateInvoiceItemDto {
     quantity: number;
     unitPrice: number;
     entryDate: moment.Moment;
+    isCoveredByInsurance: boolean;
+    approvedAmount: number | undefined;
+    notApprovedAmount: number | undefined;
 }
 
 export class CreateUpdateLabReportResultItemDto implements ICreateUpdateLabReportResultItemDto {
@@ -30253,6 +31432,77 @@ export interface ICreateUpdatePatientDto {
     emergencyContactNumber: string | undefined;
     admissionDate: moment.Moment | undefined;
     abpUserId: number;
+}
+
+export class CreateUpdatePatientInsuranceDto implements ICreateUpdatePatientInsuranceDto {
+    id: number;
+    tenantId: number;
+    patientId: number;
+    insuranceId: number;
+    policyNumber: string | undefined;
+    coverageLimit: number;
+    coPayPercentage: number | undefined;
+    isActive: boolean;
+
+    constructor(data?: ICreateUpdatePatientInsuranceDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.patientId = _data["patientId"];
+            this.insuranceId = _data["insuranceId"];
+            this.policyNumber = _data["policyNumber"];
+            this.coverageLimit = _data["coverageLimit"];
+            this.coPayPercentage = _data["coPayPercentage"];
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): CreateUpdatePatientInsuranceDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateUpdatePatientInsuranceDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["patientId"] = this.patientId;
+        data["insuranceId"] = this.insuranceId;
+        data["policyNumber"] = this.policyNumber;
+        data["coverageLimit"] = this.coverageLimit;
+        data["coPayPercentage"] = this.coPayPercentage;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+
+    clone(): CreateUpdatePatientInsuranceDto {
+        const json = this.toJSON();
+        let result = new CreateUpdatePatientInsuranceDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ICreateUpdatePatientInsuranceDto {
+    id: number;
+    tenantId: number;
+    patientId: number;
+    insuranceId: number;
+    policyNumber: string | undefined;
+    coverageLimit: number;
+    coPayPercentage: number | undefined;
+    isActive: boolean;
 }
 
 export class CreateUpdatePharmacistDto implements ICreateUpdatePharmacistDto {
@@ -33561,6 +34811,7 @@ export class EmergencyChargeEntry implements IEmergencyChargeEntry {
     chargeType: ChargeType;
     description: string | undefined;
     amount: number;
+    quantity: number;
     entryDate: moment.Moment;
     isProcessed: boolean;
     referenceId: number | undefined;
@@ -33587,6 +34838,7 @@ export class EmergencyChargeEntry implements IEmergencyChargeEntry {
             this.chargeType = _data["chargeType"];
             this.description = _data["description"];
             this.amount = _data["amount"];
+            this.quantity = _data["quantity"];
             this.entryDate = _data["entryDate"] ? moment(_data["entryDate"].toString()) : <any>undefined;
             this.isProcessed = _data["isProcessed"];
             this.referenceId = _data["referenceId"];
@@ -33613,6 +34865,7 @@ export class EmergencyChargeEntry implements IEmergencyChargeEntry {
         data["chargeType"] = this.chargeType;
         data["description"] = this.description;
         data["amount"] = this.amount;
+        data["quantity"] = this.quantity;
         data["entryDate"] = this.entryDate ? this.entryDate.toISOString() : <any>undefined;
         data["isProcessed"] = this.isProcessed;
         data["referenceId"] = this.referenceId;
@@ -33639,6 +34892,7 @@ export interface IEmergencyChargeEntry {
     chargeType: ChargeType;
     description: string | undefined;
     amount: number;
+    quantity: number;
     entryDate: moment.Moment;
     isProcessed: boolean;
     referenceId: number | undefined;
@@ -34479,6 +35733,543 @@ export interface IHealthPackageLabReportsTypeDto {
     labReportsType: LabReportsTypeDto;
 }
 
+export class InsuranceClaim implements IInsuranceClaim {
+    id: number;
+    tenantId: number;
+    invoiceId: number;
+    invoice: Invoice;
+    patientInsuranceId: number;
+    patientInsurance: PatientInsurance;
+    totalAmount: number;
+    amountPayByInsurance: number;
+    amountPayByPatient: number;
+    status: ClaimStatus;
+    remarks: string | undefined;
+    createdDate: moment.Moment;
+    submittedOn: moment.Moment | undefined;
+    respondedOn: moment.Moment | undefined;
+    paidOn: moment.Moment | undefined;
+
+    constructor(data?: IInsuranceClaim) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.invoiceId = _data["invoiceId"];
+            this.invoice = _data["invoice"] ? Invoice.fromJS(_data["invoice"]) : <any>undefined;
+            this.patientInsuranceId = _data["patientInsuranceId"];
+            this.patientInsurance = _data["patientInsurance"] ? PatientInsurance.fromJS(_data["patientInsurance"]) : <any>undefined;
+            this.totalAmount = _data["totalAmount"];
+            this.amountPayByInsurance = _data["amountPayByInsurance"];
+            this.amountPayByPatient = _data["amountPayByPatient"];
+            this.status = _data["status"];
+            this.remarks = _data["remarks"];
+            this.createdDate = _data["createdDate"] ? moment(_data["createdDate"].toString()) : <any>undefined;
+            this.submittedOn = _data["submittedOn"] ? moment(_data["submittedOn"].toString()) : <any>undefined;
+            this.respondedOn = _data["respondedOn"] ? moment(_data["respondedOn"].toString()) : <any>undefined;
+            this.paidOn = _data["paidOn"] ? moment(_data["paidOn"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): InsuranceClaim {
+        data = typeof data === 'object' ? data : {};
+        let result = new InsuranceClaim();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["invoiceId"] = this.invoiceId;
+        data["invoice"] = this.invoice ? this.invoice.toJSON() : <any>undefined;
+        data["patientInsuranceId"] = this.patientInsuranceId;
+        data["patientInsurance"] = this.patientInsurance ? this.patientInsurance.toJSON() : <any>undefined;
+        data["totalAmount"] = this.totalAmount;
+        data["amountPayByInsurance"] = this.amountPayByInsurance;
+        data["amountPayByPatient"] = this.amountPayByPatient;
+        data["status"] = this.status;
+        data["remarks"] = this.remarks;
+        data["createdDate"] = this.createdDate ? this.createdDate.toISOString() : <any>undefined;
+        data["submittedOn"] = this.submittedOn ? this.submittedOn.toISOString() : <any>undefined;
+        data["respondedOn"] = this.respondedOn ? this.respondedOn.toISOString() : <any>undefined;
+        data["paidOn"] = this.paidOn ? this.paidOn.toISOString() : <any>undefined;
+        return data;
+    }
+
+    clone(): InsuranceClaim {
+        const json = this.toJSON();
+        let result = new InsuranceClaim();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IInsuranceClaim {
+    id: number;
+    tenantId: number;
+    invoiceId: number;
+    invoice: Invoice;
+    patientInsuranceId: number;
+    patientInsurance: PatientInsurance;
+    totalAmount: number;
+    amountPayByInsurance: number;
+    amountPayByPatient: number;
+    status: ClaimStatus;
+    remarks: string | undefined;
+    createdDate: moment.Moment;
+    submittedOn: moment.Moment | undefined;
+    respondedOn: moment.Moment | undefined;
+    paidOn: moment.Moment | undefined;
+}
+
+export class InsuranceClaimDto implements IInsuranceClaimDto {
+    id: number;
+    tenantId: number;
+    invoiceId: number;
+    patientInsuranceId: number | undefined;
+    insuranceName: string | undefined;
+    invoiceNo: string | undefined;
+    patientName: string | undefined;
+    totalAmount: number;
+    amountPayByInsurance: number;
+    amountPayByPatient: number;
+    remarks: string | undefined;
+    status: ClaimStatus;
+    submittedOn: moment.Moment | undefined;
+    respondedOn: moment.Moment | undefined;
+    paidOn: moment.Moment | undefined;
+
+    constructor(data?: IInsuranceClaimDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.invoiceId = _data["invoiceId"];
+            this.patientInsuranceId = _data["patientInsuranceId"];
+            this.insuranceName = _data["insuranceName"];
+            this.invoiceNo = _data["invoiceNo"];
+            this.patientName = _data["patientName"];
+            this.totalAmount = _data["totalAmount"];
+            this.amountPayByInsurance = _data["amountPayByInsurance"];
+            this.amountPayByPatient = _data["amountPayByPatient"];
+            this.remarks = _data["remarks"];
+            this.status = _data["status"];
+            this.submittedOn = _data["submittedOn"] ? moment(_data["submittedOn"].toString()) : <any>undefined;
+            this.respondedOn = _data["respondedOn"] ? moment(_data["respondedOn"].toString()) : <any>undefined;
+            this.paidOn = _data["paidOn"] ? moment(_data["paidOn"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): InsuranceClaimDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new InsuranceClaimDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["invoiceId"] = this.invoiceId;
+        data["patientInsuranceId"] = this.patientInsuranceId;
+        data["insuranceName"] = this.insuranceName;
+        data["invoiceNo"] = this.invoiceNo;
+        data["patientName"] = this.patientName;
+        data["totalAmount"] = this.totalAmount;
+        data["amountPayByInsurance"] = this.amountPayByInsurance;
+        data["amountPayByPatient"] = this.amountPayByPatient;
+        data["remarks"] = this.remarks;
+        data["status"] = this.status;
+        data["submittedOn"] = this.submittedOn ? this.submittedOn.toISOString() : <any>undefined;
+        data["respondedOn"] = this.respondedOn ? this.respondedOn.toISOString() : <any>undefined;
+        data["paidOn"] = this.paidOn ? this.paidOn.toISOString() : <any>undefined;
+        return data;
+    }
+
+    clone(): InsuranceClaimDto {
+        const json = this.toJSON();
+        let result = new InsuranceClaimDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IInsuranceClaimDto {
+    id: number;
+    tenantId: number;
+    invoiceId: number;
+    patientInsuranceId: number | undefined;
+    insuranceName: string | undefined;
+    invoiceNo: string | undefined;
+    patientName: string | undefined;
+    totalAmount: number;
+    amountPayByInsurance: number;
+    amountPayByPatient: number;
+    remarks: string | undefined;
+    status: ClaimStatus;
+    submittedOn: moment.Moment | undefined;
+    respondedOn: moment.Moment | undefined;
+    paidOn: moment.Moment | undefined;
+}
+
+export class InsuranceClaimDtoPagedResultDto implements IInsuranceClaimDtoPagedResultDto {
+    items: InsuranceClaimDto[] | undefined;
+    totalCount: number;
+
+    constructor(data?: IInsuranceClaimDtoPagedResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(InsuranceClaimDto.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): InsuranceClaimDtoPagedResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new InsuranceClaimDtoPagedResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+
+    clone(): InsuranceClaimDtoPagedResultDto {
+        const json = this.toJSON();
+        let result = new InsuranceClaimDtoPagedResultDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IInsuranceClaimDtoPagedResultDto {
+    items: InsuranceClaimDto[] | undefined;
+    totalCount: number;
+}
+
+export class InsuranceMaster implements IInsuranceMaster {
+    id: number;
+    creationTime: moment.Moment;
+    creatorUserId: number | undefined;
+    lastModificationTime: moment.Moment | undefined;
+    lastModifierUserId: number | undefined;
+    isDeleted: boolean;
+    deleterUserId: number | undefined;
+    deletionTime: moment.Moment | undefined;
+    tenantId: number;
+    insuranceName: string | undefined;
+    coversRoomCharge: boolean;
+    coversDoctorVisit: boolean;
+    coversLabTests: boolean;
+    coversProcedures: boolean;
+    coversMedicines: boolean;
+    isActive: boolean;
+
+    constructor(data?: IInsuranceMaster) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.creationTime = _data["creationTime"] ? moment(_data["creationTime"].toString()) : <any>undefined;
+            this.creatorUserId = _data["creatorUserId"];
+            this.lastModificationTime = _data["lastModificationTime"] ? moment(_data["lastModificationTime"].toString()) : <any>undefined;
+            this.lastModifierUserId = _data["lastModifierUserId"];
+            this.isDeleted = _data["isDeleted"];
+            this.deleterUserId = _data["deleterUserId"];
+            this.deletionTime = _data["deletionTime"] ? moment(_data["deletionTime"].toString()) : <any>undefined;
+            this.tenantId = _data["tenantId"];
+            this.insuranceName = _data["insuranceName"];
+            this.coversRoomCharge = _data["coversRoomCharge"];
+            this.coversDoctorVisit = _data["coversDoctorVisit"];
+            this.coversLabTests = _data["coversLabTests"];
+            this.coversProcedures = _data["coversProcedures"];
+            this.coversMedicines = _data["coversMedicines"];
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): InsuranceMaster {
+        data = typeof data === 'object' ? data : {};
+        let result = new InsuranceMaster();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["creationTime"] = this.creationTime ? this.creationTime.toISOString() : <any>undefined;
+        data["creatorUserId"] = this.creatorUserId;
+        data["lastModificationTime"] = this.lastModificationTime ? this.lastModificationTime.toISOString() : <any>undefined;
+        data["lastModifierUserId"] = this.lastModifierUserId;
+        data["isDeleted"] = this.isDeleted;
+        data["deleterUserId"] = this.deleterUserId;
+        data["deletionTime"] = this.deletionTime ? this.deletionTime.toISOString() : <any>undefined;
+        data["tenantId"] = this.tenantId;
+        data["insuranceName"] = this.insuranceName;
+        data["coversRoomCharge"] = this.coversRoomCharge;
+        data["coversDoctorVisit"] = this.coversDoctorVisit;
+        data["coversLabTests"] = this.coversLabTests;
+        data["coversProcedures"] = this.coversProcedures;
+        data["coversMedicines"] = this.coversMedicines;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+
+    clone(): InsuranceMaster {
+        const json = this.toJSON();
+        let result = new InsuranceMaster();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IInsuranceMaster {
+    id: number;
+    creationTime: moment.Moment;
+    creatorUserId: number | undefined;
+    lastModificationTime: moment.Moment | undefined;
+    lastModifierUserId: number | undefined;
+    isDeleted: boolean;
+    deleterUserId: number | undefined;
+    deletionTime: moment.Moment | undefined;
+    tenantId: number;
+    insuranceName: string | undefined;
+    coversRoomCharge: boolean;
+    coversDoctorVisit: boolean;
+    coversLabTests: boolean;
+    coversProcedures: boolean;
+    coversMedicines: boolean;
+    isActive: boolean;
+}
+
+export class InsuranceMasterDto implements IInsuranceMasterDto {
+    id: number;
+    tenantId: number;
+    insuranceName: string | undefined;
+    coversRoomCharge: boolean;
+    coversDoctorVisit: boolean;
+    coversLabTests: boolean;
+    coversProcedures: boolean;
+    coversMedicines: boolean;
+    isActive: boolean;
+
+    constructor(data?: IInsuranceMasterDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.insuranceName = _data["insuranceName"];
+            this.coversRoomCharge = _data["coversRoomCharge"];
+            this.coversDoctorVisit = _data["coversDoctorVisit"];
+            this.coversLabTests = _data["coversLabTests"];
+            this.coversProcedures = _data["coversProcedures"];
+            this.coversMedicines = _data["coversMedicines"];
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): InsuranceMasterDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new InsuranceMasterDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["insuranceName"] = this.insuranceName;
+        data["coversRoomCharge"] = this.coversRoomCharge;
+        data["coversDoctorVisit"] = this.coversDoctorVisit;
+        data["coversLabTests"] = this.coversLabTests;
+        data["coversProcedures"] = this.coversProcedures;
+        data["coversMedicines"] = this.coversMedicines;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+
+    clone(): InsuranceMasterDto {
+        const json = this.toJSON();
+        let result = new InsuranceMasterDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IInsuranceMasterDto {
+    id: number;
+    tenantId: number;
+    insuranceName: string | undefined;
+    coversRoomCharge: boolean;
+    coversDoctorVisit: boolean;
+    coversLabTests: boolean;
+    coversProcedures: boolean;
+    coversMedicines: boolean;
+    isActive: boolean;
+}
+
+export class InsuranceMasterDtoListResultDto implements IInsuranceMasterDtoListResultDto {
+    items: InsuranceMasterDto[] | undefined;
+
+    constructor(data?: IInsuranceMasterDtoListResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(InsuranceMasterDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): InsuranceMasterDtoListResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new InsuranceMasterDtoListResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): InsuranceMasterDtoListResultDto {
+        const json = this.toJSON();
+        let result = new InsuranceMasterDtoListResultDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IInsuranceMasterDtoListResultDto {
+    items: InsuranceMasterDto[] | undefined;
+}
+
+export class InsuranceMasterDtoPagedResultDto implements IInsuranceMasterDtoPagedResultDto {
+    items: InsuranceMasterDto[] | undefined;
+    totalCount: number;
+
+    constructor(data?: IInsuranceMasterDtoPagedResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(InsuranceMasterDto.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): InsuranceMasterDtoPagedResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new InsuranceMasterDtoPagedResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+
+    clone(): InsuranceMasterDtoPagedResultDto {
+        const json = this.toJSON();
+        let result = new InsuranceMasterDtoPagedResultDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IInsuranceMasterDtoPagedResultDto {
+    items: InsuranceMasterDto[] | undefined;
+    totalCount: number;
+}
+
 export class Int64EntityDto implements IInt64EntityDto {
     id: number;
 
@@ -34522,19 +36313,25 @@ export interface IInt64EntityDto {
     id: number;
 }
 
-export class InvoiceDetailsDto implements IInvoiceDetailsDto {
-    appointmentId: number;
-    appointmentDate: moment.Moment;
-    patientName: string | undefined;
-    doctorName: string | undefined;
-    consultationFee: number;
-    labTests: LabTestDetailDto[] | undefined;
-    medicines: MedicineDetailDto[] | undefined;
-    subTotal: number;
-    gstAmount: number;
+export class Invoice implements IInvoice {
+    id: number;
+    tenantId: number;
+    patientId: number;
+    patient: Patient;
+    invoiceNo: string | undefined;
+    invoiceType: InvoiceType;
+    invoiceDate: moment.Moment;
     totalAmount: number;
+    status: InvoiceStatus;
+    paymentMethod: PaymentMethod;
+    isClaimGenerated: boolean;
+    insuranceClaimId: number | undefined;
+    insuranceClaims: InsuranceClaim[] | undefined;
+    approvedAmount: number | undefined;
+    coPayAmount: number | undefined;
+    items: InvoiceItem[] | undefined;
 
-    constructor(data?: IInvoiceDetailsDto) {
+    constructor(data?: IInvoice) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -34545,76 +36342,94 @@ export class InvoiceDetailsDto implements IInvoiceDetailsDto {
 
     init(_data?: any) {
         if (_data) {
-            this.appointmentId = _data["appointmentId"];
-            this.appointmentDate = _data["appointmentDate"] ? moment(_data["appointmentDate"].toString()) : <any>undefined;
-            this.patientName = _data["patientName"];
-            this.doctorName = _data["doctorName"];
-            this.consultationFee = _data["consultationFee"];
-            if (Array.isArray(_data["labTests"])) {
-                this.labTests = [] as any;
-                for (let item of _data["labTests"])
-                    this.labTests.push(LabTestDetailDto.fromJS(item));
-            }
-            if (Array.isArray(_data["medicines"])) {
-                this.medicines = [] as any;
-                for (let item of _data["medicines"])
-                    this.medicines.push(MedicineDetailDto.fromJS(item));
-            }
-            this.subTotal = _data["subTotal"];
-            this.gstAmount = _data["gstAmount"];
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.patientId = _data["patientId"];
+            this.patient = _data["patient"] ? Patient.fromJS(_data["patient"]) : <any>undefined;
+            this.invoiceNo = _data["invoiceNo"];
+            this.invoiceType = _data["invoiceType"];
+            this.invoiceDate = _data["invoiceDate"] ? moment(_data["invoiceDate"].toString()) : <any>undefined;
             this.totalAmount = _data["totalAmount"];
+            this.status = _data["status"];
+            this.paymentMethod = _data["paymentMethod"];
+            this.isClaimGenerated = _data["isClaimGenerated"];
+            this.insuranceClaimId = _data["insuranceClaimId"];
+            if (Array.isArray(_data["insuranceClaims"])) {
+                this.insuranceClaims = [] as any;
+                for (let item of _data["insuranceClaims"])
+                    this.insuranceClaims.push(InsuranceClaim.fromJS(item));
+            }
+            this.approvedAmount = _data["approvedAmount"];
+            this.coPayAmount = _data["coPayAmount"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(InvoiceItem.fromJS(item));
+            }
         }
     }
 
-    static fromJS(data: any): InvoiceDetailsDto {
+    static fromJS(data: any): Invoice {
         data = typeof data === 'object' ? data : {};
-        let result = new InvoiceDetailsDto();
+        let result = new Invoice();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["appointmentId"] = this.appointmentId;
-        data["appointmentDate"] = this.appointmentDate ? this.appointmentDate.toISOString() : <any>undefined;
-        data["patientName"] = this.patientName;
-        data["doctorName"] = this.doctorName;
-        data["consultationFee"] = this.consultationFee;
-        if (Array.isArray(this.labTests)) {
-            data["labTests"] = [];
-            for (let item of this.labTests)
-                data["labTests"].push(item.toJSON());
-        }
-        if (Array.isArray(this.medicines)) {
-            data["medicines"] = [];
-            for (let item of this.medicines)
-                data["medicines"].push(item.toJSON());
-        }
-        data["subTotal"] = this.subTotal;
-        data["gstAmount"] = this.gstAmount;
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["patientId"] = this.patientId;
+        data["patient"] = this.patient ? this.patient.toJSON() : <any>undefined;
+        data["invoiceNo"] = this.invoiceNo;
+        data["invoiceType"] = this.invoiceType;
+        data["invoiceDate"] = this.invoiceDate ? this.invoiceDate.toISOString() : <any>undefined;
         data["totalAmount"] = this.totalAmount;
+        data["status"] = this.status;
+        data["paymentMethod"] = this.paymentMethod;
+        data["isClaimGenerated"] = this.isClaimGenerated;
+        data["insuranceClaimId"] = this.insuranceClaimId;
+        if (Array.isArray(this.insuranceClaims)) {
+            data["insuranceClaims"] = [];
+            for (let item of this.insuranceClaims)
+                data["insuranceClaims"].push(item.toJSON());
+        }
+        data["approvedAmount"] = this.approvedAmount;
+        data["coPayAmount"] = this.coPayAmount;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
         return data;
     }
 
-    clone(): InvoiceDetailsDto {
+    clone(): Invoice {
         const json = this.toJSON();
-        let result = new InvoiceDetailsDto();
+        let result = new Invoice();
         result.init(json);
         return result;
     }
 }
 
-export interface IInvoiceDetailsDto {
-    appointmentId: number;
-    appointmentDate: moment.Moment;
-    patientName: string | undefined;
-    doctorName: string | undefined;
-    consultationFee: number;
-    labTests: LabTestDetailDto[] | undefined;
-    medicines: MedicineDetailDto[] | undefined;
-    subTotal: number;
-    gstAmount: number;
+export interface IInvoice {
+    id: number;
+    tenantId: number;
+    patientId: number;
+    patient: Patient;
+    invoiceNo: string | undefined;
+    invoiceType: InvoiceType;
+    invoiceDate: moment.Moment;
     totalAmount: number;
+    status: InvoiceStatus;
+    paymentMethod: PaymentMethod;
+    isClaimGenerated: boolean;
+    insuranceClaimId: number | undefined;
+    insuranceClaims: InsuranceClaim[] | undefined;
+    approvedAmount: number | undefined;
+    coPayAmount: number | undefined;
+    items: InvoiceItem[] | undefined;
 }
 
 export class InvoiceDto implements IInvoiceDto {
@@ -34625,11 +36440,12 @@ export class InvoiceDto implements IInvoiceDto {
     invoiceNo: string | undefined;
     invoiceType: InvoiceType;
     invoiceDate: moment.Moment;
-    subTotal: number;
-    gstAmount: number;
     totalAmount: number;
+    approvedAmount: number | undefined;
+    coPayAmount: number | undefined;
     status: InvoiceStatus;
     paymentMethod: PaymentMethod;
+    claims: InsuranceClaimDto[] | undefined;
     items: InvoiceItemDto[] | undefined;
 
     constructor(data?: IInvoiceDto) {
@@ -34650,11 +36466,16 @@ export class InvoiceDto implements IInvoiceDto {
             this.invoiceNo = _data["invoiceNo"];
             this.invoiceType = _data["invoiceType"];
             this.invoiceDate = _data["invoiceDate"] ? moment(_data["invoiceDate"].toString()) : <any>undefined;
-            this.subTotal = _data["subTotal"];
-            this.gstAmount = _data["gstAmount"];
             this.totalAmount = _data["totalAmount"];
+            this.approvedAmount = _data["approvedAmount"];
+            this.coPayAmount = _data["coPayAmount"];
             this.status = _data["status"];
             this.paymentMethod = _data["paymentMethod"];
+            if (Array.isArray(_data["claims"])) {
+                this.claims = [] as any;
+                for (let item of _data["claims"])
+                    this.claims.push(InsuranceClaimDto.fromJS(item));
+            }
             if (Array.isArray(_data["items"])) {
                 this.items = [] as any;
                 for (let item of _data["items"])
@@ -34679,11 +36500,16 @@ export class InvoiceDto implements IInvoiceDto {
         data["invoiceNo"] = this.invoiceNo;
         data["invoiceType"] = this.invoiceType;
         data["invoiceDate"] = this.invoiceDate ? this.invoiceDate.toISOString() : <any>undefined;
-        data["subTotal"] = this.subTotal;
-        data["gstAmount"] = this.gstAmount;
         data["totalAmount"] = this.totalAmount;
+        data["approvedAmount"] = this.approvedAmount;
+        data["coPayAmount"] = this.coPayAmount;
         data["status"] = this.status;
         data["paymentMethod"] = this.paymentMethod;
+        if (Array.isArray(this.claims)) {
+            data["claims"] = [];
+            for (let item of this.claims)
+                data["claims"].push(item.toJSON());
+        }
         if (Array.isArray(this.items)) {
             data["items"] = [];
             for (let item of this.items)
@@ -34708,11 +36534,12 @@ export interface IInvoiceDto {
     invoiceNo: string | undefined;
     invoiceType: InvoiceType;
     invoiceDate: moment.Moment;
-    subTotal: number;
-    gstAmount: number;
     totalAmount: number;
+    approvedAmount: number | undefined;
+    coPayAmount: number | undefined;
     status: InvoiceStatus;
     paymentMethod: PaymentMethod;
+    claims: InsuranceClaimDto[] | undefined;
     items: InvoiceItemDto[] | undefined;
 }
 
@@ -34771,6 +36598,85 @@ export interface IInvoiceDtoPagedResultDto {
     totalCount: number;
 }
 
+export class InvoiceItem implements IInvoiceItem {
+    id: number;
+    invoiceId: number;
+    invoice: Invoice;
+    description: string | undefined;
+    quantity: number;
+    unitPrice: number;
+    entryDate: moment.Moment;
+    isCoveredByInsurance: boolean;
+    approvedAmount: number | undefined;
+    notApprovedAmount: number | undefined;
+
+    constructor(data?: IInvoiceItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.invoiceId = _data["invoiceId"];
+            this.invoice = _data["invoice"] ? Invoice.fromJS(_data["invoice"]) : <any>undefined;
+            this.description = _data["description"];
+            this.quantity = _data["quantity"];
+            this.unitPrice = _data["unitPrice"];
+            this.entryDate = _data["entryDate"] ? moment(_data["entryDate"].toString()) : <any>undefined;
+            this.isCoveredByInsurance = _data["isCoveredByInsurance"];
+            this.approvedAmount = _data["approvedAmount"];
+            this.notApprovedAmount = _data["notApprovedAmount"];
+        }
+    }
+
+    static fromJS(data: any): InvoiceItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new InvoiceItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["invoiceId"] = this.invoiceId;
+        data["invoice"] = this.invoice ? this.invoice.toJSON() : <any>undefined;
+        data["description"] = this.description;
+        data["quantity"] = this.quantity;
+        data["unitPrice"] = this.unitPrice;
+        data["entryDate"] = this.entryDate ? this.entryDate.toISOString() : <any>undefined;
+        data["isCoveredByInsurance"] = this.isCoveredByInsurance;
+        data["approvedAmount"] = this.approvedAmount;
+        data["notApprovedAmount"] = this.notApprovedAmount;
+        return data;
+    }
+
+    clone(): InvoiceItem {
+        const json = this.toJSON();
+        let result = new InvoiceItem();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IInvoiceItem {
+    id: number;
+    invoiceId: number;
+    invoice: Invoice;
+    description: string | undefined;
+    quantity: number;
+    unitPrice: number;
+    entryDate: moment.Moment;
+    isCoveredByInsurance: boolean;
+    approvedAmount: number | undefined;
+    notApprovedAmount: number | undefined;
+}
+
 export class InvoiceItemDto implements IInvoiceItemDto {
     id: number;
     invoiceId: number;
@@ -34778,6 +36684,9 @@ export class InvoiceItemDto implements IInvoiceItemDto {
     quantity: number;
     unitPrice: number;
     entryDate: moment.Moment;
+    isCoveredByInsurance: boolean;
+    approvedAmount: number | undefined;
+    notApprovedAmount: number | undefined;
 
     constructor(data?: IInvoiceItemDto) {
         if (data) {
@@ -34796,6 +36705,9 @@ export class InvoiceItemDto implements IInvoiceItemDto {
             this.quantity = _data["quantity"];
             this.unitPrice = _data["unitPrice"];
             this.entryDate = _data["entryDate"] ? moment(_data["entryDate"].toString()) : <any>undefined;
+            this.isCoveredByInsurance = _data["isCoveredByInsurance"];
+            this.approvedAmount = _data["approvedAmount"];
+            this.notApprovedAmount = _data["notApprovedAmount"];
         }
     }
 
@@ -34814,6 +36726,9 @@ export class InvoiceItemDto implements IInvoiceItemDto {
         data["quantity"] = this.quantity;
         data["unitPrice"] = this.unitPrice;
         data["entryDate"] = this.entryDate ? this.entryDate.toISOString() : <any>undefined;
+        data["isCoveredByInsurance"] = this.isCoveredByInsurance;
+        data["approvedAmount"] = this.approvedAmount;
+        data["notApprovedAmount"] = this.notApprovedAmount;
         return data;
     }
 
@@ -34832,11 +36747,15 @@ export interface IInvoiceItemDto {
     quantity: number;
     unitPrice: number;
     entryDate: moment.Moment;
+    isCoveredByInsurance: boolean;
+    approvedAmount: number | undefined;
+    notApprovedAmount: number | undefined;
 }
 
 export enum InvoiceStatus {
     _0 = 0,
     _1 = 1,
+    _2 = 2,
 }
 
 export enum InvoiceType {
@@ -34855,6 +36774,7 @@ export class IpdChargeEntry implements IIpdChargeEntry {
     entryDate: moment.Moment;
     isProcessed: boolean;
     referenceId: number | undefined;
+    quantity: number;
     admission: Admission;
     patient: Patient;
     prescriptionId: number | undefined;
@@ -34881,6 +36801,7 @@ export class IpdChargeEntry implements IIpdChargeEntry {
             this.entryDate = _data["entryDate"] ? moment(_data["entryDate"].toString()) : <any>undefined;
             this.isProcessed = _data["isProcessed"];
             this.referenceId = _data["referenceId"];
+            this.quantity = _data["quantity"];
             this.admission = _data["admission"] ? Admission.fromJS(_data["admission"]) : <any>undefined;
             this.patient = _data["patient"] ? Patient.fromJS(_data["patient"]) : <any>undefined;
             this.prescriptionId = _data["prescriptionId"];
@@ -34907,6 +36828,7 @@ export class IpdChargeEntry implements IIpdChargeEntry {
         data["entryDate"] = this.entryDate ? this.entryDate.toISOString() : <any>undefined;
         data["isProcessed"] = this.isProcessed;
         data["referenceId"] = this.referenceId;
+        data["quantity"] = this.quantity;
         data["admission"] = this.admission ? this.admission.toJSON() : <any>undefined;
         data["patient"] = this.patient ? this.patient.toJSON() : <any>undefined;
         data["prescriptionId"] = this.prescriptionId;
@@ -34933,6 +36855,7 @@ export interface IIpdChargeEntry {
     entryDate: moment.Moment;
     isProcessed: boolean;
     referenceId: number | undefined;
+    quantity: number;
     admission: Admission;
     patient: Patient;
     prescriptionId: number | undefined;
@@ -34947,6 +36870,7 @@ export class IpdChargeEntryDto implements IIpdChargeEntryDto {
     chargeType: string | undefined;
     description: string | undefined;
     amount: number;
+    quantity: number;
     entryDate: moment.Moment;
     isProcessed: boolean;
     prescriptionId: number | undefined;
@@ -34970,6 +36894,7 @@ export class IpdChargeEntryDto implements IIpdChargeEntryDto {
             this.chargeType = _data["chargeType"];
             this.description = _data["description"];
             this.amount = _data["amount"];
+            this.quantity = _data["quantity"];
             this.entryDate = _data["entryDate"] ? moment(_data["entryDate"].toString()) : <any>undefined;
             this.isProcessed = _data["isProcessed"];
             this.prescriptionId = _data["prescriptionId"];
@@ -34993,6 +36918,7 @@ export class IpdChargeEntryDto implements IIpdChargeEntryDto {
         data["chargeType"] = this.chargeType;
         data["description"] = this.description;
         data["amount"] = this.amount;
+        data["quantity"] = this.quantity;
         data["entryDate"] = this.entryDate ? this.entryDate.toISOString() : <any>undefined;
         data["isProcessed"] = this.isProcessed;
         data["prescriptionId"] = this.prescriptionId;
@@ -35016,6 +36942,7 @@ export interface IIpdChargeEntryDto {
     chargeType: string | undefined;
     description: string | undefined;
     amount: number;
+    quantity: number;
     entryDate: moment.Moment;
     isProcessed: boolean;
     prescriptionId: number | undefined;
@@ -36756,57 +38683,6 @@ export interface ILabTest {
     isActive: boolean;
 }
 
-export class LabTestDetailDto implements ILabTestDetailDto {
-    prescriptionLabTestId: number;
-    testName: string | undefined;
-    price: number;
-
-    constructor(data?: ILabTestDetailDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.prescriptionLabTestId = _data["prescriptionLabTestId"];
-            this.testName = _data["testName"];
-            this.price = _data["price"];
-        }
-    }
-
-    static fromJS(data: any): LabTestDetailDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new LabTestDetailDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["prescriptionLabTestId"] = this.prescriptionLabTestId;
-        data["testName"] = this.testName;
-        data["price"] = this.price;
-        return data;
-    }
-
-    clone(): LabTestDetailDto {
-        const json = this.toJSON();
-        let result = new LabTestDetailDto();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface ILabTestDetailDto {
-    prescriptionLabTestId: number;
-    testName: string | undefined;
-    price: number;
-}
-
 export class LabTestDto implements ILabTestDto {
     id: number;
     tenantId: number;
@@ -37730,61 +39606,6 @@ export class MeasureUnitDtoPagedResultDto implements IMeasureUnitDtoPagedResultD
 export interface IMeasureUnitDtoPagedResultDto {
     items: MeasureUnitDto[] | undefined;
     totalCount: number;
-}
-
-export class MedicineDetailDto implements IMedicineDetailDto {
-    prescriptionItemId: number;
-    medicineName: string | undefined;
-    price: number;
-    quantity: number;
-
-    constructor(data?: IMedicineDetailDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.prescriptionItemId = _data["prescriptionItemId"];
-            this.medicineName = _data["medicineName"];
-            this.price = _data["price"];
-            this.quantity = _data["quantity"];
-        }
-    }
-
-    static fromJS(data: any): MedicineDetailDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new MedicineDetailDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["prescriptionItemId"] = this.prescriptionItemId;
-        data["medicineName"] = this.medicineName;
-        data["price"] = this.price;
-        data["quantity"] = this.quantity;
-        return data;
-    }
-
-    clone(): MedicineDetailDto {
-        const json = this.toJSON();
-        let result = new MedicineDetailDto();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface IMedicineDetailDto {
-    prescriptionItemId: number;
-    medicineName: string | undefined;
-    price: number;
-    quantity: number;
 }
 
 export class MedicineFormMasterDto implements IMedicineFormMasterDto {
@@ -39254,6 +41075,7 @@ export class Patient implements IPatient {
     lastBillingDate: moment.Moment | undefined;
     abpUser: User;
     prescriptions: Prescription[] | undefined;
+    patientInsurances: PatientInsurance[] | undefined;
     admissions: Admission[] | undefined;
     patientDeposits: PatientDeposit[] | undefined;
     vitals: Vital[] | undefined;
@@ -39299,6 +41121,11 @@ export class Patient implements IPatient {
                 this.prescriptions = [] as any;
                 for (let item of _data["prescriptions"])
                     this.prescriptions.push(Prescription.fromJS(item));
+            }
+            if (Array.isArray(_data["patientInsurances"])) {
+                this.patientInsurances = [] as any;
+                for (let item of _data["patientInsurances"])
+                    this.patientInsurances.push(PatientInsurance.fromJS(item));
             }
             if (Array.isArray(_data["admissions"])) {
                 this.admissions = [] as any;
@@ -39402,6 +41229,11 @@ export class Patient implements IPatient {
             for (let item of this.prescriptions)
                 data["prescriptions"].push(item.toJSON());
         }
+        if (Array.isArray(this.patientInsurances)) {
+            data["patientInsurances"] = [];
+            for (let item of this.patientInsurances)
+                data["patientInsurances"].push(item.toJSON());
+        }
         if (Array.isArray(this.admissions)) {
             data["admissions"] = [];
             for (let item of this.admissions)
@@ -39500,6 +41332,7 @@ export interface IPatient {
     lastBillingDate: moment.Moment | undefined;
     abpUser: User;
     prescriptions: Prescription[] | undefined;
+    patientInsurances: PatientInsurance[] | undefined;
     admissions: Admission[] | undefined;
     patientDeposits: PatientDeposit[] | undefined;
     vitals: Vital[] | undefined;
@@ -40545,6 +42378,227 @@ export class PatientDtoPagedResultDto implements IPatientDtoPagedResultDto {
 
 export interface IPatientDtoPagedResultDto {
     items: PatientDto[] | undefined;
+    totalCount: number;
+}
+
+export class PatientInsurance implements IPatientInsurance {
+    id: number;
+    tenantId: number;
+    patientId: number;
+    patient: Patient;
+    insuranceId: number;
+    insuranceMaster: InsuranceMaster;
+    insuranceClaims: InsuranceClaim[] | undefined;
+    policyNumber: string | undefined;
+    coverageLimit: number;
+    coPayPercentage: number | undefined;
+    isActive: boolean;
+
+    constructor(data?: IPatientInsurance) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.patientId = _data["patientId"];
+            this.patient = _data["patient"] ? Patient.fromJS(_data["patient"]) : <any>undefined;
+            this.insuranceId = _data["insuranceId"];
+            this.insuranceMaster = _data["insuranceMaster"] ? InsuranceMaster.fromJS(_data["insuranceMaster"]) : <any>undefined;
+            if (Array.isArray(_data["insuranceClaims"])) {
+                this.insuranceClaims = [] as any;
+                for (let item of _data["insuranceClaims"])
+                    this.insuranceClaims.push(InsuranceClaim.fromJS(item));
+            }
+            this.policyNumber = _data["policyNumber"];
+            this.coverageLimit = _data["coverageLimit"];
+            this.coPayPercentage = _data["coPayPercentage"];
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): PatientInsurance {
+        data = typeof data === 'object' ? data : {};
+        let result = new PatientInsurance();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["patientId"] = this.patientId;
+        data["patient"] = this.patient ? this.patient.toJSON() : <any>undefined;
+        data["insuranceId"] = this.insuranceId;
+        data["insuranceMaster"] = this.insuranceMaster ? this.insuranceMaster.toJSON() : <any>undefined;
+        if (Array.isArray(this.insuranceClaims)) {
+            data["insuranceClaims"] = [];
+            for (let item of this.insuranceClaims)
+                data["insuranceClaims"].push(item.toJSON());
+        }
+        data["policyNumber"] = this.policyNumber;
+        data["coverageLimit"] = this.coverageLimit;
+        data["coPayPercentage"] = this.coPayPercentage;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+
+    clone(): PatientInsurance {
+        const json = this.toJSON();
+        let result = new PatientInsurance();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IPatientInsurance {
+    id: number;
+    tenantId: number;
+    patientId: number;
+    patient: Patient;
+    insuranceId: number;
+    insuranceMaster: InsuranceMaster;
+    insuranceClaims: InsuranceClaim[] | undefined;
+    policyNumber: string | undefined;
+    coverageLimit: number;
+    coPayPercentage: number | undefined;
+    isActive: boolean;
+}
+
+export class PatientInsuranceDto implements IPatientInsuranceDto {
+    id: number;
+    tenantId: number;
+    patientId: number;
+    insuranceId: number;
+    policyNumber: string | undefined;
+    coverageLimit: number;
+    coPayPercentage: number | undefined;
+    isActive: boolean;
+    insuranceName: string | undefined;
+
+    constructor(data?: IPatientInsuranceDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.patientId = _data["patientId"];
+            this.insuranceId = _data["insuranceId"];
+            this.policyNumber = _data["policyNumber"];
+            this.coverageLimit = _data["coverageLimit"];
+            this.coPayPercentage = _data["coPayPercentage"];
+            this.isActive = _data["isActive"];
+            this.insuranceName = _data["insuranceName"];
+        }
+    }
+
+    static fromJS(data: any): PatientInsuranceDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PatientInsuranceDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["patientId"] = this.patientId;
+        data["insuranceId"] = this.insuranceId;
+        data["policyNumber"] = this.policyNumber;
+        data["coverageLimit"] = this.coverageLimit;
+        data["coPayPercentage"] = this.coPayPercentage;
+        data["isActive"] = this.isActive;
+        data["insuranceName"] = this.insuranceName;
+        return data;
+    }
+
+    clone(): PatientInsuranceDto {
+        const json = this.toJSON();
+        let result = new PatientInsuranceDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IPatientInsuranceDto {
+    id: number;
+    tenantId: number;
+    patientId: number;
+    insuranceId: number;
+    policyNumber: string | undefined;
+    coverageLimit: number;
+    coPayPercentage: number | undefined;
+    isActive: boolean;
+    insuranceName: string | undefined;
+}
+
+export class PatientInsuranceDtoPagedResultDto implements IPatientInsuranceDtoPagedResultDto {
+    items: PatientInsuranceDto[] | undefined;
+    totalCount: number;
+
+    constructor(data?: IPatientInsuranceDtoPagedResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(PatientInsuranceDto.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): PatientInsuranceDtoPagedResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PatientInsuranceDtoPagedResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+
+    clone(): PatientInsuranceDtoPagedResultDto {
+        const json = this.toJSON();
+        let result = new PatientInsuranceDtoPagedResultDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IPatientInsuranceDtoPagedResultDto {
+    items: PatientInsuranceDto[] | undefined;
     totalCount: number;
 }
 

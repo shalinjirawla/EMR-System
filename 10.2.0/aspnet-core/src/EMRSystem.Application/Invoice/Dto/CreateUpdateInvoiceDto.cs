@@ -16,14 +16,9 @@ namespace EMRSystem.Invoice.Dto
         public long PatientId { get; set; }
         public InvoiceType InvoiceType { get; set; }
         public DateTime InvoiceDate { get; set; } = DateTime.Now;
-        public decimal SubTotal { get; set; }
-        public decimal GstAmount { get; set; }
         public decimal TotalAmount { get; set; }
         public InvoiceStatus Status { get; set; }
         public PaymentMethod? PaymentMethod { get; set; }
         public List<CreateUpdateInvoiceItemDto> Items { get; set; } = new();
-        //public long AppointmentId { get; set; }
-        //public DateTime DueDate { get; set; }
-        //public decimal AmountPaid { get; set; }
     }
 }

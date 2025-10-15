@@ -1,0 +1,89 @@
+<form #claimForm="ngForm" class="d-flex flex-column h-100" (ngSubmit)="save()">
+    <abp-modal-header [title]="'Edit Insurance Claim'" (onCloseClick)="bsModalRef.hide()">
+    </abp-modal-header>
+
+    <div class="modal-body flex-grow-1 overflow-auto p-3" style="max-height: 70vh;">
+        <!-- Patient & Insurance Summary -->
+        <div class="card shadow-sm mb-4 border-0 rounded-3">
+            <div class="card-body">
+                <div class="row text-muted">
+                    <div class="col-md-4 mb-2">
+                        <strong class="text-dark">Patient:</strong> {{ patientName }}
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <strong class="text-dark">Insurance:</strong> {{ insuranceName }}
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <strong class="text-dark">Total Amount:</strong>
+                        <span class="text-success fw-bold">₹{{ invoice?.totalAmount | number:'1.2-2' }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status -->
+        <div class="mb-4">
+            <label class="form-label fw-bold text-dark d-block mb-2">Claim Status</label>
+
+            <p-dropdown [options]="statusList" [(ngModel)]="claim.status" name="status" optionLabel="label"
+                optionValue="value" placeholder="Select Status" [showClear]="true" [filter]="true"
+                class="w-100 shadow-sm">
+            </p-dropdown>
+        </div>
+
+
+        <!-- Items Table -->
+        <p-table [value]="items" class="p-datatable-sm p-datatable-striped shadow-sm rounded-3"
+            [tableStyle]="{ 'min-width': '60rem' }">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Description</th>
+                    <th>Qty</th>
+                    <th>Unit Price</th>
+                    <th>Total</th>
+                    <th class="text-center">Covered</th>
+                    <th>Approved</th>
+                    <th>Not Approved</th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-item>
+                <tr>
+                    <td>{{ item.description }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>₹{{ item.unitPrice | number:'1.2-2' }}</td>
+                    <td>
+                        <span class="fw-semibold text-success">₹{{ getTotal(item) | number:'1.2-2' }}</span>
+                    </td>
+                    <td class="text-center">
+                        <p-checkbox [(ngModel)]="item.isCoveredByInsurance" [name]="'covered-' + item.id" binary="true"
+                            [disabled]="!isEditable()" (onChange)="onCoveredChange(item)">
+                        </p-checkbox>
+                    </td>
+                    <td>
+                        <input type="number" class="form-control form-control-sm" [(ngModel)]="item.approvedAmount"
+                            [min]="0" [max]="getTotal(item)" [name]="'approved-' + item.id"
+                            [disabled]="!item.isCoveredByInsurance || !isEditable()"
+                            (ngModelChange)="onApprovedChange(item)" />
+                    </td>
+                    <td>
+                        <span class="badge bg-danger-subtle text-danger fw-semibold">
+                            ₹{{ getNotApproved(item) | number:'1.2-2' }}
+                        </span>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+
+    <abp-modal-footer>
+        <div class="d-flex justify-content-end gap-2">
+            <button type="submit" class="btn btn-primary px-4" [disabled]="saving || !isEditable()">
+                <i class="fas fa-save me-2"></i> Save
+            </button>
+            <button type="button" class="btn btn-outline-secondary px-4" (click)="bsModalRef.hide()">
+                <i class="fas fa-times me-2"></i> Cancel
+            </button>
+        </div>
+    </abp-modal-footer>
+</form>

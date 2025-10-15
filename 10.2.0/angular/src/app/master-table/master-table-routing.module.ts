@@ -17,6 +17,7 @@ import {DepartmentComponent} from './department/department.component'
 import {EmergencyProcedureComponent} from './emergency-procedure/emergency-procedure.component'
 import {  MedicineFormTypeComponent} from './medicine-form-type/medicine-form-type.component';
 import { MedicineStrengthTypeComponent } from './medicine-strength-type/medicine-strength-type.component';
+import { InsuranceMasterComponent } from './insurance-master/insurance-master.component';
 const routes: Routes = [
     {
         path: '',
@@ -86,6 +87,10 @@ const routes: Routes = [
     {
         path:'medicine-strength-type',
         component:MedicineStrengthTypeComponent
+    },
+    {
+        path:'insurance-master',
+        component:InsuranceMasterComponent
     }
 ];
 

@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using EMRSystem.Insurances;
+using EMRSystem.Insurances.Dto;
 using EMRSystem.Invoices;
 using EMRSystem.IpdChargeEntry.Dto;
 using System;
@@ -15,9 +17,14 @@ namespace EMRSystem.Invoice.Dto
         {
             // Invoice -> InvoiceDto
             CreateMap<EMRSystem.Invoices.Invoice, InvoiceDto>()
-               .ForMember(dest => dest.PatientName, opt => opt.MapFrom(src => src.Patient.FullName))
-               //.ForMember(dest => dest.InvoiceType, opt => opt.MapFrom(src => src.InvoiceType.ToString()))
-               .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items));
+                .ForMember(dest => dest.PatientName, opt => opt.MapFrom(src => src.Patient.FullName))
+                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items))
+                .ForMember(dest => dest.Claims, opt => opt.MapFrom(src => src.InsuranceClaims));
+
+            CreateMap<InsuranceClaim, InsuranceClaimDto>()
+                .ForMember(dest => dest.PatientName, opt => opt.MapFrom(src => src.Invoice.Patient.FullName))
+                .ForMember(dest => dest.InvoiceNo, opt => opt.MapFrom(src => src.Invoice.InvoiceNo))
+                .ForMember(dest => dest.InsuranceName, opt => opt.MapFrom(src => src.PatientInsurance.InsuranceMaster.InsuranceName));
 
             // InvoiceItem -> InvoiceItemDto
             CreateMap<InvoiceItem, InvoiceItemDto>();

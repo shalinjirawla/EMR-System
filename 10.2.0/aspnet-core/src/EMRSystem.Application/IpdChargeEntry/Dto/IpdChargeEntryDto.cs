@@ -15,6 +15,8 @@ namespace EMRSystem.IpdChargeEntry.Dto
         public string ChargeType { get; set; }
         public string Description { get; set; }
         public decimal Amount { get; set; }
+        public int Quantity { get; set; }
+
         public DateTime EntryDate { get; set; }
         public bool IsProcessed { get; set; }
         public long? PrescriptionId { get; set; }

@@ -21,6 +21,8 @@ namespace EMRSystem.IpdChargeEntry
         public DateTime EntryDate { get; set; } = DateTime.Now;
         public bool IsProcessed { get; set; } = false;
         public long? ReferenceId { get; set; }
+        public int Quantity { get; set; } = 1;
+
         public virtual Admission.Admission Admission { get; set; }
         public virtual Patient Patient { get; set; }
         public long? PrescriptionId { get; set; }

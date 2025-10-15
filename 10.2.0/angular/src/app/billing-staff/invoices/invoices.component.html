@@ -48,13 +48,20 @@
                                 <th>
                                     {{ 'Invoice Date' | localize }}
                                 </th>
-                                <th pSortableColumn="patientName">
+                                <th>
                                     {{ 'PatientName' | localize }}
-                                    <p-sortIcon field="patientName"></p-sortIcon>
                                 </th>
-                                <th pSortableColumn="totalAmount">
+                                <th>
                                     {{ 'TotalAmount' | localize }}
-                                    <p-sortIcon field="totalAmount"></p-sortIcon>
+                                </th>
+                                <th>
+                                    {{ 'PayByInsurance' | localize }}
+                                </th>
+                                <th>
+                                    {{ 'PayByPatient' | localize }}
+                                </th>
+                                <th>
+                                    {{ 'InsuranceStatus' | localize }}
                                 </th>
                                 <th>
                                     {{ 'PaymentStatus' | localize }}
@@ -94,6 +101,21 @@
                                 </td>
                                 <td>
                                     <span>
+                                        {{ record.approvedAmount || '-' }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span>
+                                        {{ record.coPayAmount || '-'}}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span>
+                                        {{ getClaimStatuses(record.claims) }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span>
                                         {{ getStatusString(record.status) }}
                                     </span>
                                 </td>
@@ -104,7 +126,7 @@
                                         <i class="fa-solid fa-ellipsis-vertical"></i>
                                     </button>
                                     <p-menu #rowMenu [popup]="true" [style]="{'min-width':'80px', 'max-width':'150px'}"
-                                        [model]="editDeleteMenus" appendTo="body"></p-menu>
+                                        [model]="getRowMenuItems(record)" appendTo="body"></p-menu>
                                 </td>
                             </tr>
                         </ng-template>
@@ -116,9 +138,8 @@
                 <p-paginator [rows]="primengTableHelper.defaultRecordsCountPerPage" #paginator
                     (onPageChange)="list($event)" [totalRecords]="primengTableHelper.totalRecordsCount"
                     [rowsPerPageOptions]="primengTableHelper.predefinedRecordsCountPerPage"
-                    [showCurrentPageReport]="true" [currentPageReportTemplate]="
-                                            'TotalRecordsCount' | localize: primengTableHelper.totalRecordsCount
-                                        "></p-paginator>
+                    [showCurrentPageReport]="true"
+                    [currentPageReportTemplate]="'TotalRecordsCount' | localize: primengTableHelper.totalRecordsCount"></p-paginator>
             </div>
         </div>
     </section>

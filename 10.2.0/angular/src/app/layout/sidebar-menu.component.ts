@@ -175,6 +175,7 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
 
             // Billing Staff Section
             new MenuItem(this.l('Billing Portal'), '', 'fas fa-file-invoice-dollar', 'Pages.BillingStaff', [
+                new MenuItem(this.l('Insurance Claim'), '/app/billing-staff/insurance-claim', 'fas fa-receipt', 'Pages.BillingStaff.Invoices.View'),
                 new MenuItem(this.l('Invoices'), '/app/billing-staff/invoices', 'fas fa-receipt', 'Pages.BillingStaff.Invoices.View'),
                 new MenuItem(this.l('Patient Deposits'), '/app/deposit', 'fas fa-hand-holding-usd', 'Pages.BillingStaff'),
             ]),
@@ -201,7 +202,8 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
                     new MenuItem(this.l('Medicine Form Type'), '/app/master/medicine-form-type', 'fas fa-prescription-bottle-alt', 'Pages.Users'),
                     new MenuItem(this.l('Medicine Unit Type'), '/app/master/medicine-strength-type', 'fas fa-ruler-combined', 'Pages.Users'),
                 ]),
-
+                
+                new MenuItem(this.l('Insurance Master'), '/app/master/insurance-master', 'fas fa-hand-holding-medical', 'Pages.Users'),
                 new MenuItem(this.l('Procedure Types'), '/app/master/emergency-procedure', 'fas fa-fas fa-syringe', 'Pages.Users'),
                 new MenuItem(this.l('Departments Types'), '/app/master/department', 'fas fa-sitemap', 'Pages.Users'),
                 new MenuItem(this.l('Doctor Master Data'), '/app/master/doctor-master', 'fas fa-user-md', 'Pages.Users'),
