@@ -29,5 +29,6 @@ namespace EMRSystem.Admissions.Dto
 
         public bool IsDischarged { get; set; }
         public AdmissionType AdmissionType { get; set; }
+        public BillingMethod BillingMode { get; set; }
     }
 }

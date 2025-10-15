@@ -95,6 +95,7 @@ namespace EMRSystem.Emergency.EmergencyCase
                     AdmissionId = admission.Id,
                     PatientId = patient.Id,
                     ChargeType = ChargeType.Other,
+                    Quantity =1,
                     Description = $"Emergency Case Charge",
                     Amount = amount.Fee > 0 ? amount.Fee : 0
                 };
@@ -111,6 +112,7 @@ namespace EMRSystem.Emergency.EmergencyCase
                 {
                     PatientId = input.PatientId,
                     ChargeType = ChargeType.Other,
+                    Quantity = 1,
                     Description = $"Emergency Case Charge",
                     Amount = amount.Fee > 0 ? amount.Fee : 0,
                     EmergencyCaseId = result,

@@ -1,4 +1,5 @@
 ﻿using Abp.Application.Services.Dto;
+using EMRSystem.Insurances.Dto;
 using EMRSystem.Invoices;
 using System;
 using System.Collections.Generic;
@@ -16,16 +17,13 @@ namespace EMRSystem.Invoice.Dto
         public string InvoiceNo { get; set; }
         public InvoiceType InvoiceType { get; set; }
         public DateTime InvoiceDate { get; set; }
-        public decimal SubTotal { get; set; }
-        public decimal GstAmount { get; set; }
         public decimal TotalAmount { get; set; }
+        public decimal? ApprovedAmount { get; set; }   // ✅ add this
+        public decimal? CoPayAmount { get; set; }
         public InvoiceStatus Status { get; set; }
         public PaymentMethod? PaymentMethod { get; set; }
+        public List<InsuranceClaimDto> Claims { get; set; }
+
         public List<InvoiceItemDto> Items { get; set; }
-        //public long AppointmentId { get; set; }
-        //public DateTime AppointmentDate { get; set; }
-        //public DateTime DueDate { get; set; }
-        //public decimal AmountPaid { get; set; }
-        //public List<InvoiceItemDto> Items { get; set; } = new();
     }
 }

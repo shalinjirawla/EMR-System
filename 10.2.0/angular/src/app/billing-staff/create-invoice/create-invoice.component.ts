@@ -129,7 +129,10 @@ invoice = {
           item.invoiceId = 0;
           item.description = c.description;
           item.unitPrice = c.amount;
-          item.quantity = 1;
+          item.quantity = c.quantity;
+          item.isCoveredByInsurance = false;
+          item.approvedAmount = null;
+          item.notApprovedAmount =null;
           (item as any).isRemovable = false;
           (item as any).entryDate = c.entryDate;
           return item;
@@ -160,14 +163,8 @@ invoice = {
   removeItem(index: number): void {
     this.invoice.items.splice(index, 1);
   }
-calculateSubtotal(): number {
-    return this.invoice.items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
-  }
-  calculateGst(): number {
-    return this.calculateSubtotal() * 0.18;
-  }
   calculateTotal(): number {
-    return this.calculateSubtotal() + this.calculateGst();
+     return this.invoice.items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
   }
 
   isSaveDisabled(): boolean {
@@ -188,11 +185,11 @@ calculateSubtotal(): number {
       const successUrl = `${baseUrl}${billingStaffBase}?payment=success&invoiceId=${invoiceId}&amount=${amount}`;
       const cancelUrl = `${baseUrl}${billingStaffBase}?payment=canceled&invoiceId=${invoiceId}`;
 
-      const checkoutUrl = await this._invoiceService
-        .createStripeCheckoutSession(invoiceId, amount, successUrl, cancelUrl)
-        .toPromise();
+      // const checkoutUrl = await this._invoiceService
+      //   .createStripeCheckoutSession(invoiceId, amount, successUrl, cancelUrl)
+      //   .toPromise();
 
-      window.location.href = checkoutUrl;
+      // window.location.href = checkoutUrl;
     } catch (error) {
       this.isProcessingPayment = false;
       this.paymentProcessingError = error.message || 'Failed to start payment process';
@@ -214,10 +211,9 @@ calculateSubtotal(): number {
       status: this.invoice.status,
       paymentMethod: this.invoice.paymentMethod??null,
       items: this.invoice.items,
-      subTotal: this.calculateSubtotal(),
-      gstAmount: this.calculateGst(),
       totalAmount: this.calculateTotal()
     });
+    debugger
     this._invoiceService.create(input).subscribe({
       next: (createdInvoice) => {
         this.createdInvoice = createdInvoice;

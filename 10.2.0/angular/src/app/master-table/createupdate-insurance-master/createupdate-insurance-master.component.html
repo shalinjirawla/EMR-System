@@ -1,0 +1,40 @@
+<form class="form-horizontal" autocomplete="off" #insuranceForm="ngForm" (ngSubmit)="save()">
+    <!-- Modal Header -->
+    <abp-modal-header [title]="id ? 'Edit Insurance' : 'Create Insurance'"
+        (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
+
+    <!-- Modal Body -->
+    <div class="modal-body py-3 px-2">
+        <!-- Insurance Name -->
+        <div class="mb-4">
+            <label for="insuranceName" class="form-label fw-semibold">Insurance Name</label>
+            <input pInputText id="insuranceName" name="insuranceName" class="form-control" required
+                placeholder="Enter insurance name" [(ngModel)]="insurance.insuranceName" />
+        </div>
+
+        <!-- Coverage Options -->
+        <div class="mb-4">
+            <label class="form-label fw-semibold d-block mb-2">Insurance Coverage Options</label>
+
+            <div class="p-3 rounded-3 border bg-light d-flex flex-wrap align-items-center justify-content-start gap-3">
+                <div *ngFor="let option of coverageOptions" class="d-flex align-items-center" style="min-width: 220px">
+                    <p-checkbox [inputId]="option.key" name="{{ option.key }}" binary="true"
+                        [(ngModel)]="insurance[option.key]" style="margin-bottom: 2px;"></p-checkbox>
+                    <label [for]="option.key" class="ms-2 mb-2 text-secondary fw-medium" style="cursor: pointer">
+                        {{ option.label }}
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Toggle -->
+        <div class="d-flex flex-wrap align-items-center gap-3 border-top pt-3 mt-3">
+            <label for="isActive" class="form-label fw-semibold mb-0">Active Status:</label>
+            <p-inputSwitch id="isActive" name="isActive" [(ngModel)]="insurance.isActive"></p-inputSwitch>
+        </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="!isFormValid || saving"
+        (onCancelClick)="bsModalRef.hide()"></abp-modal-footer>
+</form>

@@ -1,0 +1,22 @@
+:host ::ng-deep .p-inputswitch {
+  transform: scale(1.1);
+}
+
+:host ::ng-deep .p-checkbox {
+  transform: scale(1.05);
+}
+
+
+@media (max-width: 768px) {
+  .modal-body {
+    padding: 1rem !important;
+  }
+
+  .p-3 {
+    padding: 1rem !important;
+  }
+
+  .d-flex.flex-wrap.align-items-center > div {
+    min-width: 150px !important;
+  }
+}

@@ -1,0 +1,95 @@
+<abp-modal-header title="View Insurance Claim Details" (onCloseClick)="close()"></abp-modal-header>
+
+<div class="modal-body" style="height: 80vh; overflow-y: auto;" *ngIf="!loading; else loadingTpl">
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label class="fw-bold text-dark">Insurance Name:</label>
+            <div>{{ claim[0].insuranceName }}</div>
+        </div>
+        <div class="col-md-6">
+            <label class="fw-bold text-dark">Status:</label>
+            <div>{{ getStatusLabel(claim[0].status) }}</div>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label  class="fw-bold text-dark">Amount Payable by Insurance:</label>
+            <div class="fw-bold text-success fw-bold">₹ {{ invoice.approvedAmount | number:'1.2-2' }}</div>
+        </div>
+        <div class="col-md-6">
+            <label  class="fw-bold text-dark">Co-Pay (Payable by Patient):</label>
+            <div class="fw-bold text-danger fw-bold">₹ {{ invoice.coPayAmount | number:'1.2-2' }}</div>
+        </div>
+    </div>
+
+    <hr>
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped table-sm">
+            <thead class="table-light">
+                <tr>
+                    <th>Description</th>
+                    <th class="text-center">Qty</th>
+                    <th class="text-end">Unit Price</th>
+                    <th class="text-end">Total Price</th>
+                    <th class="text-end">Approved Amount</th>
+                    <th class="text-end">Not Approved Amount</th>
+                    <th class="text-center">Covered by Insurance</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of items">
+                    <td>{{ item.description }}</td>
+                    <td class="text-center">{{ item.quantity }}</td>
+                    <td class="text-end">₹ {{ item.unitPrice }}</td>
+                    <td class="text-end">₹ {{ getTotal(item) }}</td>
+                    <td class="text-end text-success fw-bold">₹ {{ item.approvedAmount }}</td>
+                    <td class="text-end text-danger">₹ {{ item.notApprovedAmount }}</td>
+                    <td class="text-center">
+                        <span [ngClass]="item.isCoveredByInsurance ? 'text-success' : 'text-danger'">
+                            <i class="fas"
+                                [ngClass]="item.isCoveredByInsurance ? 'fa-check-circle' : 'fa-times-circle'"></i>
+                        </span>
+                    </td>
+
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<ng-template #loadingTpl>
+  <div class="text-center py-5">
+    <div class="shock-spinner">
+      <!-- <i class="fas fa-bolt text-warning fa-flip fa-3x"></i> -->
+      <i class="fas fa-heartbeat text-danger fa-beat-fade fa-2x ms-2"></i>
+    </div>
+    <p class="fw-bold mt-3 text-dark">Fetching info… our system told the database to hurry up 😂</p>
+  </div>
+</ng-template>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

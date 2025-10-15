@@ -12,11 +12,8 @@ namespace EMRSystem.Invoice.Dto
 {
     public class CreateUpdateInvoiceItemDto : EntityDto<long>
     {
-        //public int TenantId { get; set; }
 
         public long InvoiceId { get; set; }
-
-        //public ChargeType ItemType { get; set; }
 
         public string Description { get; set; }
 
@@ -24,6 +21,8 @@ namespace EMRSystem.Invoice.Dto
 
         public decimal UnitPrice { get; set; }
         public DateTime EntryDate { get; set; } = DateTime.Now;
-
+        public bool IsCoveredByInsurance { get; set; } = false;
+        public decimal? ApprovedAmount { get; set; }
+        public decimal? NotApprovedAmount { get; set; }
     }
 }

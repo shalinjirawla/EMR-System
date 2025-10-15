@@ -1,5 +1,6 @@
 ﻿using Abp.Application.Services.Dto;
 using EMRSystem.Admission;
+using EMRSystem.Insurances.Dto;
 using EMRSystem.Patients;
 using System;
 using System.Collections.Generic;
@@ -19,8 +20,9 @@ namespace EMRSystem.Admissions.Dto
         public long? RoomId { get; set; }
         public long? BedId { get; set; }
         public string ReasonForAdmit { get; set; }
-
+        public BillingMethod BillingMode { get; set; }
         public AdmissionType AdmissionType { get; set; }
+        public CreateUpdatePatientInsuranceDto PatientInsurance { get; set; }
 
         //Signatures
 

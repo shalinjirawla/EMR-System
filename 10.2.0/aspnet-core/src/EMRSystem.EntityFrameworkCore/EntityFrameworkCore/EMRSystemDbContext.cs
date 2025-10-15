@@ -11,6 +11,7 @@ using EMRSystem.Emergency.EmergencyCase;
 using EMRSystem.Emergency.Triage;
 using EMRSystem.EmergencyChargeEntries;
 using EMRSystem.EmergencyProcedure;
+using EMRSystem.Insurances;
 using EMRSystem.Invoices;
 using EMRSystem.LabMasters;
 using EMRSystem.LabReports;
@@ -94,7 +95,9 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
     public DbSet<EMRSystem.Medicines.PurchaseInvoiceItem> PurchaseInvoiceItems { get; set; }
     public DbSet<EMRSystem.MedicineFormMaster.MedicineFormMaster> MedicineFormMasters { get; set; }
     public DbSet<EMRSystem.StrengthUnitMaster.StrengthUnitMaster> StrengthUnitMasters { get; set; }
-
+    public DbSet<InsuranceMaster> InsuranceMasters { get; set; }
+    public DbSet<PatientInsurance> PatientInsurances { get; set; }
+    public DbSet<InsuranceClaim> InsuranceClaims { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -386,8 +389,8 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
             b.ToTable("Invoices");
 
             // Decimal precision
-            b.Property(x => x.SubTotal).HasColumnType("decimal(18,2)");
-            b.Property(x => x.GstAmount).HasColumnType("decimal(18,2)");
+            //b.Property(x => x.SubTotal).HasColumnType("decimal(18,2)");
+            //b.Property(x => x.GstAmount).HasColumnType("decimal(18,2)");
             b.Property(x => x.TotalAmount).HasColumnType("decimal(18,2)");
 
             // Enum conversions
@@ -982,6 +985,61 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
              .WithMany()
              .HasForeignKey(pii => pii.MedicineMasterId)
              .OnDelete(DeleteBehavior.Restrict);
+        });
+        modelBuilder.Entity<InsuranceMaster>(b =>
+        {
+            b.ToTable("InsuranceMasters");
+
+            b.Property(x => x.InsuranceName).IsRequired().HasMaxLength(128);
+
+            b.HasIndex(x => new { x.TenantId, x.InsuranceName }).IsUnique();
+
+            // Optional: you can configure auditing columns if needed
+        });
+
+        modelBuilder.Entity<PatientInsurance>(b =>
+        {
+            b.ToTable("PatientInsurances");
+
+            b.HasOne(pi => pi.Patient)
+             .WithMany(p => p.PatientInsurances) // Make sure to add ICollection<PatientInsurance> in Patient entity
+             .HasForeignKey(pi => pi.PatientId)
+             .OnDelete(DeleteBehavior.Cascade);
+
+            b.HasOne(pi => pi.InsuranceMaster)
+             .WithMany() // No navigation property in InsuranceMaster, so leave it empty
+             .HasForeignKey(pi => pi.InsuranceId)
+             .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasIndex(x => new { x.TenantId, x.PatientId, x.InsuranceId }).IsUnique();
+        });
+        modelBuilder.Entity<InsuranceClaim>(b =>
+        {
+            b.ToTable("InsuranceClaims");
+
+            // Decimal precision for money fields
+            b.Property(x => x.TotalAmount).HasColumnType("decimal(18,2)");
+            b.Property(x => x.AmountPayByInsurance).HasColumnType("decimal(18,2)");
+            b.Property(x => x.AmountPayByPatient).HasColumnType("decimal(18,2)");
+
+            // Enum conversion for Status (if you’re using an enum)
+            b.Property(x => x.Status)
+             .HasConversion<string>()
+             .HasMaxLength(30);
+
+            // Relationships
+            b.HasOne(ic => ic.Invoice)
+             .WithMany(i => i.InsuranceClaims)
+             .HasForeignKey(ic => ic.InvoiceId)
+             .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(ic => ic.PatientInsurance)
+             .WithMany(pi => pi.InsuranceClaims)
+             .HasForeignKey(ic => ic.PatientInsuranceId)
+             .OnDelete(DeleteBehavior.Restrict);
+
+            // Optional: create index for performance
+            b.HasIndex(x => new { x.TenantId, x.InvoiceId });
         });
 
 

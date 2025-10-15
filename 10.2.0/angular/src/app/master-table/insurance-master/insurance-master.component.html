@@ -1,0 +1,96 @@
+<div [@routerTransition]>
+  <!-- Breadcrumb + Toolbar -->
+  <section class="content-header">
+    <div class="container-fluid d-flex justify-content-between align-items-center">
+      <p-breadcrumb [model]="items"></p-breadcrumb>
+      <div class="btn-toolbar">
+        <button type="button" class="btn btn-md refresh-btn mr-2" pTooltip="Refresh" tooltipPosition="top"
+          (click)="list()">
+          <span class="pi pi-refresh"></span>
+        </button>
+        <button type="button" class="btn btn-md add-btn" (click)="createInsuranceMaster()">
+          <span class="pi pi-plus-circle mr-2"></span> Add
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Table Section -->
+  <section class="content px-2 pb-5">
+    <div class="container-fluid">
+      <div class="card mb-0 table-wrapper">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="ml-2 btn-group mr-1" role="group" pTooltip="Filter" tooltipPosition="top"
+              (click)="filterMenu.toggle($event)">
+              <button type="button" class="btn btn-md refresh-btn">
+                <span class="pi pi-filter"></span>
+              </button>
+            </div>
+            <p-overlayPanel #filterMenu [dismissable]="true">
+              <ul class="list-unstyled mb-0 p-3">
+                <li class="mb-2">
+                  <p-checkbox [binary]="true" [(ngModel)]="activeFilter.all" size="small"
+                    (onChange)="onFilterChange('all', $event)"></p-checkbox> All
+                </li>
+                <li class="mb-2">
+                  <p-checkbox [binary]="true" [(ngModel)]="activeFilter.isActive" size="small"
+                    (onChange)="onFilterChange('active', $event)"></p-checkbox> Active
+                </li>
+                <li class="mb-2">
+                  <p-checkbox [binary]="true" [(ngModel)]="activeFilter.isNotActive" size="small"
+                    (onChange)="onFilterChange('notActive', $event)"></p-checkbox> Inactive
+                </li>
+              </ul>
+            </p-overlayPanel>
+            <div>
+              <input class="search-bar-text" type="text" pInputText [(ngModel)]="keyword"
+                [placeholder]="'SearchByName' | localize" (input)="list()" />
+            </div>
+          </div>
+
+          <!-- Table -->
+          <p-table #dataTable sortMode="multiple" [value]="primengTableHelper.records"
+            [rows]="primengTableHelper.defaultRecordsCountPerPage" [paginator]="false" [lazy]="true"
+            (onLazyLoad)="list($event)" [tableStyle]="{'min-width':'40rem'}">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Name</th>
+                <th>Active</th>
+                <th style="width:80px">Actions</th>
+              </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-record>
+              <tr>
+                <td>{{ record.insuranceName }}</td>
+                <td>{{ record.isActive ? 'Yes' : 'No' }}</td>
+                <td>
+                  <!-- Row Menu -->
+                  <button class="btn btn-sm border rounded-1 px-2" type="button"
+                    (click)="rowMenu.toggle($event); selectedRecord = record">
+                    <i class="pi pi-ellipsis-v"></i>
+                  </button>
+                  <p-menu #rowMenu [popup]="true" [style]="{'min-width':'100px','max-width':'150px'}"
+                    [model]="editDeleteMenus" appendTo="body"></p-menu>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+
+          <!-- No Data -->
+          <div class="primeng-no-data text-center m-2" *ngIf="primengTableHelper.totalRecordsCount === 0">
+            No insurance masters found.
+          </div>
+        </div>
+
+        <!-- Footer + Paginator -->
+        <p-paginator #paginator [rows]="primengTableHelper.defaultRecordsCountPerPage"
+          (onPageChange)="list($event)" [totalRecords]="primengTableHelper.totalRecordsCount"
+          [rowsPerPageOptions]="primengTableHelper.predefinedRecordsCountPerPage" [showCurrentPageReport]="true"
+          [currentPageReportTemplate]="'TotalRecordsCount' | localize: primengTableHelper.totalRecordsCount">
+        </p-paginator>
+      </div>
+    </div>
+  </section>
+</div>

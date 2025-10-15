@@ -19,6 +19,8 @@ namespace EMRSystem.EmergencyChargeEntries
         public ChargeType ChargeType { get; set; }
         public string Description { get; set; }
         public decimal Amount { get; set; }
+        public int Quantity { get; set; } = 1;
+
         public DateTime EntryDate { get; set; } = DateTime.Now;
         public bool IsProcessed { get; set; } = false;
         public long? ReferenceId { get; set; }

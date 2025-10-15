@@ -5,6 +5,7 @@ using EMRSystem.Authorization.Users;
 using EMRSystem.Deposit;
 using EMRSystem.Doctors;
 using EMRSystem.Emergency.EmergencyCase;
+using EMRSystem.Insurances;
 using EMRSystem.Invoices;
 using EMRSystem.LabReports;
 using EMRSystem.Nurses;
@@ -41,6 +42,7 @@ namespace EMRSystem.Patients
         [ForeignKey(nameof(AbpUserId))]
         public virtual User AbpUser { get; set; }
         public virtual ICollection<Prescription> Prescriptions { get; set; }
+        public virtual ICollection<PatientInsurance> PatientInsurances { get; set; }
         public virtual ICollection<EMRSystem.Admission.Admission> Admissions { get; set; }
         public virtual ICollection<PatientDeposit> PatientDeposits { get; set; }
         public ICollection<Vital> Vitals { get; set; }
@@ -75,8 +77,8 @@ namespace EMRSystem.Patients
     }
     public enum BillingMethod
     {
-        InsuranceOnly,
         SelfPay,
-        InsuranceSelfPay
+        InsuranceSelfPay,
+        InsuranceOnly
     }
 }
