@@ -23,16 +23,16 @@
                    [tableStyle]="{'min-width':'30rem'}" sortMode="multiple">
             <ng-template pTemplate="header">
               <tr>
-                <th style="min-width: 150px">Name</th>
-                <th style="min-width: 150px">Price</th>
-                <th style="min-width: 130px">Actions</th>
+                <th class="text-center" style="min-width: 150px">Name</th>
+                <th class="text-center" style="min-width: 150px">Price</th>
+                <th class="text-center" style="min-width: 130px">Actions</th>
               </tr>
             </ng-template>
             <ng-template pTemplate="body" let-labReportType>
               <tr>
-                <td>{{ labReportType.reportType }}</td>
-                <td>{{ labReportType.reportPrice }}</td>
-                <td>
+                <td class="text-center">{{ labReportType.reportType }}</td>
+                <td class="text-center">{{ labReportType.reportPrice }}</td>
+                <td class="text-center">
                   <button class="btn btn-sm border rounded-1 px-3 mr-1" type="button"
                           (click)="rowMenu.toggle($event); selectedRecord = labReportType">
                     <i class="fa-solid fa-ellipsis-vertical"></i>

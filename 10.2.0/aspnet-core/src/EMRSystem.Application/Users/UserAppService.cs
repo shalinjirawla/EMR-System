@@ -262,6 +262,7 @@ public class UserAppService : AsyncCrudAppService<User, UserDto, long, PagedUser
                  Surname = x.Surname,
                  EmailAddress = x.EmailAddress,
                  Roles = x.Roles,
+                 IsActive = x.IsActive,
                  Patients = x.Patients.Select(i => new EMRSystem.Patients.Patient
                  {
                      Id = i.Id,

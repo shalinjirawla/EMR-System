@@ -22,33 +22,34 @@
                         [value]="primengTableHelper.records" rows="{{ primengTableHelper.defaultRecordsCountPerPage }}"
                         [paginator]="false" [lazy]="true" [tableStyle]="{ 'min-width': '50rem' }">
                         <ng-template #header>
-                            <tr>
-                                <th> Patient ID </th>
-                                <th> Patient Name </th>
-                                <th> Discharge By</th>
-                                <th> Admission Date</th>
-                                <th> Discharge Date</th>
-                                <th></th>
+                            <tr >
+                                <th class="text-center"> Patient ID </th>
+                                <th class="text-center"> Patient Name </th>
+                                <th class="text-center"> Discharge By</th>
+                                <th class="text-center"> Admission Date</th>
+                                <th class="text-center"> Discharge Date</th>
+                                <th class="text-center">Action</th>
                             </tr>
                         </ng-template>
 
                         <ng-template pTemplate="body" let-record="$implicit">
                             <tr>
-                                <td> #{{ record.patient.id }} </td>
-                                <td>
+                                <td class="text-center"> #{{ record.patient.id }} </td>
+                                <td class="text-center">
                                     <p-avatar [label]="getShortName(record.patient.fullName)" class="mr-1"
                                         size="small" />
                                     {{ record.patient.fullName }}
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <p-avatar [label]="getShortName(record.doctor.fullName)" class="mr-1"
                                         size="small" />
                                     Dr. {{ record.doctor.fullName }}
                                 </td>
-                                <td> {{ record.admission.admissionDateTime | date:'dd/MM/yyyy hh:mm a' }} </td>
-                                <td> {{ record.dischargeDate | date:'dd/MM/yyyy hh:mm a' }} </td>
-                                <td>
-                                    <a class="pi pi-download" (click)="downloadPDF(record.patient.id)"></a>
+                                <td class="text-center"> {{ record.admission.admissionDateTime | date:'dd/MM/yyyy hh:mm a' }} </td>
+                                <td class="text-center"> {{ record.dischargeDate | date:'dd/MM/yyyy hh:mm a' }} </td>
+                                <td class="text-center">
+                                    <a class="pi pi-download"
+                                        (click)="downloadPDF(record.patient.id,record.patient.fullName)"></a>
                                 </td>
                             </tr>
                         </ng-template>
@@ -60,9 +61,9 @@
                 <p-paginator [rows]="primengTableHelper.defaultRecordsCountPerPage" #paginator
                     (onPageChange)="list($event)" [totalRecords]="primengTableHelper.totalRecordsCount"
                     [rowsPerPageOptions]="primengTableHelper.predefinedRecordsCountPerPage"
-                    [showCurrentPageReport]="true" [currentPageReportTemplate]="
-                                            'TotalRecordsCount' | localize: primengTableHelper.totalRecordsCount
-                                        "></p-paginator>
+                    [showCurrentPageReport]="true"
+                    [currentPageReportTemplate]="'TotalRecordsCount' | localize: primengTableHelper.totalRecordsCount">
+                </p-paginator>
             </div>
         </div>
     </section>

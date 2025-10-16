@@ -39,27 +39,27 @@
                         [tableStyle]="{ 'min-width': '50rem' }" (onLazyLoad)="list($event)">
                         <ng-template #header>
                             <tr>
-                                <th pSortableColumn="patientName">
+                                <th class="text-center" pSortableColumn="patientName">
                                     Patient
                                     <p-sortIcon field="patientName"></p-sortIcon>
                                 </th>
-                                <th pSortableColumn="doctorName">
+                                <th class="text-center" pSortableColumn="doctorName">
                                     Doctor
                                     <p-sortIcon field="doctorName"></p-sortIcon>
                                 </th>
-                                <th>
+                                <th class="text-center">
                                     Nurse
                                 </th>
-                                <th>
+                                <th class="text-center">
                                     Date & Time
                                 </th>
-                                <th>
+                                <th class="text-center">
                                     Room
                                 </th>
-                                <th>
+                                <th class="text-center">
                                     Bed Number
                                 </th>
-                                <th>
+                                <th class="text-center">
                                     Actions
                                 </th>
                             </tr>
@@ -67,13 +67,13 @@
 
                         <ng-template pTemplate="body" let-record="$implicit">
                             <tr>
-                                <td>
+                                <td class="text-center">
                                     <p-avatar [label]="getShortName(record.patientName)" class="mr-1" size="small" />
                                     <span>
                                         {{ record.patientName }}
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <p-avatar [label]="getShortName(record.doctorName)"
                                         [style]="{ 'background-color': '#ece9fc', color: '#2a1261' }" class="mr-1"
                                         size="small" />
@@ -81,7 +81,7 @@
                                         Dr. {{ record.doctorName }}
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <p-avatar [label]="getShortName(record.nurseName)"
                                         [style]="{ 'background-color': '#dee9fc', color: '#1a2551' }" class="mr-1"
                                         size="small" />
@@ -89,20 +89,20 @@
                                         {{ record.nurseName }}
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     {{ record.admissionDateTime | date: 'dd/MM/yyyy' }}
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <span>
                                         {{ record.roomNumber }}-{{ record.roomTypeName }}
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <span>
                                         {{ record.bedNumber }}
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <button class="btn btn-sm border rounded-1 px-3" type="button"
                                         style="background-color: #f8fafc;"
                                         (click)="rowMenu.toggle($event); selectedRecord = record">

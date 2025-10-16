@@ -31,16 +31,16 @@
                         [tableStyle]="{ 'min-width': '50rem' }" (onLazyLoad)="list($event)">
                         <ng-template pTemplate="header">
                             <tr>
-                                <th>
+                                <th class="text-center">
                                     Patient Name
                                 </th>
-                                <th>
+                                <th class="text-center">
                                     Test Name
                                 </th>
-                                <th>
+                                <th class="text-center">
                                     {{ 'Status' | localize }}
                                 </th>
-                                <th>
+                                <th class="text-center">
                                     {{ 'Actions' | localize }}
                                 </th>
                             </tr>
@@ -48,22 +48,22 @@
 
                         <ng-template pTemplate="body" let-record="$implicit">
                             <tr>
-                                <td>
+                                <td class="text-center">
                                     <span>
                                         {{ record.patientName || "unknown"}}
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <span>
                                         {{ record.labReportTypeName }}
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                      <span [className]="getStatusSeverity(record.testStatus)">
                                         <b>{{ getStatusLabel(record.testStatus) }}</b>
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <button class="btn btn-sm border rounded-1 px-3" type="button"
                                         style="background-color: #f8fafc;"
                                         (click)="rowMenu.toggle($event); selectedRecord = record">

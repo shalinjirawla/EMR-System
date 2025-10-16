@@ -34,29 +34,29 @@
                              [lazy]="true" [tableStyle]="{ 'min-width': '50rem' }" (onLazyLoad)="list($event)">
                         <ng-template #header>
                             <tr>
-                                <th>Patient Name</th>
-                                <th>Gender</th>
-                                <th>Date</th>
-                                <th *ngIf="showDoctorColumn">Referred By</th>
-                                <th>Test Type</th>
-                                <th>{{ 'Status' | localize }}</th>
-                                <th>{{ 'Actions' | localize }}</th>
+                                <th class="text-center">Patient Name</th>
+                                <th class="text-center">Gender</th>
+                                <th class="text-center">Date</th>
+                                <th class="text-center" *ngIf="showDoctorColumn">Referred By</th>
+                                <th class="text-center">Test Type</th>
+                                <th class="text-center">{{ 'Status' | localize }}</th>
+                                <th class="text-center">{{ 'Actions' | localize }}</th>
                             </tr>
                         </ng-template>
 
                         <ng-template pTemplate="body" let-record="$implicit">
                             <tr>
-                                <td>{{ record.patientName }}</td>
-                                <td>{{ record.gender }}</td>
-                                <td>{{ record.date | date: 'dd/MM/yyyy' }}</td>
-                                <td *ngIf="showDoctorColumn">Dr. {{ record.doctorName }}</td>
-                                <td>{{ record.labReportTypeName }}</td>
-                                <td>
+                                <td class="text-center">{{ record.patientName }}</td>
+                                <td class="text-center">{{ record.gender }}</td>
+                                <td class="text-center">{{ record.date | date: 'dd/MM/yyyy' }}</td>
+                                <td class="text-center" *ngIf="showDoctorColumn">Dr. {{ record.doctorName }}</td>
+                                <td class="text-center">{{ record.labReportTypeName }}</td>
+                                <td class="text-center">
                                     <span [className]="getStatusSeverity(record.testStatus)">
                                         {{getStatusLabel(record.testStatus)}}
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <button type="button" pButton icon="pi pi-eye" class="p-button-text"
                                             (click)="ViewLabReport(record.id)">
                                     </button>

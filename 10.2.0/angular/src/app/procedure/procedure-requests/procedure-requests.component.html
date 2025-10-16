@@ -32,23 +32,23 @@
             [tableStyle]="{ 'min-width': '50rem' }" (onLazyLoad)="list($event)">
             <ng-template #header>
               <tr>
-                <th>Patient Name</th>
-                <th>Procedure Name</th>
-                <th>{{ 'Status' | localize }}</th>
-                <th>{{ 'Actions' | localize }}</th>
+                <th class="text-center">Patient Name</th>
+                <th class="text-center">Procedure Name</th>
+                <th class="text-center">{{ 'Status' | localize }}</th>
+                <th class="text-center">{{ 'Actions' | localize }}</th>
               </tr>
             </ng-template>
 
             <ng-template pTemplate="body" let-record="$implicit">
               <tr>
-                <td>{{ record.patientName || 'unknown' }}</td>
-                <td>{{ record.procedureName }}</td>
-                <td>
+                <td class="text-center">{{ record.patientName || 'unknown' }}</td>
+                <td class="text-center">{{ record.procedureName }}</td>
+                <td class="text-center">
                   <span [className]="getStatusSeverity(record.status)">
                     <b>{{ getStatusLabel(record.status) }}</b>
                   </span>
                 </td>
-                <td>
+                <td class="text-center">
                   <button *ngIf="record.status == 0" type="button" class="btn btn-success btn-sm"
                     (click)="markAsComplete(record.id)">
                     <i class="pi pi-check"></i> Mark As Complete

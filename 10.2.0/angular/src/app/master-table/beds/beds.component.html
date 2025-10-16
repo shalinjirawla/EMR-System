@@ -78,21 +78,21 @@
 
             <ng-template pTemplate="header">
               <tr>
-                <th pSortableColumn="bedNumber">Bed No <p-sortIcon field="bedNumber"></p-sortIcon></th>
-                <th pSortableColumn="roomNumber">Room <p-sortIcon field="roomNumber"></p-sortIcon></th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th class="text-center" pSortableColumn="bedNumber">Bed No <p-sortIcon field="bedNumber"></p-sortIcon></th>
+                <th class="text-center" pSortableColumn="roomNumber">Room <p-sortIcon field="roomNumber"></p-sortIcon></th>
+                <th class="text-center">Status</th>
+                <th class="text-center">Actions</th>
               </tr>
             </ng-template>
 
             <ng-template pTemplate="body" let-bed>
               <tr>
-                <td>{{ bed.bedNumber }}</td>
-                <td><b>{{ bed.roomNumber }} - {{ bed.roomTypeName }}</b></td>
-                <td>
+                <td class="text-center">{{ bed.bedNumber }}</td>
+                <td class="text-center"><b>{{ bed.roomNumber }} - {{ bed.roomTypeName }}</b></td>
+                <td class="text-center">
                   <p-tag [value]="getStatusLabel(bed.status)" [severity]="getStatusSeverity(bed.status)" [rounded]="true"></p-tag>
                 </td>
-                <td>
+                <td class="text-center">
                   <button class="btn btn-sm border rounded-1 px-3 mr-1" type="button"
                     (click)="rowMenu.toggle($event); selectedRecord = bed">
                     <i class="fa-solid fa-ellipsis-vertical"></i>

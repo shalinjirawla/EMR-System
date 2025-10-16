@@ -40,29 +40,29 @@
             [tableStyle]="{ 'min-width': '50rem' }">
             <ng-template pTemplate="header">
               <tr>
-                <th pSortableColumn="name">Name <p-sortIcon field="name"></p-sortIcon></th>
-                <th>Form</th>
-                <th>Strength</th>
-                <th>Min Stock</th>
-                <th>Status</th>
-                <th>Description</th>
-                <th>{{ 'Actions' | localize }}</th>
+                <th class="text-center" pSortableColumn="name">Name <p-sortIcon field="name"></p-sortIcon></th>
+                <th class="text-center">Form</th>
+                <th class="text-center">Strength</th>
+                <th class="text-center">Min Stock</th>
+                <th class="text-center">Status</th>
+                <th class="text-center">Description</th>
+                <th class="text-center">{{ 'Actions' | localize }}</th>
               </tr>
             </ng-template>
 
             <ng-template pTemplate="body" let-record="$implicit">
               <tr>
-                <td>{{ record.name }}</td>
-                <td>{{ record.formName }}</td>
-                <td>{{ record.strength }} {{ record.strengthUnitName }}</td>
-                <td>{{ record.minimumStock }}</td>
-                <td>
+                <td class="text-center">{{ record.name }}</td>
+                <td class="text-center">{{ record.formName }}</td>
+                <td class="text-center">{{ record.strength }} {{ record.strengthUnitName }}</td>
+                <td class="text-center">{{ record.minimumStock }}</td>
+                <td class="text-center">
                   <span [class.text-success]="record.isAvailable" [class.text-danger]="!record.isAvailable">
                     {{ record.isAvailable ? 'Available' : 'Not Available' }}
                   </span>
                 </td>
-                <td>{{ record.description }}</td>
-                <td>
+                <td class="text-center">{{ record.description }}</td>
+                <td class="text-center">
                   <button class="btn btn-sm border rounded-1 px-3" type="button" style="background-color: #f8fafc;"
                     (click)="rowMenu.toggle($event); selectedRecord = record">
                     <i class="fa-solid fa-ellipsis-vertical"></i>

@@ -41,46 +41,46 @@
 
             <ng-template #header>
               <tr>
-                <th>Emergency No</th>
-                <th>Patient</th>
-                <th>Doctor</th>
-                <th>Nurse</th>
-                <th>Arrival Time</th>
-                <th>Severity</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th class="text-center">Emergency No</th>
+                <th class="text-center">Patient</th>
+                <th class="text-center">Doctor</th>
+                <th class="text-center">Nurse</th>
+                <th class="text-center">Arrival Time</th>
+                <th class="text-center">Severity</th>
+                <th class="text-center">Status</th>
+                <th class="text-center">Actions</th>
               </tr>
             </ng-template>
 
             <ng-template pTemplate="body" let-record="$implicit">
               <tr>
-                <td>{{ record.emergencyNumber }}</td>
-                <td>
+                <td class="text-center">{{ record.emergencyNumber }}</td>
+                <td class="text-center">
                   <p-avatar [label]="getShortName(record.patientName)" class="mr-1" size="small" />
                   {{ record.patientName||'unknown' }}
                 </td>
-                <td>
+                <td class="text-center">
                   <p-avatar [label]="getShortName(record.doctorName)"
                     [style]="{ 'background-color': '#ece9fc', color: '#2a1261' }" class="mr-1" size="small" />
                   <span *ngIf="record.doctorName">Dr.</span>{{ record.doctorName }}
                 </td>
-                <td>
+                <td class="text-center">
                   <p-avatar [label]="getShortName(record.nurseName)"
                     [style]="{ 'background-color': '#dee9fc', color: '#1a2551' }" class="mr-1" size="small" />
                   {{ record.nurseName }}
                 </td>
-                <td>{{ record.arrivalTime | date: 'dd/MM/yyyy HH:mm' }}</td>
-                <td>
+                <td class="text-center">{{ record.arrivalTime | date: 'dd/MM/yyyy HH:mm' }}</td>
+                <td class="text-center">
                   <p-tag [value]="getSeverityLabel(record.severity)" [severity]="getSeverityTag(record.severity)"
                     [rounded]="true">
                   </p-tag>
                 </td>
-                <td>
+                <td class="text-center">
                   <p-tag [value]="getStatusLabel(record.status)" [severity]="getStatusTag(record.status)"
                     [rounded]="true">
                   </p-tag>
                 </td>
-                <td>
+                <td class="text-center">
                   <button type="button" pButton icon="pi pi-ellipsis-v" class="p-button-text"
                     (click)="rowMenu.toggle($event); selectedRecord = record" *ngIf="!idDischarged(record.status)">
                   </button>

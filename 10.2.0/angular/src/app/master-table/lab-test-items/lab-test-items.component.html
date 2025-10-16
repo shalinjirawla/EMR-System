@@ -25,42 +25,42 @@
             (onRowCollapse)="onRowCollapse($event)" dataKey="id" [tableStyle]="{ 'min-width': '30rem' }">
             <ng-template pTemplate="header">
               <tr>
-                <th style="width:3em"></th>
-                <th>{{ 'Name' | localize }}</th>
-                <th></th>
+                <th class="text-center" style="width:3em"></th>
+                <th class="text-center">{{ 'Name' | localize }}</th>
+                <th class="text-center"></th>
               </tr>
             </ng-template>
 
             <ng-template #body let-type let-expanded="expanded">
               <tr>
-                <td>
+                <td class="text-center">
                   <p-button type="button" pRipple [pRowToggler]="type" [text]="true" [rounded]="true" [plain]="true"
                     [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" />
                 </td>
-                <td>{{ type.reportType }}</td>
-                <td></td>
+                <td class="text-center">{{ type.reportType }}</td>
+                <td class="text-center"></td>
               </tr>
             </ng-template>
 
             <ng-template #expandedrow let-type>
               <tr>
                 <!-- colspan = number of columns in the body (3 here) -->
-                <td colspan="4">
+                <td class="text-center" colspan="4">
                   <ng-container *ngIf="type.tests?.length; else noTests">
                     <p-table [value]="type.tests" [responsiveLayout]="'scroll'" class="p-datatable-sm"
                       [style]="{ 'width': '100%' }">
                       <ng-template pTemplate="header">
               <tr>
-                <th>{{ 'Test Name' | localize }}</th>
-                <th>{{ 'Measure Unit' | localize }}</th>
-                <th>{{ 'Actions' | localize }}</th>
+                <th class="text-center">{{ 'Test Name' | localize }}</th>
+                <th class="text-center">{{ 'Measure Unit' | localize }}</th>
+                <th class="text-center">{{ 'Actions' | localize }}</th>
               </tr>
             </ng-template>
             <ng-template pTemplate="body" let-test>
               <tr>
-                <td>{{ test.labTestName }}</td>
-                <td>{{ test.measureUnitName }}</td>
-                <td>
+                <td class="text-center">{{ test.labTestName }}</td>
+                <td class="text-center">{{ test.measureUnitName }}</td>
+                <td class="text-center">
                   <button class="btn btn-sm btn-danger" (click)="deleteTestItem(test.labReportTypeId, test.id)">
                     <i class="fa fa-trash"></i>
                   </button>

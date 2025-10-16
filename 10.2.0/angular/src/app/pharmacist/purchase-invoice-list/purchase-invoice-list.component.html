@@ -41,21 +41,21 @@
             [tableStyle]="{ 'min-width': '50rem' }">
             <ng-template pTemplate="header">
               <tr>
-                <th pSortableColumn="invoiceNo">Invoice No <p-sortIcon field="invoiceNo"></p-sortIcon></th>
-                <th>Supplier</th>
-                <th>Invoice Date</th>
-                <th>Total Amount</th>
-                <th>{{ 'Actions' | localize }}</th>
+                <th class="text-center" pSortableColumn="invoiceNo">Invoice No <p-sortIcon field="invoiceNo"></p-sortIcon></th>
+                <th class="text-center">Supplier</th>
+                <th class="text-center">Invoice Date</th>
+                <th class="text-center">Total Amount</th>
+                <th class="text-center">{{ 'Actions' | localize }}</th>
               </tr>
             </ng-template>
 
             <ng-template pTemplate="body" let-record="$implicit">
               <tr>
-                <td>{{ record.invoiceNo }}</td>
-                <td>{{ record.supplierName }}</td>
-                <td>{{ record.invoiceDate | date: 'dd/MM/yyyy' }}</td>
-                <td>{{ record.totalAmount | number:'1.2-2' }}</td>
-                <td>
+                <td class="text-center">{{ record.invoiceNo }}</td>
+                <td class="text-center">{{ record.supplierName }}</td>
+                <td class="text-center">{{ record.invoiceDate | date: 'dd/MM/yyyy' }}</td>
+                <td class="text-center">{{ record.totalAmount | number:'1.2-2' }}</td>
+                <td class="text-center">
                   <button class="btn btn-sm border rounded-1 px-3" type="button" style="background-color: #f8fafc;"
                     (click)="rowMenu.toggle($event); selectedRecord = record">
                     <i class="fa-solid fa-ellipsis-vertical"></i>

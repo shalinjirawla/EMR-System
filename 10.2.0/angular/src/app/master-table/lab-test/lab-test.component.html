@@ -59,22 +59,26 @@
             [tableStyle]="{ 'min-width': '30rem' }">
             <ng-template #header>
               <tr>
-                <th pSortableColumn="name">{{ 'Name' | localize }} <p-sortIcon field="name"></p-sortIcon></th>
-                <th>{{ 'MeasurementUnit' | localize }}</th>
-                <th>{{ 'IsActive' | localize }}</th>
-                <th>{{ 'Actions' | localize }}</th>
+                <th class="text-center" pSortableColumn="name">{{ 'Name' | localize }} <p-sortIcon
+                    field="name"></p-sortIcon></th>
+                <th class="text-center">{{ 'MeasurementUnit' | localize }}</th>
+                <th class="text-center">{{ 'IsActive' | localize }}</th>
+                <th class="text-center">{{ 'Actions' | localize }}</th>
               </tr>
             </ng-template>
             <ng-template pTemplate="body" let-test>
               <tr>
-                <td>{{ test.name }}</td>
-                <td>{{ test.measureUnit?.name }}</td>
-                <td>
-                  <span [ngClass]="{'badge badge-success': test.isActive, 'badge badge-danger': !test.isActive}">
-                    {{ test.isActive ? 'Yes' : 'No' }}
+                <td class="text-center">{{ test.name }}</td>
+                <td class="text-center">{{ test.measureUnit?.name }}</td>
+                <td class="text-center">
+                  <span *ngIf="test.isActive; else inactive">
+                    <i class="pi pi-check-circle text-success fs-5"></i>
                   </span>
+                  <ng-template #inactive>
+                    <i class="pi pi-times-circle text-danger fs-5"></i>
+                  </ng-template>
                 </td>
-                <td>
+                <td class="text-center">
                   <button class="btn btn-sm border rounded-1 px-3 mr-1" type="button"
                     (click)="rowMenu.toggle($event); selectedRecord = test">
                     <i class="fa-solid fa-ellipsis-vertical"></i>

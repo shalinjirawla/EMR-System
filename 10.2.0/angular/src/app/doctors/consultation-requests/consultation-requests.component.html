@@ -26,25 +26,25 @@
                         [tableStyle]="{ 'min-width': '50rem' }" (onLazyLoad)="list($event)">
                         <ng-template #header>
                             <tr>
-                                <th>Patient Name</th>
-                                <th>Requesting Doctor</th>
-                                <th *ngIf="showDoctorColumn">Requested Specialist</th>
-                                <th>{{ 'Status' | localize }}</th>
-                                <th>{{ 'Actions' | localize }}</th>
+                                <th class="text-center">Patient Name</th>
+                                <th class="text-center">Requesting Doctor</th>
+                                <th class="text-center" *ngIf="showDoctorColumn">Requested Specialist</th>
+                                <th class="text-center">{{ 'Status' | localize }}</th>
+                                <th class="text-center">{{ 'Actions' | localize }}</th>
                             </tr>
                         </ng-template>
 
                         <ng-template pTemplate="body" let-record="$implicit">
                             <tr>
-                                <td>{{ record.patientName }}</td>
-                                <td>{{ record.requestingDoctorName }}</td>
-                                <td *ngIf="showDoctorColumn">{{ record.requestedSpecialistName }}</td>
-                                <td>
+                                <td class="text-center">{{ record.patientName }}</td>
+                                <td class="text-center">{{ record.requestingDoctorName }}</td>
+                                <td class="text-center" *ngIf="showDoctorColumn">{{ record.requestedSpecialistName }}</td>
+                                <td class="text-center">
                                     <span [className]="getStatusSeverity(record.status)">
                                         {{getStatusLabel(record.status)}}
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <button type="button" pButton icon="pi pi-eye" class="p-button-text"
                                         (click)="showDialog(record)"></button>
                                 </td>

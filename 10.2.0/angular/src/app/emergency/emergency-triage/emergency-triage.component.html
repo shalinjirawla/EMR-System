@@ -41,31 +41,31 @@
 
             <ng-template pTemplate="header">
               <tr>
-                <th>Emergency No</th>
-                <th>Temperature</th>
-                <th>Respiratory Rate</th>
-                <th>Heart Rate</th>
-                <th>Oxygen Saturation</th>
-                <th>BP</th>
-                <th>Assessment Time</th>
-                <th>Severity</th>
-                <th>Actions</th>
+                <th class="text-center">Emergency No</th>
+                <th class="text-center">Temperature</th>
+                <th class="text-center">Respiratory Rate</th>
+                <th class="text-center">Heart Rate</th>
+                <th class="text-center">Oxygen Saturation</th>
+                <th class="text-center">BP</th>
+                <th class="text-center">Assessment Time</th>
+                <th class="text-center">Severity</th>
+                <th class="text-center">Actions</th>
               </tr>
             </ng-template>
 
             <ng-template pTemplate="body" let-record="$implicit">
               <tr>
-                <td>{{ record.emergencyNumber }}</td>
-                <td>{{ record.temperature }}</td>
-                <td>{{ record.respiratoryRate }}</td>
-                <td>{{ record.heartRate }}</td>
-                <td>{{ record.oxygenSaturation }}</td>
-                <td>{{ record.bloodPressureSystolic }}/{{ record.bloodPressureDiastolic }}</td>
-                <td>{{ record.time | date:'dd/MM/yyyy HH:mm' }}</td>
-                <td><p-tag [value]="getSeverityLabel(record.severity)" [severity]="getSeverityTag(record.severity)"
+                <td class="text-center">{{ record.emergencyNumber }}</td>
+                <td class="text-center">{{ record.temperature }}</td>
+                <td class="text-center">{{ record.respiratoryRate }}</td>
+                <td class="text-center">{{ record.heartRate }}</td>
+                <td class="text-center">{{ record.oxygenSaturation }}</td>
+                <td class="text-center">{{ record.bloodPressureSystolic }}/{{ record.bloodPressureDiastolic }}</td>
+                <td class="text-center">{{ record.time | date:'dd/MM/yyyy HH:mm' }}</td>
+                <td class="text-center"><p-tag [value]="getSeverityLabel(record.severity)" [severity]="getSeverityTag(record.severity)"
                     [rounded]="true">
                   </p-tag></td>
-                <td>
+                <td class="text-center">
                   <button class="btn btn-sm border rounded-1 px-3" type="button" style="background-color: #f8fafc;"
                     (click)="rowMenu.toggle($event); selectedRecord = record">
                     <i class="fa-solid fa-ellipsis-vertical"></i>

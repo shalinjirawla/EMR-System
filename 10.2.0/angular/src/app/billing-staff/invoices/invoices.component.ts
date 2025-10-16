@@ -7,7 +7,7 @@ import { LazyLoadEvent, PrimeTemplate } from 'primeng/api';
 import { finalize } from 'rxjs/operators';
 import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { FormsModule } from '@node_modules/@angular/forms';
-import { DatePipe, NgIf } from '@node_modules/@angular/common';
+import { CommonModule, DatePipe, NgIf } from '@node_modules/@angular/common';
 import { ChangeDetectorRef, Component, Injector, OnInit, ViewChild } from '@angular/core';
 import { BillingDto, BillingDtoPagedResultDto, BillingServiceProxy, InvoiceDto, InvoiceDtoPagedResultDto, InvoiceServiceProxy, PatientServiceProxy, UserServiceProxy } from '@shared/service-proxies/service-proxies';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
@@ -27,7 +27,7 @@ import { ViewInsuranceClaimComponent } from '../view-insurance-claim/view-insura
 @Component({
     selector: 'app-invoices',
     imports: [FormsModule, TableModule, CardModule, MenuModule, BreadcrumbModule, InputTextModule, TooltipModule, PrimeTemplate, NgIf,
-        PaginatorModule, OverlayPanelModule, ButtonModule, LocalizePipe, DatePipe],
+        PaginatorModule, OverlayPanelModule, ButtonModule, LocalizePipe, DatePipe,CommonModule],
     animations: [appModuleAnimation()],
     templateUrl: './invoices.component.html',
     styleUrl: './invoices.component.css',
@@ -80,11 +80,12 @@ export class InvoicesComponent extends PagedListingComponentBase<InvoiceDto> imp
                 command: () => this.viewInsuranceClaim(invoice.id)
             });
         }
-        if (invoice.claims && invoice.claims.some(c => c.status >= 2 && c.status<5)&& invoice.status!=1) {
+        if (invoice.claims && invoice.claims.some(c => c.status >= 2 && c.status < 5)
+            && invoice.status == 0 && invoice.coPayAmount != 0) {
             menus.push({
                 label: 'Collect Co-Pay Amount',
                 icon: 'pi pi-wallet',
-                command: () => this.viewInsuranceClaim(invoice.id)
+                command: () => this.collectCoPayAmount(invoice.id)
             });
         }
 
@@ -171,7 +172,7 @@ export class InvoicesComponent extends PagedListingComponentBase<InvoiceDto> imp
         switch (status) {
             case 0: return 'Unpaid';
             case 1: return 'Paid';
-            case 2: return 'Partial Paid';
+            case 2: return 'CoPay Collected';
         }
     }
 
@@ -192,6 +193,31 @@ export class InvoicesComponent extends PagedListingComponentBase<InvoiceDto> imp
         return claims.map(c => this.getClaimStatusString(c.status)).join(', ');
     }
 
+    getStatusClass(status: number) {
+        switch (status) {
+            case 0: return 'text-danger';       // Unpaid → red
+            case 1: return 'text-success';      // Paid → green
+            case 2: return 'text-warning';      // CoPay Collected → orange
+            default: return '';
+        }
+    }
+
+    getCoPayClass(status: number) {
+        if (status === 2) return 'text-warning fw-bold';
+        return '';
+    }
+
+    getClaimClass(status: number) {
+        switch (status) {
+            case 0: return 'text-secondary';   // Pending → gray
+            case 1: return 'text-info';        // Submitted → blue
+            case 2: return 'text-primary';     // Partial Approved → dark blue
+            case 3: return 'text-success';     // Approved → green
+            case 4: return 'text-danger';      // Rejected → red
+            case 5: return 'text-success fw-bold'; // Paid → green bold
+            default: return '';
+        }
+    }
     getPaymentMethodString(method: number): string {
         switch (method) {
             case 0: return 'Cash';
@@ -212,6 +238,20 @@ export class InvoicesComponent extends PagedListingComponentBase<InvoiceDto> imp
         });
     }
 
+    collectCoPayAmount(id: number): void {
+        abp.message.confirm(
+            `Are you sure you want to collect Co-Pay Amount from deposit?`,
+            'Confirm',
+            (result: boolean) => {
+                if (result) {
+                    this._invoiceService.collectCoPay(id).subscribe(() => {
+                        this.notify.success('Co-Pay amount collected from deposit successfully.');
+                        this.refresh();
+                    });
+                }
+            }
+        );
+    }
     viewInvoice(invoice: InvoiceDto): void {
         let viewInvoiceDialog: BsModalRef;
 
