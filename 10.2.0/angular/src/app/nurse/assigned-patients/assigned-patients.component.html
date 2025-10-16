@@ -73,20 +73,20 @@
                         [tableStyle]="{ 'min-width': '50rem' }" (onLazyLoad)="list($event)">
                         <ng-template #header>
                             <tr>
-                                <th pSortableColumn="fullName">
+                                <th class="text-center" pSortableColumn="fullName">
                                     {{ 'FullName' | localize }}
                                     <p-sortIcon field="fullName"></p-sortIcon>
                                 </th>
-                                <th>
+                                <th class="text-center">
                                     Age/Gender
                                 </th>
-                                <th>
+                                <th class="text-center">
                                     Assigned Doctor
                                 </th>
-                                <th>
+                                <th class="text-center">
                                     {{ 'IsActive' | localize }}
                                 </th>
-                                <th>
+                                <th class="text-center">
                                     Action
                                 </th>
                             </tr>
@@ -94,27 +94,30 @@
 
                         <ng-template pTemplate="body" let-record="$implicit">
                             <tr>
-                                <td>
+                                <td class="text-center">
                                     <span>
                                         {{ record.fullName }}
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <span>
-                                        {{calculateAge(record.dateOfBirth)}} • {{record.gender}}
+                                        {{calculateAge(record.dateOfBirth)}} / {{record.gender}}
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <span>
                                         {{ record.doctorName ||'-' }}
                                     </span>
                                 </td>
-                                <td>
-                                    <span>
-                                        {{ record.isActive }}
+                                <td class="text-center">
+                                    <span *ngIf="record.isActive; else inactive">
+                                        <i class="pi pi-check-circle text-success fs-5"></i>
                                     </span>
+                                    <ng-template #inactive>
+                                        <i class="pi pi-times-circle text-danger fs-5"></i>
+                                    </ng-template>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <span [className]="getStatusSeverity(record.discharge_Status)"
                                         *ngIf="record.discharge_Status!=0">
                                         <b>{{ getStatusLabel(record.discharge_Status) }}</b>

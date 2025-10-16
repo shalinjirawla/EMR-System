@@ -33,20 +33,20 @@
             <!-- Header -->
             <ng-template pTemplate="header">
               <tr>
-                <th>Room Type</th>
-                <th>Description</th>
-                <th>Price Per Day</th>
-                <th style="width:80px">Actions</th>
+                <th class="text-center">Room Type</th>
+                <th class="text-center">Description</th>
+                <th class="text-center">Price Per Day</th>
+                <th class="text-center" style="width:80px">Actions</th>
               </tr>
             </ng-template>
 
             <!-- Body -->
             <ng-template pTemplate="body" let-roomType>
               <tr>
-                <td>{{ roomType.typeName }}</td>
-                <td>{{ roomType.description }}</td>
-                <td>{{ roomType.defaultPricePerDay | number:'1.2-2' }}</td>
-                <td>
+                <td class="text-center">{{ roomType.typeName }}</td>
+                <td class="text-center">{{ roomType.description }}</td>
+                <td class="text-center">{{ roomType.defaultPricePerDay | number:'1.2-2' }}</td>
+                <td class="text-center">
                   <!-- Row Menu -->
                   <button class="btn btn-sm border rounded-1 px-2" type="button"
                           (click)="rowMenu.toggle($event); selectedRecord = roomType">

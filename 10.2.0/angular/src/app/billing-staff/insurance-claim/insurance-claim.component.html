@@ -32,31 +32,31 @@
             [tableStyle]="{ 'min-width': '50rem' }" (onLazyLoad)="list($event)">
             <ng-template pTemplate="header">
               <tr>
-                <th>Invoice No</th>
-                <th>Patient</th>
-                <th>Insurance</th>
-                <th>Total Amount</th>
-                <th>PayByInsurance</th>
-                <th>PayByPatient</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th class="text-center">Invoice No</th>
+                <th class="text-center">Patient</th>
+                <th class="text-center">Insurance</th>
+                <th class="text-center">Total Amount</th>
+                <th class="text-center">PayByInsurance</th>
+                <th class="text-center">PayByPatient</th>
+                <th class="text-center">Status</th>
+                <th class="text-center">Actions</th>
               </tr>
             </ng-template>
 
             <ng-template pTemplate="body" let-record="$implicit">
               <tr>
-                <td>{{ record.invoiceNo }}</td>
-                <td>{{ record.patientName }}</td>
-                <td>{{ record.insuranceName }}</td>
-                <td>{{ record.totalAmount | number:'1.2-2' }}</td>
-                <td>{{ record.amountPayByInsurance | number:'1.2-2'}}</td>
-                <td>{{ record.amountPayByPatient | number:'1.2-2'}}</td>
-                <td>
+                <td class="text-center">{{ record.invoiceNo }}</td>
+                <td class="text-center">{{ record.patientName }}</td>
+                <td class="text-center">{{ record.insuranceName }}</td>
+                <td class="text-center">{{ record.totalAmount | number:'1.2-2' }}</td>
+                <td class="text-center">{{ record.amountPayByInsurance | number:'1.2-2'}}</td>
+                <td class="text-center">{{ record.amountPayByPatient | number:'1.2-2'}}</td>
+                <td class="text-center">
                   <span class="badge" [className]="getStatusClass(record.status)">
                     <b>{{ getStatusText(record.status) }}</b>
                   </span>
                 </td>
-                <td>
+                <td class="text-center">
                   <button class="btn btn-sm border rounded-1 px-3" style="background-color: #f8fafc;"
                     (click)="rowMenu.toggle($event); selectedRecord = record">
                     <i class="fa-solid fa-ellipsis-vertical"></i>

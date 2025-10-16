@@ -33,26 +33,26 @@
 
             <ng-template pTemplate="header">
               <tr>
-                <th>Patient</th>
-                <th>Total Credit Amount</th>
-                <th>Total Debit Amount</th>
-                <th>Total Balance</th>
-                <th>Actions</th>
+                <th class="text-center">Patient</th>
+                <th class="text-center">Total Credit Amount</th>
+                <th class="text-center">Total Debit Amount</th>
+                <th class="text-center">Total Balance</th>
+                <th class="text-center">Actions</th>
               </tr>
             </ng-template>
 
             <ng-template pTemplate="body" let-record="$implicit">
               <tr>
-                <td>{{ record.patientName }}</td>
-                <td>{{ record.totalCreditAmount }}</td>
-                <td>{{ record.totalDebitAmount }}</td>
-                <td>
+                <td class="text-center">{{ record.patientName }}</td>
+                <td class="text-center">{{ record.totalCreditAmount }}</td>
+                <td class="text-center">{{ record.totalDebitAmount }}</td>
+                <td class="text-center">
                   <span *ngIf="record.totalBalance < 0" class="badge-soft-danger p-1 rounded"><b>{{record.totalBalance}}</b>
                   </span>
                   <span *ngIf="record.totalBalance >= 0" class="badge-soft-success p-1 rounded"><b>{{record.totalBalance}}</b>
                   </span>
                 </td>
-                <td>
+                <td class="text-center">
                   <button class="btn btn-sm border rounded-1 px-3" type="button" style="background-color: #f8fafc;"
                     (click)="rowMenu.toggle($event); selectedRecord = record">
                     <i class="fa-solid fa-ellipsis-vertical"></i>

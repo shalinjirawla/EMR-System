@@ -254,6 +254,56 @@ namespace EMRSystem.Invoice
             return MapToEntityDto(invoice);
         }
 
+        public virtual async Task<InvoiceDto> CollectCoPayAsync(long invoiceId)
+        {
+            // Step 1: Fetch the invoice with related items
+            var invoice = await Repository.GetAllIncluding(x => x.Items)
+                .FirstOrDefaultAsync(x => x.Id == invoiceId);
+
+            if (invoice == null)
+                throw new UserFriendlyException("Invoice not found.");
+
+            // Step 2: Fetch patient deposit record
+            var patientDeposit = await _patientDepositRepository.FirstOrDefaultAsync(x =>
+                x.PatientId == invoice.PatientId && x.TenantId == invoice.TenantId);
+
+            if (patientDeposit == null)
+                throw new UserFriendlyException("Patient deposit record not found.");
+
+            // Step 3: Create a deposit transaction for CoPay
+            var coPayAmount = invoice.CoPayAmount ?? 0;
+            if (coPayAmount <= 0)
+                throw new UserFriendlyException("No CoPay amount to collect.");
+
+            var transaction = new DepositTransaction
+            {
+                TenantId = invoice.TenantId,
+                PatientDepositId = patientDeposit.Id,
+                Amount = coPayAmount,
+                TransactionType = TransactionType.Debit,
+                PaymentMethod = null, // can be Cash/Card
+                TransactionDate = DateTime.Now,
+                Description = $"CoPay collected for Invoice {invoice.InvoiceNo}",
+                ReceiptNo = null,
+                IsPaid = false
+            };
+
+            await _depositTransactionRepository.InsertAsync(transaction);
+
+            // Step 4: Update patient deposit balances
+            patientDeposit.TotalDebitAmount += coPayAmount;
+            patientDeposit.TotalBalance = patientDeposit.TotalCreditAmount - patientDeposit.TotalDebitAmount;
+            await _patientDepositRepository.UpdateAsync(patientDeposit);
+
+            // Step 5: Update invoice status
+            invoice.Status = InvoiceStatus.CollectedCoPayAmount;
+            await Repository.UpdateAsync(invoice);
+
+            await CurrentUnitOfWork.SaveChangesAsync();
+
+            // Step 6: Return updated invoice DTO
+            return MapToEntityDto(invoice);
+        }
 
         //public override async Task<InvoiceDto> CreateAsync(CreateUpdateInvoiceDto input)
         //{

@@ -39,34 +39,34 @@
                         [tableStyle]="{ 'min-width': '50rem' }" (onLazyLoad)="list($event)">
                         <ng-template pTemplate="header">
                             <tr>
-                                <th>
+                                <th class="text-center">
                                     {{ 'Invoice Number' | localize }}
                                 </th>
-                                <th>
+                                <th class="text-center">
                                     {{ 'Invoice Type' | localize }}
                                 </th>
-                                <th>
+                                <th class="text-center">
                                     {{ 'Invoice Date' | localize }}
                                 </th>
-                                <th>
+                                <th class="text-center">
                                     {{ 'PatientName' | localize }}
                                 </th>
-                                <th>
+                                <th class="text-center">
                                     {{ 'TotalAmount' | localize }}
                                 </th>
-                                <th>
+                                <th class="text-center">
                                     {{ 'PayByInsurance' | localize }}
                                 </th>
-                                <th>
+                                <th class="text-center">
                                     {{ 'PayByPatient' | localize }}
                                 </th>
-                                <th>
+                                <th class="text-center">
                                     {{ 'InsuranceStatus' | localize }}
                                 </th>
-                                <th>
+                                <th class="text-center">
                                     {{ 'PaymentStatus' | localize }}
                                 </th>
-                                <th>
+                                <th class="text-center">
                                     {{ 'Actions' | localize }}
                                 </th>
                             </tr>
@@ -74,52 +74,54 @@
 
                         <ng-template pTemplate="body" let-record="$implicit">
                             <tr>
-                                <td>
+                                <td class="text-center">
                                     <span>
                                         {{ record.invoiceNo }}
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <span>
                                         {{ record.invoiceType==0?'Daily Invoice':'Full Invoice' }}
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <span>
                                         {{ record.invoiceDate | date: 'dd/MM/yyyy' }}
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <span>
                                         {{ record.patientName }}
                                     </span>
                                 </td>
-                                <td>
-                                    <span>
-                                        {{ record.totalAmount }}
+                                <td class="text-center">
+                                    <span>{{ record.totalAmount }}</span>
+                                </td>
+                                <td class="text-center">
+                                    <span>{{ record.approvedAmount || '-' }}</span>
+                                </td>
+                                <td class="text-center">
+                                    <span [ngClass]="getCoPayClass(record.status)">
+                                        {{ record.coPayAmount || '-' }}
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <span>
-                                        {{ record.approvedAmount || '-' }}
+                                        <ng-container *ngFor="let claim of record.claims; let last = last">
+                                            <span [ngClass]="getClaimClass(claim.status)">
+                                                <b>{{ getClaimStatusString(claim.status) }}</b>
+                                            </span>
+                                            <span *ngIf="!last">, </span>
+                                        </ng-container>
                                     </span>
                                 </td>
-                                <td>
-                                    <span>
-                                        {{ record.coPayAmount || '-'}}
+                                <td class="text-center">
+                                    <span [ngClass]="getStatusClass(record.status)">
+                                        <b>{{ getStatusString(record.status) }}</b>
                                     </span>
                                 </td>
-                                <td>
-                                    <span>
-                                        {{ getClaimStatuses(record.claims) }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <span>
-                                        {{ getStatusString(record.status) }}
-                                    </span>
-                                </td>
-                                <td>
+
+                                <td class="text-center">
                                     <button class="btn btn-sm border rounded-1 px-3" type="button"
                                         style="background-color: #f8fafc;"
                                         (click)="rowMenu.toggle($event); selectedRecord = record">

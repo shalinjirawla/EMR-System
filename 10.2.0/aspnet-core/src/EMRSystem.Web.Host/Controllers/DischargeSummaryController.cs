@@ -30,19 +30,19 @@ namespace EMRSystem.Web.Host.Controllers
             var html = await System.IO.File.ReadAllTextAsync(templatePath);
 
             // Generate TreatmentSummary from SelectedEmergencyProcedures
-            string treatmentSummaryHtml = "<ul>";
-            if (dto.SelectedEmergencyProcedures != null && dto.SelectedEmergencyProcedures.Any())
-            {
-                foreach (var procedure in dto.SelectedEmergencyProcedures)
-                {
-                    treatmentSummaryHtml += $"<li>{procedure.ProcedureName}</li>";
-                }
-            }
-            else
-            {
-                treatmentSummaryHtml += "<li>No procedures performed.</li>";
-            }
-            treatmentSummaryHtml += "</ul>";
+            //string treatmentSummaryHtml = "<ul>";
+            //if (dto.SelectedEmergencyProcedures != null && dto.SelectedEmergencyProcedures.Any())
+            //{
+            //    foreach (var procedure in dto.SelectedEmergencyProcedures)
+            //    {
+            //        treatmentSummaryHtml += $"<li>{procedure.ProcedureName}</li>";
+            //    }
+            //}
+            //else
+            //{
+            //    treatmentSummaryHtml += "<li>No procedures performed.</li>";
+            //}
+            //treatmentSummaryHtml += "</ul>";
 
             // Replace placeholders
             html = html.Replace("{{PatientName}}", dto.PatientDetails.FullName)
@@ -56,7 +56,7 @@ namespace EMRSystem.Web.Host.Controllers
                        .Replace("{{ChiefComplaint}}", dto.PatientDetails.ReasonForAdmit ?? "")
                        .Replace("{{ProvisionalDiagnosis}}", dto.PatientDischarge.ProvisionalDiagnosis ?? "")
                        .Replace("{{FinalDiagnosis}}", dto.PatientDischarge.FinalDiagnosis ?? "")
-                       .Replace("{{TreatmentSummary}}", treatmentSummaryHtml)
+                       //.Replace("{{TreatmentSummary}}", treatmentSummaryHtml)
                        .Replace("{{InvestigationSummary}}", dto.PatientDischarge.InvestigationSummary ?? "")
                        .Replace("{{ConditionAtDischarge}}", dto.PatientDischarge.ConditionAtDischarge ?? "")
                        .Replace("{{DietAdvice}}", dto.PatientDischarge.DietAdvice ?? "")
@@ -80,7 +80,7 @@ namespace EMRSystem.Web.Host.Controllers
                     pdfBytes = ms.ToArray();
                 }
 
-                return File(pdfBytes, "application/pdf", $"DischargeSummary_{patientId}.pdf");
+                return File(pdfBytes, "application/pdf", $"DischargeSummary_{dto.PatientDetails.FullName}.pdf");
             }
             catch (Exception ex)
             {

@@ -40,7 +40,7 @@ export class EditInsuranceClaimComponent extends AppComponentBase implements OnI
   statusList = [
     { label: 'Pending', value: 0 },
     { label: 'Submitted', value: 1 },
-    { label: 'Partial Approved', value:2  },
+    // { label: 'Partial Approved', value:2  },
     { label: 'Approved', value:3  },
     { label: 'Rejected', value: 4 },
     { label: 'Paid', value: 5 },

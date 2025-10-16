@@ -87,7 +87,7 @@ export class ListComponent extends PagedListingComponentBase<PatientDischargeDto
     const lastInitial = words.length > 1 ? words[words.length - 1].charAt(0).toUpperCase() : '';
     return firstInitial + lastInitial;
   }
-  downloadPDF(pID: number) {
+  downloadPDF(pID: number,name:string) {
   const url = `https://localhost:44311/Download?patientId=${pID}`;
 
   this.http.get(url, { responseType: 'blob' }).subscribe({
@@ -96,13 +96,13 @@ export class ListComponent extends PagedListingComponentBase<PatientDischargeDto
       const blob = new Blob([res], { type: 'application/pdf' });
       const link = document.createElement('a');
       link.href = window.URL.createObjectURL(blob);
-      link.download = `DischargeSummary_${pID}.pdf`;
+      link.download = `DischargeSummary_${name}.pdf`;
       link.click();
       window.URL.revokeObjectURL(link.href); // Clean up
     },
     error: (err) => {
       console.error('PDF download failed', err);
-      alert('Failed to download PDF');
+      this.notify.error('Failed to download PDF');
     }
   });
 }

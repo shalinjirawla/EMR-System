@@ -41,28 +41,28 @@
             [tableStyle]="{ 'min-width': '30rem' }">
             <ng-template pTemplate="header">
               <tr>
-                <th>{{ 'ReceiptNumber' | localize }}</th>
-                <th>{{ 'PatientName' | localize }}</th>
-                <th>{{ 'Date' | localize }}</th>
-                <th>{{ 'TotalAmount' | localize }}</th>
-                <th>{{ 'Payment Method' | localize }}</th>
-                <th>{{ 'Status' | localize }}</th>
-                <th>{{ 'Actions' | localize }}</th>
+                <th class="text-center">{{ 'ReceiptNumber' | localize }}</th>
+                <th class="text-center">{{ 'PatientName' | localize }}</th>
+                <th class="text-center">{{ 'Date' | localize }}</th>
+                <th class="text-center">{{ 'TotalAmount' | localize }}</th>
+                <th class="text-center">{{ 'Payment Method' | localize }}</th>
+                <th class="text-center">{{ 'Status' | localize }}</th>
+                <th class="text-center">{{ 'Actions' | localize }}</th>
               </tr>
             </ng-template>
             <ng-template pTemplate="body" let-receipt>
               <tr>
-                <td>{{ receipt.receiptNumber }}</td>
-                <td>{{ receipt.patientName }}</td>
-                <td>{{ receipt.paymentDate | date:'fullDate' }}</td>
-                <td>{{ receipt.totalFee | currency:'INR' }}</td>
-                <td>{{ receipt.paymentMethod===1?'Card':'Cash' }}</td>
-                <td>
+                <td class="text-center">{{ receipt.receiptNumber }}</td>
+                <td class="text-center">{{ receipt.patientName }}</td>
+                <td class="text-center">{{ receipt.paymentDate | date:'fullDate' }}</td>
+                <td class="text-center">{{ receipt.totalFee | currency:'INR' }}</td>
+                <td class="text-center">{{ receipt.paymentMethod===1?'Card':'Cash' }}</td>
+                <td class="text-center">
                   <span [class]="receipt.status === 1 ? 'badge-soft-success p-1 rounded' : 'badge-soft-danger p-1 rounded'">
                     <b>{{ receipt.status === 1 ? 'Paid' : 'Unpaid' }}</b>
                   </span>
                 </td>
-                <td>
+                <td class="text-center">
                   <button class="btn btn-sm border rounded-1 px-3" type="button" style="background-color: #f8fafc;"
                     (click)="rowMenu.toggle($event); selectedReceipt = receipt">
                     <i class="fa-solid fa-ellipsis-vertical"></i>

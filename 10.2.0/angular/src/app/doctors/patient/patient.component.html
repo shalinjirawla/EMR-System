@@ -75,35 +75,42 @@
                        [tableStyle]="{ 'min-width': '50rem' }" (onLazyLoad)="list($event)">
                         <ng-template #header>
                             <tr>
-                                <th pSortableColumn="fullName">
+                                <th class="text-center" pSortableColumn="fullName">
                                     {{ 'FullName' | localize }}
                                     <p-sortIcon field="fullName"></p-sortIcon>
                                 </th>
-                                <th>Age/Gender</th>
-                                <th *ngIf="showDoctorColumn">Assigned Doctor</th>
-                                <th>Assigned Nurse</th>
-                                <th>Is Admitted</th>
-                                <th>Status</th>
-                                <th style="min-width: 130px">{{ 'Actions' | localize }}</th>
+                                <th class="text-center">Age/Gender</th>
+                                <th class="text-center" *ngIf="showDoctorColumn">Assigned Doctor</th>
+                                <th class="text-center">Assigned Nurse</th>
+                                <th class="text-center">Is Admitted</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-center" style="min-width: 130px">{{ 'Actions' | localize }}</th>
                             </tr>
                         </ng-template>
 
                         <ng-template pTemplate="body" let-record="$implicit">
                             <tr>
-                                <td>
+                                <td class="text-center">
                                     <span>{{ record.fullName }}</span>
                                 </td>
-                                <td>{{ calculateAge(record.dateOfBirth) }} • {{ record.gender }}</td>
-                                <td *ngIf="showDoctorColumn">{{ record.doctorName || '-' }}</td>
-                                <td>{{ record.nurseName || '-' }}</td>
-                                <td>{{ record.isAdmitted }}</td>
-                                <td>
+                                <td class="text-center">{{ calculateAge(record.dateOfBirth) }} / {{ record.gender }}</td>
+                                <td class="text-center" *ngIf="showDoctorColumn">{{ record.doctorName || '-' }}</td>
+                                <td class="text-center">{{ record.nurseName || '-' }}</td>
+                                <td class="text-center">
+                                    <span *ngIf="record.isAdmitted; else inactive">
+                                        <i class="pi pi-check-circle text-success fs-5"></i>
+                                    </span>
+                                    <ng-template #inactive>
+                                        <i class="pi pi-times-circle text-danger fs-5"></i>
+                                    </ng-template>
+                                </td>
+                                <td class="text-center">
                                     <span [className]="getStatusSeverity(record.discharge_Status)"
                                         *ngIf="record.isAdmitted">
                                         {{ getStatusLabel(record.discharge_Status) }}
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <button class="btn btn-sm border rounded-1 px-3" type="button"
                                         style="background-color: #f8fafc;"
                                         (click)="rowMenu.toggle($event); selectedRecord = record">

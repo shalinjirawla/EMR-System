@@ -55,17 +55,24 @@
             (onLazyLoad)="list($event)" [tableStyle]="{'min-width':'40rem'}">
             <ng-template pTemplate="header">
               <tr>
-                <th>Name</th>
-                <th>Active</th>
-                <th style="width:80px">Actions</th>
+                <th class="text-center">Name</th>
+                <th class="text-center">Active</th>
+                <th class="text-center" style="width:80px">Actions</th>
               </tr>
             </ng-template>
 
             <ng-template pTemplate="body" let-record>
               <tr>
-                <td>{{ record.insuranceName }}</td>
-                <td>{{ record.isActive ? 'Yes' : 'No' }}</td>
-                <td>
+                <td class="text-center">{{ record.insuranceName }}</td>
+                <td class="text-center">
+                  <span *ngIf="record.isActive; else inactive">
+                    <i class="pi pi-check-circle text-success fs-5"></i>
+                  </span>
+                  <ng-template #inactive>
+                    <i class="pi pi-times-circle text-danger fs-5"></i>
+                  </ng-template>
+                </td>
+                <td class="text-center">
                   <!-- Row Menu -->
                   <button class="btn btn-sm border rounded-1 px-2" type="button"
                     (click)="rowMenu.toggle($event); selectedRecord = record">

@@ -31,27 +31,27 @@
                         [tableStyle]="{ 'min-width': '50rem' }" (onLazyLoad)="list($event)">
                         <ng-template pTemplate="header">
                             <tr>
-                                <th style="min-width: 100px" pSortableColumn="patientName">
+                                <th class="text-center" style="min-width: 100px" pSortableColumn="patientName">
                                     Patient Name
                                     <p-sortIcon field="patientName"></p-sortIcon>
                                 </th>
-                                <th style="min-width: 50px">
+                                <th class="text-center" style="min-width: 50px">
                                     Gender
                                 </th>
-                                <th style="min-width: 100px">
+                                <th class="text-center" style="min-width: 100px">
                                     Date
                                 </th>
-                                <th style="min-width: 100px" pSortableColumn="doctorName" *ngIf="showDoctorColumn">
+                                <th class="text-center" style="min-width: 100px" pSortableColumn="doctorName" *ngIf="showDoctorColumn">
                                     Referred By
                                     <p-sortIcon field="patientName"></p-sortIcon>
                                 </th>
-                                <th style="min-width: 150px" pSortableColumn="testname">
+                                <th class="text-center" style="min-width: 150px" pSortableColumn="testname">
                                     Test Type
                                 </th>
-                                <th style="min-width: 100px" pSortableColumn="status">
+                                <th class="text-center" style="min-width: 100px" pSortableColumn="status">
                                     {{ 'Status' | localize }}
                                 </th>
-                                <th style="min-width: 150px">
+                                <th class="text-center" style="min-width: 150px">
                                     {{ 'Actions' | localize }}
                                 </th>
                             </tr>
@@ -59,38 +59,38 @@
 
                         <ng-template pTemplate="body" let-record="$implicit">
                             <tr>
-                                <td>
+                                <td class="text-center">
                                     <p-avatar [label]="getShortName(record.patientName)" class="mr-1" size="small" />
                                     <span>
                                         {{ record.patientName }}
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <span>
                                         {{ record.gender }}
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <span>
                                         {{ record.date | date: 'dd/MM/yyyy' }}
                                     </span>
                                 </td>
-                                <td *ngIf="showDoctorColumn">
+                                <td class="text-center" *ngIf="showDoctorColumn">
                                     <span>
                                         Dr. {{ record.doctorName }}
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <span>
                                         {{ record.labReportTypeName }}
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <p-tag [value]="getStatusLabel(record.testStatus)"
                                         [severity]="getStatusSeverity(record.testStatus)" [rounded]="true">
                                     </p-tag>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <button type="button" pButton icon="pi pi-eye" class="p-button-text"
                                         (click)="ViewLabReport(record.id)">
                                     </button>

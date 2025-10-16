@@ -73,25 +73,25 @@
                         [paginator]="false" [lazy]="true" [tableStyle]="{ 'min-width': '50rem' }">
                         <ng-template #header>
                             <tr>
-                                <th pSortableColumn="userName">
+                                <th class="text-center" pSortableColumn="userName">
                                     {{ 'UserName' | localize }}
                                     <p-sortIcon field="userName"></p-sortIcon>
                                 </th>
-                                <th pSortableColumn="name">
+                                <th class="text-center" pSortableColumn="name">
                                     {{ 'FullName' | localize }}
                                     <p-sortIcon field="name"></p-sortIcon>
                                 </th>
-                                <th pSortableColumn="emailAddress">
+                                <th class="text-center" pSortableColumn="emailAddress">
                                     {{ 'EmailAddress' | localize }}
                                     <p-sortIcon field="emailAddress"></p-sortIcon>
                                 </th>
-                                <th>
+                                <th class="text-center">
                                     {{ 'Roles' | localize }}
                                 </th>
-                                <th>
+                                <th class="text-center">
                                     {{ 'IsActive' | localize }}
                                 </th>
-                                <th>
+                                <th class="text-center">
                                     {{ 'Actions' | localize }}
                                 </th>
                             </tr>
@@ -99,32 +99,36 @@
 
                         <ng-template pTemplate="body" let-record="$implicit">
                             <tr>
-                                <td>
+                                <td class="text-center">
                                     <span>
                                         {{ record.userName }}
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <span>
                                         {{ record.fullName }}
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <span>
                                         {{ record.emailAddress }}
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <span>
                                         {{ record.roleNames }}
                                     </span>
                                 </td>
-                                <td>
-                                    <span>
-                                        {{ record.isActive }}
+                                <td class="text-center">
+                                    <span *ngIf="record.isActive; else inactive">
+                                        <i class="pi pi-check-circle text-success fs-5"></i>
                                     </span>
+                                    <ng-template #inactive>
+                                        <i class="pi pi-times-circle text-danger fs-5"></i>
+                                    </ng-template>
                                 </td>
-                                <td>
+
+                                <td class="text-center">
                                     <button class="btn btn-sm border rounded-1 px-3" type="button"
                                         style="background-color: #f8fafc;"
                                         (click)="rowMenu.toggle($event); selectedRecord = record">

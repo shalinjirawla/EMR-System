@@ -30,18 +30,18 @@
                    [tableStyle]="{'min-width':'30rem'}">
             <ng-template pTemplate="header">
               <tr>
-                <th>{{ 'Lab Test' | localize }}</th>
-                <th>{{ 'Min Range' | localize }}</th>
-                <th>{{ 'Max Range' | localize }}</th>
-                <th>{{ 'Actions' | localize }}</th>
+                <th class="text-center">{{ 'Lab Test' | localize }}</th>
+                <th class="text-center">{{ 'Min Range' | localize }}</th>
+                <th class="text-center">{{ 'Max Range' | localize }}</th>
+                <th class="text-center">{{ 'Actions' | localize }}</th>
               </tr>
             </ng-template>
             <ng-template pTemplate="body" let-limit>
               <tr>
-                <td>{{ limit.labTestName }}</td>
-                <td>{{ limit.minRange }}</td>
-                <td>{{ limit.maxRange }}</td>
-                <td>
+                <td class="text-center">{{ limit.labTestName }}</td>
+                <td class="text-center">{{ limit.minRange }}</td>
+                <td class="text-center">{{ limit.maxRange }}</td>
+                <td class="text-center">
                   <button class="btn btn-sm border rounded-1 px-3 mr-1" type="button"
                           (click)="rowMenu.toggle($event); selectedRecord = limit">
                     <i class="fa-solid fa-ellipsis-vertical"></i>

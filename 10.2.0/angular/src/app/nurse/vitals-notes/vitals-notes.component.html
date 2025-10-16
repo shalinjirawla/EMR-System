@@ -39,27 +39,27 @@
                         [tableStyle]="{ 'min-width': '50rem' }" (onLazyLoad)="list($event)">
                         <ng-template #header>
                             <tr>
-                                <th pSortableColumn="patientName">
+                                <th class="text-center" pSortableColumn="patientName">
                                     {{ 'Patient Name' | localize }}
                                     <p-sortIcon field="patientName"></p-sortIcon>
                                 </th>
-                                <th pSortableColumn="nurseName">
+                                <th class="text-center" pSortableColumn="nurseName">
                                     {{ 'Nurse Name' | localize }}
                                     <p-sortIcon field="nurseName"></p-sortIcon>
                                 </th>
-                                <th>
+                                <th class="text-center">
                                     {{ 'Temperature' | localize }}
                                 </th>
-                                <th>
+                                <th class="text-center">
                                     {{ 'BloodPressure' | localize }}
                                 </th>
-                                <th>
+                                <th class="text-center">
                                     {{ 'RespirationRate' | localize }}
                                 </th>
-                                <th>
+                                <th class="text-center">
                                     {{ 'OxygenSaturation' | localize }}
                                 </th>
-                                <th>
+                                <th class="text-center">
                                     {{ 'Actions' | localize }}
                                 </th>
                             </tr>
@@ -67,37 +67,37 @@
 
                         <ng-template pTemplate="body" let-record="$implicit">
                             <tr>
-                                <td>
+                                <td class="text-center">
                                     <span>
                                         {{ record.patient.fullName }}
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <span>
                                         {{ record.nurse.fullName }}
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <span>
                                         {{ record.temperature }}
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <span>
                                         {{ record.bloodPressure }}
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <span>
                                         {{ record.respirationRate }}
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <span>
                                         {{ record.oxygenSaturation }}
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <button class="btn btn-sm border rounded-1 px-3" type="button"
                                         style="background-color: #f8fafc;"
                                         (click)="rowMenu.toggle($event); selectedRecord = record">

@@ -79,64 +79,141 @@ namespace EMRSystem.Appointments
             _doctorRepository = doctorRepository;
             _ipdChargeEntryRepository = ipdChargeEntryRepository;
         }
+        //protected override IQueryable<Appointment> CreateFilteredQuery(PagedAppoinmentResultRequestDto input)
+        //{
+        //    try
+        //    {
+
+        //        var userId = AbpSession.UserId;
+        //        var doctor = _doctorAppService.GetDoctorDetailsByAbpUserID(userId.Value);
+        //        var nurse = _nurseAppService.GetNurseDetailsByAbpUserID(userId.Value);
+
+        //        // Start with base query without projection
+        //        var baseQuery = Repository
+        //            .GetAll()
+        //            .Include(x => x.Patient)
+        //            .Include(x => x.Doctor);
+        //        //.Include(x => x.Nurse);
+
+        //        var filteredQuery = baseQuery.Where(x => x.TenantId == AbpSession.TenantId.Value).AsQueryable(); // Explicitly convert to IQueryable
+
+        //        if (doctor != null)
+        //        {
+        //            filteredQuery = filteredQuery.Where(i => i.DoctorId == doctor.Id);
+        //        }
+
+        //        if (!input.Keyword.IsNullOrWhiteSpace())
+        //        {
+        //            filteredQuery = filteredQuery.Where(x =>
+        //                (x.Patient.FullName != null && x.Patient.FullName.Contains(input.Keyword)) ||
+        //                (x.Doctor.FullName != null && x.Doctor.FullName.Contains(input.Keyword)));
+        //        }
+
+        //        if (input.Status != null && input.Status.Any())
+        //        {
+        //            filteredQuery = filteredQuery.Where(x => input.Status.Contains(x.Status));
+        //        }
+
+        //        // Apply projection after all filtering
+        //        var result = filteredQuery.Select(x => new Appointment
+        //        {
+        //            Id = x.Id,
+        //            TenantId = x.TenantId,
+        //            AppointmentDate = x.AppointmentDate,
+        //            //StartTime = x.StartTime,
+        //            //EndTime = x.EndTime,
+        //            ReasonForVisit = x.ReasonForVisit,
+        //            Status = x.Status,
+        //            IsFollowUp = x.IsFollowUp,
+        //            IsPaid = x.IsPaid,
+        //            PatientId = x.PatientId,
+        //            DoctorId = x.DoctorId,
+        //            //NurseId = x.NurseId,
+        //            AppointmentTypeId = x.AppointmentTypeId,
+        //            AppointmentType = x.AppointmentType == null ? null : new EMRSystem.AppointmentType.AppointmentType
+        //            {
+        //                Id = x.AppointmentType.Id,
+        //                Name = x.AppointmentType.Name
+        //            },
+
+        //            Patient = x.Patient == null ? null : new Patient
+        //            {
+        //                Id = x.Patient.Id,
+        //                FullName = x.Patient.FullName,
+        //                IsAdmitted = x.Patient.IsAdmitted
+        //            },
+        //            Doctor = x.Doctor == null ? null : new EMRSystem.Doctors.Doctor
+        //            {
+        //                Id = x.Doctor.Id,
+        //                FullName = x.Doctor.FullName
+        //            },
+        //            //Nurse = x.Nurse == null ? null : new EMRSystem.Nurses.Nurse
+        //            //{
+        //            //    Id = x.Nurse.Id,
+        //            //    FullName = x.Nurse.FullName
+        //            //},
+        //        });
+
+        //        return result;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new Exception();
+
+        //    }
+        //}
         protected override IQueryable<Appointment> CreateFilteredQuery(PagedAppoinmentResultRequestDto input)
         {
-            var userId = AbpSession.UserId;
-            var doctor = _doctorAppService.GetDoctorDetailsByAbpUserID(userId.Value);
-            var nurse = _nurseAppService.GetNurseDetailsByAbpUserID(userId.Value);
-
-            // Start with base query without projection
-            var baseQuery = Repository
-                .GetAll()
+            var query = Repository.GetAll()
                 .Include(x => x.Patient)
-                .Include(x => x.Doctor);
-            //.Include(x => x.Nurse);
+                .Include(x => x.Doctor)
+                .Include(x => x.AppointmentType)
+                .Where(x => x.TenantId == AbpSession.TenantId);
 
-            var filteredQuery = baseQuery.Where(x => x.TenantId == AbpSession.TenantId.Value).AsQueryable(); // Explicitly convert to IQueryable
-
-            if (doctor != null)
+            if (AbpSession.UserId.HasValue)
             {
-                filteredQuery = filteredQuery.Where(i => i.DoctorId == doctor.Id);
+                var userId = AbpSession.UserId.Value;
+                var doctor = _doctorAppService.GetDoctorDetailsByAbpUserID(userId);
+                var nurse = _nurseAppService.GetNurseDetailsByAbpUserID(userId);
+
+                if (doctor != null)
+                    query = query.Where(x => x.DoctorId == doctor.Id);
+                // else if nurse != null
             }
-            //else if (nurse != null)
-            //{
-            //    filteredQuery = filteredQuery.Where(i => i.NurseId == nurse.Id);
-            //}
 
             if (!input.Keyword.IsNullOrWhiteSpace())
             {
-                filteredQuery = filteredQuery.Where(x =>
-                    (x.Patient.FullName != null && x.Patient.FullName.Contains(input.Keyword)) ||
-                    (x.Doctor.FullName != null && x.Doctor.FullName.Contains(input.Keyword)));
+                query = query.Where(x =>
+                    (x.Patient != null && x.Patient.FullName.Contains(input.Keyword)) ||
+                    (x.Doctor != null && x.Doctor.FullName.Contains(input.Keyword))
+                );
             }
 
             if (input.Status != null && input.Status.Any())
             {
-                filteredQuery = filteredQuery.Where(x => input.Status.Contains(x.Status));
+                query = query.Where(x => input.Status.Contains(x.Status));
             }
 
-            // Apply projection after all filtering
-            var result = filteredQuery.Select(x => new Appointment
+            // Projection directly in EF (nullable-safe)
+            return query.Select(x => new Appointment
             {
                 Id = x.Id,
                 TenantId = x.TenantId,
                 AppointmentDate = x.AppointmentDate,
-                //StartTime = x.StartTime,
-                //EndTime = x.EndTime,
                 ReasonForVisit = x.ReasonForVisit,
                 Status = x.Status,
                 IsFollowUp = x.IsFollowUp,
                 IsPaid = x.IsPaid,
                 PatientId = x.PatientId,
                 DoctorId = x.DoctorId,
-                //NurseId = x.NurseId,
                 AppointmentTypeId = x.AppointmentTypeId,
+
+                // Safe navigation using ?. operator
                 AppointmentType = x.AppointmentType == null ? null : new EMRSystem.AppointmentType.AppointmentType
                 {
                     Id = x.AppointmentType.Id,
                     Name = x.AppointmentType.Name
                 },
-
                 Patient = x.Patient == null ? null : new Patient
                 {
                     Id = x.Patient.Id,
@@ -147,16 +224,11 @@ namespace EMRSystem.Appointments
                 {
                     Id = x.Doctor.Id,
                     FullName = x.Doctor.FullName
-                },
-                //Nurse = x.Nurse == null ? null : new EMRSystem.Nurses.Nurse
-                //{
-                //    Id = x.Nurse.Id,
-                //    FullName = x.Nurse.FullName
-                //},
+                }
             });
-
-            return result;
         }
+
+
         protected override IQueryable<Appointment> ApplySorting(IQueryable<Appointment> query, PagedAppoinmentResultRequestDto input)
         {
             if (!string.IsNullOrWhiteSpace(input.Sorting))

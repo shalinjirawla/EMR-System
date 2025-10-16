@@ -32,32 +32,32 @@
                         [paginator]="false" [lazy]="true" [tableStyle]="{ 'min-width': '50rem' }">
                         <ng-template pTemplate="header">
                             <tr>
-                                <th>Medicine Name</th>
-                                <th>Batch No</th>
-                                <th>Expiry Date</th>
-                                <th>Quantity</th>
-                                <th>Purchase Price</th>
-                                <th>Selling Price</th>
-                                <th>Stock Status</th>
-                                <th>Expiry Status</th>
+                                <th class="text-center">Medicine Name</th>
+                                <th class="text-center">Batch No</th>
+                                <th class="text-center">Expiry Date</th>
+                                <th class="text-center">Quantity</th>
+                                <th class="text-center">Purchase Price</th>
+                                <th class="text-center">Selling Price</th>
+                                <th class="text-center">Stock Status</th>
+                                <th class="text-center">Expiry Status</th>
                             </tr>
                         </ng-template>
 
                         <ng-template pTemplate="body" let-record="$implicit">
                             <tr>
-                                <td>{{ record.medicineName }}</td>
-                                <td>{{ record.batchNo }}</td>
-                                <td>{{ record.expiryDate | date: 'dd/MM/yyyy' }}</td>
-                                <td>{{ record.quantity }}</td>
-                                <td>{{ record.purchasePrice | currency:'INR':'symbol' }}</td>
-                                <td>{{ record.sellingPrice | currency:'INR':'symbol' }}</td>
-                                <td>
+                                <td class="text-center">{{ record.medicineName }}</td>
+                                <td class="text-center">{{ record.batchNo }}</td>
+                                <td class="text-center">{{ record.expiryDate | date: 'dd/MM/yyyy' }}</td>
+                                <td class="text-center">{{ record.quantity }}</td>
+                                <td class="text-center">{{ record.purchasePrice | currency:'INR':'symbol' }}</td>
+                                <td class="text-center">{{ record.sellingPrice | currency:'INR':'symbol' }}</td>
+                                <td class="text-center">
                                     <span [class.text-success]="record.stockStatus === 'In Stock'"
                                         [class.text-danger]="record.stockStatus !== 'In Stock'">
                                         {{ record.stockStatus }}
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <span [class.text-success]="record.expiryStatus === 'Valid'"
                                         [class.text-danger]="record.expiryStatus !== 'Valid'">
                                         {{ record.expiryStatus }}

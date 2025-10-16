@@ -80,25 +80,25 @@
             
             <ng-template pTemplate="header">
               <tr>
-                <th pSortableColumn="roomNumber">Room No <p-sortIcon field="roomNumber"></p-sortIcon></th>
-                <th pSortableColumn="roomTypeName">Room Type <p-sortIcon field="roomTypeName"></p-sortIcon></th>
-                <th pSortableColumn="floor">Floor <p-sortIcon field="floor"></p-sortIcon></th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th class="text-center" pSortableColumn="roomNumber">Room No <p-sortIcon field="roomNumber"></p-sortIcon></th>
+                <th class="text-center" pSortableColumn="roomTypeName">Room Type <p-sortIcon field="roomTypeName"></p-sortIcon></th>
+                <th class="text-center" pSortableColumn="floor">Floor <p-sortIcon field="floor"></p-sortIcon></th>
+                <th class="text-center">Status</th>
+                <th class="text-center">Actions</th>
               </tr>
             </ng-template>
 
             <ng-template pTemplate="body" let-room>
               <tr>
-                <td>{{ room.roomNumber }}</td>
-                <td>{{ room.roomTypeName }}</td>
-                <td>{{ room.floor }}</td>
-                <td>
+                <td class="text-center">{{ room.roomNumber }}</td>
+                <td class="text-center">{{ room.roomTypeName }}</td>
+                <td class="text-center">{{ room.floor }}</td>
+                <td class="text-center">
                   <p-tag [value]="getStatusLabel(room.status)" 
                          [severity]="getStatusSeverity(room.status)" 
                          [rounded]="true"></p-tag>
                 </td>
-                <td>
+                <td class="text-center">
                   <button class="btn btn-sm border rounded-1 px-3 mr-1" type="button"
                     (click)="rowMenu.toggle($event); selectedRecord = room">
                     <i class="fa-solid fa-ellipsis-vertical"></i>

@@ -73,21 +73,28 @@
             
             <ng-template pTemplate="header">
               <tr>
-                <th>Name</th>
-                <th>Category</th>
-                <th>Default Charge</th>
-                <th>Active</th>
-                <th>Actions</th>
+                <th class="text-center">Name</th>
+                <th class="text-center">Category</th>
+                <th class="text-center">Default Charge</th>
+                <th class="text-center">Active</th>
+                <th class="text-center">Actions</th>
               </tr>
             </ng-template>
 
             <ng-template pTemplate="body" let-procedure>
               <tr>
-                <td>{{ procedure.name }}</td>
-                <td> {{ procedure.category == 0 ? 'Minor' : procedure.category == 1 ? 'Major' : 'Life Saving' }} </td>
-                <td>{{ procedure.defaultCharge | currency:'INR' }}</td>
-                <td>{{ procedure.isActive ? 'Yes' : 'No' }}</td>
-                <td>
+                <td class="text-center">{{ procedure.name }}</td>
+                <td class="text-center"> {{ procedure.category == 0 ? 'Minor' : procedure.category == 1 ? 'Major' : 'Life Saving' }} </td>
+                <td class="text-center">{{ procedure.defaultCharge | currency:'INR' }}</td>
+                <td class="text-center">
+                  <span *ngIf="procedure.isActive; else inactive">
+                    <i class="pi pi-check-circle text-success fs-5"></i>
+                  </span>
+                  <ng-template #inactive>
+                    <i class="pi pi-times-circle text-danger fs-5"></i>
+                  </ng-template>
+                </td>
+                <td class="text-center">
                   <button class="btn btn-sm border rounded-1 px-2" type="button"
                     (click)="rowMenu.toggle($event); selectedRecord = procedure">
                     <i class="pi pi-ellipsis-v"></i>

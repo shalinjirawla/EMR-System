@@ -59,16 +59,23 @@
             [tableStyle]="{ 'min-width': '30rem' }">
             <ng-template #header>
               <tr>
-                <th pSortableColumn="name">Name <p-sortIcon field="name"></p-sortIcon></th>
-                <th>Active</th>
-                <th>Actions</th>
+                <th class="text-center" pSortableColumn="name">Name <p-sortIcon field="name"></p-sortIcon></th>
+                <th class="text-center">Active</th>
+                <th class="text-center">Actions</th>
               </tr>
             </ng-template>
             <ng-template pTemplate="body" let-unit>
               <tr>
-                <td>{{ unit.name }}</td>
-                <td>{{ unit.isActive ? 'Yes' : 'No' }}</td>
-                <td>
+                <td class="text-center">{{ unit.name }}</td>
+                <td class="text-center">
+                  <span *ngIf="unit.isActive; else inactive">
+                    <i class="pi pi-check-circle text-success fs-5"></i>
+                  </span>
+                  <ng-template #inactive>
+                    <i class="pi pi-times-circle text-danger fs-5"></i>
+                  </ng-template>
+                </td>
+                <td class="text-center">
                   <button class="btn btn-sm border rounded-1 px-3 mr-1" type="button"
                     (click)="rowMenu.toggle($event); selectedRecord = unit">
                     <i class="fa-solid fa-ellipsis-vertical"></i>

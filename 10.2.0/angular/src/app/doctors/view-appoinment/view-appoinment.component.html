@@ -39,21 +39,21 @@
                         (onLazyLoad)="list($event)">
                         <ng-template #header>
                             <tr>
-                                <th style="min-width: 150px" pSortableColumn="patientName">
+                                <th class="text-center" style="min-width: 150px" pSortableColumn="patientName">
                                     Patient
                                     <p-sortIcon field="patientName"></p-sortIcon>
                                 </th>
-                                <th style="min-width: 150px" pSortableColumn="doctorName" *ngIf="showDoctorColumn">
+                                <th class="text-center" style="min-width: 150px" pSortableColumn="doctorName" *ngIf="showDoctorColumn">
                                     Doctor
                                     <p-sortIcon field="doctorName"></p-sortIcon>
                                 </th>
-                                <th style="min-width: 150px">
+                                <th class="text-center" style="min-width: 150px">
                                     Date & Time
                                 </th>
-                                <th style="min-width: 130px">
+                                <th class="text-center" style="min-width: 130px">
                                     Status
                                 </th>
-                                <th style="min-width: 130px">
+                                <th class="text-center" style="min-width: 130px">
                                     Actions
                                 </th>
                             </tr>
@@ -61,7 +61,7 @@
 
                         <ng-template pTemplate="body" let-record="$implicit">
                             <tr>
-                                <td>
+                                <td class="text-center">
                                     <p-avatar [label]="getShortName(record.patient?.fullName)"
                                         [style]="{ 'background-color': '#ece9fc', color: '#2a1261' }" class="mr-1"
                                         size="small" />
@@ -69,7 +69,7 @@
                                         {{ record.patient?.fullName }}
                                     </span>
                                 </td>
-                                <td *ngIf="showDoctorColumn">
+                                <td class="text-center" *ngIf="showDoctorColumn">
                                     <p-avatar [label]="getShortName(record.doctor?.fullName)"
                                         [style]="{ 'background-color': '#ece9fc', color: '#2a1261' }" class="mr-1"
                                         size="small" />
@@ -77,7 +77,7 @@
                                         Dr. {{ record.doctor?.fullName }}
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <p class="m-0">
                                         {{ record.appointmentDate | date: 'dd/MM/yyyy' }}
                                     </p>
@@ -85,12 +85,12 @@
                                         {{record.appointmentTimeSlot}}
                                     </p>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <span [className]="getStatusSeverity(record.status)">
                                         {{getStatusLabel(record.status)}}
                                     </span>
                                 </td>
-                                <td *ngIf="record.status !== 3">
+                                <td class="text-center" *ngIf="record.status !== 3">
 
                                     <button class="btn btn-sm border rounded-1 px-3" type="button"
                                         style="background-color: #f8fafc;"
@@ -101,7 +101,7 @@
                                         [model]="editDeleteMenus" appendTo="body"></p-menu>
 
                                 </td>
-                                <td *ngIf="record.status === 3"></td>
+                                <td class="text-center" *ngIf="record.status === 3"></td>
                             </tr>
                         </ng-template>
                     </p-table>
