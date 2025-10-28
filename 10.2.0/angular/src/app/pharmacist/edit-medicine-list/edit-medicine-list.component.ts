@@ -96,8 +96,8 @@ export class EditMedicineListComponent extends AppComponentBase implements OnIni
     this._medicineService.update(this.medicine).subscribe({
       next: () => {
         this.notify.info(this.l('SavedSuccessfully'));
-        this.bsModalRef.hide();
         this.onSave.emit();
+        this.bsModalRef.hide();
       },
       error: () => {
         this.saving = false;

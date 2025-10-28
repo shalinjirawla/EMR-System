@@ -1,0 +1,67 @@
+<form class="form-horizontal d-flex flex-column" style="height: 90vh;" autocomplete="off" #deathRecordForm="ngForm"
+  (ngSubmit)="save()">
+  <abp-modal-header title="Add Death Record" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
+
+  <div class="modal-body flex-grow-1" style="overflow-y: auto;">
+    <div class="row">
+      <div class="col-md-6 d-flex flex-column">
+        <label>Patient</label>
+        <p-dropdown [(ngModel)]="deathRecord.patientId" name="patientId" [options]="patientList" optionLabel="fullName"
+          optionValue="id" [filter]="true" placeholder="Select Patient" class="w-100" required></p-dropdown>
+      </div>
+
+      <div class="col-md-6 d-flex flex-column">
+        <label>Doctor</label>
+        <p-dropdown [(ngModel)]="deathRecord.doctorId" name="doctorId" [options]="doctorList" optionLabel="fullName"
+          optionValue="id" [filter]="true" placeholder="Select Doctor" class="w-100"></p-dropdown>
+      </div>
+    </div>
+
+    <div class="row mt-3">
+      <div class="col-md-6 d-flex flex-column">
+        <label>Death Date</label>
+        <p-datepicker [(ngModel)]="deathRecord.deathDate" [maxDate]="today" name="deathDate" dateFormat="dd/mm/yy"
+          showIcon="true" class="w-100" required></p-datepicker>
+      </div>
+
+      <div class="col-md-6 d-flex flex-column">
+        <label>Death Time</label>
+        <p-datepicker [(ngModel)]="deathRecord.deathTime" name="deathTime" timeOnly="true" hourFormat="12"
+          showIcon="true" placeholder="Select Time" class="w-100" required></p-datepicker>
+      </div>
+    </div>
+
+    <div class="row mt-3">
+      <div class="col-md-6 d-flex flex-column">
+        <label>Nurse</label>
+        <p-dropdown [(ngModel)]="deathRecord.nurseId" name="nurseId" [options]="nurseList" optionLabel="fullName"
+          optionValue="id" [filter]="true" placeholder="Select Nurse" class="w-100"></p-dropdown>
+      </div>
+
+      <div class="col-md-6 d-flex align-items-center">
+        <p-checkbox [(ngModel)]="deathRecord.isPostMortemDone" name="isPostMortemDone" binary="true"
+          inputId="isPostMortemDone"></p-checkbox>
+        <label for="isPostMortemDone" class="ml-2 mb-0">Is Post Mortem Done</label>
+      </div>
+    </div>
+
+    <div class="row mt-3">
+      <div class="col-md-12 d-flex flex-column">
+        <label>Cause of Death</label>
+        <input pInputText [(ngModel)]="deathRecord.causeOfDeath" name="causeOfDeath" placeholder="Enter cause of death"
+          class="w-100" required />
+      </div>
+    </div>
+
+    <div class="row mt-3">
+      <div class="col-md-12 d-flex flex-column">
+        <label>Notes</label>
+        <textarea pTextarea [(ngModel)]="deathRecord.notes" name="notes" placeholder="Any notes..." rows="3"
+          class="w-100"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="!isFormValid || saving"
+    (onCancelClick)="bsModalRef.hide()"></abp-modal-footer>
+</form>

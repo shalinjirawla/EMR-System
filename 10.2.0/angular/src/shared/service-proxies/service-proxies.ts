@@ -2657,6 +2657,309 @@ export class BillingServiceProxy {
 }
 
 @Injectable()
+export class BirthRecordServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    get(id: number | undefined): Observable<BirthRecordDto> {
+        let url_ = this.baseUrl + "/api/services/app/BirthRecord/Get?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGet(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<BirthRecordDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<BirthRecordDto>;
+        }));
+    }
+
+    protected processGet(response: HttpResponseBase): Observable<BirthRecordDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = BirthRecordDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param keyword (optional) 
+     * @param sorting (optional) 
+     * @param skipCount (optional) 
+     * @param maxResultCount (optional) 
+     * @return OK
+     */
+    getAll(keyword: string | undefined, sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<BirthRecordDtoPagedResultDto> {
+        let url_ = this.baseUrl + "/api/services/app/BirthRecord/GetAll?";
+        if (keyword === null)
+            throw new Error("The parameter 'keyword' cannot be null.");
+        else if (keyword !== undefined)
+            url_ += "Keyword=" + encodeURIComponent("" + keyword) + "&";
+        if (sorting === null)
+            throw new Error("The parameter 'sorting' cannot be null.");
+        else if (sorting !== undefined)
+            url_ += "Sorting=" + encodeURIComponent("" + sorting) + "&";
+        if (skipCount === null)
+            throw new Error("The parameter 'skipCount' cannot be null.");
+        else if (skipCount !== undefined)
+            url_ += "SkipCount=" + encodeURIComponent("" + skipCount) + "&";
+        if (maxResultCount === null)
+            throw new Error("The parameter 'maxResultCount' cannot be null.");
+        else if (maxResultCount !== undefined)
+            url_ += "MaxResultCount=" + encodeURIComponent("" + maxResultCount) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAll(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAll(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<BirthRecordDtoPagedResultDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<BirthRecordDtoPagedResultDto>;
+        }));
+    }
+
+    protected processGetAll(response: HttpResponseBase): Observable<BirthRecordDtoPagedResultDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = BirthRecordDtoPagedResultDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    create(body: CreateUpdateBirthRecordDto | undefined): Observable<BirthRecordDto> {
+        let url_ = this.baseUrl + "/api/services/app/BirthRecord/Create";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<BirthRecordDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<BirthRecordDto>;
+        }));
+    }
+
+    protected processCreate(response: HttpResponseBase): Observable<BirthRecordDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = BirthRecordDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    update(body: CreateUpdateBirthRecordDto | undefined): Observable<BirthRecordDto> {
+        let url_ = this.baseUrl + "/api/services/app/BirthRecord/Update";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<BirthRecordDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<BirthRecordDto>;
+        }));
+    }
+
+    protected processUpdate(response: HttpResponseBase): Observable<BirthRecordDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = BirthRecordDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    delete(id: number | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/BirthRecord/Delete?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDelete(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDelete(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDelete(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
 export class ConfigurationServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -3499,6 +3802,309 @@ export class CreatePrescriptionLabTestsServiceProxy {
      */
     delete(id: number | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/services/app/CreatePrescriptionLabTests/Delete?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDelete(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDelete(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDelete(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
+export class DeathRecordServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    get(id: number | undefined): Observable<DeathRecordDto> {
+        let url_ = this.baseUrl + "/api/services/app/DeathRecord/Get?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGet(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<DeathRecordDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<DeathRecordDto>;
+        }));
+    }
+
+    protected processGet(response: HttpResponseBase): Observable<DeathRecordDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DeathRecordDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param keyword (optional) 
+     * @param sorting (optional) 
+     * @param skipCount (optional) 
+     * @param maxResultCount (optional) 
+     * @return OK
+     */
+    getAll(keyword: string | undefined, sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<DeathRecordDtoPagedResultDto> {
+        let url_ = this.baseUrl + "/api/services/app/DeathRecord/GetAll?";
+        if (keyword === null)
+            throw new Error("The parameter 'keyword' cannot be null.");
+        else if (keyword !== undefined)
+            url_ += "Keyword=" + encodeURIComponent("" + keyword) + "&";
+        if (sorting === null)
+            throw new Error("The parameter 'sorting' cannot be null.");
+        else if (sorting !== undefined)
+            url_ += "Sorting=" + encodeURIComponent("" + sorting) + "&";
+        if (skipCount === null)
+            throw new Error("The parameter 'skipCount' cannot be null.");
+        else if (skipCount !== undefined)
+            url_ += "SkipCount=" + encodeURIComponent("" + skipCount) + "&";
+        if (maxResultCount === null)
+            throw new Error("The parameter 'maxResultCount' cannot be null.");
+        else if (maxResultCount !== undefined)
+            url_ += "MaxResultCount=" + encodeURIComponent("" + maxResultCount) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAll(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAll(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<DeathRecordDtoPagedResultDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<DeathRecordDtoPagedResultDto>;
+        }));
+    }
+
+    protected processGetAll(response: HttpResponseBase): Observable<DeathRecordDtoPagedResultDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DeathRecordDtoPagedResultDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    create(body: CreateUpdateDeathRecordDto | undefined): Observable<DeathRecordDto> {
+        let url_ = this.baseUrl + "/api/services/app/DeathRecord/Create";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<DeathRecordDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<DeathRecordDto>;
+        }));
+    }
+
+    protected processCreate(response: HttpResponseBase): Observable<DeathRecordDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DeathRecordDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    update(body: CreateUpdateDeathRecordDto | undefined): Observable<DeathRecordDto> {
+        let url_ = this.baseUrl + "/api/services/app/DeathRecord/Update";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<DeathRecordDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<DeathRecordDto>;
+        }));
+    }
+
+    protected processUpdate(response: HttpResponseBase): Observable<DeathRecordDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DeathRecordDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    delete(id: number | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/DeathRecord/Delete?";
         if (id === null)
             throw new Error("The parameter 'id' cannot be null.");
         else if (id !== undefined)
@@ -28179,6 +28785,175 @@ export enum BillingMethod {
     _2 = 2,
 }
 
+export class BirthRecordDto implements IBirthRecordDto {
+    id: number;
+    tenantId: number | undefined;
+    motherId: number;
+    motherName: string | undefined;
+    gender: GenderType;
+    birthDate: moment.Moment;
+    birthTime: moment.Moment;
+    birthWeight: number | undefined;
+    birthType: BirthType;
+    deliveryType: DeliveryType;
+    doctorId: number | undefined;
+    doctorName: string | undefined;
+    nurseId: number | undefined;
+    nurseName: string | undefined;
+    isStillBirth: boolean;
+    fatherName: string | undefined;
+    notes: string | undefined;
+
+    constructor(data?: IBirthRecordDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.motherId = _data["motherId"];
+            this.motherName = _data["motherName"];
+            this.gender = _data["gender"];
+            this.birthDate = _data["birthDate"] ? moment(_data["birthDate"].toString()) : <any>undefined;
+            this.birthTime = _data["birthTime"] ? moment(_data["birthTime"].toString()) : <any>undefined;
+            this.birthWeight = _data["birthWeight"];
+            this.birthType = _data["birthType"];
+            this.deliveryType = _data["deliveryType"];
+            this.doctorId = _data["doctorId"];
+            this.doctorName = _data["doctorName"];
+            this.nurseId = _data["nurseId"];
+            this.nurseName = _data["nurseName"];
+            this.isStillBirth = _data["isStillBirth"];
+            this.fatherName = _data["fatherName"];
+            this.notes = _data["notes"];
+        }
+    }
+
+    static fromJS(data: any): BirthRecordDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new BirthRecordDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["motherId"] = this.motherId;
+        data["motherName"] = this.motherName;
+        data["gender"] = this.gender;
+        data["birthDate"] = this.birthDate ? this.birthDate.toISOString() : <any>undefined;
+        data["birthTime"] = this.birthTime ? this.birthTime.toISOString() : <any>undefined;
+        data["birthWeight"] = this.birthWeight;
+        data["birthType"] = this.birthType;
+        data["deliveryType"] = this.deliveryType;
+        data["doctorId"] = this.doctorId;
+        data["doctorName"] = this.doctorName;
+        data["nurseId"] = this.nurseId;
+        data["nurseName"] = this.nurseName;
+        data["isStillBirth"] = this.isStillBirth;
+        data["fatherName"] = this.fatherName;
+        data["notes"] = this.notes;
+        return data;
+    }
+
+    clone(): BirthRecordDto {
+        const json = this.toJSON();
+        let result = new BirthRecordDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IBirthRecordDto {
+    id: number;
+    tenantId: number | undefined;
+    motherId: number;
+    motherName: string | undefined;
+    gender: GenderType;
+    birthDate: moment.Moment;
+    birthTime: moment.Moment;
+    birthWeight: number | undefined;
+    birthType: BirthType;
+    deliveryType: DeliveryType;
+    doctorId: number | undefined;
+    doctorName: string | undefined;
+    nurseId: number | undefined;
+    nurseName: string | undefined;
+    isStillBirth: boolean;
+    fatherName: string | undefined;
+    notes: string | undefined;
+}
+
+export class BirthRecordDtoPagedResultDto implements IBirthRecordDtoPagedResultDto {
+    items: BirthRecordDto[] | undefined;
+    totalCount: number;
+
+    constructor(data?: IBirthRecordDtoPagedResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(BirthRecordDto.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): BirthRecordDtoPagedResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new BirthRecordDtoPagedResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+
+    clone(): BirthRecordDtoPagedResultDto {
+        const json = this.toJSON();
+        let result = new BirthRecordDtoPagedResultDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IBirthRecordDtoPagedResultDto {
+    items: BirthRecordDto[] | undefined;
+    totalCount: number;
+}
+
+export enum BirthType {
+    _1 = 1,
+    _2 = 2,
+    _3 = 3,
+    _4 = 4,
+}
+
 export class ChangePasswordDto implements IChangePasswordDto {
     currentPassword: string;
     newPassword: string;
@@ -29321,6 +30096,101 @@ export interface ICreateUpdateBillingDto {
     abpUserId: number;
 }
 
+export class CreateUpdateBirthRecordDto implements ICreateUpdateBirthRecordDto {
+    id: number;
+    tenantId: number | undefined;
+    motherId: number;
+    gender: GenderType;
+    birthDate: moment.Moment;
+    birthTime: moment.Moment;
+    birthWeight: number | undefined;
+    birthType: BirthType;
+    deliveryType: DeliveryType;
+    doctorId: number | undefined;
+    nurseId: number | undefined;
+    isStillBirth: boolean;
+    fatherName: string | undefined;
+    notes: string | undefined;
+
+    constructor(data?: ICreateUpdateBirthRecordDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.motherId = _data["motherId"];
+            this.gender = _data["gender"];
+            this.birthDate = _data["birthDate"] ? moment(_data["birthDate"].toString()) : <any>undefined;
+            this.birthTime = _data["birthTime"] ? moment(_data["birthTime"].toString()) : <any>undefined;
+            this.birthWeight = _data["birthWeight"];
+            this.birthType = _data["birthType"];
+            this.deliveryType = _data["deliveryType"];
+            this.doctorId = _data["doctorId"];
+            this.nurseId = _data["nurseId"];
+            this.isStillBirth = _data["isStillBirth"];
+            this.fatherName = _data["fatherName"];
+            this.notes = _data["notes"];
+        }
+    }
+
+    static fromJS(data: any): CreateUpdateBirthRecordDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateUpdateBirthRecordDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["motherId"] = this.motherId;
+        data["gender"] = this.gender;
+        data["birthDate"] = this.birthDate ? this.birthDate.toISOString() : <any>undefined;
+        data["birthTime"] = this.birthTime ? this.birthTime.toISOString() : <any>undefined;
+        data["birthWeight"] = this.birthWeight;
+        data["birthType"] = this.birthType;
+        data["deliveryType"] = this.deliveryType;
+        data["doctorId"] = this.doctorId;
+        data["nurseId"] = this.nurseId;
+        data["isStillBirth"] = this.isStillBirth;
+        data["fatherName"] = this.fatherName;
+        data["notes"] = this.notes;
+        return data;
+    }
+
+    clone(): CreateUpdateBirthRecordDto {
+        const json = this.toJSON();
+        let result = new CreateUpdateBirthRecordDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ICreateUpdateBirthRecordDto {
+    id: number;
+    tenantId: number | undefined;
+    motherId: number;
+    gender: GenderType;
+    birthDate: moment.Moment;
+    birthTime: moment.Moment;
+    birthWeight: number | undefined;
+    birthType: BirthType;
+    deliveryType: DeliveryType;
+    doctorId: number | undefined;
+    nurseId: number | undefined;
+    isStillBirth: boolean;
+    fatherName: string | undefined;
+    notes: string | undefined;
+}
+
 export class CreateUpdateConsultationRequestsDto implements ICreateUpdateConsultationRequestsDto {
     id: number;
     tenantId: number;
@@ -29390,6 +30260,85 @@ export interface ICreateUpdateConsultationRequestsDto {
     status: Status;
     notes: string | undefined;
     adviceResponse: string | undefined;
+}
+
+export class CreateUpdateDeathRecordDto implements ICreateUpdateDeathRecordDto {
+    id: number;
+    tenantId: number | undefined;
+    patientId: number;
+    deathDate: moment.Moment;
+    deathTime: moment.Moment;
+    doctorId: number | undefined;
+    nurseId: number | undefined;
+    causeOfDeath: string | undefined;
+    isPostMortemDone: boolean;
+    notes: string | undefined;
+
+    constructor(data?: ICreateUpdateDeathRecordDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.patientId = _data["patientId"];
+            this.deathDate = _data["deathDate"] ? moment(_data["deathDate"].toString()) : <any>undefined;
+            this.deathTime = _data["deathTime"] ? moment(_data["deathTime"].toString()) : <any>undefined;
+            this.doctorId = _data["doctorId"];
+            this.nurseId = _data["nurseId"];
+            this.causeOfDeath = _data["causeOfDeath"];
+            this.isPostMortemDone = _data["isPostMortemDone"];
+            this.notes = _data["notes"];
+        }
+    }
+
+    static fromJS(data: any): CreateUpdateDeathRecordDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateUpdateDeathRecordDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["patientId"] = this.patientId;
+        data["deathDate"] = this.deathDate ? this.deathDate.toISOString() : <any>undefined;
+        data["deathTime"] = this.deathTime ? this.deathTime.toISOString() : <any>undefined;
+        data["doctorId"] = this.doctorId;
+        data["nurseId"] = this.nurseId;
+        data["causeOfDeath"] = this.causeOfDeath;
+        data["isPostMortemDone"] = this.isPostMortemDone;
+        data["notes"] = this.notes;
+        return data;
+    }
+
+    clone(): CreateUpdateDeathRecordDto {
+        const json = this.toJSON();
+        let result = new CreateUpdateDeathRecordDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ICreateUpdateDeathRecordDto {
+    id: number;
+    tenantId: number | undefined;
+    patientId: number;
+    deathDate: moment.Moment;
+    deathTime: moment.Moment;
+    doctorId: number | undefined;
+    nurseId: number | undefined;
+    causeOfDeath: string | undefined;
+    isPostMortemDone: boolean;
+    notes: string | undefined;
 }
 
 export class CreateUpdateDepartmentDto implements ICreateUpdateDepartmentDto {
@@ -33217,6 +34166,157 @@ export interface IDashboardSummaryDto {
     totalMedicineList: MedicineMasterDto[] | undefined;
 }
 
+export class DeathRecordDto implements IDeathRecordDto {
+    id: number;
+    tenantId: number | undefined;
+    patientId: number;
+    patientName: string | undefined;
+    deathDate: moment.Moment;
+    deathTime: moment.Moment;
+    doctorId: number | undefined;
+    doctorName: string | undefined;
+    nurseId: number | undefined;
+    nurseName: string | undefined;
+    causeOfDeath: string | undefined;
+    isPostMortemDone: boolean;
+    notes: string | undefined;
+
+    constructor(data?: IDeathRecordDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.patientId = _data["patientId"];
+            this.patientName = _data["patientName"];
+            this.deathDate = _data["deathDate"] ? moment(_data["deathDate"].toString()) : <any>undefined;
+            this.deathTime = _data["deathTime"] ? moment(_data["deathTime"].toString()) : <any>undefined;
+            this.doctorId = _data["doctorId"];
+            this.doctorName = _data["doctorName"];
+            this.nurseId = _data["nurseId"];
+            this.nurseName = _data["nurseName"];
+            this.causeOfDeath = _data["causeOfDeath"];
+            this.isPostMortemDone = _data["isPostMortemDone"];
+            this.notes = _data["notes"];
+        }
+    }
+
+    static fromJS(data: any): DeathRecordDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new DeathRecordDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["patientId"] = this.patientId;
+        data["patientName"] = this.patientName;
+        data["deathDate"] = this.deathDate ? this.deathDate.toISOString() : <any>undefined;
+        data["deathTime"] = this.deathTime ? this.deathTime.toISOString() : <any>undefined;
+        data["doctorId"] = this.doctorId;
+        data["doctorName"] = this.doctorName;
+        data["nurseId"] = this.nurseId;
+        data["nurseName"] = this.nurseName;
+        data["causeOfDeath"] = this.causeOfDeath;
+        data["isPostMortemDone"] = this.isPostMortemDone;
+        data["notes"] = this.notes;
+        return data;
+    }
+
+    clone(): DeathRecordDto {
+        const json = this.toJSON();
+        let result = new DeathRecordDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IDeathRecordDto {
+    id: number;
+    tenantId: number | undefined;
+    patientId: number;
+    patientName: string | undefined;
+    deathDate: moment.Moment;
+    deathTime: moment.Moment;
+    doctorId: number | undefined;
+    doctorName: string | undefined;
+    nurseId: number | undefined;
+    nurseName: string | undefined;
+    causeOfDeath: string | undefined;
+    isPostMortemDone: boolean;
+    notes: string | undefined;
+}
+
+export class DeathRecordDtoPagedResultDto implements IDeathRecordDtoPagedResultDto {
+    items: DeathRecordDto[] | undefined;
+    totalCount: number;
+
+    constructor(data?: IDeathRecordDtoPagedResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(DeathRecordDto.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): DeathRecordDtoPagedResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new DeathRecordDtoPagedResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+
+    clone(): DeathRecordDtoPagedResultDto {
+        const json = this.toJSON();
+        let result = new DeathRecordDtoPagedResultDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IDeathRecordDtoPagedResultDto {
+    items: DeathRecordDto[] | undefined;
+    totalCount: number;
+}
+
+export enum DeliveryType {
+    _1 = 1,
+    _2 = 2,
+}
+
 export class Department implements IDepartment {
     id: number;
     tenantId: number;
@@ -35330,6 +36430,12 @@ export interface IFlatPermissionDto {
     name: string | undefined;
     displayName: string | undefined;
     description: string | undefined;
+}
+
+export enum GenderType {
+    _1 = 1,
+    _2 = 2,
+    _3 = 3,
 }
 
 export class GetCurrentLoginInformationsOutput implements IGetCurrentLoginInformationsOutput {

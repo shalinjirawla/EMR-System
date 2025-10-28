@@ -462,19 +462,28 @@ export class EditPharmacistPrescriptionComponent extends AppComponentBase implem
                   // Allocate quantity to batches
                   if (it.batchId) {
                     this.changeAllocatedForBatch(it.medicineId, it.batchId, it.qty);
+                    this.cdRef.detectChanges();
                   } else {
                     // Auto-allocate if no batch specified
                     this.autoAllocateToBatches(it);
+                    this.cdRef.detectChanges();
+
                   }
+                    this.cdRef.detectChanges();
+
                 });
               }
 
+              this.cdRef.detectChanges();
               return it;
+
             });
 
             this.selectedPrescriptionName = `${res.patientName || ''} - ${res.issueDate.toDate().toLocaleDateString()} - ${res.prescriptionId}`;
             this.selectedPrescriptionItem = [...this.selectedPrescriptionItem];
             this.total = this.getPrescriptionTotal();
+                    this.cdRef.detectChanges();
+
           }
           this.cdRef.detectChanges();
         });

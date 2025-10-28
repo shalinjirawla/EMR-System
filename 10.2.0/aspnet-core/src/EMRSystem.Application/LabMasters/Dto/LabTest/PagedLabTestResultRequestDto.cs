@@ -8,28 +8,26 @@ using System.Threading.Tasks;
 
 namespace EMRSystem.LabMasters.Dto.LabTest
 {
-    public class PagedLabTestResultRequestDto : PagedResultRequestDto, IShouldNormalize
+    public class PagedLabTestResultRequestDto : PagedAndSortedResultRequestDto, IShouldNormalize
     {
         public string Keyword { get; set; }
         public bool? IsActive { get; set; }
-        public string Sorting { get; set; }
 
         public void Normalize()
         {
             Keyword = Keyword?.Trim();
 
-            if (!string.IsNullOrEmpty(Sorting))
+            if (string.IsNullOrWhiteSpace(Sorting))
             {
-                Sorting = Sorting.ToLowerInvariant();
-                if (Sorting.Contains("name"))
-                {
-                    Sorting = Sorting.Replace("name", "Name");
-                }
+                Sorting = "Id desc"; // ✅ must include direction
             }
             else
             {
-                Sorting = "Name"; // default
+                Sorting = Sorting.Trim();
+                if (Sorting.StartsWith("name", StringComparison.OrdinalIgnoreCase))
+                    Sorting = Sorting.Replace("name", "Name", StringComparison.OrdinalIgnoreCase);
             }
         }
     }
+
 }

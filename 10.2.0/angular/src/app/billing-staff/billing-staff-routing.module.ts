@@ -3,7 +3,6 @@ import { RouterModule, Routes } from '@angular/router';
 import { BillingStaffComponent } from './billing-staff.component';
 import { AppRouteGuard } from '../../shared/auth/auth-route-guard';
 import { InvoicesComponent } from './invoices/invoices.component';
-import { PaymentsComponent } from './payments/payments.component';
 import { ReportsComponent } from './reports/reports.component';
 import { InsuranceClaimComponent } from "./insurance-claim/insurance-claim.component";
 
@@ -11,23 +10,19 @@ const routes: Routes = [
     {
         path: '',
         component: BillingStaffComponent,
-          canActivate: [AppRouteGuard],
+        canActivate: [AppRouteGuard],
         children: [
             {
                 path: 'invoices',
                 component: InvoicesComponent,
             },
             {
-                path: 'payments',
-                component: PaymentsComponent,
-            },
-            {
                 path: 'reports',
                 component: ReportsComponent,
             },
             {
-                path:'insurance-claim',
-                component:InsuranceClaimComponent
+                path: 'insurance-claim',
+                component: InsuranceClaimComponent
             },
             {
                 path: '',
@@ -42,4 +37,4 @@ const routes: Routes = [
     imports: [RouterModule.forChild(routes)],
     exports: [RouterModule],
 })
-export class BillingStaffRoutingModule {}
+export class BillingStaffRoutingModule { }

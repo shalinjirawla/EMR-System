@@ -106,15 +106,19 @@
                                     </span>
                                 </td>
                                 <td class="text-center">
-                                    <span>
+                                    <ng-container *ngIf="record?.claims?.length > 0; else noClaims">
                                         <ng-container *ngFor="let claim of record.claims; let last = last">
-                                            <span [ngClass]="getClaimClass(claim.status)">
-                                                <b>{{ getClaimStatusString(claim.status) }}</b>
+                                            <span [ngClass]="getClaimClass(claim?.status)">
+                                                <b>{{ getClaimStatusString(claim?.status || '-') }}</b>
                                             </span>
                                             <span *ngIf="!last">, </span>
                                         </ng-container>
-                                    </span>
+                                    </ng-container>
+                                    <ng-template #noClaims>
+                                        <span>-</span>
+                                    </ng-template>
                                 </td>
+
                                 <td class="text-center">
                                     <span [ngClass]="getStatusClass(record.status)">
                                         <b>{{ getStatusString(record.status) }}</b>

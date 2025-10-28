@@ -4,6 +4,7 @@ using EMRSystem.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EMRSystem.Migrations
 {
     [DbContext(typeof(EMRSystemDbContext))]
-    partial class EMRSystemDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251027085855_Added_BirthRecord")]
+    partial class Added_BirthRecord
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1868,8 +1871,8 @@ namespace EMRSystem.Migrations
                     b.Property<DateTime>("BirthDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("BirthTime")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("BirthTime")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("BirthType")
                         .HasColumnType("int");
@@ -1901,7 +1904,7 @@ namespace EMRSystem.Migrations
                     b.Property<long?>("NurseId")
                         .HasColumnType("bigint");
 
-                    b.Property<int>("TenantId")
+                    b.Property<int?>("TenantId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -1913,52 +1916,6 @@ namespace EMRSystem.Migrations
                     b.HasIndex("NurseId");
 
                     b.ToTable("BirthRecords");
-                });
-
-            modelBuilder.Entity("EMRSystem.DeathRecord.DeathRecord", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("CauseOfDeath")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("DeathDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("DeathTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long?>("DoctorId")
-                        .HasColumnType("bigint");
-
-                    b.Property<bool>("IsPostMortemDone")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long?>("NurseId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("PatientId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DoctorId");
-
-                    b.HasIndex("NurseId");
-
-                    b.HasIndex("PatientId");
-
-                    b.ToTable("DeathRecords");
                 });
 
             modelBuilder.Entity("EMRSystem.Departments.Department", b =>
@@ -4600,29 +4557,6 @@ namespace EMRSystem.Migrations
                     b.Navigation("Mother");
 
                     b.Navigation("Nurse");
-                });
-
-            modelBuilder.Entity("EMRSystem.DeathRecord.DeathRecord", b =>
-                {
-                    b.HasOne("EMRSystem.Doctors.Doctor", "Doctor")
-                        .WithMany()
-                        .HasForeignKey("DoctorId");
-
-                    b.HasOne("EMRSystem.Nurses.Nurse", "Nurse")
-                        .WithMany()
-                        .HasForeignKey("NurseId");
-
-                    b.HasOne("EMRSystem.Patients.Patient", "Patient")
-                        .WithMany()
-                        .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Doctor");
-
-                    b.Navigation("Nurse");
-
-                    b.Navigation("Patient");
                 });
 
             modelBuilder.Entity("EMRSystem.Deposit.DepositTransaction", b =>

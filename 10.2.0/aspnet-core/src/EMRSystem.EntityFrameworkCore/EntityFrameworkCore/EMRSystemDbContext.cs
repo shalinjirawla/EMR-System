@@ -98,6 +98,9 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
     public DbSet<InsuranceMaster> InsuranceMasters { get; set; }
     public DbSet<PatientInsurance> PatientInsurances { get; set; }
     public DbSet<InsuranceClaim> InsuranceClaims { get; set; }
+    public DbSet<EMRSystem.BirthRecord.BirthRecord> BirthRecords { get; set; }
+    public DbSet<EMRSystem.DeathRecord.DeathRecord> DeathRecords { get; set; }
+
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -1041,7 +1044,6 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
             // Optional: create index for performance
             b.HasIndex(x => new { x.TenantId, x.InvoiceId });
         });
-
 
     }
 }

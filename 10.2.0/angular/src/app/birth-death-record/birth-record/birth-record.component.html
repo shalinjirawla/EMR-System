@@ -6,17 +6,17 @@
           <p-breadcrumb [model]="items" />
         </div>
         <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
-          <div class="btn-group mr-1" role="group" aria-label="Third group" pTooltip="Refresh" tooltipPosition="top"
+          <div class="btn-group mr-1" role="group" aria-label="Refresh" pTooltip="Refresh" tooltipPosition="top"
             (click)="refresh()">
             <button type="button" class="btn btn-md refresh-btn">
               <span class="pi pi-refresh"></span>
             </button>
           </div>
-          <div class="btn-group mr-2" role="group" aria-label="Fourth group" (click)="addNewMedicine()">
+          <div class="btn-group mr-2" role="group" aria-label="Add" (click)="addNewBirthRecord()">
             <button type="button" class="btn btn-md add-btn">
               <div class="d-flex align-items-center justify-content-between">
                 <span class="pi pi-plus-circle mr-2"></span>
-                <span>Add New Medicine</span>
+                <span>Add Birth Record</span>
               </div>
             </button>
           </div>
@@ -32,45 +32,53 @@
           <div class="d-flex justify-content-end align-items-center mb-3">
             <div>
               <input class="search-bar-text" type="text" pInputText [(ngModel)]="keyword" pSize="small"
-                [placeholder]="'SearchWithThreeDot' | localize" (input)="list()" />
+                placeholder="Search..." (input)="list()" />
             </div>
           </div>
+
           <p-table #dataTable sortMode="multiple" (onLazyLoad)="list($event)" [value]="primengTableHelper.records"
-            rows="{{ primengTableHelper.defaultRecordsCountPerPage }}" [paginator]="false" [lazy]="true"
-            [tableStyle]="{ 'min-width': '50rem' }">
+            [rows]="primengTableHelper.defaultRecordsCountPerPage" [paginator]="false" [lazy]="true"
+            [tableStyle]="{ 'min-width': '60rem' }">
             <ng-template pTemplate="header">
               <tr>
-                <th class="text-center" pSortableColumn="name">Name <p-sortIcon field="name"></p-sortIcon></th>
-                <th class="text-center">Form</th>
-                <th class="text-center">Strength</th>
-                <th class="text-center">Min Stock</th>
-                <th class="text-center">Status</th>
-                <th class="text-center">Description</th>
+                <th class="text-center">
+                  Birth Date
+                </th>
+                <th class="text-center">Mother</th>
+                <!-- <th class="text-center">Father</th> -->
+                <th class="text-center">Doctor</th>
+                <!-- <th class="text-center">Nurse</th> -->
+                <th class="text-center">Baby's Gender</th>
+                <th class="text-center">Baby's Weight</th>
+                <th class="text-center">Delivery Type</th>
+                <!-- <th class="text-center">Birth Type</th> -->
                 <th class="text-center">{{ 'Actions' | localize }}</th>
               </tr>
             </ng-template>
 
-            <ng-template pTemplate="body" let-record="$implicit">
+            <ng-template pTemplate="body" let-record>
               <tr>
-                <td class="text-center">{{ record.name }}</td>
-                <td class="text-center">{{ record.formName }}</td>
-                <td class="text-center">{{ record.strength }} {{ record.strengthUnitName }}</td>
-                <td class="text-center">{{ record.minimumStock }}</td>
-                <td class="text-center">
-                  <span *ngIf="record.isAvailable; else inactive">
-                    <i class="pi pi-check-circle text-success fs-5"></i>
-                  </span>
-                  <ng-template #inactive>
-                    <i class="pi pi-times-circle text-danger fs-5"></i>
-                  </ng-template>
+                <td class="text-center">{{ record.birthDate | date: 'dd/MM/yyyy' }}</td>
+                <td class="text-center">{{ record.motherName }}</td>
+                <!-- <td class="text-center">{{ record.fatherName }}</td> -->
+                <td class="text-center">{{ record.doctorName }}</td>
+                <!-- <td class="text-center">{{ record.nurseName }}</td> -->
+                 <td class="text-center">
+                  {{ getGenderName(record.gender) }}
                 </td>
-                <td class="text-center" [innerHTML]="record.description ? record.description : '<b>_</b>'"></td>
+                <td class="text-center"><b>{{ record.birthWeight }}</b> Kg</td>
+                <td class="text-center">
+                  {{ getDeliveryTypeName(record.deliveryType) }}
+                </td>
+                <!-- <td class="text-center">
+                  {{ getBirthTypeName(record.birthType) }}
+                </td> -->
                 <td class="text-center">
                   <button class="btn btn-sm border rounded-1 px-3" type="button" style="background-color: #f8fafc;"
                     (click)="rowMenu.toggle($event); selectedRecord = record">
                     <i class="fa-solid fa-ellipsis-vertical"></i>
                   </button>
-                  <p-menu #rowMenu [popup]="true" [style]="{'min-width':'80px', 'max-width':'150px'}"
+                  <p-menu #rowMenu [popup]="true" [style]="{ 'min-width': '80px', 'max-width': '150px' }"
                     [model]="editDeleteMenus" appendTo="body"></p-menu>
                 </td>
               </tr>
@@ -78,9 +86,10 @@
           </p-table>
 
           <div class="primeng-no-data text-center m-2" *ngIf="primengTableHelper.totalRecordsCount == 0">
-            {{ 'NoData' | localize }}
+            {{ 'No Birth Record.' | localize }}
           </div>
         </div>
+
         <p-paginator [rows]="primengTableHelper.defaultRecordsCountPerPage" #paginator (onPageChange)="list($event)"
           [totalRecords]="primengTableHelper.totalRecordsCount"
           [rowsPerPageOptions]="primengTableHelper.predefinedRecordsCountPerPage" [showCurrentPageReport]="true"

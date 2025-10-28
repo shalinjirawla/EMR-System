@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace EMRSystem.LabMasters.Dto.MeasureUnit
 {
-    public class PagedMeasureUnitResultRequestDto : PagedResultRequestDto, IShouldNormalize
+    public class PagedMeasureUnitResultRequestDto : PagedAndSortedResultRequestDto, IShouldNormalize
     {
         public string Keyword { get; set; }
         public bool? IsActive { get; set; }
@@ -18,17 +18,15 @@ namespace EMRSystem.LabMasters.Dto.MeasureUnit
         {
             Keyword = Keyword?.Trim();
 
-            if (!string.IsNullOrEmpty(Sorting))
+            if (string.IsNullOrWhiteSpace(Sorting))
             {
-                Sorting = Sorting.ToLowerInvariant();
-                if (Sorting.Contains("name"))
-                {
-                    Sorting = Sorting.Replace("name", "Name");
-                }
+                Sorting = "Id desc"; // ✅ must include direction
             }
             else
             {
-                Sorting = "Name"; // default sort
+                Sorting = Sorting.Trim();
+                if (Sorting.StartsWith("name", StringComparison.OrdinalIgnoreCase))
+                    Sorting = Sorting.Replace("name", "Name", StringComparison.OrdinalIgnoreCase);
             }
         }
     }

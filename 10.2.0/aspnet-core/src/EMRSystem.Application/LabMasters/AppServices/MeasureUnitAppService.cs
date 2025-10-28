@@ -9,6 +9,7 @@ using EMRSystem.LabMasters.Dto.MeasureUnit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -72,6 +73,9 @@ namespace EMRSystem.LabMasters.AppServices
             {
                 query = query.Where(x => x.IsActive == input.IsActive.Value);
             }
+            query = !string.IsNullOrWhiteSpace(input.Sorting)
+                    ? query.OrderBy(input.Sorting)
+                    : query.OrderBy("Id desc");
 
             return query;
         }
