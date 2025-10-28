@@ -125,59 +125,71 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
             new MenuItem(this.l('User Management'), '/app/users', 'fas fa-users', 'Pages.Users'),
             new MenuItem(this.l('Role Management'), '/app/roles', 'fas fa-user-shield', 'Pages.Roles'),
             new MenuItem(this.l('Tenant Management'), '/app/tenants', 'fas fa-city', 'Pages.Tenants'),
-            new MenuItem(this.l('Patient Admission'), '/app/admission', 'fas fa-procedures', 'Pages.Users'),
-            new MenuItem(this.l('Discharged Patient'), '/app/patient-discharge/list', 'fas fa-file-medical-alt', 'Pages.Users'),
+            new MenuItem(this.l('Patient Admission'), '/app/admission', 'fas fa-hospital-user', 'Pages.Users'),
+            new MenuItem(this.l('Discharged Patient'), '/app/patient-discharge/list', 'fas fa-file-circle-check', 'Pages.Users'),
 
             new MenuItem(this.l('Emergency Portal'), '', 'fas fa-ambulance', 'Pages.Users', [
                 new MenuItem(this.l('Emergency Cases'), '/app/emergency/cases', 'fas fa-notes-medical', 'Pages.Users'),
-                new MenuItem(this.l('Triage'), '/app/emergency/triage', 'fas fa-heartbeat', 'Pages.Users'),
+                new MenuItem(this.l('Triage'), '/app/emergency/triage', 'fas fa-heart-pulse', 'Pages.Users'),
                 new MenuItem(this.l('Emergency Prescriptions'), '/app/emergency/prescriptions', 'fas fa-prescription', 'Pages.Users'),
                 new MenuItem(this.l('Emergency Lab Order'), '/app/emergency/lab-order', 'fas fa-vials', 'Pages.Users'),
             ]),
 
+
             // Nurse Section
             new MenuItem(this.l('Nurse Portal'), '', 'fas fa-user-nurse', 'Pages.Nurse', [
                 new MenuItem(this.l('Manage Appointments'), '/app/nurse/appointments', 'fas fa-calendar-plus', 'Pages.Doctors.Appointments.Schedule'),
-                new MenuItem(this.l('Patient Assignments'), '/app/nurse/assigned-patients', 'fas fa-procedures', 'Pages.Nurse.Patients.View'),
+                new MenuItem(this.l('Patient Assignments'), '/app/nurse/assigned-patients', 'fas fa-clipboard-user', 'Pages.Nurse.Patients.View'),
                 new MenuItem(this.l('Vitals Monitoring'), '/app/nurse/vitals-notes', 'fas fa-heartbeat', 'Pages.Nurse.Vitals.View'),
-                //new MenuItem(this.l('Medication Orders'), '/app/nurse/order-medicine', 'fas fa-pills', 'Pages.Nurse.Medication.View'),
+                // new MenuItem(this.l('Medication Orders'), '/app/nurse/order-medicine', 'fas fa-pills', 'Pages.Nurse.Medication.View'),
             ]),
-            
+
+
             // Doctor Section
             new MenuItem(this.l('Doctor Portal'), '', 'fas fa-user-md', 'Pages.Doctors', [
                 new MenuItem(this.l('Appointments'), '/app/doctors/view-appointments', 'fas fa-calendar-check', 'Pages.Doctors.Appointments.View'),
                 new MenuItem(this.l('Assigned Patients'), '/app/doctors/patients', 'fas fa-user-injured', 'Pages.Doctors.Patients.View'),
                 new MenuItem(this.l('Prescriptions'), '/app/doctors/prescriptions', 'fas fa-prescription', 'Pages.Doctors.Prescriptions.Create'),
-                //new MenuItem(this.l('Patient Visits'), '/app/doctors/visits', 'fas fa-stethoscope', 'Pages.Doctors.Visits.View'),
                 new MenuItem(this.l('Lab Orders'), '/app/doctors/lab-order', 'fas fa-vials', 'Pages.Doctors.LabOrders.Create'),
-                new MenuItem(this.l('Consultation Requests'), '/app/doctors/consultation-requests', 'fas fa-person-circle-question', 'Pages.Users'),
+                new MenuItem(this.l('Consultation Requests'), '/app/doctors/consultation-requests', 'fas fa-comment-medical', 'Pages.Users'),
             ]),
 
-            new MenuItem(this.l('Procedure Portal'), '', 'fas fa-vial', 'Pages.Users', [
-                new MenuItem(this.l('Procedure Requests'), '/app/procedure/procedure-requests', 'fas fa-microscope', 'Pages.Users'),
-                new MenuItem(this.l('Procedure Receipts'), '/app/procedure/procedure-receipts', 'fas fa-file-medical', 'Pages.Users'),
+
+            new MenuItem(this.l('Procedure Portal'), '', 'fas fa-procedures', 'Pages.Users', [
+                new MenuItem(this.l('Procedure Requests'), '/app/procedure/procedure-requests', 'fas fa-notes-medical', 'Pages.Users'),
+                new MenuItem(this.l('Procedure Receipts'), '/app/procedure/procedure-receipts', 'fas fa-file-waveform', 'Pages.Users'),
             ]),
+
 
             // Lab Technician Section
             new MenuItem(this.l('Lab Technician Portal'), '', 'fas fa-vial', 'Pages.LabTechnician', [
                 new MenuItem(this.l('Test Requests'), '/app/lab-technician/test-requests', 'fas fa-microscope', 'Pages.LabTechnician.TestRequests.Manage'),
-                new MenuItem(this.l('Lab Receipts'), '/app/lab-technician/lab-receipts', 'fas fa-file-medical', 'Pages.LabTechnician'),
+                new MenuItem(this.l('Lab Receipts'), '/app/lab-technician/lab-receipts', 'fas fa-file-waveform', 'Pages.LabTechnician'),
             ]),
+
 
             // Pharmacist Section
             new MenuItem(this.l('Pharmacy Portal'), '', 'fas fa-clinic-medical', 'Pages.Pharmacist', [
-                new MenuItem(this.l('Medicine List'), '/app/pharmacist/medicine-list', 'fas fa-capsules', 'Pages.Pharmacist.Inventory.View'),
-                new MenuItem(this.l('Purchase Medicine'), '/app/pharmacist/purchase-medicine', 'fas fa-capsules', 'Pages.Pharmacist.Inventory.View'),
-                new MenuItem(this.l('Medicine Stock'), '/app/pharmacist/medicine-stock', 'fas fa-capsules', 'Pages.Pharmacist.Inventory.View'),
+                new MenuItem(this.l('Medicine List'), '/app/pharmacist/medicine-list', 'fas fa-pills', 'Pages.Pharmacist.Inventory.View'),
+                new MenuItem(this.l('Purchase Medicine'), '/app/pharmacist/purchase-medicine', 'fas fa-cart-plus', 'Pages.Pharmacist.Inventory.View'),
+                new MenuItem(this.l('Medicine Stock'), '/app/pharmacist/medicine-stock', 'fas fa-boxes-stacked', 'Pages.Pharmacist.Inventory.View'),
+                new MenuItem(this.l('Prescription Fulfillment'), '/app/pharmacist/pharmacist-prescriptions', 'fas fa-prescription-bottle', 'Pages.Pharmacist.Prescriptions.View'),
                 //new MenuItem(this.l('Drug Inventory'), '/app/pharmacist/pharmacist-inventory', 'fas fa-capsules', 'Pages.Pharmacist.Inventory.View'),
-                new MenuItem(this.l('Prescription Fulfillment'), '/app/pharmacist/pharmacist-prescriptions', 'fas fa-prescription-bottle-alt', 'Pages.Pharmacist.Prescriptions.View'),
             ]),
+
 
             // Billing Staff Section
             new MenuItem(this.l('Billing Portal'), '', 'fas fa-file-invoice-dollar', 'Pages.BillingStaff', [
-                new MenuItem(this.l('Insurance Claim'), '/app/billing-staff/insurance-claim', 'fas fa-receipt', 'Pages.BillingStaff.Invoices.View'),
-                new MenuItem(this.l('Invoices'), '/app/billing-staff/invoices', 'fas fa-receipt', 'Pages.BillingStaff.Invoices.View'),
-                new MenuItem(this.l('Patient Deposits'), '/app/deposit', 'fas fa-hand-holding-usd', 'Pages.BillingStaff'),
+                new MenuItem(this.l('Insurance Claim'), '/app/billing-staff/insurance-claim', 'fas fa-file-shield', 'Pages.BillingStaff.Invoices.View'),
+                new MenuItem(this.l('Invoices'), '/app/billing-staff/invoices', 'fas fa-file-invoice', 'Pages.BillingStaff.Invoices.View'),
+                new MenuItem(this.l('Patient Deposits'), '/app/deposit', 'fas fa-piggy-bank', 'Pages.BillingStaff'),
+            ]),
+
+
+            //Birth-Death Section
+            new MenuItem(this.l('Birth/Death Portal'), '', 'fas fa-file-invoice-dollar', 'Pages.Users', [
+                new MenuItem(this.l('Birth Record'), '/app/birth-death-record/birth-record', 'fas fa-baby', 'Pages.Users'),
+                new MenuItem(this.l('Death Record'), '/app/birth-death-record/death-record', 'fas fa-cross', 'Pages.Users')
             ]),
 
             // Master Section
@@ -187,29 +199,31 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
                     new MenuItem(this.l('Measurement Units'), '/app/master/measure-units', 'fas fa-ruler-combined', 'Pages.Users'),
                     new MenuItem(this.l('Lab Tests'), '/app/master/lab-test', 'fas fa-microscope', 'Pages.Users'),
                     new MenuItem(this.l('Test Result Limits'), '/app/master/test-result-limit', 'fas fa-sliders-h', 'Pages.Users'),
-                    new MenuItem(this.l('Lab Report Types'), '/app/master/lab-report-type', 'fas fa-notes-medical', 'Pages.Users'),
+                    new MenuItem(this.l('Lab Report Types'), '/app/master/lab-report-type', 'fas fa-file-medical', 'Pages.Users'),
                     new MenuItem(this.l('Lab Test Items'), '/app/master/lab-test-items', 'fas fa-vials', 'Pages.Users'),
-                    new MenuItem(this.l('Health Packages'), '/app/master/helth-package', 'fas fa-vial', 'Pages.Users'),
+                    new MenuItem(this.l('Health Packages'), '/app/master/helth-package', 'fas fa-kit-medical', 'Pages.Users'),
                 ]),
 
                 new MenuItem(this.l('Room Management'), '', 'fas fa-hospital-alt', 'Pages.Users', [
-                    new MenuItem(this.l('Room Facilities'), '/app/master/room-facilities', 'fas fa-procedures', 'Pages.Users'),
+                    new MenuItem(this.l('Room Facilities'), '/app/master/room-facilities', 'fas fa-wheelchair', 'Pages.Users'),
                     new MenuItem(this.l('Room Types'), '/app/master/room-types', 'fas fa-bed', 'Pages.Users'),
                     new MenuItem(this.l('Rooms'), '/app/room', 'fas fa-door-open', 'Pages.Users'),
                     new MenuItem(this.l('Beds'), '/app/master/beds', 'fas fa-procedures', 'Pages.Users'),
                 ]),
+
                 new MenuItem(this.l('Medicine Module'), '', 'fas fa-capsules', 'Pages.Users', [
                     new MenuItem(this.l('Medicine Form Type'), '/app/master/medicine-form-type', 'fas fa-prescription-bottle-alt', 'Pages.Users'),
-                    new MenuItem(this.l('Medicine Unit Type'), '/app/master/medicine-strength-type', 'fas fa-ruler-combined', 'Pages.Users'),
+                    new MenuItem(this.l('Medicine Unit Type'), '/app/master/medicine-strength-type', 'fas fa-vial', 'Pages.Users'),
                 ]),
-                
+
                 new MenuItem(this.l('Insurance Master'), '/app/master/insurance-master', 'fas fa-hand-holding-medical', 'Pages.Users'),
-                new MenuItem(this.l('Procedure Types'), '/app/master/emergency-procedure', 'fas fa-fas fa-syringe', 'Pages.Users'),
-                new MenuItem(this.l('Departments Types'), '/app/master/department', 'fas fa-sitemap', 'Pages.Users'),
+                new MenuItem(this.l('Procedure Types'), '/app/master/emergency-procedure', 'fas fa-syringe', 'Pages.Users'),
+                new MenuItem(this.l('Departments Types'), '/app/master/department', 'fas fa-network-wired', 'Pages.Users'),
                 new MenuItem(this.l('Doctor Master Data'), '/app/master/doctor-master', 'fas fa-user-md', 'Pages.Users'),
                 new MenuItem(this.l('Appointment Types'), '/app/master/appointment-types', 'fas fa-calendar-alt', 'Pages.Users'),
-                new MenuItem(this.l('Emergency Charges'), '/app/master/emergency-charges', 'fas fa-kit-medical', 'Pages.Users'),
+                new MenuItem(this.l('Emergency Charges'), '/app/master/emergency-charges', 'fas fa-file-invoice-dollar', 'Pages.Users'),
             ])
+
         ];
     }
 

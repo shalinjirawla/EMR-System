@@ -1,0 +1,99 @@
+<form class="form-horizontal d-flex flex-column" style="height: 90vh;" autocomplete="off" #editBirthForm="ngForm"
+  (ngSubmit)="save()">
+  <abp-modal-header title="Edit Birth Record" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
+
+  <div class="modal-body flex-grow-1" style="overflow-y: auto;">
+
+    <!-- ✅ Same content as Create form -->
+    <div class="row">
+      <div class="col-md-6 d-flex flex-column">
+        <label>Mother</label>
+        <p-dropdown [(ngModel)]="birthRecord.motherId" name="motherId" [options]="motherList" optionLabel="fullName"
+          optionValue="id" [filter]="true" placeholder="Select Mother" class="w-100" required></p-dropdown>
+      </div>
+
+      <div class="col-md-6 d-flex flex-column">
+        <label>Baby Gender</label>
+        <p-dropdown [(ngModel)]="birthRecord.gender" name="gender" [options]="genderOptions" optionLabel="label"
+          optionValue="value" placeholder="Select Gender" class="w-100" required></p-dropdown>
+      </div>
+    </div>
+
+    <div class="row mt-3">
+      <div class="col-md-6 d-flex flex-column">
+        <label>Birth Date</label>
+        <p-datepicker [(ngModel)]="birthRecord.birthDate" [maxDate]="today" name="birthDate" dateFormat="dd/mm/yy"
+          showIcon="true" class="w-100" required></p-datepicker>
+      </div>
+
+      <div class="col-md-6 d-flex flex-column">
+        <label>Birth Time</label>
+        <p-datePicker [(ngModel)]="birthRecord.birthTime" name="birthTime" timeOnly="true" hourFormat="12" showIcon="true" placeholder="Select time"
+          class="w-100" required>
+        </p-datePicker>
+        <small *ngIf="isFutureDate" class="text-danger">
+      Please select today's or past date first
+    </small>
+      </div>
+    </div>
+
+    <div class="row mt-3">
+      <div class="col-md-6 d-flex flex-column">
+        <label>Birth Weight (kg)</label>
+        <p-inputNumber [(ngModel)]="birthRecord.birthWeight" name="birthWeight" [min]="0" [max]="10" mode="decimal"
+          class="w-100"></p-inputNumber>
+      </div>
+
+      <div class="col-md-6 d-flex flex-column">
+        <label>Birth Type</label>
+        <p-dropdown [(ngModel)]="birthRecord.birthType" name="birthType" [options]="birthTypeOptions"
+          optionLabel="label" optionValue="value" placeholder="Select Birth Type" class="w-100"></p-dropdown>
+      </div>
+    </div>
+
+    <div class="row mt-3">
+      <div class="col-md-6 d-flex flex-column">
+        <label>Delivery Type</label>
+        <p-dropdown [(ngModel)]="birthRecord.deliveryType" name="deliveryType" [options]="deliveryTypeOptions"
+          optionLabel="label" optionValue="value" placeholder="Select Delivery Type" class="w-100"></p-dropdown>
+      </div>
+
+      <div class="col-md-3 d-flex flex-column">
+        <label>Doctor</label>
+        <p-dropdown [(ngModel)]="birthRecord.doctorId" name="doctorId" [options]="doctorList" optionLabel="fullName"
+          optionValue="id" [filter]="true" placeholder="Select Doctor" class="w-100"></p-dropdown>
+      </div>
+
+      <div class="col-md-3 d-flex flex-column">
+        <label>Nurse</label>
+        <p-dropdown [(ngModel)]="birthRecord.nurseId" name="nurseId" [options]="nurseList" optionLabel="fullName"
+          optionValue="id" [filter]="true" placeholder="Select Nurse" class="w-100"></p-dropdown>
+      </div>
+    </div>
+
+    <div class="row mt-3">
+      <div class="col-md-6 d-flex align-items-center">
+        <p-checkbox [(ngModel)]="birthRecord.isStillBirth" name="isStillBirth" binary="true"
+          inputId="isStillBirth"></p-checkbox>
+        <label for="isStillBirth" class="ml-2 mb-0">Is Still Birth</label>
+      </div>
+
+      <div class="col-md-6 d-flex flex-column">
+        <label>Father Name (optional)</label>
+        <input pInputText [(ngModel)]="birthRecord.fatherName" name="fatherName" placeholder="Enter father name"
+          class="w-100" />
+      </div>
+    </div>
+
+    <div class="row mt-3">
+      <div class="col-md-12 d-flex flex-column">
+        <label>Notes</label>
+        <textarea pTextarea [(ngModel)]="birthRecord.notes" name="notes" placeholder="Any notes..." rows="3"
+          class="w-100"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="!isFormValid || saving"
+    (onCancelClick)="bsModalRef.hide()"></abp-modal-footer>
+</form>

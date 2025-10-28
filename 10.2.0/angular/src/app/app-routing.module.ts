@@ -69,6 +69,12 @@ import { AppComponent } from './app.component';
                         canActivate: [AppRouteGuard],
                     },
                     {
+                        path: 'birth-death-record',
+                        loadChildren: () => import('./birth-death-record/birth-death-record.module').then((m) => m.BirthDeathRecordModule),
+                        data: { permission: 'Pages.Users' },
+                        canActivate: [AppRouteGuard],
+                    },
+                    {
                         path: 'lab-technician',
                         loadChildren: () => import('./lab-technician/lab-technician.module').then((m) => m.LabTechnicianModule),
                         data: { permission: 'Pages.LabTechnician' },

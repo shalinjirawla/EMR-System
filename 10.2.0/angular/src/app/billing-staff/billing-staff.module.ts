@@ -4,7 +4,6 @@ import { SharedModule } from 'primeng/api';
 import { BillingStaffRoutingModule } from './billing-staff-routing.module';
 import { BillingStaffComponent } from './billing-staff.component';
 import { InvoicesComponent } from './invoices/invoices.component';
-import { PaymentsComponent } from './payments/payments.component';
 import { ReportsComponent } from './reports/reports.component';
 import { InsuranceClaimComponent } from './insurance-claim/insurance-claim.component';
 
@@ -16,7 +15,6 @@ import { InsuranceClaimComponent } from './insurance-claim/insurance-claim.compo
         CommonModule,
         BillingStaffComponent,
         InvoicesComponent,
-        PaymentsComponent,
         ReportsComponent,
         InsuranceClaimComponent
        
