@@ -64,7 +64,8 @@
                     (click)="rowMenu.toggle($event); selectedRecord = record">
                     <i class="fa-solid fa-ellipsis-vertical"></i>
                   </button>
-                  <p-menu #rowMenu [popup]="true" [model]="editDeleteMenus" appendTo="body"></p-menu>
+                  <p-menu #rowMenu [popup]="true" [style]="{ 'min-width': '80px', 'max-width': '150px' }"
+                    [model]="editDeleteMenus" appendTo="body"></p-menu>
                 </td>
               </tr>
             </ng-template>

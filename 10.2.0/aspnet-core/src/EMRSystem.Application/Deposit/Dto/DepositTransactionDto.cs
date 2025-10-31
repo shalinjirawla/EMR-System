@@ -20,6 +20,12 @@ namespace EMRSystem.Deposit.Dto
         public string ReceiptNo { get; set; }
         public bool IsPaid { get; set; }
         public string? PaymentIntentId { get; set; }
+        public decimal RemainingAmount { get; set; }
+        public decimal RefundedAmount { get; set; }
+        public bool IsRefund { get; set; }
+        public string? RefundTransactionId { get; set; }
+        public DateTime? RefundDate { get; set; }
+        public string? RefundReceiptNo { get; set; }
 
     }
 }

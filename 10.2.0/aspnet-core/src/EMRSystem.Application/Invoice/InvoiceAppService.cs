@@ -156,10 +156,31 @@ namespace EMRSystem.Invoice
                     x.PatientId == input.PatientId && x.TenantId == input.TenantId);
 
                 if (patientDeposit == null)
-                {
                     throw new UserFriendlyException("Patient Deposit record not found.");
+
+                decimal remainingToDebit = input.TotalAmount;
+
+                // ✅ FIFO — pick oldest credit entries with remaining balance
+                var creditEntries = await _depositTransactionRepository.GetAll()
+                    .Where(x => x.PatientDepositId == patientDeposit.Id
+                        && x.TransactionType == TransactionType.Credit
+                        && x.RemainingAmount > 0)
+                    .OrderBy(x => x.TransactionDate)
+                    .ToListAsync();
+
+                foreach (var credit in creditEntries)
+                {
+                    if (remainingToDebit <= 0)
+                        break;
+
+                    var deduct = Math.Min(credit.RemainingAmount, remainingToDebit);
+                    credit.RemainingAmount -= deduct;
+                    remainingToDebit -= deduct;
+
+                    await _depositTransactionRepository.UpdateAsync(credit);
                 }
 
+                // ✅ Create Debit transaction entry for invoice payment
                 var transaction = new DepositTransaction
                 {
                     TenantId = input.TenantId,
@@ -170,10 +191,20 @@ namespace EMRSystem.Invoice
                     TransactionDate = DateTime.Now,
                     Description = $"Invoice {invoice.InvoiceNo}",
                     ReceiptNo = null,
-                    IsPaid = false
+                    IsPaid = true,
+
+                    // FIFO ledger fields
+                    RemainingAmount = 0,
+                    RefundedAmount = 0,
+                    IsRefund = false,
+                    RefundTransactionId = null,
+                    RefundDate = null,
+                    RefundReceiptNo = null
                 };
+
                 await _depositTransactionRepository.InsertAsync(transaction);
 
+                // ✅ Update wallet summary
                 patientDeposit.TotalDebitAmount += input.TotalAmount;
                 patientDeposit.TotalBalance = patientDeposit.TotalCreditAmount - patientDeposit.TotalDebitAmount;
 
@@ -256,54 +287,85 @@ namespace EMRSystem.Invoice
 
         public virtual async Task<InvoiceDto> CollectCoPayAsync(long invoiceId)
         {
-            // Step 1: Fetch the invoice with related items
+            // Step 1: Fetch invoice
             var invoice = await Repository.GetAllIncluding(x => x.Items)
                 .FirstOrDefaultAsync(x => x.Id == invoiceId);
 
             if (invoice == null)
                 throw new UserFriendlyException("Invoice not found.");
 
-            // Step 2: Fetch patient deposit record
+            // Step 2: Get Patient Deposit
             var patientDeposit = await _patientDepositRepository.FirstOrDefaultAsync(x =>
                 x.PatientId == invoice.PatientId && x.TenantId == invoice.TenantId);
 
             if (patientDeposit == null)
                 throw new UserFriendlyException("Patient deposit record not found.");
 
-            // Step 3: Create a deposit transaction for CoPay
+            // Step 3: Validate CoPay
             var coPayAmount = invoice.CoPayAmount ?? 0;
             if (coPayAmount <= 0)
                 throw new UserFriendlyException("No CoPay amount to collect.");
 
+            decimal remainingToDebit = coPayAmount;
+
+            // ✅ FIFO — pick oldest credit entries with remaining balance
+            var creditEntries = await _depositTransactionRepository.GetAll()
+                .Where(x => x.PatientDepositId == patientDeposit.Id
+                    && x.TransactionType == TransactionType.Credit
+                    && x.RemainingAmount > 0)
+                .OrderBy(x => x.TransactionDate)
+                .ToListAsync();
+
+            foreach (var credit in creditEntries)
+            {
+                if (remainingToDebit <= 0) break;
+
+                var deduct = Math.Min(credit.RemainingAmount, remainingToDebit);
+
+                credit.RemainingAmount -= deduct;
+                remainingToDebit -= deduct;
+
+                await _depositTransactionRepository.UpdateAsync(credit);
+            }
+
+            // Step 4: Insert Debit Transaction entry
             var transaction = new DepositTransaction
             {
                 TenantId = invoice.TenantId,
                 PatientDepositId = patientDeposit.Id,
                 Amount = coPayAmount,
                 TransactionType = TransactionType.Debit,
-                PaymentMethod = null, // can be Cash/Card
+                PaymentMethod = null, // cash/card logic separate
                 TransactionDate = DateTime.Now,
                 Description = $"CoPay collected for Invoice {invoice.InvoiceNo}",
                 ReceiptNo = null,
-                IsPaid = false
+                IsPaid = true,
+
+                // FIFO tracking fields
+                RemainingAmount = 0,
+                RefundedAmount = 0,
+                IsRefund = false,
+                RefundTransactionId = null,
+                RefundDate = null,
+                RefundReceiptNo = null
             };
 
             await _depositTransactionRepository.InsertAsync(transaction);
 
-            // Step 4: Update patient deposit balances
+            // Step 5: Update main deposit account totals
             patientDeposit.TotalDebitAmount += coPayAmount;
             patientDeposit.TotalBalance = patientDeposit.TotalCreditAmount - patientDeposit.TotalDebitAmount;
             await _patientDepositRepository.UpdateAsync(patientDeposit);
 
-            // Step 5: Update invoice status
+            // Step 6: Update Invoice Status
             invoice.Status = InvoiceStatus.CollectedCoPayAmount;
             await Repository.UpdateAsync(invoice);
 
             await CurrentUnitOfWork.SaveChangesAsync();
 
-            // Step 6: Return updated invoice DTO
             return MapToEntityDto(invoice);
         }
+
 
         //public override async Task<InvoiceDto> CreateAsync(CreateUpdateInvoiceDto input)
         //{

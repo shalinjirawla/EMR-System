@@ -222,7 +222,13 @@ namespace EMRSystem.Controllers
                                 Description = "Credit Deposit.",
                                 TransactionDate = DateTime.Now,
                                 TransactionType = TransactionType.Credit,
-                                PaymentIntentId = session.PaymentIntentId
+                                PaymentIntentId = session.PaymentIntentId,
+                                RemainingAmount = amount,
+                                RefundedAmount = 0,
+                                IsRefund = false,
+                                RefundTransactionId = null,
+                                RefundDate = null,
+                                RefundReceiptNo = null
 
                             };
                             transaction.ReceiptNo = await _depositetansactionAppService.GenerateReceiptNoAsync(tenantId ?? 0);

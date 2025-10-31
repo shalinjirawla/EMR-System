@@ -30411,6 +30411,12 @@ export class CreateUpdateDepositTransactionDto implements ICreateUpdateDepositTr
     description: string | undefined;
     isPaid: boolean;
     paymentIntentId: string | undefined;
+    remainingAmount: number;
+    refundedAmount: number;
+    isRefund: boolean;
+    refundTransactionId: string | undefined;
+    refundDate: moment.Moment | undefined;
+    refundReceiptNo: string | undefined;
 
     constructor(data?: ICreateUpdateDepositTransactionDto) {
         if (data) {
@@ -30433,6 +30439,12 @@ export class CreateUpdateDepositTransactionDto implements ICreateUpdateDepositTr
             this.description = _data["description"];
             this.isPaid = _data["isPaid"];
             this.paymentIntentId = _data["paymentIntentId"];
+            this.remainingAmount = _data["remainingAmount"];
+            this.refundedAmount = _data["refundedAmount"];
+            this.isRefund = _data["isRefund"];
+            this.refundTransactionId = _data["refundTransactionId"];
+            this.refundDate = _data["refundDate"] ? moment(_data["refundDate"].toString()) : <any>undefined;
+            this.refundReceiptNo = _data["refundReceiptNo"];
         }
     }
 
@@ -30455,6 +30467,12 @@ export class CreateUpdateDepositTransactionDto implements ICreateUpdateDepositTr
         data["description"] = this.description;
         data["isPaid"] = this.isPaid;
         data["paymentIntentId"] = this.paymentIntentId;
+        data["remainingAmount"] = this.remainingAmount;
+        data["refundedAmount"] = this.refundedAmount;
+        data["isRefund"] = this.isRefund;
+        data["refundTransactionId"] = this.refundTransactionId;
+        data["refundDate"] = this.refundDate ? this.refundDate.toISOString() : <any>undefined;
+        data["refundReceiptNo"] = this.refundReceiptNo;
         return data;
     }
 
@@ -30477,6 +30495,12 @@ export interface ICreateUpdateDepositTransactionDto {
     description: string | undefined;
     isPaid: boolean;
     paymentIntentId: string | undefined;
+    remainingAmount: number;
+    refundedAmount: number;
+    isRefund: boolean;
+    refundTransactionId: string | undefined;
+    refundDate: moment.Moment | undefined;
+    refundReceiptNo: string | undefined;
 }
 
 export class CreateUpdateDoctorDto implements ICreateUpdateDoctorDto {
@@ -34606,6 +34630,12 @@ export class DepositTransaction implements IDepositTransaction {
     receiptNo: string | undefined;
     isPaid: boolean;
     paymentIntentId: string | undefined;
+    remainingAmount: number;
+    refundedAmount: number;
+    isRefund: boolean;
+    refundTransactionId: string | undefined;
+    refundDate: moment.Moment | undefined;
+    refundReceiptNo: string | undefined;
     patientDeposit: PatientDeposit;
 
     constructor(data?: IDepositTransaction) {
@@ -34630,6 +34660,12 @@ export class DepositTransaction implements IDepositTransaction {
             this.receiptNo = _data["receiptNo"];
             this.isPaid = _data["isPaid"];
             this.paymentIntentId = _data["paymentIntentId"];
+            this.remainingAmount = _data["remainingAmount"];
+            this.refundedAmount = _data["refundedAmount"];
+            this.isRefund = _data["isRefund"];
+            this.refundTransactionId = _data["refundTransactionId"];
+            this.refundDate = _data["refundDate"] ? moment(_data["refundDate"].toString()) : <any>undefined;
+            this.refundReceiptNo = _data["refundReceiptNo"];
             this.patientDeposit = _data["patientDeposit"] ? PatientDeposit.fromJS(_data["patientDeposit"]) : <any>undefined;
         }
     }
@@ -34654,6 +34690,12 @@ export class DepositTransaction implements IDepositTransaction {
         data["receiptNo"] = this.receiptNo;
         data["isPaid"] = this.isPaid;
         data["paymentIntentId"] = this.paymentIntentId;
+        data["remainingAmount"] = this.remainingAmount;
+        data["refundedAmount"] = this.refundedAmount;
+        data["isRefund"] = this.isRefund;
+        data["refundTransactionId"] = this.refundTransactionId;
+        data["refundDate"] = this.refundDate ? this.refundDate.toISOString() : <any>undefined;
+        data["refundReceiptNo"] = this.refundReceiptNo;
         data["patientDeposit"] = this.patientDeposit ? this.patientDeposit.toJSON() : <any>undefined;
         return data;
     }
@@ -34678,6 +34720,12 @@ export interface IDepositTransaction {
     receiptNo: string | undefined;
     isPaid: boolean;
     paymentIntentId: string | undefined;
+    remainingAmount: number;
+    refundedAmount: number;
+    isRefund: boolean;
+    refundTransactionId: string | undefined;
+    refundDate: moment.Moment | undefined;
+    refundReceiptNo: string | undefined;
     patientDeposit: PatientDeposit;
 }
 
@@ -34693,6 +34741,12 @@ export class DepositTransactionDto implements IDepositTransactionDto {
     receiptNo: string | undefined;
     isPaid: boolean;
     paymentIntentId: string | undefined;
+    remainingAmount: number;
+    refundedAmount: number;
+    isRefund: boolean;
+    refundTransactionId: string | undefined;
+    refundDate: moment.Moment | undefined;
+    refundReceiptNo: string | undefined;
 
     constructor(data?: IDepositTransactionDto) {
         if (data) {
@@ -34716,6 +34770,12 @@ export class DepositTransactionDto implements IDepositTransactionDto {
             this.receiptNo = _data["receiptNo"];
             this.isPaid = _data["isPaid"];
             this.paymentIntentId = _data["paymentIntentId"];
+            this.remainingAmount = _data["remainingAmount"];
+            this.refundedAmount = _data["refundedAmount"];
+            this.isRefund = _data["isRefund"];
+            this.refundTransactionId = _data["refundTransactionId"];
+            this.refundDate = _data["refundDate"] ? moment(_data["refundDate"].toString()) : <any>undefined;
+            this.refundReceiptNo = _data["refundReceiptNo"];
         }
     }
 
@@ -34739,6 +34799,12 @@ export class DepositTransactionDto implements IDepositTransactionDto {
         data["receiptNo"] = this.receiptNo;
         data["isPaid"] = this.isPaid;
         data["paymentIntentId"] = this.paymentIntentId;
+        data["remainingAmount"] = this.remainingAmount;
+        data["refundedAmount"] = this.refundedAmount;
+        data["isRefund"] = this.isRefund;
+        data["refundTransactionId"] = this.refundTransactionId;
+        data["refundDate"] = this.refundDate ? this.refundDate.toISOString() : <any>undefined;
+        data["refundReceiptNo"] = this.refundReceiptNo;
         return data;
     }
 
@@ -34762,6 +34828,12 @@ export interface IDepositTransactionDto {
     receiptNo: string | undefined;
     isPaid: boolean;
     paymentIntentId: string | undefined;
+    remainingAmount: number;
+    refundedAmount: number;
+    isRefund: boolean;
+    refundTransactionId: string | undefined;
+    refundDate: moment.Moment | undefined;
+    refundReceiptNo: string | undefined;
 }
 
 export class DepositTransactionDtoListResultDto implements IDepositTransactionDtoListResultDto {

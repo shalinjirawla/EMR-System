@@ -19,7 +19,7 @@ namespace EMRSystem.DeathRecord
             DeathRecordDto,               
             long,
             PagedDeathRecordResultRequestDto, 
-            CreateUpdateDeathRecordDto,   
+            CreateUpdateDeathRecordDto,     
             CreateUpdateDeathRecordDto    
         >,
         IDeathRecordAppService

@@ -119,7 +119,7 @@ export class BirthRecordComponent
   viewRecord(dto: BirthRecordDto): void {
     this._modalService.show(ViewBirthRecordComponent, {
       class: 'modal-lg',
-      initialState: { birthRecordId: dto.id,mothername: dto.motherName,doctorname:dto.doctorName,nursename:dto.nurseName },
+      initialState: { birthRecordId: dto.id },
     });
   }
   getDeliveryTypeName(type: number): string {
@@ -148,7 +148,7 @@ export class BirthRecordComponent
     }
   }
   protected delete(entity: BirthRecordDto): void {
-    abp.message.confirm('Are you sure you want to delete this record?', undefined, (result: boolean) => {
+    abp.message.confirm('Are you sure you want to delete this record?', entity.motherName, (result: boolean) => {
       if (result) {
         this._birthRecordService.delete(entity.id).subscribe(() => {
           abp.notify.success(this.l('SuccessfullyDeleted'));

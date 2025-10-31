@@ -12,7 +12,7 @@ import { LocalizePipe } from '@shared/pipes/localize.pipe';
     templateUrl: './login.component.html',
     animations: [accountModuleAnimation()],
     standalone: true,
-    imports: [FormsModule, AbpValidationSummaryComponent, RouterLink, LocalizePipe],
+    imports: [FormsModule, AbpValidationSummaryComponent, LocalizePipe],//RouterLink
 })
 export class LoginComponent extends AppComponentBase {
     submitting = false;
