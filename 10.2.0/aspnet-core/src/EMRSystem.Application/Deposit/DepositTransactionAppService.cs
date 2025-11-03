@@ -46,12 +46,20 @@ namespace EMRSystem.Deposit
                 transaction.ReceiptNo = await GenerateReceiptNoAsync(input.TenantId);
                 transaction.PaymentIntentId = null;
 
+                // ✅ Refund tracking defaults
+                transaction.RemainingAmount = input.Amount;
+                transaction.RefundedAmount = 0;
+                transaction.IsRefund = false;
+                transaction.RefundTransactionId = null;
+                transaction.RefundDate = null;
+                transaction.RefundReceiptNo = null;
 
                 await Repository.InsertAsync(transaction);
 
                 var patientDeposit = await _patientDepositRepository.GetAsync(input.PatientDepositId);
                 patientDeposit.TotalCreditAmount += input.Amount;
-                patientDeposit.TotalBalance = patientDeposit.TotalCreditAmount - patientDeposit.TotalDebitAmount;
+                patientDeposit.TotalBalance =
+                    patientDeposit.TotalCreditAmount - patientDeposit.TotalDebitAmount;
 
                 await _patientDepositRepository.UpdateAsync(patientDeposit);
 

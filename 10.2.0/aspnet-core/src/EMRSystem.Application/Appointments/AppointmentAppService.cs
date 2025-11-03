@@ -629,6 +629,7 @@ namespace EMRSystem.Appointments
         {
             var receipts = await _receiptRepository.GetAll()
                 .Include(r => r.Doctor)
+                .Include(r => r.Patient)
                 .Include(r => r.Appointment)
                 .Where(r => r.PatientId == patientId)
                 .OrderByDescending(r => r.PaymentDate)

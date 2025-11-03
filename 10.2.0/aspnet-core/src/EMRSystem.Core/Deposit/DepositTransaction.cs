@@ -21,6 +21,13 @@ namespace EMRSystem.Deposit
         public bool IsPaid { get; set; }
         public string? PaymentIntentId { get; set; }
 
+        // ✅ Refund tracking fields (as per your request)
+        public decimal RemainingAmount { get; set; }            // Kitna balance bacha tha
+        public decimal RefundedAmount { get; set; }            // Kitna refund diya
+        public bool IsRefund { get; set; }                     // Ye row refund hai?
+        public string? RefundTransactionId { get; set; }       // Stripe refund id OR internal refund id
+        public DateTime? RefundDate { get; set; }              // Refund kab hua
+        public string? RefundReceiptNo { get; set; }           // Refund receipt number
 
         // Navigation
         public virtual PatientDeposit PatientDeposit { get; set; }

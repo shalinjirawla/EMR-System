@@ -132,8 +132,8 @@ export class CreateBirthRecordComponent extends AppComponentBase implements OnIn
     this._birthRecordService.create(this.birthRecord).subscribe({
       next: () => {
         this.notify.info(this.l('SavedSuccessfully'));
-        this.bsModalRef.hide();
         this.onSave.emit();
+        this.bsModalRef.hide();
       },
       error: () => {
         this.saving = false;

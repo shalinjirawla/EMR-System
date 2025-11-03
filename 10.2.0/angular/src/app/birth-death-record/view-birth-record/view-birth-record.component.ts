@@ -22,9 +22,6 @@ import moment from 'moment';
 export class ViewBirthRecordComponent extends AppComponentBase implements OnInit {
   // set by initialState when opening modal
   birthRecordId: number;
-  mothername: string;
-  doctorname: string;
-  nursename: string;
 
   record: BirthRecordDto = new BirthRecordDto();
 

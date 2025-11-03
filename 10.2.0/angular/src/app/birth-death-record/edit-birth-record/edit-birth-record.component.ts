@@ -54,9 +54,9 @@ export class EditBirthRecordComponent extends AppComponentBase implements OnInit
   birthRecordId: number; // passed from parent
   birthRecord: CreateUpdateBirthRecordDto = new CreateUpdateBirthRecordDto();
   today: Date = new Date();
-isFutureDate: boolean = false;
-minTime: Date;
-maxTime: Date;
+  isFutureDate: boolean = false;
+  minTime: Date;
+  maxTime: Date;
 
   motherList: PatientDropDownDto[] = [];
   doctorList: DoctorDto[] = [];
@@ -152,8 +152,8 @@ maxTime: Date;
     this._birthRecordService.update(this.birthRecord).subscribe({
       next: () => {
         this.notify.info(this.l('UpdatedSuccessfully'));
-        this.bsModalRef.hide();
         this.onSave.emit();
+        this.bsModalRef.hide();
       },
       error: () => {
         this.saving = false;

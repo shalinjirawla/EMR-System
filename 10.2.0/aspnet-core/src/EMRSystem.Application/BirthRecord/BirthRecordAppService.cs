@@ -31,5 +31,14 @@ namespace EMRSystem.BirthRecord
                         x => x.Mother.FullName.ToLower().Contains(input.Keyword.ToLower()) ||
                         x.Doctor.FullName.ToLower().Contains(input.Keyword.ToLower()));
         }
+
+        public override async Task<BirthRecordDto>GetAsync(EntityDto<long> input)
+        {
+            var entity = await Repository.GetAllIncluding(x => x.Mother, x => x.Doctor, x => x.Nurse)
+                .FirstOrDefaultAsync(x => x.Id == input.Id);
+
+            return ObjectMapper.Map<BirthRecordDto>(entity);
+
+        }
     }
 }
