@@ -40,21 +40,21 @@
   >
     <ng-template pTemplate="header">
       <tr>
-        <th>Description</th>
-        <th class="text-right">Amount</th>
-        <th>Date</th>
-        <th>Receipt No</th>
-        <th>Transaction Type</th>
+        <th class="text-center">Description</th>
+        <th class="text-center">Amount</th>
+        <th class="text-center">Date</th>
+        <th class="text-center">Receipt No</th>
+        <th class="text-center">Transaction Type</th>
       </tr>
     </ng-template>
 
     <ng-template pTemplate="body" let-t>
       <tr>
-        <td>{{ t.description }}</td>
-        <td class="text-right fw-bold">₹ {{ t.amount | number:'1.0-2' }}</td>
-        <td>{{ t.transactionDate | date: 'dd MMM yyyy, hh:mm a' }}</td>
-        <td>{{ t.receiptNo || '-' }}</td>
-        <td>
+        <td  class="text-center">{{ t.description }}</td>
+        <td class="text-center fw-bold">₹ {{ t.amount | number:'1.0-2' }}</td>
+        <td class="text-center">{{ t.transactionDate | date: 'dd MMM yyyy, hh:mm a' }}</td>
+        <td class="text-center">{{ t.receiptNo || '-' }}</td>
+        <td class="text-center">
           <p-tag [value]="getTransactionTypeLabel(t.transactionType)"
                  [severity]="t.transactionType === 0 ? 'success' : 'danger'">
           </p-tag>

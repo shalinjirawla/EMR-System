@@ -1,35 +1,70 @@
-<div class="modal-header custom-header">
-  <h5 class="modal-title">Receipts - {{ patientName }}</h5>
-  <button type="button" class="close-btn" (click)="close()">&times;</button>
-</div>
+<div class="receipt-container">
 
- <div class="modal-body flex-grow-1" style="overflow-y: auto; padding-right: 15px;">
-  <table class="receipt-table">
-    <thead>
-      <tr>
-        <th>Receipt No</th>
-        <th>Amount</th>
-        <th>Method</th>
-        <th>Date</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let r of receipts">
-        <td>{{ r.receiptNo }}</td>
-        <td>{{ r.amount | currency:'INR' }}</td>
-        <td>{{ r.paymentMethod==0 ? 'Cash' : 'Card' }}</td>
-        <td>{{ r.transactionDate | date:'short' }}</td>
-        <td>
-          <button class="view-btn" (click)="viewReceipt(r)">
-            <i class="fa fa-eye"></i> View
-          </button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+  <div class="header">
+    <h4>Patient Receipts - {{ patientName }}</h4>
+    <span></span>
+    <button class="close" (click)="close()"><i class="fa fa-times"></i></button>
+  </div>
 
-<div class="modal-footer">
-  <button class="close-btn-footer" (click)="close()">Close</button>
+  <div class="table-wrapper">
+    <table class="receipt-table">
+      <thead>
+        <tr>
+          <th class="text-center">Receipt</th>
+          <th class="text-center">Credited</th>
+          <th class="text-center">Remaining</th>
+          <th class="text-center">Mode</th>
+          <th class="text-center">Date</th>
+          <th class="text-center">Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let r of receipts">
+
+          <td class="text-center">
+            <div class="cell-main">
+              <i class="fa fa-receipt icon"></i>
+              <span>{{ r.receiptNo }}</span>
+            </div>
+          </td>
+
+          <td class="text-center">{{ r.amount | currency:'INR' }}</td>
+          <td [ngClass]="{'pending': r.remainingAmount > 0}">
+            {{ r.remainingAmount | currency:'INR' }}
+          </td>
+
+          <td class="text-center">
+            <span class="tag" [ngClass]="r.paymentMethod == 0 ? 'cash' : 'card'">
+              {{ r.paymentMethod == 0 ? 'Cash' : 'Card' }}
+            </span>
+          </td>
+
+          <td class="text-center">{{ r.transactionDate | date:'dd MMM yyyy, h:mm a' }}</td>
+
+          <td class="actions">
+
+            <button class="icon-btn view" (click)="viewReceipt(r)" pTooltip="View Deposit Receipt"
+              tooltipPosition="bottom">
+              <i class="fa fa-eye"></i>
+            </button>
+
+            <button *ngIf="!r.isRefund && r.remainingAmount > 0" class="icon-btn refund" (click)="refund(r)"
+              pTooltip="Refund" tooltipPosition="bottom">
+              <i class="fa fa-undo"></i>
+            </button>
+
+            <button *ngIf="r.isRefund" class="icon-btn receipt" (click)="viewRefundReceipt(r)" tooltipPosition="bottom"
+              pTooltip="View Refund Receipt">
+              <i class="fa fa-file-invoice"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    <button class="close-btn" (click)="close()">Close</button>
+  </div>
 </div>

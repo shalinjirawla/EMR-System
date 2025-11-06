@@ -151,7 +151,7 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
                 new MenuItem(this.l('Assigned Patients'), '/app/doctors/patients', 'fas fa-user-injured', 'Pages.Doctors.Patients.View'),
                 new MenuItem(this.l('Prescriptions'), '/app/doctors/prescriptions', 'fas fa-prescription', 'Pages.Doctors.Prescriptions.Create'),
                 new MenuItem(this.l('Lab Orders'), '/app/doctors/lab-order', 'fas fa-vials', 'Pages.Doctors.LabOrders.Create'),
-                new MenuItem(this.l('Consultation Requests'), '/app/doctors/consultation-requests', 'fas fa-comment-medical', 'Pages.Users'),
+                new MenuItem(this.l('Consultation Requests'), '/app/doctors/consultation-requests', 'fas fa-comment-medical', 'Pages.Doctors.LabOrders.Create'),
             ]),
 
 

@@ -111,13 +111,13 @@ export class InsuranceMasterComponent extends PagedListingComponentBase<Insuranc
       this.deleteInsuranceMaster(entity);
     }
   createInsuranceMaster(): void {
-    const dialog: BsModalRef = this._modalService.show(CreateupdateInsuranceMasterComponent, { class: 'modal-lg' });
+    const dialog: BsModalRef = this._modalService.show(CreateupdateInsuranceMasterComponent, { class: 'modal-md' });
     dialog.content.onSave.subscribe(() => this.list());
   }
 
   editInsuranceMaster(record: InsuranceMasterDto): void {
     const dialog: BsModalRef = this._modalService.show(CreateupdateInsuranceMasterComponent, {
-      class: 'modal-lg',
+      class: 'modal-md',
       initialState: { id: record.id },
     });
     dialog.content.onSave.subscribe(() => this.list());

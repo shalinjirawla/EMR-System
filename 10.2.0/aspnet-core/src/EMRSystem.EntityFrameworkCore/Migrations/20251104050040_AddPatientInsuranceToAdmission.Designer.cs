@@ -4,6 +4,7 @@ using EMRSystem.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EMRSystem.Migrations
 {
     [DbContext(typeof(EMRSystemDbContext))]
-    partial class EMRSystemDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251104050040_AddPatientInsuranceToAdmission")]
+    partial class AddPatientInsuranceToAdmission
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2623,9 +2626,6 @@ namespace EMRSystem.Migrations
                     b.Property<decimal?>("CoPayAmount")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<long?>("FinalInvoiceId")
-                        .HasColumnType("bigint");
-
                     b.Property<long?>("InsuranceClaimId")
                         .HasColumnType("bigint");
 
@@ -2641,12 +2641,6 @@ namespace EMRSystem.Migrations
                         .HasColumnType("nvarchar(30)");
 
                     b.Property<bool>("IsClaimGenerated")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsConvertedToFinalInvoice")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsFinalInvoice")
                         .HasColumnType("bit");
 
                     b.Property<long>("PatientId")

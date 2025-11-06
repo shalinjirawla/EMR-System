@@ -2,10 +2,6 @@
   transform: scale(1.1);
 }
 
-:host ::ng-deep .p-checkbox {
-  transform: scale(1.05);
-}
-
 
 @media (max-width: 768px) {
   .modal-body {

@@ -18,6 +18,9 @@ namespace EMRSystem.Invoice.Dto
             // Invoice -> InvoiceDto
             CreateMap<EMRSystem.Invoices.Invoice, InvoiceDto>()
                 .ForMember(dest => dest.PatientName, opt => opt.MapFrom(src => src.Patient.FullName))
+                .ForMember(dest => dest.PatientDOB, opt => opt.MapFrom(src => src.Patient.DateOfBirth))
+                .ForMember(dest => dest.PatientBloodGroup, opt => opt.MapFrom(src => src.Patient.BloodGroup))
+                .ForMember(dest => dest.PatientGender, opt => opt.MapFrom(src => src.Patient.Gender))
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items))
                 .ForMember(dest => dest.Claims, opt => opt.MapFrom(src => src.InsuranceClaims));
 

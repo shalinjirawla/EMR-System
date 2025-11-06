@@ -5,21 +5,17 @@ import { AbpModalHeaderComponent } from '@shared/components/modal/abp-modal-head
 import { AbpModalFooterComponent } from '@shared/components/modal/abp-modal-footer.component';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
-import { ToggleButtonModule } from 'primeng/togglebutton';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { ChangeDetectorRef } from '@angular/core';
 import { AppComponentBase } from '@shared/app-component-base';
-import { LocalizePipe } from '@shared/pipes/localize.pipe';
 import { InsuranceMasterServiceProxy, CreateUpdateInsuranceMasterDto, InsuranceMasterDto } from '@shared/service-proxies/service-proxies';
-import { CheckboxModule } from 'primeng/checkbox';
-import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { InputSwitchModule } from 'primeng/inputswitch';
 
 @Component({
   selector: 'app-createupdate-insurance-master',
   standalone: true,
   imports: [AbpModalHeaderComponent, AbpModalFooterComponent, FormsModule, CommonModule,
-    InputTextModule,ButtonModule,CheckboxModule, InputSwitchModule],
+    InputTextModule,ButtonModule, InputSwitchModule],
   providers: [InsuranceMasterServiceProxy],
   templateUrl: './createupdate-insurance-master.component.html',
   styleUrl: './createupdate-insurance-master.component.css'
@@ -35,14 +31,6 @@ export class CreateupdateInsuranceMasterComponent extends AppComponentBase imple
   // DTO instance
   insurance: CreateUpdateInsuranceMasterDto = new CreateUpdateInsuranceMasterDto();
 
-  // Coverage options for looping
-  coverageOptions = [
-    { key: 'coversRoomCharge', label: 'Room Charge' },
-    { key: 'coversDoctorVisit', label: 'Doctor Visit' },
-    { key: 'coversLabTests', label: 'Lab Tests' },
-    { key: 'coversProcedures', label: 'Procedures' },
-    { key: 'coversMedicines', label: 'Medicines' }
-  ];
 
   constructor(
     injector: Injector,
@@ -61,11 +49,6 @@ export class CreateupdateInsuranceMasterComponent extends AppComponentBase imple
     // Default values
     this.insurance.tenantId = abp.session.tenantId;
     this.insurance.insuranceName = '';
-    this.insurance.coversRoomCharge = false;
-    this.insurance.coversDoctorVisit = false;
-    this.insurance.coversLabTests = false;
-    this.insurance.coversProcedures = false;
-    this.insurance.coversMedicines = false;
     this.insurance.isActive = true;
 
     if (this.id) {

@@ -1,109 +1,91 @@
-<div class="medical-receipt"
-     style="height: 90vh; overflow-y: auto; padding: 15px; box-sizing: border-box;">
-  <!-- Receipt Header -->
-  <div class="receipt-header">
-    <div class="clinic-brand">
-      <div class="clinic-logo">
-        <img src="/assets/img/hospital_logo.png" alt="Logo" />
-      </div>
-      <div class="clinic-details">
-        <h1>{{ hospitalName }}</h1>
-        <p>123 Medical Complex, Health Nagar, Mumbai-400001</p>
-        <p>Contact: +91 9876543210 | GSTIN: 27ABCDE1234F1Z5</p>
+<div class="receipt-wrapper" id="labReceiptToPrint">
+  <!-- Header -->
+  <header class="receipt-header">
+    <div class="left">
+      <div>
+        <h1 class="hospital-name">{{ hospitalName }}</h1>
+        <small class="meta-row">
+          123 Medical Complex, Health Nagar, Mumbai-400001 • +91 9876543210 • GSTIN: 27ABCDE1234F1Z5
+        </small>
       </div>
     </div>
 
-    <div class="receipt-title">
-      <h2>LAB TEST PAYMENT RECEIPT</h2>
-      <div class="receipt-number">Receipt No: {{ receiptDetail?.receiptNumber || labReceiptId }}</div>
-    </div>
-    <div class="generated-on">
-      {{ receiptDetail?.paymentDate ? (receiptDetail.paymentDate | date:'dd-MMM-yyyy hh:mm a') : '' }}
-    </div>
-  </div>
-
-  <!-- Receipt Body -->
-  <div class="receipt-body" *ngIf="!loading && receiptDetail">
-    <div class="patient-details">
-      <div class="detail-row">
-        <span class="label">Patient Name:</span>
-        <span class="value">{{ receiptDetail.patient?.fullName || 'N/A' }}</span>
+    <div class="right">
+      <h1 class="title">LAB TEST PAYMENT RECEIPT</h1>
+      <div class="meta-row">
+        <strong>No:</strong> {{ receiptDetail?.receiptNumber || labReceiptId }}
       </div>
-      <div class="detail-row">
-        <span class="label">Payment Mode:</span>
-        <span class="value">{{ receiptDetail.paymentMethod || 'N/A' }}</span>
+      <div class="meta-row">
+        <strong>Date:</strong>
+        {{ receiptDetail?.paymentDate | date: 'dd/MM/yyyy' }}
       </div>
-      <div class="detail-row">
-        <span class="label">Payment Status:</span>
-        <span class="value" [ngClass]="receiptDetail.status === 'Paid' ? 'status-paid' : ''">
-          {{ receiptDetail.status || 'N/A' }}
-        </span>
+      <div class="meta-row">
+        <strong>Status:</strong>
+        <span class="badge ok">{{ receiptDetail?.status }}</span>
       </div>
     </div>
+  </header>
 
-    <!-- Payment Table / Items -->
-    <div class="payment-table">
-      <div class="table-header">
-        <div class="header-item">Description</div>
-        <div class="header-item">Amount (₹)</div>
-      </div>
+  <!-- Patient Info -->
+  <section class="info-block" *ngIf="receiptDetail">
+    <h4 class="block-title">Patient Information</h4>
+    <p><strong>Patient Name:</strong> {{ receiptDetail.patient?.fullName || 'N/A' }}</p>
+    <p><strong>Payment Mode:</strong> {{ receiptDetail.paymentMethod || 'N/A' }}</p>
+  </section>
 
-      <!-- items produced by backend: packages (isPackage=true) or single tests -->
+  <!-- Payment Items Table -->
+  <table class="bill-table" *ngIf="receiptDetail?.items?.length">
+    <thead>
+      <tr>
+        <th>Description</th>
+        <th class="text-right">Amount (₹)</th>
+      </tr>
+    </thead>
+    <tbody>
       <ng-container *ngFor="let it of receiptDetail.items">
-        <!-- package -->
-        <div *ngIf="it.isPackage" class="table-row">
-          <div class="row-item">
+        <!-- Package -->
+        <tr *ngIf="it.isPackage">
+          <td>
             <strong>{{ it.packageName }}</strong>
-            <ul class="package-items mt-1">
-              <li *ngFor="let p of it.packageTests"> {{ p }}</li>
+            <ul class="package-items">
+              <li *ngFor="let p of it.packageTests">- {{ p }}</li>
             </ul>
-          </div>
-          <div class="row-item amount">{{ it.packagePrice | currency:'INR' }}</div>
-        </div>
-
-        <!-- individual test -->
-        <div *ngIf="!it.isPackage" class="table-row">
-          <div class="row-item">{{ it.labReportTypeName }}</div>
-          <div class="row-item amount">{{ it.labReportPrice | currency:'INR' }}</div>
-        </div>
+          </td>
+          <td class="text-right">{{ it.packagePrice | number:'1.2-2' }}</td>
+        </tr>
+        <!-- Single Test -->
+        <tr *ngIf="!it.isPackage">
+          <td>{{ it.labReportTypeName }}</td>
+          <td class="text-right">{{ it.labReportPrice | number:'1.2-2' }}</td>
+        </tr>
       </ng-container>
+    </tbody>
+    <tfoot>
+      <tr>
+        <td><strong>Total Paid</strong></td>
+        <td class="text-right"><strong>{{ receiptDetail.totalFee | number:'1.2-2' }}</strong></td>
+      </tr>
+    </tfoot>
+  </table>
 
-      <div class="table-footer">
-        <div class="footer-item">Total Paid</div>
-        <div class="footer-item amount">{{ receiptDetail.totalFee | currency:'INR' }}</div>
-      </div>
+  <!-- Payment Details + Signature -->
+  <section class="payment-signature-row">
+    <div class="payment-section">
+      <p><strong>Paid On:</strong> {{ receiptDetail.paymentDate | date: 'dd-MMM-yyyy hh:mm a' }}</p>
+      <p><strong>Receipt Source:</strong> {{ receiptDetail.source || 'N/A' }} Patient</p>
     </div>
 
-    <!-- Payment Details -->
-    <div class="payment-details">
-      <div class="detail-row">
-        <span class="label">Paid On:</span>
-        <span class="value">{{ receiptDetail.paymentDate | date: 'dd-MMM-yyyy hh:mm a' }}</span>
-      </div>
-      <div class="detail-row">
-        <span class="label">Receipt Source:</span>
-        <span class="value">{{ receiptDetail.source || 'N/A' }} Patient</span>
-      </div>
+    <div class="signature">
+      Authorized Signature
     </div>
+  </section>
 
-    <!-- Footer Signature -->
-    <div class="receipt-footer">
-      <div class="signature-line">
-        <p>Authorized Signature</p>
-      </div>
-    </div>
-  </div>
-
-  <div *ngIf="loading" class="p-3">Loading receipt...</div>
-
-  <div *ngIf="!loading && !receiptDetail" class="p-3">No receipt data found.</div>
-
-  <!-- Receipt Actions -->
-  <div class="receipt-actions">
-    <button class="btn print-btn" (click)="print()">
-      <i class="fas fa-print"></i> Print Receipt
+  <!-- Buttons -->
+  <div class="action-row">
+    <button class="btn btn-primary" (click)="print()">
+      <i class="fas fa-print"></i> Print
     </button>
-    <button class="btn close-btn" (click)="close()">
+    <button class="btn btn-outline" (click)="close()">
       <i class="fas fa-times"></i> Close
     </button>
   </div>

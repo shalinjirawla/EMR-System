@@ -229,7 +229,6 @@ export class AppointmentsComponent extends PagedListingComponentBase<Appointment
         return status ? status.label : '';
     }
     getStatusSeverity(value: number) {
-        debugger
         switch (value) {
             case AppointmentStatus._0: return 'badge-soft-primary p-1 rounded';
             case AppointmentStatus._1: return 'badge-soft-warning p-1 rounded';

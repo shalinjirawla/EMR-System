@@ -1,147 +1,196 @@
-.invoice-container {
-  /* width: auto;
-  display: flex;
-  justify-content: center; */
-  overflow-y: auto;
-  height: 90vh;
-  padding: 10px;
-}
-
-.invoice-card {
-  background: #fff;
-  width: auto;
-  max-height: auto;
-  display: flex;
-  flex-direction: column;
-  border-radius: 12px;
-  box-shadow: 0 12px 25px rgba(0,0,0,0.12);
-  font-family: 'Segoe UI', sans-serif;
-  overflow: hidden;
-}
-
-/* Fixed Header */
-.invoice-header {
-  background: linear-gradient(135deg, #1a6fc4, #42a5f5);
-  color: #fff;
-  padding: 20px;
-  flex-shrink: 0;
-}
-
-/* Body Scroll */
-.invoice-body {
-  flex: 1 1 auto;
-  padding: 20px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Table Scroll */
-.table-responsive {
-  max-height: 300px;
-  overflow-y: auto;
-  margin-bottom: 20px;
-  border-radius: 8px;
-}
-
-.items-table {
+/* Base Document Layout */
+.invoice-wrapper {
   width: 100%;
-  border-collapse: collapse;
+  height: 90vh;
+  overflow-y: auto;
+  max-width: 800px;
+  margin: auto;
+  background: #fff;
+  padding: 32px;
+  font-family: "Inter", sans-serif;
+  color: #1C2434;
 }
 
-.items-table th {
-  background-color: #f5f7fb;
-  padding: 12px;
-  font-weight: 600;
-  color: #1a6fc4;
-  border-bottom: 2px solid #e0e0e0;
+
+/* Header */
+.inv-header {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 2px solid #C7D5EA;
+  padding-bottom: 15px;
 }
 
-.items-table td {
-  padding: 12px;
-  border-bottom: 1px solid #e0e0e0;
+.left {
+  display: flex;
+  gap: 12px;
+  align-items: center;
 }
 
-.items-table tr:nth-child(even) {
-  background-color: #f9fbff;
+.logo {
+  width: 55px;
+  height: 55px;
 }
 
-.items-table tr:hover {
-  background-color: #e3f2fd;
+.hospital-name {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  color: #0B3C73;
 }
 
-.items-table td:last-child,
-.items-table th:last-child {
+.title {
+  margin: 0;
+  font-size: 28px;
+  color: #0B3C73;
+  font-weight: 800;
   text-align: right;
 }
 
-/* Summary Section */
-.invoice-summary {
-  background: #f0f4ff;
-  padding: 15px 20px;
-  border-radius: 10px;
-  margin-top: auto;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.06);
+.meta-row {
+  font-size: 13px;
+  margin-bottom: 4px;
 }
 
-.summary-row {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 8px;
-}
-
-.summary-row.total {
-  font-size: 18px;
-  font-weight: 700;
-  border-top: 2px dashed #c3d7f5;
-  padding-top: 10px;
-}
-
-/* Footer Fixed */
-.invoice-footer {
-  flex-shrink: 0;
-  background: #f8f9fa;
-  padding: 15px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  border-top: 1px solid #e0e0e0;
-}
-
-.invoice-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-}
-
-.btn {
-  padding: 10px 18px;
+/* Patient Box */
+.info-block {
+  margin-top: 18px;
+  padding: 14px;
+  border: 1px solid #E2E8F3;
+  background: #FAFBFD;
   border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
+}
+.block-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0B3C73;
+  margin-bottom: 4px;
 }
 
-.btn-print {
-  background: linear-gradient(135deg, #1a6fc4, #42a5f5);
-  color: #fff;
+/* Table */
+.bill-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.bill-table th {
+  text-align: left;
+  padding: 10px;
+  border-bottom: 2px solid #D8E2F4;
+  color: #0B3C73;
+  font-weight: 700;
+}
+.bill-table td {
+  padding: 9px;
+  border-bottom: 1px solid #EBEFF7;
+}
+
+.bill-table tr:hover {
+  background: #F4F8FF;
+}
+
+.text-right { text-align: right; }
+
+/* Total Box */
+.total-box {
+  margin-top: 15px;
+  text-align: right;
+  background: #EEF5FF;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #C2D9FF;
+}
+.total-box h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  color: #0B3C73;
+}
+
+/* Footer */
+.inv-footer {
+  text-align: center;
+  margin-top: 25px;
+  padding-top: 10px;
+  border-top: 2px solid #E2E8F3;
+  font-size: 12px;
+  color: #677389;
+}
+
+.action-row {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* Buttons */
+.btn {
+  padding: 8px 16px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.btn-primary {
+  background: #0B3C73;
+  color: white;
   border: none;
 }
-
-.btn-download {
-  background: #fff;
-  color: #1a6fc4;
-  border: 2px solid #1a6fc4;
+.btn-outline {
+  border: 2px solid #0B3C73;
+  color: #0B3C73;
+  background: white;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .table-responsive {
-    max-height: 200px;
+.badge {
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+}
+.ok { background: #E8FFF0; color:#0F7A2F; border:1px solid #0F7A2F; }
+.err { background: #FFECEC; color:#B52121; border:1px solid #B52121; }
+.partial {background: #FFF7E6;color: #B77600;border: 1px solid #B77600;}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
   }
-  .invoice-actions {
-    justify-content: center;
+
+  body {
+    background: #fff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .invoice-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .inv-header,
+  .bill-table,
+  .info-block,
+  .total-box,
+  .inv-footer {
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  .action-row,
+  .btn,
+  .modal,
+  .modal-backdrop {
+    display: none !important;
   }
 }
+
+
+

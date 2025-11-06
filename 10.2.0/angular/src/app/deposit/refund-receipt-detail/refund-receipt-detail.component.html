@@ -1,0 +1,50 @@
+<div class="receipt-wrapper" id="refundReceiptToPrint">
+
+  <!-- Header -->
+  <header class="receipt-header">
+    <div class="left">
+      <div>
+        <h1 class="hospital-name">{{ hospitalName }}</h1>
+        <small class="meta-row">
+          123 Medical Complex, Health Nagar, Mumbai-400001 • +91 9876543210
+        </small>
+      </div>
+    </div>
+
+    <div class="right">
+      <h1 class="title">DEPOSIT REFUND RECEIPT</h1>
+      <div class="meta-row"><strong>No:</strong> {{ receipt?.refundReceiptNo || 'N/A' }}</div>
+      <div class="meta-row"><strong>Date:</strong> {{ receipt?.refundDate | date:'dd/MM/yyyy hh:mm a' }}</div>
+      <div class="meta-row">
+        <strong>Status:</strong>
+        <span class="badge ok" *ngIf="receipt?.isRefund">Refunded</span>
+        <span class="badge pending" *ngIf="!receipt?.isRefund">Pending</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Patient Info -->
+  <section class="info-block" *ngIf="receipt">
+    <h4 class="block-title">Patient Information</h4>
+    <p><strong>Patient Name:</strong> {{ patientName || 'N/A' }}</p>
+    <p><strong>Payment Method:</strong> {{ receipt.paymentMethod == 0 ? 'Cash' : 'Card' }}</p>
+    <p><strong>Description:</strong> Refund deposit amount {{ receipt.refundedAmount || 'N/A' }}</p>
+    <p><strong>Refunded Amount:</strong> ₹{{ receipt.refundedAmount | number:'1.2-2' }}</p>
+  </section>
+
+  <!-- Payment Info + Signature -->
+  <section class="payment-signature-row">
+    <div class="payment-section">
+      <p><strong>Refund Mode:</strong> {{ receipt.paymentMethod == 0 ? 'Cash' : 'Card' }}</p>
+      <p><strong>Refunded On:</strong> {{ receipt.refundDate | date:'dd-MMM-yyyy hh:mm a' }}</p>
+    </div>
+
+    <div class="signature">Authorized Signature</div>
+  </section>
+
+  <!-- Action Buttons -->
+  <div class="action-row">
+    <button class="btn btn-primary" (click)="print()">Print</button>
+    <button class="btn btn-outline" (click)="close()">Close</button>
+  </div>
+</div>

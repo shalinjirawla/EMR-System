@@ -105,6 +105,13 @@ export class InsuranceClaimComponent extends PagedListingComponentBase<Insurance
 
       case 2: // PartialApproved
       case 3: // Approved
+        return[
+          {
+            label:'Mark As Paid',
+            icon:'fas fa-file-invoice-dollar',
+            command:() => this.markAsPaid(this.selectedRecord)
+          }
+        ]
       case 4: // Rejected
       case 5: // Paid
         return [
@@ -128,6 +135,21 @@ export class InsuranceClaimComponent extends PagedListingComponentBase<Insurance
         if (result) {
           this._claimService.submitClaim(claim.id).subscribe(() => {
             this.notify.success('Claim submitted successfully.');
+            this.refresh();
+          });
+        }
+      }
+    );
+  }
+
+  markAsPaid(claim: InsuranceClaimDto): void {
+    abp.message.confirm(
+      `Are you sure you want to mark as paid this insurance claim of ${claim.patientName}?`,
+      'Confirm',
+      (result: boolean) => {
+        if (result) {
+          this._claimService.markAsPaid(claim.id).subscribe(() => {
+            this.notify.success('Claim mark as paid successfully.');
             this.refresh();
           });
         }
@@ -177,9 +199,9 @@ export class InsuranceClaimComponent extends PagedListingComponentBase<Insurance
       case 0: return 'badge-soft-warning p-1 rounded';
       case 1: return 'badge-soft-primary p-1 rounded';
       case 2: return 'badge-soft-primary p-1 rounded';
-      case 3: return 'badge-soft-success p-1 rounded';
+      case 3: return 'badge-soft-primary p-1 rounded';
       case 4: return 'badge-soft-danger p-1 rounded';
-      case 5: return 'badge-soft-secondary p-1 rounded';
+      case 5: return 'badge-soft-success p-1 rounded';
       default: return 'badge-soft-teal p-1 rounded';
     }
   }

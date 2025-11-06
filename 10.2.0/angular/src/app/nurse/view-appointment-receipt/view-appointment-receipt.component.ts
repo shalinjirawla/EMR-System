@@ -26,12 +26,12 @@ export class ViewAppointmentReceiptComponent implements OnInit {
     private _appointmentService: AppointmentServiceProxy,
     private _appSessionService: AppSessionService,
     public cdr: ChangeDetectorRef
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadReceipt();
     this.hospitalName = this._appSessionService.tenant?.tenancyName ?? 'Default';
-    
+
   }
 
   loadReceipt(): void {
@@ -47,7 +47,32 @@ export class ViewAppointmentReceiptComponent implements OnInit {
         }, 0);
       });
   }
-  
+
+  print(): void {
+    const printContents = document.querySelector('.receipt-wrapper')?.innerHTML;
+    const styles = document.head.querySelectorAll('style, link[rel="stylesheet"]');
+
+    const win = window.open('', '', 'width=900,height=1100');
+
+    win.document.write(`
+    <html>
+    <head>
+      <title>Print Medical Receipt</title>
+      ${Array.from(styles).map(s => s.outerHTML).join('')}
+      <style>@page { size: A4; margin: 10mm; }</style>
+    </head>
+    <body>${printContents}</body>
+    </html>
+  `);
+
+    setTimeout(() => {
+      win.document.close();
+      win.focus();
+      win.print();
+      win.close();
+    }, 300);
+  }
+
 
   close(): void {
     this.bsModalRef.hide();

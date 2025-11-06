@@ -153,6 +153,62 @@ export class AdmissionServiceProxy {
     }
 
     /**
+     * @param id (optional) 
+     * @return OK
+     */
+    get(id: number | undefined): Observable<AdmissionDto> {
+        let url_ = this.baseUrl + "/api/services/app/Admission/Get?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGet(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<AdmissionDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<AdmissionDto>;
+        }));
+    }
+
+    protected processGet(response: HttpResponseBase): Observable<AdmissionDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = AdmissionDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * @param body (optional) 
      * @return OK
      */
@@ -243,62 +299,6 @@ export class AdmissionServiceProxy {
     }
 
     protected processUpdate(response: HttpResponseBase): Observable<AdmissionDto> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = AdmissionDto.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    /**
-     * @param id (optional) 
-     * @return OK
-     */
-    get(id: number | undefined): Observable<AdmissionDto> {
-        let url_ = this.baseUrl + "/api/services/app/Admission/Get?";
-        if (id === null)
-            throw new Error("The parameter 'id' cannot be null.");
-        else if (id !== undefined)
-            url_ += "Id=" + encodeURIComponent("" + id) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "text/plain"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGet(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processGet(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<AdmissionDto>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<AdmissionDto>;
-        }));
-    }
-
-    protected processGet(response: HttpResponseBase): Observable<AdmissionDto> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -4792,6 +4792,62 @@ export class DepositTransactionServiceProxy {
     }
 
     /**
+     * @param depositTransactionId (optional) 
+     * @return OK
+     */
+    createDepositRefund(depositTransactionId: number | undefined): Observable<DepositTransactionDto> {
+        let url_ = this.baseUrl + "/api/services/app/DepositTransaction/CreateDepositRefund?";
+        if (depositTransactionId === null)
+            throw new Error("The parameter 'depositTransactionId' cannot be null.");
+        else if (depositTransactionId !== undefined)
+            url_ += "depositTransactionId=" + encodeURIComponent("" + depositTransactionId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreateDepositRefund(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreateDepositRefund(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<DepositTransactionDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<DepositTransactionDto>;
+        }));
+    }
+
+    protected processCreateDepositRefund(response: HttpResponseBase): Observable<DepositTransactionDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DepositTransactionDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * @param patientDepositId (optional) 
      * @return OK
      */
@@ -7746,26 +7802,21 @@ export class InsuranceClaimServiceProxy {
     }
 
     /**
-     * @param paidAmount (optional) 
-     * @param body (optional) 
+     * @param id (optional) 
      * @return OK
      */
-    markAsPaid(paidAmount: number | undefined, body: Int64EntityDto | undefined): Observable<void> {
+    markAsPaid(id: number | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/services/app/InsuranceClaim/MarkAsPaid?";
-        if (paidAmount === null)
-            throw new Error("The parameter 'paidAmount' cannot be null.");
-        else if (paidAmount !== undefined)
-            url_ += "paidAmount=" + encodeURIComponent("" + paidAmount) + "&";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "id=" + encodeURIComponent("" + id) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
             })
         };
 
@@ -8692,6 +8743,63 @@ export class InvoiceServiceProxy {
             else {
                 result200 = <any>null;
             }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param patientId (optional) 
+     * @return OK
+     */
+    generateFinalInvoice(patientId: number | undefined): Observable<number> {
+        let url_ = this.baseUrl + "/api/services/app/Invoice/GenerateFinalInvoice?";
+        if (patientId === null)
+            throw new Error("The parameter 'patientId' cannot be null.");
+        else if (patientId !== undefined)
+            url_ += "patientId=" + encodeURIComponent("" + patientId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGenerateFinalInvoice(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGenerateFinalInvoice(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<number>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<number>;
+        }));
+    }
+
+    protected processGenerateFinalInvoice(response: HttpResponseBase): Observable<number> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -26886,6 +26994,8 @@ export class Admission implements IAdmission {
     dischargeDateTime: moment.Moment | undefined;
     reasonForAdmit: string | undefined;
     billingMode: BillingMethod;
+    patientInsuranceId: number | undefined;
+    patientInsurance: PatientInsurance;
     ipdChargeEntries: IpdChargeEntry[] | undefined;
     emergencyCases: EmergencyCase[] | undefined;
     patientDeposits: PatientDeposit[] | undefined;
@@ -26920,6 +27030,8 @@ export class Admission implements IAdmission {
             this.dischargeDateTime = _data["dischargeDateTime"] ? moment(_data["dischargeDateTime"].toString()) : <any>undefined;
             this.reasonForAdmit = _data["reasonForAdmit"];
             this.billingMode = _data["billingMode"];
+            this.patientInsuranceId = _data["patientInsuranceId"];
+            this.patientInsurance = _data["patientInsurance"] ? PatientInsurance.fromJS(_data["patientInsurance"]) : <any>undefined;
             if (Array.isArray(_data["ipdChargeEntries"])) {
                 this.ipdChargeEntries = [] as any;
                 for (let item of _data["ipdChargeEntries"])
@@ -26966,6 +27078,8 @@ export class Admission implements IAdmission {
         data["dischargeDateTime"] = this.dischargeDateTime ? this.dischargeDateTime.toISOString() : <any>undefined;
         data["reasonForAdmit"] = this.reasonForAdmit;
         data["billingMode"] = this.billingMode;
+        data["patientInsuranceId"] = this.patientInsuranceId;
+        data["patientInsurance"] = this.patientInsurance ? this.patientInsurance.toJSON() : <any>undefined;
         if (Array.isArray(this.ipdChargeEntries)) {
             data["ipdChargeEntries"] = [];
             for (let item of this.ipdChargeEntries)
@@ -27012,6 +27126,8 @@ export interface IAdmission {
     dischargeDateTime: moment.Moment | undefined;
     reasonForAdmit: string | undefined;
     billingMode: BillingMethod;
+    patientInsuranceId: number | undefined;
+    patientInsurance: PatientInsurance;
     ipdChargeEntries: IpdChargeEntry[] | undefined;
     emergencyCases: EmergencyCase[] | undefined;
     patientDeposits: PatientDeposit[] | undefined;
@@ -27043,6 +27159,12 @@ export class AdmissionDto implements IAdmissionDto {
     isDischarged: boolean;
     admissionType: AdmissionType;
     billingMode: BillingMethod;
+    patientInsuranceId: number | undefined;
+    insuranceId: number;
+    insuranceName: string | undefined;
+    policyNumber: string | undefined;
+    coPayPercentage: number | undefined;
+    coverageLimit: number | undefined;
 
     constructor(data?: IAdmissionDto) {
         if (data) {
@@ -27074,6 +27196,12 @@ export class AdmissionDto implements IAdmissionDto {
             this.isDischarged = _data["isDischarged"];
             this.admissionType = _data["admissionType"];
             this.billingMode = _data["billingMode"];
+            this.patientInsuranceId = _data["patientInsuranceId"];
+            this.insuranceId = _data["insuranceId"];
+            this.insuranceName = _data["insuranceName"];
+            this.policyNumber = _data["policyNumber"];
+            this.coPayPercentage = _data["coPayPercentage"];
+            this.coverageLimit = _data["coverageLimit"];
         }
     }
 
@@ -27105,6 +27233,12 @@ export class AdmissionDto implements IAdmissionDto {
         data["isDischarged"] = this.isDischarged;
         data["admissionType"] = this.admissionType;
         data["billingMode"] = this.billingMode;
+        data["patientInsuranceId"] = this.patientInsuranceId;
+        data["insuranceId"] = this.insuranceId;
+        data["insuranceName"] = this.insuranceName;
+        data["policyNumber"] = this.policyNumber;
+        data["coPayPercentage"] = this.coPayPercentage;
+        data["coverageLimit"] = this.coverageLimit;
         return data;
     }
 
@@ -27136,6 +27270,12 @@ export interface IAdmissionDto {
     isDischarged: boolean;
     admissionType: AdmissionType;
     billingMode: BillingMethod;
+    patientInsuranceId: number | undefined;
+    insuranceId: number;
+    insuranceName: string | undefined;
+    policyNumber: string | undefined;
+    coPayPercentage: number | undefined;
+    coverageLimit: number | undefined;
 }
 
 export class AdmissionDtoPagedResultDto implements IAdmissionDtoPagedResultDto {
@@ -31055,11 +31195,6 @@ export class CreateUpdateInsuranceMasterDto implements ICreateUpdateInsuranceMas
     id: number;
     tenantId: number;
     insuranceName: string | undefined;
-    coversRoomCharge: boolean;
-    coversDoctorVisit: boolean;
-    coversLabTests: boolean;
-    coversProcedures: boolean;
-    coversMedicines: boolean;
     isActive: boolean;
 
     constructor(data?: ICreateUpdateInsuranceMasterDto) {
@@ -31076,11 +31211,6 @@ export class CreateUpdateInsuranceMasterDto implements ICreateUpdateInsuranceMas
             this.id = _data["id"];
             this.tenantId = _data["tenantId"];
             this.insuranceName = _data["insuranceName"];
-            this.coversRoomCharge = _data["coversRoomCharge"];
-            this.coversDoctorVisit = _data["coversDoctorVisit"];
-            this.coversLabTests = _data["coversLabTests"];
-            this.coversProcedures = _data["coversProcedures"];
-            this.coversMedicines = _data["coversMedicines"];
             this.isActive = _data["isActive"];
         }
     }
@@ -31097,11 +31227,6 @@ export class CreateUpdateInsuranceMasterDto implements ICreateUpdateInsuranceMas
         data["id"] = this.id;
         data["tenantId"] = this.tenantId;
         data["insuranceName"] = this.insuranceName;
-        data["coversRoomCharge"] = this.coversRoomCharge;
-        data["coversDoctorVisit"] = this.coversDoctorVisit;
-        data["coversLabTests"] = this.coversLabTests;
-        data["coversProcedures"] = this.coversProcedures;
-        data["coversMedicines"] = this.coversMedicines;
         data["isActive"] = this.isActive;
         return data;
     }
@@ -31118,11 +31243,6 @@ export interface ICreateUpdateInsuranceMasterDto {
     id: number;
     tenantId: number;
     insuranceName: string | undefined;
-    coversRoomCharge: boolean;
-    coversDoctorVisit: boolean;
-    coversLabTests: boolean;
-    coversProcedures: boolean;
-    coversMedicines: boolean;
     isActive: boolean;
 }
 
@@ -37231,11 +37351,6 @@ export class InsuranceMaster implements IInsuranceMaster {
     deletionTime: moment.Moment | undefined;
     tenantId: number;
     insuranceName: string | undefined;
-    coversRoomCharge: boolean;
-    coversDoctorVisit: boolean;
-    coversLabTests: boolean;
-    coversProcedures: boolean;
-    coversMedicines: boolean;
     isActive: boolean;
 
     constructor(data?: IInsuranceMaster) {
@@ -37259,11 +37374,6 @@ export class InsuranceMaster implements IInsuranceMaster {
             this.deletionTime = _data["deletionTime"] ? moment(_data["deletionTime"].toString()) : <any>undefined;
             this.tenantId = _data["tenantId"];
             this.insuranceName = _data["insuranceName"];
-            this.coversRoomCharge = _data["coversRoomCharge"];
-            this.coversDoctorVisit = _data["coversDoctorVisit"];
-            this.coversLabTests = _data["coversLabTests"];
-            this.coversProcedures = _data["coversProcedures"];
-            this.coversMedicines = _data["coversMedicines"];
             this.isActive = _data["isActive"];
         }
     }
@@ -37287,11 +37397,6 @@ export class InsuranceMaster implements IInsuranceMaster {
         data["deletionTime"] = this.deletionTime ? this.deletionTime.toISOString() : <any>undefined;
         data["tenantId"] = this.tenantId;
         data["insuranceName"] = this.insuranceName;
-        data["coversRoomCharge"] = this.coversRoomCharge;
-        data["coversDoctorVisit"] = this.coversDoctorVisit;
-        data["coversLabTests"] = this.coversLabTests;
-        data["coversProcedures"] = this.coversProcedures;
-        data["coversMedicines"] = this.coversMedicines;
         data["isActive"] = this.isActive;
         return data;
     }
@@ -37315,11 +37420,6 @@ export interface IInsuranceMaster {
     deletionTime: moment.Moment | undefined;
     tenantId: number;
     insuranceName: string | undefined;
-    coversRoomCharge: boolean;
-    coversDoctorVisit: boolean;
-    coversLabTests: boolean;
-    coversProcedures: boolean;
-    coversMedicines: boolean;
     isActive: boolean;
 }
 
@@ -37327,11 +37427,6 @@ export class InsuranceMasterDto implements IInsuranceMasterDto {
     id: number;
     tenantId: number;
     insuranceName: string | undefined;
-    coversRoomCharge: boolean;
-    coversDoctorVisit: boolean;
-    coversLabTests: boolean;
-    coversProcedures: boolean;
-    coversMedicines: boolean;
     isActive: boolean;
 
     constructor(data?: IInsuranceMasterDto) {
@@ -37348,11 +37443,6 @@ export class InsuranceMasterDto implements IInsuranceMasterDto {
             this.id = _data["id"];
             this.tenantId = _data["tenantId"];
             this.insuranceName = _data["insuranceName"];
-            this.coversRoomCharge = _data["coversRoomCharge"];
-            this.coversDoctorVisit = _data["coversDoctorVisit"];
-            this.coversLabTests = _data["coversLabTests"];
-            this.coversProcedures = _data["coversProcedures"];
-            this.coversMedicines = _data["coversMedicines"];
             this.isActive = _data["isActive"];
         }
     }
@@ -37369,11 +37459,6 @@ export class InsuranceMasterDto implements IInsuranceMasterDto {
         data["id"] = this.id;
         data["tenantId"] = this.tenantId;
         data["insuranceName"] = this.insuranceName;
-        data["coversRoomCharge"] = this.coversRoomCharge;
-        data["coversDoctorVisit"] = this.coversDoctorVisit;
-        data["coversLabTests"] = this.coversLabTests;
-        data["coversProcedures"] = this.coversProcedures;
-        data["coversMedicines"] = this.coversMedicines;
         data["isActive"] = this.isActive;
         return data;
     }
@@ -37390,11 +37475,6 @@ export interface IInsuranceMasterDto {
     id: number;
     tenantId: number;
     insuranceName: string | undefined;
-    coversRoomCharge: boolean;
-    coversDoctorVisit: boolean;
-    coversLabTests: boolean;
-    coversProcedures: boolean;
-    coversMedicines: boolean;
     isActive: boolean;
 }
 
@@ -37563,6 +37643,9 @@ export class Invoice implements IInvoice {
     insuranceClaims: InsuranceClaim[] | undefined;
     approvedAmount: number | undefined;
     coPayAmount: number | undefined;
+    isConvertedToFinalInvoice: boolean;
+    finalInvoiceId: number | undefined;
+    isFinalInvoice: boolean;
     items: InvoiceItem[] | undefined;
 
     constructor(data?: IInvoice) {
@@ -37595,6 +37678,9 @@ export class Invoice implements IInvoice {
             }
             this.approvedAmount = _data["approvedAmount"];
             this.coPayAmount = _data["coPayAmount"];
+            this.isConvertedToFinalInvoice = _data["isConvertedToFinalInvoice"];
+            this.finalInvoiceId = _data["finalInvoiceId"];
+            this.isFinalInvoice = _data["isFinalInvoice"];
             if (Array.isArray(_data["items"])) {
                 this.items = [] as any;
                 for (let item of _data["items"])
@@ -37631,6 +37717,9 @@ export class Invoice implements IInvoice {
         }
         data["approvedAmount"] = this.approvedAmount;
         data["coPayAmount"] = this.coPayAmount;
+        data["isConvertedToFinalInvoice"] = this.isConvertedToFinalInvoice;
+        data["finalInvoiceId"] = this.finalInvoiceId;
+        data["isFinalInvoice"] = this.isFinalInvoice;
         if (Array.isArray(this.items)) {
             data["items"] = [];
             for (let item of this.items)
@@ -37663,6 +37752,9 @@ export interface IInvoice {
     insuranceClaims: InsuranceClaim[] | undefined;
     approvedAmount: number | undefined;
     coPayAmount: number | undefined;
+    isConvertedToFinalInvoice: boolean;
+    finalInvoiceId: number | undefined;
+    isFinalInvoice: boolean;
     items: InvoiceItem[] | undefined;
 }
 
@@ -37671,12 +37763,18 @@ export class InvoiceDto implements IInvoiceDto {
     tenantId: number;
     patientId: number;
     patientName: string | undefined;
+    patientBloodGroup: string | undefined;
+    patientGender: string | undefined;
+    patientDOB: moment.Moment;
     invoiceNo: string | undefined;
     invoiceType: InvoiceType;
     invoiceDate: moment.Moment;
     totalAmount: number;
     approvedAmount: number | undefined;
     coPayAmount: number | undefined;
+    isConvertedToFinalInvoice: boolean;
+    finalInvoiceId: number | undefined;
+    isFinalInvoice: boolean;
     status: InvoiceStatus;
     paymentMethod: PaymentMethod;
     claims: InsuranceClaimDto[] | undefined;
@@ -37697,12 +37795,18 @@ export class InvoiceDto implements IInvoiceDto {
             this.tenantId = _data["tenantId"];
             this.patientId = _data["patientId"];
             this.patientName = _data["patientName"];
+            this.patientBloodGroup = _data["patientBloodGroup"];
+            this.patientGender = _data["patientGender"];
+            this.patientDOB = _data["patientDOB"] ? moment(_data["patientDOB"].toString()) : <any>undefined;
             this.invoiceNo = _data["invoiceNo"];
             this.invoiceType = _data["invoiceType"];
             this.invoiceDate = _data["invoiceDate"] ? moment(_data["invoiceDate"].toString()) : <any>undefined;
             this.totalAmount = _data["totalAmount"];
             this.approvedAmount = _data["approvedAmount"];
             this.coPayAmount = _data["coPayAmount"];
+            this.isConvertedToFinalInvoice = _data["isConvertedToFinalInvoice"];
+            this.finalInvoiceId = _data["finalInvoiceId"];
+            this.isFinalInvoice = _data["isFinalInvoice"];
             this.status = _data["status"];
             this.paymentMethod = _data["paymentMethod"];
             if (Array.isArray(_data["claims"])) {
@@ -37731,12 +37835,18 @@ export class InvoiceDto implements IInvoiceDto {
         data["tenantId"] = this.tenantId;
         data["patientId"] = this.patientId;
         data["patientName"] = this.patientName;
+        data["patientBloodGroup"] = this.patientBloodGroup;
+        data["patientGender"] = this.patientGender;
+        data["patientDOB"] = this.patientDOB ? this.patientDOB.toISOString() : <any>undefined;
         data["invoiceNo"] = this.invoiceNo;
         data["invoiceType"] = this.invoiceType;
         data["invoiceDate"] = this.invoiceDate ? this.invoiceDate.toISOString() : <any>undefined;
         data["totalAmount"] = this.totalAmount;
         data["approvedAmount"] = this.approvedAmount;
         data["coPayAmount"] = this.coPayAmount;
+        data["isConvertedToFinalInvoice"] = this.isConvertedToFinalInvoice;
+        data["finalInvoiceId"] = this.finalInvoiceId;
+        data["isFinalInvoice"] = this.isFinalInvoice;
         data["status"] = this.status;
         data["paymentMethod"] = this.paymentMethod;
         if (Array.isArray(this.claims)) {
@@ -37765,12 +37875,18 @@ export interface IInvoiceDto {
     tenantId: number;
     patientId: number;
     patientName: string | undefined;
+    patientBloodGroup: string | undefined;
+    patientGender: string | undefined;
+    patientDOB: moment.Moment;
     invoiceNo: string | undefined;
     invoiceType: InvoiceType;
     invoiceDate: moment.Moment;
     totalAmount: number;
     approvedAmount: number | undefined;
     coPayAmount: number | undefined;
+    isConvertedToFinalInvoice: boolean;
+    finalInvoiceId: number | undefined;
+    isFinalInvoice: boolean;
     status: InvoiceStatus;
     paymentMethod: PaymentMethod;
     claims: InsuranceClaimDto[] | undefined;
@@ -43623,6 +43739,7 @@ export class PatientInsurance implements IPatientInsurance {
     insuranceId: number;
     insuranceMaster: InsuranceMaster;
     insuranceClaims: InsuranceClaim[] | undefined;
+    admissions: Admission[] | undefined;
     policyNumber: string | undefined;
     coverageLimit: number;
     coPayPercentage: number | undefined;
@@ -43649,6 +43766,11 @@ export class PatientInsurance implements IPatientInsurance {
                 this.insuranceClaims = [] as any;
                 for (let item of _data["insuranceClaims"])
                     this.insuranceClaims.push(InsuranceClaim.fromJS(item));
+            }
+            if (Array.isArray(_data["admissions"])) {
+                this.admissions = [] as any;
+                for (let item of _data["admissions"])
+                    this.admissions.push(Admission.fromJS(item));
             }
             this.policyNumber = _data["policyNumber"];
             this.coverageLimit = _data["coverageLimit"];
@@ -43677,6 +43799,11 @@ export class PatientInsurance implements IPatientInsurance {
             for (let item of this.insuranceClaims)
                 data["insuranceClaims"].push(item.toJSON());
         }
+        if (Array.isArray(this.admissions)) {
+            data["admissions"] = [];
+            for (let item of this.admissions)
+                data["admissions"].push(item.toJSON());
+        }
         data["policyNumber"] = this.policyNumber;
         data["coverageLimit"] = this.coverageLimit;
         data["coPayPercentage"] = this.coPayPercentage;
@@ -43700,6 +43827,7 @@ export interface IPatientInsurance {
     insuranceId: number;
     insuranceMaster: InsuranceMaster;
     insuranceClaims: InsuranceClaim[] | undefined;
+    admissions: Admission[] | undefined;
     policyNumber: string | undefined;
     coverageLimit: number;
     coPayPercentage: number | undefined;

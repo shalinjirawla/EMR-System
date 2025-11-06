@@ -147,45 +147,6 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
       this.cd.detectChanges();
     })
   }
-  // loadMedicines() {
-  //   // Call getAll() with default parameters to get all available medicines
-  //   this._pharmacistInventoryService.getAll(
-  //     undefined,  // keyword
-  //     undefined,  // sorting
-  //     undefined,  // minStock
-  //     undefined,  // maxStock
-  //     undefined,  // fromExpiryDate
-  //     true,       // isAvailable (only get available medicines)
-  //     undefined,  // skipCount
-  //     undefined   // maxResultCount
-  //   ).subscribe({
-  //     next: (res) => {
-  //       if (res.items && res.items.length > 0) {
-  //         this.medicineOptions = res.items.map(item => ({
-  //           label: item.medicineName,
-  //           value: item.id, // Use medicineId as value
-  //           name: item.medicineName // Store name separately
-  //         }));
-
-
-  //         // Prepare dosage options for each medicine
-  //         res.items.forEach(medicine => {
-  //           const unit = medicine.unit;
-  //           if (unit) {
-  //             // Split units if they are comma separated (e.g., "200 mg, 500 mg")
-  //             const units = unit.split(',').map(u => u.trim());
-  //             this.medicineDosageOptions[medicine.medicineName] = units;
-  //             this.selectedMedicineUnits[medicine.medicineName] = units[0];
-  //           }
-  //         });
-  //       }
-  //     },
-  //     error: (err) => {
-  //       this.notify.error('Could not load medicines');
-  //       console.error('Error loading medicines:', err);
-  //     }
-  //   });
-  // }
 
   loadMedicineForms() {
     this._medicineFormService.getAlldicineFormByTenantId(abp.session.tenantId).subscribe({
