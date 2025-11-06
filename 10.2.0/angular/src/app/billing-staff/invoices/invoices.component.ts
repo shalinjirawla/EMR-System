@@ -269,14 +269,6 @@ export class InvoicesComponent extends PagedListingComponentBase<InvoiceDto> imp
                 class: 'modal-lg',
             });
         }
-        //    else {
-        //       createOrEditUserDialog = this._modalService.show(CreateAppoinmentComponent, {
-        //           class: 'modal-lg',
-        //           initialState: {
-        //               id: id,
-        //           },
-        //       });
-        //   }
 
         createOrEditUserDialog.content.onSave.subscribe(() => {
             this.refresh();

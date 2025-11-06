@@ -45,7 +45,7 @@ export class CreateInvoiceComponent extends AppComponentBase implements OnInit {
   selectedPatientId: number | null = null;
   showInvoiceTypeDropdown = false;
   selectedInvoiceType: number | null = null;
-   invoiceTypeEnum = {
+  invoiceTypeEnum = {
     DailyInvoice: 0,
     FullInvoice: 1
   };
@@ -60,7 +60,7 @@ export class CreateInvoiceComponent extends AppComponentBase implements OnInit {
   ];
 
 
-invoice = {
+  invoice = {
     tenantId: abp.session.tenantId,
     patientId: null as number | null,
     status: InvoiceStatus._0,
@@ -68,7 +68,7 @@ invoice = {
     items: [] as InvoiceItemDto[]
   };
 
-   // Manual new item
+  // Manual new item
   newItem = {
     description: '',
     unitPrice: 0,
@@ -105,7 +105,7 @@ invoice = {
     this._patientService.get(patientId).subscribe(patient => {
       if (patient.isAdmitted) {
         this.showInvoiceTypeDropdown = true;
-        this.selectedInvoiceType=undefined;
+        this.selectedInvoiceType = undefined;
         this.invoice.items = [];
       } else {
         this.showInvoiceTypeDropdown = false;
@@ -114,13 +114,13 @@ invoice = {
     });
   }
 
-   onInvoiceTypeChange(event: any): void {
+  onInvoiceTypeChange(event: any): void {
     if (this.selectedPatientId) {
       this.loadCharges(this.selectedPatientId, event.value);
     }
   }
 
-   private loadCharges(patientId: number, invoiceType: number): void {
+  private loadCharges(patientId: number, invoiceType: number): void {
     this._invoiceService.getChargesByPatient(patientId, invoiceType)
       .subscribe(charges => {
         this.invoice.items = charges.map(c => {
@@ -132,7 +132,7 @@ invoice = {
           item.quantity = c.quantity;
           item.isCoveredByInsurance = false;
           item.approvedAmount = null;
-          item.notApprovedAmount =null;
+          item.notApprovedAmount = null;
           (item as any).isRemovable = false;
           (item as any).entryDate = c.entryDate;
           return item;
@@ -141,7 +141,7 @@ invoice = {
       });
   }
 
-   canAddItem(): boolean {
+  canAddItem(): boolean {
     return this.newItem.description.trim() !== '' &&
       this.newItem.unitPrice > 0 &&
       this.newItem.quantity > 0;
@@ -153,7 +153,7 @@ invoice = {
     item.description = this.newItem.description;
     item.unitPrice = this.newItem.unitPrice;
     item.quantity = this.newItem.quantity;
-    item.entryDate = moment(); 
+    item.entryDate = moment();
     (item as any).isRemovable = true;
     this.invoice.items.push(item);
 
@@ -164,7 +164,7 @@ invoice = {
     this.invoice.items.splice(index, 1);
   }
   calculateTotal(): number {
-     return this.invoice.items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
+    return this.invoice.items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
   }
 
   isSaveDisabled(): boolean {
@@ -206,10 +206,10 @@ invoice = {
       id: 0,
       tenantId: abp.session.tenantId,
       patientId: this.invoice.patientId,
-       invoiceType: this.selectedInvoiceType ?? this.invoiceTypeEnum.FullInvoice,
+      invoiceType: this.selectedInvoiceType ?? this.invoiceTypeEnum.FullInvoice,
       invoiceDate: moment(),
       status: this.invoice.status,
-      paymentMethod: this.invoice.paymentMethod??null,
+      paymentMethod: this.invoice.paymentMethod ?? null,
       items: this.invoice.items,
       totalAmount: this.calculateTotal()
     });

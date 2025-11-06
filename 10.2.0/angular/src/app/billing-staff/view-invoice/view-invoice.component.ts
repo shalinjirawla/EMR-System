@@ -3,6 +3,8 @@ import { BsModalRef } from 'ngx-bootstrap/modal';
 import { InvoiceDto, InvoiceServiceProxy } from '@shared/service-proxies/service-proxies';
 import { CommonModule } from '@node_modules/@angular/common';
 import { AppSessionService } from '@shared/session/app-session.service';
+import html2pdf from 'html2pdf.js';
+
 
 @Component({
   selector: 'app-view-invoice',
@@ -35,12 +37,49 @@ export class ViewInvoiceComponent implements OnInit {
     }
   }
   printInvoice(): void {
-    window.print();
-  }
+  const printContents = document.querySelector('.invoice-wrapper')?.innerHTML;
+  const styles = document.head.querySelectorAll('style, link[rel="stylesheet"]');
 
-  downloadPDF(): void {
-    // Implement PDF download functionality here
-    // You might use libraries like jspdf or pdfmake
-  }
+  const win = window.open('', '', 'width=900,height=1100');
 
+  win.document.write(`
+    <html>
+    <head>
+      <title>Print Invoice</title>
+      ${Array.from(styles).map(s => s.outerHTML).join('')}
+      <style>
+        @page { size: A4; margin: 10mm; }
+      </style>
+    </head>
+    <body>${printContents}</body>
+    </html>
+  `);
+
+  setTimeout(() => {
+    win.document.close();
+    win.focus();
+    win.print();
+    win.close();
+  }, 300);
+}
+downloadPDF(): void {
+  const element = document.getElementById('invoiceToPrint');
+
+  const opt: any = {
+  margin: 5,
+  filename: `${this.invoice.invoiceNo}.pdf`,
+  image: { type: 'jpeg' as 'jpeg', quality: 1 },
+  html2canvas: { scale: 4, useCORS: true },
+  jsPDF: {
+    unit: 'mm',
+    format: 'a4',
+    orientation: 'portrait' as 'portrait'
+  }
+};
+html2pdf()
+  .from(element)
+  .set(opt)
+  .save();
+
+}
 }

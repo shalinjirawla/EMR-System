@@ -108,7 +108,7 @@ namespace EMRSystem.LabReport
                     {
                         PatientId = patient?.Id,
                         ChargeType = ChargeType.LabTest,
-                        Description = $"Emergency Case Only",
+                        Description = $"Emergency Lab Test - {reportType?.ReportType ?? "Unknown"}",
                         Quantity = 1,
                         Amount = reportType?.ReportPrice ?? 0,
                         EmergencyCaseId = emergencyCaseId,

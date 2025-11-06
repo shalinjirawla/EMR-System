@@ -10,6 +10,7 @@ using EMRSystem.Appointments;
 using EMRSystem.Authorization.Users;
 using EMRSystem.Doctor;
 using EMRSystem.Doctor.Dto;
+using EMRSystem.Doctors;
 using EMRSystem.EmergencyProcedure;
 using EMRSystem.EmergencyProcedure.Dto;
 using EMRSystem.IpdChargeEntry;
@@ -320,7 +321,7 @@ namespace EMRSystem.Prescriptions
                                 PatientId = input.PatientId.Value,
                                 ChargeType = ChargeType.Procedure,
                                 Quantity =1,
-                                Description = $"Procedure Charge:- {procedure.Name}",
+                                Description = $"Procedure Charge - {procedure.Name}",
                                 Amount = procedure.DefaultCharge,
                                 ReferenceId = procedure.Id,
                                 PrescriptionId = prescription.Id
@@ -908,12 +909,13 @@ namespace EMRSystem.Prescriptions
                 // takke charge for emergency doctor
                 {
                     var emergencyDoctor = await _doctorMasterRepository
+                                     .GetAllIncluding(dm => dm.Doctor)
                                     .FirstOrDefaultAsync(dm => dm.DoctorId == input.DoctorId);
                     var chargeEntry = new EMRSystem.EmergencyChargeEntries.EmergencyChargeEntry
                     {
                         PatientId = input.PatientId,
                         ChargeType = ChargeType.Other,
-                        Description = $"Emergency Doctor Charge",
+                        Description = $"Emergency Doctor Charge - Dr. {emergencyDoctor.Doctor.FullName}",
                         Quantity =1,
                         Amount = emergencyDoctor.Fee > 0 ? emergencyDoctor.Fee : 0,
                         EmergencyCaseId = input.EmergencyCaseId,
@@ -933,8 +935,8 @@ namespace EMRSystem.Prescriptions
                             {
                                 PatientId = input.PatientId,
                                 ChargeType = ChargeType.Procedure,
-                                Description = $"Emergency Procedure Charge",
-                                Quantity=1,
+                                Description = $"Emergency Procedure Charge - {procedure.Name}",
+                                Quantity =1,
                                 Amount = procedure.DefaultCharge > 0 ? procedure.DefaultCharge : 0,
                                 EmergencyCaseId = input.EmergencyCaseId,
                                 PrescriptionId = prescriptionId,
@@ -949,12 +951,14 @@ namespace EMRSystem.Prescriptions
                 {
                     if (input.IsSpecialAdviceRequired && input.SpecialistDoctorId != null)
                     {
-                        var specialDoctor = await _doctorMasterRepository.FirstOrDefaultAsync(dm => dm.DoctorId == input.SpecialistDoctorId);
+                        var specialDoctor = await _doctorMasterRepository
+                            .GetAllIncluding(dm => dm.Doctor)
+                            .FirstOrDefaultAsync(dm => dm.DoctorId == input.SpecialistDoctorId);
                         var chargeEntry = new EMRSystem.EmergencyChargeEntries.EmergencyChargeEntry
                         {
                             PatientId = input.PatientId,
                             ChargeType = ChargeType.Other,
-                            Description = $"Emergency Special Doctor Advice Charge",
+                            Description = $"Emergency Special Doctor Advice Charge - Dr. {specialDoctor.Doctor.FullName}",
                             Quantity = 1,
                             Amount = specialDoctor.Fee > 0 ? specialDoctor.Fee : 0,
                             EmergencyCaseId = input.EmergencyCaseId,

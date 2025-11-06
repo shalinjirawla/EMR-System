@@ -13,5 +13,7 @@ namespace EMRSystem.Deposit
         IAsyncCrudAppService<DepositTransactionDto, long, PagedAndSortedResultRequestDto, CreateUpdateDepositTransactionDto>
     {
        Task<string> GenerateReceiptNoAsync(int tenantId);
+        Task<DepositTransactionDto> CreateDepositRefundAsync(long depositTransactionId);
+
     }
 }

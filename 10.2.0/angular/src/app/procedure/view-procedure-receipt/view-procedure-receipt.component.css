@@ -1,281 +1,175 @@
-.medical-receipt {
-    width: 100%;
-    max-width: 800px;
-    margin: 0 auto;
-    background: #fff;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-    font-family: 'Arial', sans-serif;
-    color: #333;
+.procedure-receipt-wrapper {
+  width: 100%;
+  max-width: 800px;
+  height: 90vh;
+  overflow-y: auto;
+  margin: auto;
+  background: #fff;
+  color: #1C2434;
+  font-family: "Inter", sans-serif;
+  padding: 32px;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+}
+
+/* Header */
+.receipt-header {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 2px solid #C7D5EA;
+  padding-bottom: 15px;
+}
+
+.hospital-name {
+  margin: 0;
+  font-size: 34px;
+  font-weight: 700;
+  color: #0B3C73;
+}
+
+.title {
+  font-size: 22px;
+  color: #0B3C73;
+  font-weight: 700;
+  margin: 0;
+}
+
+.meta-row {
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+/* Info Block */
+.info-block {
+  margin-top: 18px;
+  padding: 14px;
+  border: 1px solid #E2E8F3;
+  background: #FAFBFD;
+  border-radius: 6px;
+}
+
+.block-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0B3C73;
+  margin-bottom: 10px;
+}
+
+/* Table */
+.bill-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.bill-table th {
+  text-align: left;
+  padding: 10px;
+  border-bottom: 2px solid #D8E2F4;
+  color: #0B3C73;
+}
+
+.bill-table td {
+  padding: 9px;
+  border-bottom: 1px solid #EBEFF7;
+}
+
+.text-right {
+  text-align: right;
+}
+
+tfoot td {
+  border-top: 2px solid #D8E2F4;
+  font-weight: 700;
+}
+
+/* Payment + Signature Row */
+.payment-signature-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-top: 25px;
+  padding-top: 10px;
+  border-top: 1px dashed #c9d6ec;
+}
+
+.payment-section p {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #333;
+}
+
+.signature {
+  text-align: right;
+  border-top: 1.3px solid #99b9e8;
+  width: 160px;
+  padding-top: 5px;
+  font-size: 13px;
+  margin-top: 38px;
+  color: #444;
+  opacity: 0.9;
+}
+
+/* Buttons */
+.action-row {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.btn {
+  padding: 8px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-primary {
+  background: linear-gradient(90deg, #2183e3 70%, #23d3d3 100%);
+  color: #fff;
+  border: none;
+}
+
+.btn-outline {
+  border: 2px solid #0B3C73;
+  color: #0B3C73;
+  background: #fff;
+}
+
+.badge.ok {
+  background: #E8FFF0;
+  color: #0F7A2F;
+  border: 1px solid #0F7A2F;
+  border-radius: 4px;
+  padding: 2px 5px;
+}
+
+/* Print Styles */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
   }
-  
-  .receipt-header {
-    padding: 20px;
-    border-bottom: 2px dashed #e0e0e0;
-    background: linear-gradient(to right, #f8f9ff, #eef0fb);
-  }
-  
-  .clinic-brand {
-    display: flex;
-    align-items: center;
-    margin-bottom: 15px;
-  }
-  
-  .clinic-logo {
-    width: 60px;
-    height: 60px;
-    background: #3f51b5;
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 15px;
-    font-size: 24px;
-  }
-  
-  .clinic-details h1 {
+
+  body {
     margin: 0;
-    font-size: 22px;
-    color: #3f51b5;
+    background: #fff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
-  
-  .clinic-details p {
-    margin: 5px 0 0;
-    font-size: 13px;
-    color: #666;
+
+  .procedure-receipt-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
   }
-  
-  .receipt-title {
-    text-align: center;
-    margin-top: 10px;
+
+  .action-row {
+    display: none !important;
   }
-  
-  .receipt-title h2 {
-    margin: 0;
-    color: #333;
-    font-size: 18px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-  
-  .receipt-number {
-    margin-top: 5px;
-    font-weight: bold;
-    color: #3f51b5;
-  }
-  
-  .generated-on {
-    text-align: right;
-    font-size: 12px;
-    color: #888;
-    margin-top: 5px;
-  }
-  
-  .receipt-body {
-    padding: 20px;
-  }
-  
-  .patient-details {
-    margin-bottom: 20px;
-  }
-  
-  .detail-row {
-    display: flex;
-    margin-bottom: 8px;
-  }
-  
-  .label {
-    font-weight: bold;
-    width: 150px;
-    color: #555;
-  }
-  
-  .value {
-    flex: 1;
-  }
-  
-  .status-paid {
-    color: #4caf50;
-    font-weight: bold;
-  }
-  
-  /* === Updated Payment Table Section === */
-  .payment-table {
-    margin: 25px 0;
-    border: 1px solid #e0e0e0;
-    border-radius: 5px;
-    overflow: hidden;
-  }
-  
-  .payment-table::before {
-    content: "";
-    display: block;
-    border-top: 1px dotted #ccc;
-    margin-bottom: 20px;
-  }
-  
-  .table-header,
-  .table-row,
-  .table-footer {
-    display: grid;
-    grid-template-columns: 70% 30%; /* Description | Amount */
-    padding: 12px 15px;
-  }
-  
-  .table-header {
-    background: #f5f5f5;
-    font-weight: bold;
-    border-bottom: 1px solid #e0e0e0;
-  }
-  
-  .table-row {
-    border-bottom: 1px dashed #e0e0e0;
-  }
-  
-  .table-row:last-child {
-    border-bottom: none;
-  }
-  
-  .table-footer {
-    background: #f9f9f9;
-    font-weight: bold;
-  }
-  
-  .header-item,
-  .row-item,
-  .footer-item {
-    font-size: 14px;
-  }
-  
-  .header-item:last-child,
-  .row-item:last-child,
-  .footer-item:last-child {
-    text-align: right;
-    font-family: 'Courier New', monospace;
-    font-weight: bold;
-  }
-  
-  /* === End Payment Table Section === */
-  
-  .payment-details {
-    margin-top: 25px;
-    padding-top: 15px;
-    border-top: 1px dashed #e0e0e0;
-  }
-  
-  .receipt-footer {
-    display: flex;
-    justify-content: flex-end;
-    align-items: flex-end;
-    margin-top: 30px;
-    padding-top: 20px;
-    /* border-top: 1px dashed #e0e0e0; */
-  }
-  
-  .thank-you-note {
-    color: #666;
-    font-size: 14px;
-  }
-  
-  .thank-you-note p {
-    margin: 0 0 5px 0;
-    font-weight: bold;
-  }
-  
-  .clinic-stamp {
-    text-align: center;
-  }
-  
-  .stamp {
-    width: 80px;
-    height: 80px;
-    border: 2px solid #4caf50;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #4caf50;
-    font-weight: bold;
-    margin: 0 auto 5px;
-    transform: rotate(15deg);
-    box-shadow: 0 0 8px rgba(76, 175, 80, 0.4);
-  }
-  
-  .signature-line {
-    margin-top: 40px;
-    text-align: right;
-    font-size: 13px;
-    color: #555;
-    border-top: 1px solid #aaa;
-    width: 200px;
-    float: right;
-    padding-top: 5px;
-  }
-  
-  .receipt-actions {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    padding: 15px 20px;
-    background: #f5f5f5;
-    border-top: 1px solid #e0e0e0;
-  }
-  
-  .btn {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: bold;
-  }
-  
-  .print-btn {
-    background: #3f51b5;
-    color: white;
-  }
-  
-  .print-btn:hover {
-    background: #2c3ea8;
-  }
-  
-  .close-btn {
-    background: #f44336;
-    color: white;
-  }
-  
-  .close-btn:hover {
-    background: #d32f2f;
-  }
-  
-  @media print {
-    body {
-      background: white;
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-    }
-  
-    .receipt-actions {
-      display: none !important;
-    }
-  
-    .medical-receipt {
-      box-shadow: none;
-      margin: 0;
-      width: 100%;
-      font-size: 12px;
-    }
-  
-    .stamp {
-      color: #4caf50 !important;
-      border-color: #4caf50 !important;
-    }
-  
-    .receipt-header,
-    .receipt-footer {
-      page-break-inside: avoid;
-    }
-  }
-  
+}

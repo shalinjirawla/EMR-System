@@ -27,6 +27,8 @@ namespace EMRSystem.Admission
         public DateTime? DischargeDateTime { get; set; }
         public string ReasonForAdmit { get; set; }
         public BillingMethod BillingMode { get; set; }
+        public long? PatientInsuranceId { get; set; }
+        public virtual EMRSystem.Insurances.PatientInsurance PatientInsurance { get; set; }
 
         public virtual ICollection<EMRSystem.IpdChargeEntry.IpdChargeEntry> IpdChargeEntries { get; set; }
         //public virtual ICollection<EMRSystem.Deposit.Deposit> Deposits { get; set; }

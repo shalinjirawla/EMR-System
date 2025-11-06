@@ -16,6 +16,6 @@ namespace EMRSystem.Insurances
         // extra APIs useful for billing flow
         Task<InsuranceClaimDto> GetByInvoiceIdAsync(long invoiceId);
         Task SubmitClaimAsync(long claimId); // mark as Submitted
-        Task MarkAsPaidAsync(EntityDto<long> input, decimal paidAmount);
+        Task MarkAsPaidAsync(long id);
     }
 }

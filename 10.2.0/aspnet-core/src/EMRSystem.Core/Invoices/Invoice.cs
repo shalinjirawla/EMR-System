@@ -36,6 +36,9 @@ namespace EMRSystem.Invoices
         public decimal? ApprovedAmount { get; set; }       // insurance approved
         public decimal? CoPayAmount { get; set; }
 
+        public bool IsConvertedToFinalInvoice { get; set; } = false;
+        public long? FinalInvoiceId { get; set; }
+        public bool IsFinalInvoice { get; set; } = false;
         public virtual ICollection<InvoiceItem> Items { get; set; } = new List<InvoiceItem>();
     }
     public enum InvoiceStatus

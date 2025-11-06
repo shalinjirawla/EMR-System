@@ -17,6 +17,7 @@ namespace EMRSystem.Insurances
         public long InsuranceId { get; set; }
         public virtual InsuranceMaster InsuranceMaster { get; set; }
         public ICollection<InsuranceClaim> InsuranceClaims { get; set; }
+        public virtual ICollection<EMRSystem.Admission.Admission> Admissions { get; set; }
 
 
         public string PolicyNumber { get; set; }

@@ -37,22 +37,22 @@
             [tableStyle]="{ 'min-width': '60rem' }">
             <ng-template pTemplate="header">
                 <tr>
-                    <th>Description</th>
-                    <th>Qty</th>
-                    <th>Unit Price</th>
-                    <th>Total</th>
+                    <th class="text-center">Description</th>
+                    <th class="text-center">Qty</th>
+                    <th class="text-center">Unit Price</th>
+                    <th class="text-center">Total</th>
                     <th class="text-center">Covered</th>
-                    <th>Approved</th>
-                    <th>Not Approved</th>
+                    <th class="text-center">Approved</th>
+                    <th class="text-center">Not Approved</th>
                 </tr>
             </ng-template>
 
             <ng-template pTemplate="body" let-item>
                 <tr>
-                    <td>{{ item.description }}</td>
-                    <td>{{ item.quantity }}</td>
-                    <td>₹{{ item.unitPrice | number:'1.2-2' }}</td>
-                    <td>
+                    <td class="text-center">{{ item.description }}</td>
+                    <td class="text-center">{{ item.quantity }}</td>
+                    <td class="text-center">₹{{ item.unitPrice | number:'1.2-2' }}</td>
+                    <td class="text-center">
                         <span class="fw-semibold text-success">₹{{ getTotal(item) | number:'1.2-2' }}</span>
                     </td>
                     <td class="text-center">
@@ -60,13 +60,13 @@
                             [disabled]="!isEditable()" (onChange)="onCoveredChange(item)">
                         </p-checkbox>
                     </td>
-                    <td>
+                    <td class="text-center">
                         <input type="number" class="form-control form-control-sm" [(ngModel)]="item.approvedAmount"
                             [min]="0" [max]="getTotal(item)" [name]="'approved-' + item.id"
                             [disabled]="!item.isCoveredByInsurance || !isEditable()"
                             (ngModelChange)="onApprovedChange(item)" />
                     </td>
-                    <td>
+                    <td class="text-center">
                         <span class="badge bg-danger-subtle text-danger fw-semibold">
                             ₹{{ getNotApproved(item) | number:'1.2-2' }}
                         </span>

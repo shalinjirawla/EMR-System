@@ -1,6 +1,7 @@
 <form class="form-horizontal d-flex flex-column" style="height: 90vh; display: flex; flex-direction: column;"
   autocomplete="off" #createAdmissionForm="ngForm" (ngSubmit)="save()">
-  <abp-modal-header style="flex: 0 0 auto;" title="Create New Admission" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
+  <abp-modal-header style="flex: 0 0 auto;" title="Create New Admission"
+    (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
 
   <div class="modal-body flex-grow-1" style="overflow-y: auto; padding-right: 15px;">
     <!-- Patient & Admission Type -->
@@ -58,19 +59,21 @@
     </div>
 
     <!-- Billing Mode & Insurance -->
-    
     <div class="row mt-3" *ngIf="admission.billingMode != BillingMethod._0">
-      <div class="col-md-4 d-flex flex-column">
+      <div class="col-md-12 d-flex flex-column">
         <label>Policy Number</label>
         <input type="text" class="form-control mb-2" placeholder="Policy Number" [(ngModel)]="admission.policyNumber"
           name="policyNumber" required />
       </div>
-      <div class="col-md-4 d-flex flex-column">
+    </div>
+
+    <div class="row mt-3" *ngIf="admission.billingMode != BillingMethod._0">
+      <div class="col-md-6 d-flex flex-column">
         <label>Coverage Limit</label>
         <input type="number" class="form-control mb-2" placeholder="Coverage Limit"
           [(ngModel)]="admission.coverageLimit" name="coverageLimit" required />
       </div>
-      <div class="col-md-4 d-flex flex-column">
+      <div class="col-md-6 d-flex flex-column">
         <label>Co-Pay Percentage</label>
         <input type="number" class="form-control" placeholder="Co-Pay Percentage (optional)"
           [(ngModel)]="admission.coPayPercentage" name="coPayPercentage" />
@@ -93,6 +96,6 @@
     </div>
   </div>
 
-  <abp-modal-footer style="flex: 0 0 auto;"[cancelDisabled]="saving" [saveDisabled]="!createAdmissionForm.form.valid || saving"
-    (onCancelClick)="bsModalRef.hide()"></abp-modal-footer>
+  <abp-modal-footer style="flex: 0 0 auto;" [cancelDisabled]="saving"
+    [saveDisabled]="!createAdmissionForm.form.valid || saving" (onCancelClick)="bsModalRef.hide()"></abp-modal-footer>
 </form>

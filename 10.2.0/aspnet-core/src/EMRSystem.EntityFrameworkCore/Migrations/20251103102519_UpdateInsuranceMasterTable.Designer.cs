@@ -4,6 +4,7 @@ using EMRSystem.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EMRSystem.Migrations
 {
     [DbContext(typeof(EMRSystemDbContext))]
-    partial class EMRSystemDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251103102519_UpdateInsuranceMasterTable")]
+    partial class UpdateInsuranceMasterTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1415,9 +1418,6 @@ namespace EMRSystem.Migrations
                     b.Property<long>("PatientId")
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("PatientInsuranceId")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("ReasonForAdmit")
                         .HasColumnType("nvarchar(max)");
 
@@ -1436,8 +1436,6 @@ namespace EMRSystem.Migrations
                     b.HasIndex("NurseId");
 
                     b.HasIndex("PatientId");
-
-                    b.HasIndex("PatientInsuranceId");
 
                     b.HasIndex("RoomId");
 
@@ -2623,9 +2621,6 @@ namespace EMRSystem.Migrations
                     b.Property<decimal?>("CoPayAmount")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<long?>("FinalInvoiceId")
-                        .HasColumnType("bigint");
-
                     b.Property<long?>("InsuranceClaimId")
                         .HasColumnType("bigint");
 
@@ -2641,12 +2636,6 @@ namespace EMRSystem.Migrations
                         .HasColumnType("nvarchar(30)");
 
                     b.Property<bool>("IsClaimGenerated")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsConvertedToFinalInvoice")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsFinalInvoice")
                         .HasColumnType("bit");
 
                     b.Property<long>("PatientId")
@@ -4454,10 +4443,6 @@ namespace EMRSystem.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("EMRSystem.Insurances.PatientInsurance", "PatientInsurance")
-                        .WithMany("Admissions")
-                        .HasForeignKey("PatientInsuranceId");
-
                     b.HasOne("EMRSystem.Room.Room", "Room")
                         .WithMany("Admissions")
                         .HasForeignKey("RoomId")
@@ -4471,8 +4456,6 @@ namespace EMRSystem.Migrations
                     b.Navigation("Nurse");
 
                     b.Navigation("Patient");
-
-                    b.Navigation("PatientInsurance");
 
                     b.Navigation("Room");
                 });
@@ -5590,8 +5573,6 @@ namespace EMRSystem.Migrations
 
             modelBuilder.Entity("EMRSystem.Insurances.PatientInsurance", b =>
                 {
-                    b.Navigation("Admissions");
-
                     b.Navigation("InsuranceClaims");
                 });
 

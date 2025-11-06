@@ -1,4 +1,5 @@
 ﻿using Abp.Application.Services;
+using Abp.Application.Services.Dto;
 using Abp.Domain.Repositories;
 using Abp.Extensions;
 using Abp.Linq.Extensions;
@@ -26,30 +27,30 @@ namespace EMRSystem.Admissions
         private readonly IRepository<EMRSystem.Admission.Admission, long> _repository;
         private readonly IRepository<EMRSystem.PatientDischarge.PatientDischarge, long> _patientDischargeRepository;
         private readonly IRepository<Patient, long> _patientRepo;
-        private readonly IRepository<PatientInsurance, long> _patientInsuranceRepo;
         private readonly IRepository<EMRSystem.Room.Room, long> _roomRepo;
         private readonly IRepository<Bed, long> _bedRepo;
         private readonly IRepository<PatientDeposit, long> _patientDepositRepo;
         private readonly IRepository<EMRSystem.IpdChargeEntry.IpdChargeEntry, long> _ipdChargeRepo;
         private readonly IRepository<RoomTypeMaster, long> _roomTypeRepo;
+        private readonly IRepository<PatientInsurance, long> _patientInsuranceRepository;
 
         public AdmissionAppService(
             IRepository<EMRSystem.Admission.Admission, long> repository,
             IRepository<EMRSystem.PatientDischarge.PatientDischarge, long> patientDischargeRepository,
             IRepository<EMRSystem.Room.Room, long> roomRepo,
-            IRepository<PatientInsurance, long> patientInsuranceRepo,
             IRepository<RoomTypeMaster, long> roomTypeRepo,
             IRepository<Bed, long> bedRepo,
             IRepository<PatientDeposit, long> patientDepositRepo,
+            IRepository<PatientInsurance, long> patientInsuranceRepository,
             IRepository<EMRSystem.IpdChargeEntry.IpdChargeEntry, long> ipdChargeRepo,
             IRepository<Patient, long> patientRepo) : base(repository)
         {
             _repository = repository;
-            _patientInsuranceRepo = patientInsuranceRepo;
             _patientRepo = patientRepo;
             _patientDepositRepo = patientDepositRepo;
             _ipdChargeRepo = ipdChargeRepo;
             _roomRepo = roomRepo;
+            _patientInsuranceRepository = patientInsuranceRepository;
             _roomTypeRepo = roomTypeRepo;
             _bedRepo = bedRepo;
             _patientDischargeRepository = patientDischargeRepository;
@@ -69,41 +70,27 @@ namespace EMRSystem.Admissions
                     x => x.Patient.FullName.Contains(input.Keyword));
         }
 
+        public override async Task<AdmissionDto> GetAsync(EntityDto<long> input)
+        {
+            var query = await _repository.GetAll()
+                .Include(x => x.Doctor)
+                .Include(x => x.Nurse)
+                .Include(x => x.Patient)
+                .Include(x => x.Room)
+                    .ThenInclude(r => r.RoomTypeMaster)
+                .Include(x => x.Bed)
+                .Include(x => x.PatientInsurance)
+                    .ThenInclude(pi => pi.InsuranceMaster)
+                .Where(x => x.Id == input.Id)
+                .FirstOrDefaultAsync();
 
-        //public override async Task<AdmissionDto> CreateAsync(CreateUpdateAdmissionDto input)
-        //{
-        //    // Validate patient
-        //    var patient = await _patientRepo.FirstOrDefaultAsync(input.PatientId);
-        //    if (patient == null)
-        //    {
-        //        throw new UserFriendlyException("Invalid patient");
-        //    }
-        //    else
-        //    {
-        //        patient.IsAdmitted = true;
-        //        await _patientRepo.UpdateAsync(patient);
-        //    }
+            if (query == null)
+                throw new UserFriendlyException("Admission not found");
 
-        //    // Validate and update Room status
-        //    if (input.BedId.HasValue)
-        //    {
-        //        var bed = await _bedRepo.FirstOrDefaultAsync(input.BedId.Value);
-        //        if (bed == null)
-        //            throw new UserFriendlyException("Invalid bed");
+            var dto = MapToEntityDto(query);
 
-        //        bed.Status = BedStatus.Occupied;
-        //        await _bedRepo.UpdateAsync(bed);
-        //    }
-
-
-        //    // Map and insert admission
-        //    var admission = ObjectMapper.Map<EMRSystem.Admission.Admission>(input);
-        //    await _repository.InsertAsync(admission);
-
-        //    await CurrentUnitOfWork.SaveChangesAsync();
-
-        //    return MapToEntityDto(admission);
-        //}
+            return dto;
+        }
 
         public override async Task<AdmissionDto> CreateAsync(CreateUpdateAdmissionDto input)
         {
@@ -132,6 +119,8 @@ namespace EMRSystem.Admissions
 
             // ✅ Step 1: Map and insert admission
             var admission = ObjectMapper.Map<EMRSystem.Admission.Admission>(input);
+            admission.PatientInsuranceId = null;
+
             var newAdmissionId = await _repository.InsertAndGetIdAsync(admission);
             await CurrentUnitOfWork.SaveChangesAsync();
 
@@ -184,9 +173,18 @@ namespace EMRSystem.Admissions
                     var insurance = ObjectMapper.Map<PatientInsurance>(input.PatientInsurance);
                     insurance.PatientId = admission.PatientId;
                     insurance.TenantId = admission.TenantId;
-                    await _patientInsuranceRepo.InsertAsync(insurance);
+
+                    var insuranceId = await _patientInsuranceRepository.InsertAndGetIdAsync(insurance);
+                    await CurrentUnitOfWork.SaveChangesAsync();
+
+                    // ✅ Update admission with insurance ID
+                    admission.PatientInsuranceId = insuranceId;
+                    await _repository.UpdateAsync(admission);
+                    await CurrentUnitOfWork.SaveChangesAsync();
                 }
             }
+
+
             return res;
         }
 
@@ -196,10 +194,9 @@ namespace EMRSystem.Admissions
             if (admission == null)
                 throw new UserFriendlyException("Admission not found");
 
-            // Case 1: If BedId is provided
+            // ✅ Handle bed change safely BEFORE mapping
             if (input.BedId.HasValue)
             {
-                // Step 1: Free old bed (if any and different)
                 if (admission.BedId.HasValue && admission.BedId.Value != input.BedId.Value)
                 {
                     var oldBed = await _bedRepo.FirstOrDefaultAsync(admission.BedId.Value);
@@ -210,29 +207,82 @@ namespace EMRSystem.Admissions
                     }
                 }
 
-                // Step 2: Occupy new bed
                 var newBed = await _bedRepo.FirstOrDefaultAsync(input.BedId.Value);
                 if (newBed == null)
                     throw new UserFriendlyException("Invalid bed");
 
                 newBed.Status = BedStatus.Occupied;
                 await _bedRepo.UpdateAsync(newBed);
-
-                // Update admission bedId
                 admission.BedId = input.BedId.Value;
             }
 
-            // Step 3: Update other fields safely (ignore BedId if null)
-            var oldBedId = admission.BedId;  // keep old bedId safe
-            ObjectMapper.Map(input, admission);
-            admission.BedId = oldBedId;      // restore if null came
+            // ✅ Keep old bedId safe before mapper
+            var oldBedId = admission.BedId;
 
+            // ✅ Map remaining admission properties (except bedId)
+            ObjectMapper.Map(input, admission);
+            admission.BedId = oldBedId;
+
+            // ---------------- INSURANCE LOGIC ----------------
+
+            // If NO insurance (Self-pay)
+            if (input.BillingMode == BillingMethod.SelfPay)
+            {
+                var existingInsurance = await _patientInsuranceRepository.FirstOrDefaultAsync(x =>
+                    x.PatientId == admission.PatientId &&
+                    x.IsActive &&
+                    x.TenantId == admission.TenantId);
+
+                if (existingInsurance != null)
+                {
+                    existingInsurance.IsActive = false;
+                    await _patientInsuranceRepository.UpdateAsync(existingInsurance);
+                }
+            }
+            else
+            {
+                // Insurance billing modes (Insurance + Self / Cashless)
+
+                if (input.PatientInsurance != null)
+                {
+                    // Editing existing insurance
+                    if (input.PatientInsurance.Id > 0)
+                    {
+                        var insurance = await _patientInsuranceRepository.GetAsync(input.PatientInsurance.Id);
+
+                        insurance.InsuranceId = input.PatientInsurance.InsuranceId;
+                        insurance.PolicyNumber = input.PatientInsurance.PolicyNumber;
+                        insurance.CoverageLimit = input.PatientInsurance.CoverageLimit;
+                        insurance.CoPayPercentage = input.PatientInsurance.CoPayPercentage;
+                        insurance.IsActive = true;
+
+                        await _patientInsuranceRepository.UpdateAsync(insurance);
+                    }
+                    else
+                    {
+                        // New insurance during update
+                        var newInsurance = new PatientInsurance
+                        {
+                            TenantId = admission.TenantId,
+                            PatientId = admission.PatientId, // ✅ keep this
+                            InsuranceId = input.PatientInsurance.InsuranceId,
+                            PolicyNumber = input.PatientInsurance.PolicyNumber,
+                            CoverageLimit = input.PatientInsurance.CoverageLimit,
+                            CoPayPercentage = input.PatientInsurance.CoPayPercentage,
+                            IsActive = true
+                        };
+
+                        await _patientInsuranceRepository.InsertAsync(newInsurance);
+                    }
+                }
+            }
+
+            // ✅ Save changes
             await _repository.UpdateAsync(admission);
             await CurrentUnitOfWork.SaveChangesAsync();
 
             return MapToEntityDto(admission);
         }
-
 
     }
 }

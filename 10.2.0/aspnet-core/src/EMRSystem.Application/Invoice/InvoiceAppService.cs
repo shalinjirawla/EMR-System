@@ -191,9 +191,7 @@ namespace EMRSystem.Invoice
                     TransactionDate = DateTime.Now,
                     Description = $"Invoice {invoice.InvoiceNo}",
                     ReceiptNo = null,
-                    IsPaid = true,
-
-                    // FIFO ledger fields
+                    IsPaid = false,
                     RemainingAmount = 0,
                     RefundedAmount = 0,
                     IsRefund = false,
@@ -339,7 +337,7 @@ namespace EMRSystem.Invoice
                 TransactionDate = DateTime.Now,
                 Description = $"CoPay collected for Invoice {invoice.InvoiceNo}",
                 ReceiptNo = null,
-                IsPaid = true,
+                IsPaid = false,
 
                 // FIFO tracking fields
                 RemainingAmount = 0,
@@ -366,165 +364,6 @@ namespace EMRSystem.Invoice
             return MapToEntityDto(invoice);
         }
 
-
-        //public override async Task<InvoiceDto> CreateAsync(CreateUpdateInvoiceDto input)
-        //{
-        //    var invoice = ObjectMapper.Map<Invoices.Invoice>(input);
-
-        //    // Generate invoice no
-        //    invoice.InvoiceNo = await GenerateInvoiceNoAsync(input.TenantId);
-
-        //    // Save Invoice
-        //    invoice.Status = InvoiceStatus.Paid;
-        //    await Repository.InsertAsync(invoice);
-        //    await CurrentUnitOfWork.SaveChangesAsync();
-
-        //    // Save Invoice Items
-        //    foreach (var item in input.Items)
-        //    {
-        //        var invoiceItem = ObjectMapper.Map<InvoiceItem>(item);
-        //        invoiceItem.InvoiceId = invoice.Id;
-        //        await Repository.GetDbContext().Set<InvoiceItem>().AddAsync(invoiceItem);
-        //    }
-        //    await CurrentUnitOfWork.SaveChangesAsync();
-
-        //    // Handle Deposit
-        //    var patientDeposit = await _patientDepositRepository.FirstOrDefaultAsync(x =>
-        //        x.PatientId == input.PatientId && x.TenantId == input.TenantId);
-
-        //    if (patientDeposit == null)
-        //    {
-        //        throw new UserFriendlyException("Patient Deposit record not found.");
-        //    }
-
-        //    var transaction = new DepositTransaction
-        //    {
-        //        TenantId = input.TenantId,
-        //        PatientDepositId = patientDeposit.Id,
-        //        Amount = input.TotalAmount,
-        //        TransactionType = TransactionType.Debit,
-        //        PaymentMethod = null,
-        //        TransactionDate = DateTime.Now,
-        //        Description = $"Invoice {invoice.InvoiceNo}",
-        //        ReceiptNo = null,
-        //        IsPaid = false
-        //    };
-        //    await _depositTransactionRepository.InsertAsync(transaction);
-
-        //    patientDeposit.TotalDebitAmount += input.TotalAmount;
-        //    patientDeposit.TotalBalance = patientDeposit.TotalCreditAmount - patientDeposit.TotalDebitAmount;
-
-        //    await _patientDepositRepository.UpdateAsync(patientDeposit);
-        //    await CurrentUnitOfWork.SaveChangesAsync();
-
-
-        //    // ✅ Check & Update Patient EmergencyCharge
-        //    var patient = await _patientRepository.FirstOrDefaultAsync(x => x.Id == input.PatientId);
-        //    if (patient != null && patient.IsEmergencyCharge)   // <-- ye property tumhare patient entity me honi chahiye
-        //    {
-        //        patient.IsEmergencyCharge = false;
-        //        await _patientRepository.UpdateAsync(patient);
-        //    }
-
-        //    // ✅ Mark EmergencyChargeEntries as Processed
-        //    var emergencyCharges = await _emergencyChargeEntriesRepository.GetAllListAsync(x =>
-        //        x.PatientId == input.PatientId && !x.IsProcessed);
-
-        //    if (emergencyCharges.Any())
-        //    {
-        //        foreach (var charge in emergencyCharges)
-        //        {
-        //            charge.IsProcessed = true;
-        //            await _emergencyChargeEntriesRepository.UpdateAsync(charge);
-        //        }
-        //    }
-
-        //    // ✅ Mark IpdChargeEntries as Processed (jo tum already kar rahe ho)
-        //    var charges = await GetChargesByPatientAsync(input.PatientId, input.InvoiceType);
-        //    if (charges.Any())
-        //    {
-        //        foreach (var chargeDto in charges)
-        //        {
-        //            var chargeEntity = await _ipdChargeEntryRepository.GetAsync(chargeDto.Id);
-        //            chargeEntity.IsProcessed = true;
-        //            await _ipdChargeEntryRepository.UpdateAsync(chargeEntity);
-        //        }
-        //    }
-
-        //    await CurrentUnitOfWork.SaveChangesAsync();
-
-        //    // Return final DTO
-        //    return MapToEntityDto(invoice);
-        //}
-        //public async Task MarkAsPaid(long invoiceId, decimal? amount = null)
-        //{
-        //    try
-        //    {
-        //        var invoice = await Repository.GetAsync(invoiceId);
-        //        if (invoice == null)
-        //            throw new UserFriendlyException("Invoice not found");
-
-        //        // Determine payment amount
-        //        decimal paymentAmount = amount.HasValue
-        //            ? amount.Value
-        //            : invoice.TotalAmount - invoice.AmountPaid;
-
-        //        // Validate payment amount
-        //        if (paymentAmount <= 0)
-        //        {
-        //            throw new UserFriendlyException(
-        //                "Payment amount must be greater than zero");
-        //        }
-
-        //        decimal newAmountPaid = invoice.AmountPaid;
-
-        //        // Validate payment doesn't exceed total
-        //        if (newAmountPaid > invoice.TotalAmount)
-        //        {
-        //            throw new UserFriendlyException(
-        //                $"Payment amount exceeds total due. Maximum allowed: {invoice.TotalAmount - invoice.AmountPaid:C}");
-        //        }
-
-        //        // Update payment information
-        //        invoice.AmountPaid = newAmountPaid;
-
-        //        // Update status based on payment
-        //        if (invoice.AmountPaid >= invoice.TotalAmount)
-        //        {
-        //            invoice.Status = InvoiceStatus.Paid;
-        //        }
-        //        else
-        //        {
-        //            invoice.Status = InvoiceStatus.PartiallyPaid;
-        //        }
-
-        //        await Repository.UpdateAsync(invoice);
-        //        await CurrentUnitOfWork.SaveChangesAsync();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Logger.Error("Error recording payment", ex);
-        //        throw new UserFriendlyException("Error updating payment information");
-        //    }
-        //}
-        //public async Task<List<IpdChargeEntryDto>> GetChargesByPatientAsync(long patientId, InvoiceType invoiceType)
-        //{
-        //    var query = _ipdChargeEntryRepository
-        //                .GetAllIncluding(x => x.Patient, x => x.Admission)
-        //                .Where(x => x.PatientId == patientId && !x.IsProcessed);
-
-        //    // 🔥 InvoiceType ke hisaab se filter lagana
-        //    if (invoiceType == InvoiceType.DailyInvoice)
-        //    {
-        //        var today = DateTime.Today;
-        //        query = query.Where(x => x.EntryDate.Date == today);
-        //    }
-        //    // Agar FullInvoice hai to filter nahi lagega (sare charges aayenge)
-
-        //    var charges = query.ToList(); // execute query
-
-        //    return ObjectMapper.Map<List<IpdChargeEntryDto>>(charges);
-        //}
 
         public async Task<List<IpdChargeEntryDto>> GetChargesByPatientAsync(long patientId, InvoiceType invoiceType)
         {
@@ -585,21 +424,98 @@ namespace EMRSystem.Invoice
                 .GetAll()
                 .Include(x => x.Items)
                 .Include(x => x.Patient)
-                .Include(x => x.InsuranceClaims).ThenInclude(pi => pi.PatientInsurance).ThenInclude(i => i.InsuranceMaster)
+                .Include(x => x.InsuranceClaims)
+                    .ThenInclude(pi => pi.PatientInsurance)
+                        .ThenInclude(i => i.InsuranceMaster)
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             if (invoice == null)
-            {
                 throw new Abp.UI.UserFriendlyException("Invoice not found");
+
+            // Map base invoice first
+            var invoiceDto = ObjectMapper.Map<InvoiceDto>(invoice);
+
+            // ✅ If this invoice is Final Invoice, include all linked invoices' items
+            if (invoice.IsFinalInvoice)
+            {
+                var childInvoices = await Repository
+                    .GetAll()
+                    .Include(x => x.Items)
+                    .Where(x => x.FinalInvoiceId == id)
+                    .ToListAsync();
+
+                // merge all items from child invoices
+                var allItems = new List<InvoiceItem>();
+
+                // include base invoice items
+                allItems.AddRange(invoice.Items);
+
+                // include child invoice items
+                foreach (var child in childInvoices)
+                {
+                    allItems.AddRange(child.Items);
+                }
+
+                // map merged items to DTO
+                invoiceDto.Items = ObjectMapper.Map<List<InvoiceItemDto>>(allItems);
             }
 
-            return ObjectMapper.Map<InvoiceDto>(invoice);
+            return invoiceDto;
         }
+
         public async Task<List<InvoiceDto>> GetInvoicesByPatientID(long patientID)
         {
             var list = await Repository.GetAll().Where(x => x.PatientId == patientID).ToListAsync();
             var mappedList = ObjectMapper.Map<List<InvoiceDto>>(list);
             return mappedList;
         }
+        public async Task<long> GenerateFinalInvoiceAsync(long patientId)
+        {
+            // 1️⃣ Get all unpaid/unconverted daily invoices of this patient
+            var dailyInvoices = await Repository.GetAll()
+                .Where(x => x.PatientId == patientId
+                         && x.InvoiceType == InvoiceType.DailyInvoice
+                         && !x.IsConvertedToFinalInvoice)
+                .ToListAsync();
+
+            if (!dailyInvoices.Any())
+                throw new UserFriendlyException("No pending daily invoices found to convert.");
+
+            // 2️⃣ Calculate total / approved / copay
+            decimal totalAmount = dailyInvoices.Sum(x => x.TotalAmount);
+            decimal approvedAmount = dailyInvoices.Sum(x => x.ApprovedAmount ?? 0);
+            decimal coPayAmount = dailyInvoices.Sum(x => x.CoPayAmount ?? 0);
+
+            // 3️⃣ Create new Final Invoice
+            var finalInvoice = new EMRSystem.Invoices.Invoice
+            {
+                TenantId = dailyInvoices.First().TenantId,
+                PatientId = patientId,
+                InvoiceNo = await GenerateInvoiceNoAsync(dailyInvoices.First().TenantId), // reuse your existing number generator
+                InvoiceType = InvoiceType.FullInvoice,
+                InvoiceDate = DateTime.Now,
+                TotalAmount = totalAmount,
+                ApprovedAmount = approvedAmount,
+                CoPayAmount = coPayAmount,
+                IsFinalInvoice = true,
+                Status = InvoiceStatus.Paid
+            };
+
+            var finalInvoiceId = await Repository.InsertAndGetIdAsync(finalInvoice);
+            await CurrentUnitOfWork.SaveChangesAsync();
+
+            // 4️⃣ Update old daily invoices
+            foreach (var inv in dailyInvoices)
+            {
+                inv.IsConvertedToFinalInvoice = true;
+                inv.FinalInvoiceId = finalInvoiceId;
+                await Repository.UpdateAsync(inv);
+            }
+
+            await CurrentUnitOfWork.SaveChangesAsync();
+
+            return finalInvoiceId;
+        }
+
     }
 }

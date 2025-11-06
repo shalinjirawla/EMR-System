@@ -1,16 +1,16 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal';
-import { DepositTransactionDto } from '@shared/service-proxies/service-proxies';
-import { CommonModule, formatDate } from '@node_modules/@angular/common';
-import { AppSessionService } from '@shared/session/app-session.service';
+import { AppSessionService } from '../../../shared/session/app-session.service';
+import { DepositTransactionDto } from '../../../shared/service-proxies/service-proxies';
+import { CommonModule, formatDate } from '@angular/common';
 
 @Component({
-  selector: 'app-receipt-detail',
+  selector: 'app-refund-receipt-detail',
   imports: [CommonModule],
-  templateUrl: './receipt-detail.component.html',
-  styleUrl: './receipt-detail.component.css'
+  templateUrl: './refund-receipt-detail.component.html',
+  styleUrl: './refund-receipt-detail.component.css'
 })
-export class ReceiptDetailComponent implements OnInit {
+export class RefundReceiptDetailComponent implements OnInit {
   receipt!: DepositTransactionDto;
   patientName!: string;
   hospitalName = '';

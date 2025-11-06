@@ -7,7 +7,7 @@ import { AppSessionService } from '@shared/session/app-session.service';
 @Component({
   selector: 'app-view-receipt',
   imports: [CommonModule],
-  providers:[LabTestReceiptServiceProxy],
+  providers: [LabTestReceiptServiceProxy],
   templateUrl: './view-receipt.component.html',
   styleUrl: './view-receipt.component.css'
 })
@@ -23,7 +23,7 @@ export class ViewReceiptComponent implements OnInit {
     private receiptService: LabTestReceiptServiceProxy,
     public cd: ChangeDetectorRef,
     private _appSessionService: AppSessionService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.hospitalName = this._appSessionService.tenant?.tenancyName ?? 'Default';
@@ -53,11 +53,28 @@ export class ViewReceiptComponent implements OnInit {
       }
     });
   }
-print(): void {
-    // print only the modal content (the CSS has @media print styles)
-    window.print();
+  print(): void {
+    const printContents = document.querySelector('.receipt-wrapper')?.innerHTML;
+    const styles = document.head.querySelectorAll('style, link[rel="stylesheet"]');
+    const win = window.open('', '', 'width=900,height=1100');
+    win.document.write(`
+      <html>
+        <head>
+          <title>Print Lab Test Receipt</title>
+          ${Array.from(styles).map((s) => s.outerHTML).join('')}
+          <style>@page { size: A4; margin: 10mm; }</style>
+        </head>
+        <body>${printContents}</body>
+      </html>
+    `);
+    setTimeout(() => {
+      win.document.close();
+      win.focus();
+      win.print();
+      win.close();
+    }, 300);
   }
-   format(dt: string | Date | null): string {
+  format(dt: string | Date | null): string {
     if (!dt) return '';
     try {
       return formatDate(dt, 'dd-MMM-yyyy hh:mm a', 'en-IN');

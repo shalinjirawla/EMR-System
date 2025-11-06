@@ -1,85 +1,121 @@
+.receipt-container {
+  background:#fff;
+  border-radius:12px;
+  box-shadow:0 6px 20px rgba(0,0,0,0.08);
+  overflow:auto;
+  font-family: Inter, sans-serif;
+}
+
 /* Header */
-.custom-header {
-  background: #4e73df;
-  color: white;
-  padding: 12px 20px;
-  border-bottom: none;
-  border-radius: 6px 6px 0 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex: 0 0 auto;
+.header {
+  background:#f6f9ff;
+  padding:16px 20px;
+  border-bottom:1px solid #e3e8f5;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  position:relative;
 }
-
-.close-btn {
-  background: transparent;
-  border: none;
-  font-size: 22px;
-  color: white;
-  cursor: pointer;
-  transition: 0.3s;
+.header h4 { margin:0; font-size:18px; font-weight:600; color:#2a3c67; }
+.header .sub { font-size:13px; color:#6c7aa8; margin-left:10px; }
+.header .close {
+  border:none; background:transparent; cursor:pointer; font-size:18px;
+  color:#7f8ca9;
 }
-
-.close-btn:hover {
-  color: #ffcccc;
-}
+.header .close:hover { color:#2a3c67; }
 
 /* Table */
+.table-wrapper { padding:10px 18px; }
+
 .receipt-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-  border-radius: 6px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  width:100%;
+  border-collapse:collapse;
 }
 
-.receipt-table thead {
-  background: #f8f9fc;
+.receipt-table thead th {
+  font-size:13px;
+  font-weight:600;
+  color:#6d7aa5;
+  border-bottom:1px solid #e4e7f2;
+  padding-bottom:8px;
 }
 
-.receipt-table th, 
 .receipt-table td {
-  padding: 12px 15px;
-  text-align: left;
+  padding:12px 8px;
+  font-size:14px;
+  color:#2a3551;
+  border-bottom:1px solid #f1f2f7;
 }
 
-.receipt-table tbody tr:nth-child(even) {
-  background: #f9fafc;
+.cell-main {
+  display:flex;
+  align-items:center;
+  gap:8px;
 }
 
-.receipt-table tbody tr:hover {
-  background: #eef2ff;
-  transition: 0.2s;
+.icon {
+  color:#4f6fff;
+  font-size:16px;
 }
 
-/* Buttons */
-.view-btn {
-  background: #1cc88a;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: 0.3s;
+/* Pending balance highlight */
+.pending {
+  color:#d63333;
+  font-weight:600;
 }
 
-.view-btn:hover {
-  background: #17a673;
+/* Payment tags */
+.tag {
+  padding:4px 10px;
+  border-radius:8px;
+  font-size:12px;
+  margin: 0;
+  box-shadow: 0 0 1px rgba(0, 0, 0, .125), 0 1px 3px rgba(0, 0, 0, .2);
+  font-weight:600;
+}
+.tag.cash {
+  background:#e7f6e9;
+  color:#0d7a2a;
+}
+.tag.card {
+  background:#e7ecff;
+  color:#2041d6;
 }
 
-/* Footer button */
-.close-btn-footer {
-  background: #858796;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: 0.3s;
+/* Action buttons */
+.actions { white-space:nowrap; text-align:center; }
+.icon-btn {
+  border:none;
+  border-radius:6px;
+  width:32px;
+  height:32px;
+  display:inline-flex;
+  justify-content:center;
+  align-items:center;
+  cursor:pointer;
+  margin:0 3px;
+  font-size:14px;
+  color:#fff;
 }
+.view { background:#17a673; }
+.view:hover { background:#12845a; }
+.refund { background:#e0a800; color:#222; }
+.refund:hover { background:#c48f00; }
+.receipt { background:#4e73df; }
+.receipt:hover { background:#365ac4; }
 
-.close-btn-footer:hover {
-  background: #6c757d;
+/* Footer */
+.footer {
+  padding:12px;
+  text-align:right;
+  background:#f8faff;
 }
+.close-btn {
+  background:#6c757d;
+  color:#fff;
+  border:none;
+  padding:8px 16px;
+  border-radius:6px;
+  cursor:pointer;
+}
+.close-btn:hover { background:#545b62; }

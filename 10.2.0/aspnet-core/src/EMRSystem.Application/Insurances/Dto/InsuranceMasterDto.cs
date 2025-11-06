@@ -11,12 +11,6 @@ namespace EMRSystem.Insurances.Dto
     {
         public int TenantId { get; set; }
         public string InsuranceName { get; set; }
-
-        public bool CoversRoomCharge { get; set; }
-        public bool CoversDoctorVisit { get; set; }
-        public bool CoversLabTests { get; set; }
-        public bool CoversProcedures { get; set; }
-        public bool CoversMedicines { get; set; }
         public bool IsActive { get; set; }
     }
 }

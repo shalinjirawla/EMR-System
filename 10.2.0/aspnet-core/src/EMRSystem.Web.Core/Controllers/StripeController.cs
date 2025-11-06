@@ -229,21 +229,35 @@ namespace EMRSystem.Controllers
                                 RefundTransactionId = null,
                                 RefundDate = null,
                                 RefundReceiptNo = null
-
                             };
+
                             transaction.ReceiptNo = await _depositetansactionAppService.GenerateReceiptNoAsync(tenantId ?? 0);
 
-                            await _depositTransactionRepository.InsertAsync(transaction);
-
                             var patientDeposit = await _patientDepositRepository.GetAsync(patientDepositId);
-                            patientDeposit.TotalCreditAmount += amount;
-                            patientDeposit.TotalBalance = patientDeposit.TotalCreditAmount - patientDeposit.TotalDebitAmount;
 
+                            // ✅ Negative balance adjustment logic
+                            if (patientDeposit.TotalBalance < 0)
+                            {
+                                var negativeBalance = Math.Abs(patientDeposit.TotalBalance);
+
+                                // Jitna negative cover ho sake utna karo
+                                var adjustment = Math.Min(transaction.RemainingAmount, negativeBalance);
+
+                                transaction.RemainingAmount -= adjustment;
+                            }
+
+                            // ✅ Add full credit into totals
+                            patientDeposit.TotalCreditAmount += amount;
+                            patientDeposit.TotalBalance =
+                                patientDeposit.TotalCreditAmount - patientDeposit.TotalDebitAmount;
+
+                            await _depositTransactionRepository.InsertAsync(transaction);
                             await _patientDepositRepository.UpdateAsync(patientDeposit);
 
                             await uow.CompleteAsync();
                         }
                     }
+
                     else if (session.Metadata.TryGetValue("purpose", out var pharmacistPurpose) && pharmacistPurpose == "pharmacistPrescription")
                     {
                         if (!session.Metadata.TryGetValue("tempDataId", out var tempDataId))

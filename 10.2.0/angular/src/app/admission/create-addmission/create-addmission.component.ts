@@ -182,7 +182,6 @@ export class CreateAddmissionComponent extends AppComponentBase implements OnIni
 
       input.patientInsurance = patientInsurance;
     }
-    debugger
     this._admissionService.create(input).subscribe({
       next: (res) => {
         this.notify.info(this.l('SavedSuccessfully'));

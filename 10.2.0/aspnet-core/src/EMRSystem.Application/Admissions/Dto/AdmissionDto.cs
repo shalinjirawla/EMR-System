@@ -30,5 +30,11 @@ namespace EMRSystem.Admissions.Dto
         public bool IsDischarged { get; set; }
         public AdmissionType AdmissionType { get; set; }
         public BillingMethod BillingMode { get; set; }
+        public long? PatientInsuranceId { get; set; }
+        public long InsuranceId { get; set; }
+        public string InsuranceName { get; set; }
+        public string PolicyNumber { get; set; }
+        public decimal? CoPayPercentage { get; set; }
+        public decimal? CoverageLimit { get; set; }
     }
 }

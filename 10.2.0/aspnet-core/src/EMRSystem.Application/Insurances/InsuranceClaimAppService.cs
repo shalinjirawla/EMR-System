@@ -119,10 +119,9 @@ namespace EMRSystem.Insurances
         }
 
         // mark as paid - record paid amount and date; optionally update invoice status
-        public async Task MarkAsPaidAsync(EntityDto<long> input, decimal paidAmount)
+        public async Task MarkAsPaidAsync(long id)
         {
-            var claim = await _repo.GetAsync(input.Id);
-            claim.AmountPayByInsurance = paidAmount;
+            var claim = await _repo.GetAsync(id);
             claim.PaidOn = DateTime.Now;
             claim.Status = ClaimStatus.Paid;
             await _repo.UpdateAsync(claim);
@@ -132,7 +131,7 @@ namespace EMRSystem.Insurances
             if (invoice != null)
             {
                 // simple example: if insurance paid covers full invoice.TotalAmount, mark Paid
-                if (paidAmount >= invoice.TotalAmount)
+                if (claim.AmountPayByInsurance== invoice.ApprovedAmount)
                 {
                     invoice.Status = EMRSystem.Invoices.InvoiceStatus.Paid;
                 }
