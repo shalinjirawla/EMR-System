@@ -34,7 +34,9 @@ import { AvatarGroupModule } from 'primeng/avatargroup';
     styleUrl: './appointments.component.css',
     animations: [appModuleAnimation()],
     standalone: true,
-    imports: [FormsModule, TableModule, TooltipModule, CardModule, AvatarModule, AvatarGroupModule, InputTextModule, CheckboxModule, CommonModule, ChipModule, BreadcrumbModule, TagModule, SelectModule, MenuModule, ButtonModule, TagModule, OverlayPanelModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, DatePipe],
+    imports: [FormsModule, TableModule, TooltipModule, CardModule, AvatarModule, AvatarGroupModule, InputTextModule,
+        CheckboxModule, CommonModule, ChipModule, BreadcrumbModule, TagModule, SelectModule, MenuModule,
+        ButtonModule, TagModule, OverlayPanelModule, PrimeTemplate, NgIf, PaginatorModule, LocalizePipe, DatePipe],
     providers: [AppointmentServiceProxy, UserServiceProxy]
 })
 export class AppointmentsComponent extends PagedListingComponentBase<AppointmentDto> implements OnInit {
@@ -61,6 +63,7 @@ export class AppointmentsComponent extends PagedListingComponentBase<Appointment
     ];
     items: any[];
     selectedRecord: AppointmentDto;
+    appointmentMenu: MenuItem[] = [];
 
     constructor(
         injector: Injector,
@@ -78,35 +81,44 @@ export class AppointmentsComponent extends PagedListingComponentBase<Appointment
             { label: 'Home', routerLink: '/' },
             { label: 'Appointments' }
         ];
+        this.appointmentMenu = this.getAppointmentMenu(null);
     }
 
-    getAppointmentMenu(record: any): MenuItem[] {
+    // ✅ keep all visible conditions intact
+    getAppointmentMenu(record: AppointmentDto | null): MenuItem[] {
         return [
             {
                 label: this.l('Edit'),
                 icon: 'pi pi-pencil',
-                visible: this.canEdit(record),
+                visible: record ? this.canEdit(record) : false,
                 command: () => this.editAppoinment(record),
             },
             {
                 label: this.l('View Receipt'),
                 icon: 'pi pi-file',
-                visible: this.canViewReceipt(record),
+                visible: record ? this.canViewReceipt(record) : false,
                 command: () => this.viewReceipt(record),
             },
             {
                 label: this.l('Pay Now'),
                 icon: 'pi pi-credit-card',
-                visible: this.canPay(record),
+                visible: record ? this.canPay(record) : false,
                 command: () => this.makePayment(record),
             },
             {
                 label: this.l('Cancel'),
                 icon: 'pi pi-times',
-                visible: this.canCancel(record),
+                visible: record ? this.canCancel(record) : false,
                 command: () => this.changeStatusofAppoinment(record.id, 4),
             },
         ];
+    }
+
+    // 🟣 call this when row is clicked
+    onRowMenuClick(event: any, record: AppointmentDto, rowMenu: any): void {
+        this.selectedRecord = record;
+        this.appointmentMenu = this.getAppointmentMenu(record); // 👈 refresh menu visibility
+        rowMenu.toggle(event);
     }
     getShortName(fullName: string | 'unknown'): string {
         if (!fullName) return '';
@@ -253,7 +265,7 @@ export class AppointmentsComponent extends PagedListingComponentBase<Appointment
     }
 
     canViewReceipt(record: any): boolean {
-        return record.isPaid&&
+        return record.isPaid &&
             ((record.status === 0 || record.status === 1) || record.status === 4 || record.status === 3);
     }
 

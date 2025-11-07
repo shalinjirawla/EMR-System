@@ -13,6 +13,7 @@ using EMRSystem.Authorization.Users;
 using EMRSystem.Editions;
 using EMRSystem.MultiTenancy.Dto;
 using Microsoft.AspNetCore.Identity;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
@@ -27,6 +28,7 @@ public class TenantAppService : AsyncCrudAppService<Tenant, TenantDto, int, Page
     private readonly UserManager _userManager;
     private readonly RoleManager _roleManager;
     private readonly IAbpZeroDbMigrator _abpZeroDbMigrator;
+    private readonly IPermissionManager _permissionManager;
 
     public TenantAppService(
         IRepository<Tenant, int> repository,
@@ -34,7 +36,8 @@ public class TenantAppService : AsyncCrudAppService<Tenant, TenantDto, int, Page
         EditionManager editionManager,
         UserManager userManager,
         RoleManager roleManager,
-        IAbpZeroDbMigrator abpZeroDbMigrator)
+        IAbpZeroDbMigrator abpZeroDbMigrator,
+        IPermissionManager permissionManager)
         : base(repository)
     {
         _tenantManager = tenantManager;
@@ -42,13 +45,71 @@ public class TenantAppService : AsyncCrudAppService<Tenant, TenantDto, int, Page
         _userManager = userManager;
         _roleManager = roleManager;
         _abpZeroDbMigrator = abpZeroDbMigrator;
+        _permissionManager = permissionManager;
     }
+
+    //public override async Task<TenantDto> CreateAsync(CreateTenantDto input)
+    //{
+    //    CheckCreatePermission();
+
+    //    // Create tenant
+    //    var tenant = ObjectMapper.Map<Tenant>(input);
+    //    tenant.ConnectionString = input.ConnectionString.IsNullOrEmpty()
+    //        ? null
+    //        : SimpleStringCipher.Instance.Encrypt(input.ConnectionString);
+
+    //    var defaultEdition = await _editionManager.FindByNameAsync(EditionManager.DefaultEditionName);
+    //    if (defaultEdition != null)
+    //    {
+    //        tenant.EditionId = defaultEdition.Id;
+    //    }
+
+    //    await _tenantManager.CreateAsync(tenant);
+    //    await CurrentUnitOfWork.SaveChangesAsync(); // To get new tenant's id.
+
+    //    // Create tenant database
+    //    _abpZeroDbMigrator.CreateOrMigrateForTenant(tenant);
+
+    //    // We are working entities of new tenant, so changing tenant filter
+    //    using (CurrentUnitOfWork.SetTenantId(tenant.Id))
+    //    {
+    //        // Create static roles for new tenant
+    //        CheckErrors(await _roleManager.CreateStaticRoles(tenant.Id));
+
+    //        await CurrentUnitOfWork.SaveChangesAsync(); // To get static role ids
+
+    //        // Grant all permissions to admin role
+    //        var adminRole = _roleManager.Roles.Single(r => r.Name == StaticRoleNames.Tenants.Admin);
+    //        await _roleManager.GrantAllPermissionsAsync(adminRole);
+
+    //        // Create admin user for the tenant
+    //        var adminUser = User.CreateTenantAdminUser(tenant.Id, input.AdminEmailAddress);
+    //        await _userManager.InitializeOptionsAsync(tenant.Id);
+    //        CheckErrors(await _userManager.CreateAsync(adminUser, User.DefaultPassword));
+    //        await CurrentUnitOfWork.SaveChangesAsync(); // To get admin user's id
+
+    //        // Assign admin user to role!
+    //        CheckErrors(await _userManager.AddToRoleAsync(adminUser, adminRole.Name));
+    //        await CurrentUnitOfWork.SaveChangesAsync();
+
+    //        // Extra roles create karna tenant ke liye
+    //        string[] roles = { "Billing Staff", "Doctor", "Lab Technician", "Nurse", "Patient", "Pharmacist" };
+
+    //        foreach (var roleName in roles)
+    //        {
+    //            await CreateRoleIfNotExistsAsync(tenant.Id, roleName);
+    //        }
+
+    //    }
+
+    //    return MapToEntityDto(tenant);
+    //}
 
     public override async Task<TenantDto> CreateAsync(CreateTenantDto input)
     {
         CheckCreatePermission();
 
-        // Create tenant
+        // Step 1️⃣: Create Tenant
         var tenant = ObjectMapper.Map<Tenant>(input);
         tenant.ConnectionString = input.ConnectionString.IsNullOrEmpty()
             ? null
@@ -61,41 +122,102 @@ public class TenantAppService : AsyncCrudAppService<Tenant, TenantDto, int, Page
         }
 
         await _tenantManager.CreateAsync(tenant);
-        await CurrentUnitOfWork.SaveChangesAsync(); // To get new tenant's id.
+        await CurrentUnitOfWork.SaveChangesAsync();
 
-        // Create tenant database
+        // Step 2️⃣: Create Tenant DB
         _abpZeroDbMigrator.CreateOrMigrateForTenant(tenant);
 
-        // We are working entities of new tenant, so changing tenant filter
         using (CurrentUnitOfWork.SetTenantId(tenant.Id))
         {
-            // Create static roles for new tenant
+            // Step 3️⃣: Create static roles
             CheckErrors(await _roleManager.CreateStaticRoles(tenant.Id));
+            await CurrentUnitOfWork.SaveChangesAsync();
 
-            await CurrentUnitOfWork.SaveChangesAsync(); // To get static role ids
-
-            // Grant all permissions to admin role
+            // Step 4️⃣: Grant all permissions to admin
             var adminRole = _roleManager.Roles.Single(r => r.Name == StaticRoleNames.Tenants.Admin);
             await _roleManager.GrantAllPermissionsAsync(adminRole);
 
-            // Create admin user for the tenant
+            // Step 5️⃣: Create admin user
             var adminUser = User.CreateTenantAdminUser(tenant.Id, input.AdminEmailAddress);
             await _userManager.InitializeOptionsAsync(tenant.Id);
             CheckErrors(await _userManager.CreateAsync(adminUser, User.DefaultPassword));
-            await CurrentUnitOfWork.SaveChangesAsync(); // To get admin user's id
+            await CurrentUnitOfWork.SaveChangesAsync();
 
-            // Assign admin user to role!
             CheckErrors(await _userManager.AddToRoleAsync(adminUser, adminRole.Name));
             await CurrentUnitOfWork.SaveChangesAsync();
 
-            // Extra roles create karna tenant ke liye
-            string[] roles = { "Billing Staff", "Doctor", "Lab Technician", "Nurse", "Patient", "Pharmacist" };
+            // Step 6️⃣: Create Extra Roles
+            var rolePermissionsMap = new Dictionary<string, string[]>
+                {
+                    { "Doctor", new[]
+                        {
+                            "Pages.Doctor",
+                            "Pages.Doctor.Appointments.View",
+                            "Pages.Doctor.Patients.View",
+                            "Pages.Doctor.Prescriptions.Manage",
+                            "Pages.Doctor.LabOrders.Manage",
+                            "Pages.Doctor.ConsultationRequests.Manage"
+                        }
+                    },
+                    { "Nurse", new[]
+                        {
+                            "Pages.Nurse",
+                            "Pages.Nurse.Appointments.Manage",
+                            "Pages.Nurse.Patients.View",
+                            "Pages.Nurse.Vitals.Manage",
+                            "Pages.Nurse.Medication.Manage"
+                        }
+                    },
+                    { "Lab Technician", new[]
+                        {
+                            "Pages.Lab",
+                            "Pages.Lab.TestRequests.Manage",
+                            "Pages.Lab.Receipts.View"
+                        }
+                    },
+                    { "Pharmacist", new[]
+                        {
+                            "Pages.Pharmacy",
+                            "Pages.Pharmacy.MedicineList.View",
+                            "Pages.Pharmacy.Purchase.Manage",
+                            "Pages.Pharmacy.Stock.View",
+                            "Pages.Pharmacy.Prescriptions.View"
+                        }
+                    },
+                    { "Billing Staff", new[]
+                        {
+                            "Pages.Billing",
+                            "Pages.Billing.InsuranceClaims.View",
+                            "Pages.Billing.Invoices.View",
+                            "Pages.Billing.Deposits.Manage"
+                        }
+                    },
+                    { "Patient", new[]
+                        {
+                            "Pages.Patient",
+                            "Pages.Patient.Appointments.View"
+                        }
+                    }
+                };
 
-            foreach (var roleName in roles)
+            foreach (var kvp in rolePermissionsMap)
             {
-                await CreateRoleIfNotExistsAsync(tenant.Id, roleName);
+                var roleName = kvp.Key;
+                var permissions = kvp.Value;
+
+                var role = await CreateRoleIfNotExistsAsync(tenant.Id, roleName);
+
+                foreach (var permName in permissions)
+                {
+                    var permission = _permissionManager.GetPermissionOrNull(permName);
+                    if (permission != null)
+                    {
+                        await _roleManager.GrantPermissionAsync(role, permission);
+                    }
+                }
             }
 
+            await CurrentUnitOfWork.SaveChangesAsync();
         }
 
         return MapToEntityDto(tenant);
@@ -133,18 +255,21 @@ public class TenantAppService : AsyncCrudAppService<Tenant, TenantDto, int, Page
     {
         identityResult.CheckErrors(LocalizationManager);
     }
-    private async Task CreateRoleIfNotExistsAsync(int tenantId, string roleName)
+    private async Task<Role> CreateRoleIfNotExistsAsync(int tenantId, string roleName)
     {
-        var exists = _roleManager.Roles.Any(r => r.TenantId == tenantId && r.Name == roleName);
-        if (!exists)
+        var existing = _roleManager.Roles.FirstOrDefault(r => r.TenantId == tenantId && r.Name == roleName);
+        if (existing != null)
         {
-            var role = new Role(tenantId, roleName, roleName)
-            {
-                IsStatic = false,
-                IsDefault = false
-            };
-            CheckErrors(await _roleManager.CreateAsync(role));
+            return existing;
         }
+
+        var newRole = new Role(tenantId, roleName, roleName)
+        {
+            IsStatic = false,
+            IsDefault = false
+        };
+        CheckErrors(await _roleManager.CreateAsync(newRole));
+        return newRole;
     }
 }
 

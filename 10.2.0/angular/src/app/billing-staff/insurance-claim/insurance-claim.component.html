@@ -57,13 +57,15 @@
                   </span>
                 </td>
                 <td class="text-center">
-                  <button class="btn btn-sm border rounded-1 px-3" style="background-color: #f8fafc;"
-                    (click)="rowMenu.toggle($event); selectedRecord = record">
+                  <button type="button" class="btn btn-sm border rounded-1 px-3" style="background-color: #f8fafc;"
+                    (click)="openRowMenu($event, record, rowMenu)">
                     <i class="fa-solid fa-ellipsis-vertical"></i>
                   </button>
-                  <p-menu #rowMenu [popup]="true" [model]="getMenuForStatus(record.status)" appendTo="body"
-                    [style]="{'min-width':'150px'}"></p-menu>
+
+                  <p-menu #rowMenu [popup]="true" [model]="menuItems" appendTo="body"
+                    [style]="{ 'min-width': '150px' }"></p-menu>
                 </td>
+
               </tr>
             </ng-template>
           </p-table>

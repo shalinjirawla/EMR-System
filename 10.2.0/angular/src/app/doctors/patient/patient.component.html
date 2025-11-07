@@ -72,7 +72,7 @@
                     <!-- Patients Table -->
                     <p-table #dataTable sortMode="multiple" [value]="primengTableHelper.records"
                         rows="{{ primengTableHelper.defaultRecordsCountPerPage }}" [paginator]="false" [lazy]="true"
-                       [tableStyle]="{ 'min-width': '50rem' }" (onLazyLoad)="list($event)">
+                        [tableStyle]="{ 'min-width': '50rem' }" (onLazyLoad)="list($event)">
                         <ng-template #header>
                             <tr>
                                 <th class="text-center" pSortableColumn="fullName">
@@ -93,7 +93,8 @@
                                 <td class="text-center">
                                     <span>{{ record.fullName }}</span>
                                 </td>
-                                <td class="text-center">{{ calculateAge(record.dateOfBirth) }} / {{ record.gender }}</td>
+                                <td class="text-center">{{ calculateAge(record.dateOfBirth) }} / {{ record.gender }}
+                                </td>
                                 <td class="text-center" *ngIf="showDoctorColumn">{{ record.doctorName || '-' }}</td>
                                 <td class="text-center">{{ record.nurseName || '-' }}</td>
                                 <td class="text-center">
@@ -113,11 +114,13 @@
                                 <td class="text-center">
                                     <button class="btn btn-sm border rounded-1 px-3" type="button"
                                         style="background-color: #f8fafc;"
-                                        (click)="rowMenu.toggle($event); selectedRecord = record">
+                                        (click)="onRowMenuClick($event, record, rowMenu)">
                                         <i class="fa-solid fa-ellipsis-vertical"></i>
                                     </button>
+
                                     <p-menu #rowMenu [popup]="true" [style]="{'min-width':'120px','max-width':'180px'}"
-                                        [model]="getPatientMenu(record)" appendTo="body"></p-menu>
+                                        [model]="patientMenus" appendTo="body">
+                                    </p-menu>
 
                                 </td>
                             </tr>

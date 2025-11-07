@@ -29,55 +29,55 @@ import { AppComponent } from './app.component';
                     {
                         path: 'procedure',
                         loadChildren: () => import('./procedure/procedure.module').then((m) => m.ProcedureModule),
-                        data: { permission: 'Pages.Users' },
+                        data: { permission: 'Pages.Procedure' },
                         canActivate: [AppRouteGuard],
                     },
                     {
                         path: 'master',
                         loadChildren: () => import('./master-table/master-table.module').then((m) => m.MasterTableModule),
-                        data: { permission: 'Pages.Users' },
+                        data: { permission: 'Pages.Master' },
                         canActivate: [AppRouteGuard],
                     },
                     {
                         path: 'admission',
                         loadChildren: () => import('./admission/admission.module').then((m) => m.AdmissionModule),
-                        data: { permission: 'Pages.Users' },
+                        data: { permission: 'Pages.Admission' },
                         canActivate: [AppRouteGuard],
                     },
                     {
                         path: 'deposit',
                         loadChildren: () => import('./deposit/deposit.module').then((m) => m.DepositModule),
-                        data: { permission: 'Pages.BillingStaff' },
+                        data: { permission: 'Pages.Billing' },
                         canActivate: [AppRouteGuard],
                     },
                     {
                         path: 'room',
                         loadChildren: () => import('./room/room.module').then((m) => m.RoomModule),
-                        data: { permission: 'Pages.Users' },
+                        data: { permission: 'Pages.Master' },
                         canActivate: [AppRouteGuard],
                     },
                     {
                         path: 'doctors',
                         loadChildren: () => import('./doctors/doctors.module').then((m) => m.DoctorsModule),
-                        data: { permission: 'Pages.Doctors' },
+                        data: { permission: 'Pages.Doctor' },
                         canActivate: [AppRouteGuard],
                     },
                     {
                         path: 'billing-staff',
                         loadChildren: () => import('./billing-staff/billing-staff.module').then((m) => m.BillingStaffModule),
-                        data: { permission: 'Pages.BillingStaff' },
+                        data: { permission: 'Pages.Billing' },
                         canActivate: [AppRouteGuard],
                     },
                     {
                         path: 'birth-death-record',
                         loadChildren: () => import('./birth-death-record/birth-death-record.module').then((m) => m.BirthDeathRecordModule),
-                        data: { permission: 'Pages.Users' },
+                        data: { permission: 'Pages.BirthDeath' },
                         canActivate: [AppRouteGuard],
                     },
                     {
                         path: 'lab-technician',
                         loadChildren: () => import('./lab-technician/lab-technician.module').then((m) => m.LabTechnicianModule),
-                        data: { permission: 'Pages.LabTechnician' },
+                        data: { permission: 'Pages.Lab' },
                         canActivate: [AppRouteGuard],
                     },
                     {
@@ -89,7 +89,7 @@ import { AppComponent } from './app.component';
                     {
                         path: 'emergency',
                         loadChildren: () => import('./emergency/emergency.module').then((m) => m.EmergencyModule),
-                        data: { permission: 'Pages.Users' },
+                        data: { permission: 'Pages.Emergency' },
                         canActivate: [AppRouteGuard],
                     },
                     {
@@ -101,7 +101,7 @@ import { AppComponent } from './app.component';
                     {
                         path: 'pharmacist',
                         loadChildren: () => import('./pharmacist/pharmacist.module').then((m) => m.PharmacistModule),
-                        data: { permission: 'Pages.Pharmacist' },
+                        data: { permission: 'Pages.Pharmacy' },
                         canActivate: [AppRouteGuard],
                     },
                     {

@@ -47,7 +47,6 @@ export class ViewInsuranceClaimComponent extends AppComponentBase implements OnI
         this.loading = false;
         this.invoice = result;
         this.claim = result.claims;
-        console.log(this.claim)
         this.items = result.items || [];
         this.cd.detectChanges();
       });

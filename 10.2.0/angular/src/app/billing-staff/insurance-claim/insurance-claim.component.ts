@@ -39,7 +39,7 @@ export class InsuranceClaimComponent extends PagedListingComponentBase<Insurance
   keyword = '';
   items: MenuItem[];
   selectedRecord: InsuranceClaimDto;
-
+menuItems: MenuItem[] = [];
   constructor(
     injector: Injector,
     private _modalService: BsModalService,
@@ -79,6 +79,13 @@ export class InsuranceClaimComponent extends PagedListingComponentBase<Insurance
         this.cd.detectChanges();
       });
   }
+openRowMenu(event: Event, record: InsuranceClaimDto, menu: any): void {
+  this.selectedRecord = record;
+
+  // generate menu fresh for selected record
+  this.menuItems = this.getMenuForStatus(record.status);
+    menu.toggle(event);
+}
 
   // ----------------------------
   // 🎯 Conditional Action Menus

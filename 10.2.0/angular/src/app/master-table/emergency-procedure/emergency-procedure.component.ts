@@ -20,21 +20,22 @@ import { TooltipModule } from 'primeng/tooltip';
 import { CardModule } from 'primeng/card';
 import { OverlayPanel, OverlayPanelModule } from 'primeng/overlaypanel';
 
-import { 
-  EmergencyProcedureDto, 
-  EmergencyProcedureDtoPagedResultDto, 
-  EmergencyProcedureServiceProxy, 
+import {
+  EmergencyProcedureDto,
+  EmergencyProcedureDtoPagedResultDto,
+  EmergencyProcedureServiceProxy,
   ProcedureCategory
 } from '@shared/service-proxies/service-proxies';
 
 import { CreateupdateEmergencyProcedureComponent } from '../createupdate-emergency-procedure/createupdate-emergency-procedure.component';
+import { MenuModule } from 'primeng/menu';
 
 @Component({
   selector: 'app-emergency-procedure',
   standalone: true,
   imports: [
-    FormsModule,BreadcrumbModule,InputTextModule,CardModule, TooltipModule,RadioButtonModule,
-    TableModule,OverlayPanelModule,ButtonModule,NgIf,PaginatorModule,LocalizePipe,CommonModule],
+    FormsModule, BreadcrumbModule, InputTextModule, CardModule, TooltipModule, RadioButtonModule,
+    TableModule, OverlayPanelModule, ButtonModule, MenuModule, NgIf, PaginatorModule, LocalizePipe, CommonModule],
   providers: [EmergencyProcedureServiceProxy],
   animations: [appModuleAnimation()],
   templateUrl: './emergency-procedure.component.html',
@@ -45,14 +46,14 @@ export class EmergencyProcedureComponent extends PagedListingComponentBase<Emerg
   @ViewChild('paginator', { static: true }) paginator: Paginator;
 
   procedures: EmergencyProcedureDto[] = [];
-   keyword = '';
+  keyword = '';
   category: ProcedureCategory | undefined;
   selectedRecord: EmergencyProcedureDto;
   items: MenuItem[];
-  editDeleteMenus: MenuItem[];
-   ProcedureCategory = ProcedureCategory;
+  editDeleteMenus: MenuItem[] = [];
+  ProcedureCategory = ProcedureCategory;
 
-   procedureCategories = [
+  procedureCategories = [
     { label: 'All', value: undefined },
     { label: 'Minor', value: ProcedureCategory._0 },
     { label: 'Major', value: ProcedureCategory._1 },
@@ -73,11 +74,19 @@ export class EmergencyProcedureComponent extends PagedListingComponentBase<Emerg
       { label: 'Home', routerLink: '/' },
       { label: 'Emergency Procedures' }
     ];
+    this.editDeleteMenus = this.getMenu(null);
+  }
 
-    this.editDeleteMenus = [
+  getMenu(record: EmergencyProcedureDto | null): MenuItem[] {
+    return [
       { label: 'Edit', icon: 'pi pi-pencil', command: () => this.editProcedure(this.selectedRecord) },
       { label: 'Delete', icon: 'pi pi-trash', command: () => this.deleteProcedure(this.selectedRecord) }
     ];
+  }
+  onRowMenuClick(event: any, record: EmergencyProcedureDto, rowMenu: any): void {
+    this.selectedRecord = record;
+    this.editDeleteMenus = this.getMenu(record); // 👈 refresh menu visibility
+    rowMenu.toggle(event);
   }
 
   list(event?: LazyLoadEvent): void {
@@ -92,7 +101,7 @@ export class EmergencyProcedureComponent extends PagedListingComponentBase<Emerg
 
     this._emergencyProcedureService
       .getAll(
-         this.keyword,
+        this.keyword,
         this.category,
         this.primengTableHelper.getSorting(this.dataTable),
         this.primengTableHelper.getSkipCount(this.paginator, event),
@@ -114,9 +123,9 @@ export class EmergencyProcedureComponent extends PagedListingComponentBase<Emerg
   }
 
   editProcedure(procedure: EmergencyProcedureDto): void {
-    let editDialog: BsModalRef = this._modalService.show(CreateupdateEmergencyProcedureComponent, { 
-      class: 'modal-lg', 
-      initialState: { id: procedure.id } 
+    let editDialog: BsModalRef = this._modalService.show(CreateupdateEmergencyProcedureComponent, {
+      class: 'modal-lg',
+      initialState: { id: procedure.id }
     });
     editDialog.content.onSave.subscribe(() => {
       this.list();
@@ -124,7 +133,7 @@ export class EmergencyProcedureComponent extends PagedListingComponentBase<Emerg
   }
 
   deleteProcedure(procedure: EmergencyProcedureDto): void {
-    abp.message.confirm('Are you sure you want to delete this procedure?', undefined, (result: boolean) => {
+    abp.message.confirm('Are you sure you want to delete this procedure?', procedure.name, (result: boolean) => {
       if (result) {
         this._emergencyProcedureService.delete(procedure.id).subscribe(() => {
           abp.notify.success('Deleted successfully');
@@ -138,10 +147,10 @@ export class EmergencyProcedureComponent extends PagedListingComponentBase<Emerg
     this.deleteProcedure(entity);
   }
 
-   onFilterChange(selected: string) {
+  onFilterChange(selected: string) {
     switch (selected) {
       case 'all': this.category = undefined; break;
-      case 'minor': this.category = ProcedureCategory._0; break;
+      case 'minor': this .category = ProcedureCategory._0; break;
       case 'major': this.category = ProcedureCategory._1; break;
       case 'life-saving': this.category = ProcedureCategory._2; break;
     }

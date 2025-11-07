@@ -27,7 +27,7 @@ import { ViewInsuranceClaimComponent } from '../view-insurance-claim/view-insura
 @Component({
     selector: 'app-invoices',
     imports: [FormsModule, TableModule, CardModule, MenuModule, BreadcrumbModule, InputTextModule, TooltipModule, PrimeTemplate, NgIf,
-        PaginatorModule, OverlayPanelModule, ButtonModule, LocalizePipe, DatePipe,CommonModule],
+        PaginatorModule, OverlayPanelModule, ButtonModule, LocalizePipe, DatePipe, CommonModule],
     animations: [appModuleAnimation()],
     templateUrl: './invoices.component.html',
     styleUrl: './invoices.component.css',
@@ -43,6 +43,8 @@ export class InvoicesComponent extends PagedListingComponentBase<InvoiceDto> imp
     items: MenuItem[] | undefined;
     editDeleteMenus: MenuItem[] | undefined;
     selectedRecord: InvoiceDto;
+    menuItems: MenuItem[] = [];
+
 
     constructor(
         injector: Injector,
@@ -91,6 +93,12 @@ export class InvoicesComponent extends PagedListingComponentBase<InvoiceDto> imp
 
         return menus;
     }
+    onRowMenuClick(event: Event, record: InvoiceDto, menu: any): void {
+        this.selectedRecord = record;
+        this.menuItems = this.getRowMenuItems(record); // build current menu dynamically
+        menu.toggle(event);
+    }
+
     //     private processPaymentResult(): void {
     //     const params = new URLSearchParams(window.location.search);
     //     const paymentStatus = params.get('payment');

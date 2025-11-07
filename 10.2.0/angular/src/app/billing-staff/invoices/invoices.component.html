@@ -126,13 +126,16 @@
                                 </td>
 
                                 <td class="text-center">
-                                    <button class="btn btn-sm border rounded-1 px-3" type="button"
+                                    <button type="button" class="btn btn-sm border rounded-1 px-3"
                                         style="background-color: #f8fafc;"
-                                        (click)="rowMenu.toggle($event); selectedRecord = record">
+                                        (click)="onRowMenuClick($event, record, rowMenu)">
                                         <i class="fa-solid fa-ellipsis-vertical"></i>
                                     </button>
-                                    <p-menu #rowMenu [popup]="true" [style]="{'min-width':'80px', 'max-width':'150px'}"
-                                        [model]="getRowMenuItems(record)" appendTo="body"></p-menu>
+
+                                    <p-menu #rowMenu [popup]="true"
+                                        [style]="{ 'min-width': '80px', 'max-width': '150px' }" [model]="menuItems"
+                                        appendTo="body"></p-menu>
+
                                 </td>
                             </tr>
                         </ng-template>
