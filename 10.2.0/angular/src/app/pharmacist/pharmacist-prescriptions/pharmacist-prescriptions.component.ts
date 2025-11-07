@@ -51,11 +51,12 @@ export class PharmacistPrescriptionsComponent extends PagedListingComponentBase<
     ];
     pickupDialog: boolean = false;
     items: MenuItem[] | undefined;
-    editDeleteMenus: MenuItem[] | undefined;
+    pharmacistMenu: MenuItem[] = [];
     selectedID!: number;
     selectedNurseId!: number;
     nurseOptions: NurseDto[] = []; // Load from backend
     isPickedpByPatient = false;
+    selectedRecord: any;
     constructor(
         injector: Injector,
         private _pharmacistPrescriptionsService: PharmacistPrescriptionsServiceProxy,
@@ -97,6 +98,11 @@ export class PharmacistPrescriptionsComponent extends PagedListingComponentBase<
     ];
 }
 
+onRowMenuClick(event: any, record: PharmacistPrescriptionsDto, rowMenu: any): void {
+        this.selectedRecord = record;
+        this.pharmacistMenu = this.getPrescriptionMenu(record);
+        rowMenu.toggle(event);
+    }
     clearFilters(): void {
         this.keyword = '';
         this.isActive = undefined;

@@ -120,18 +120,19 @@
                                         [rounded]="true"><b>Paid</b>
                                     </span>
                                     <ng-template #unpaidTag>
-                                        <span class="badge-soft-danger p-1 rounded" [rounded]="true"><b>UnPaid</b></span>
+                                        <span class="badge-soft-danger p-1 rounded"
+                                            [rounded]="true"><b>UnPaid</b></span>
                                     </ng-template>
                                 </td>
                                 <td class="text-center">
                                     <button class="btn btn-sm border rounded-1 px-3" type="button"
                                         style="background-color: #f8fafc;"
-                                        (click)="rowMenu.toggle($event); selectedRecord = record">
+                                        (click)="onRowMenuClick($event, record, rowMenu)">
                                         <i class="fa-solid fa-ellipsis-vertical"></i>
                                     </button>
 
                                     <p-menu #rowMenu [popup]="true" [style]="{'min-width':'120px','max-width':'180px'}"
-                                        [model]="getAppointmentMenu(record)" appendTo="body">
+                                        [model]="appointmentMenu" appendTo="body">
                                     </p-menu>
                                 </td>
 

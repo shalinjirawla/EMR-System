@@ -38,18 +38,18 @@
             <p-overlayPanel #filterMenu [dismissable]="true">
               <ul class="list-unstyled mb-0 p-3">
                 <li class="mb-2">
-                  <p-radioButton name="category" [value]="undefined" [(ngModel)]="category"
-                    inputId="all" (onClick)="onFilterChange('all')"></p-radioButton>
+                  <p-radioButton name="category" [value]="undefined" [(ngModel)]="category" inputId="all"
+                    (onClick)="onFilterChange('all')"></p-radioButton>
                   <label for="all" class="ml-2">All</label>
                 </li>
                 <li class="mb-2">
-                  <p-radioButton name="category" [value]="ProcedureCategory._0" [(ngModel)]="category"
-                    inputId="minor" (onClick)="onFilterChange('minor')"></p-radioButton>
+                  <p-radioButton name="category" [value]="ProcedureCategory._0" [(ngModel)]="category" inputId="minor"
+                    (onClick)="onFilterChange('minor')"></p-radioButton>
                   <label for="minor" class="ml-2">Minor</label>
                 </li>
                 <li class="mb-2">
-                  <p-radioButton name="category" [value]="ProcedureCategory._1" [(ngModel)]="category"
-                    inputId="major" (onClick)="onFilterChange('major')"></p-radioButton>
+                  <p-radioButton name="category" [value]="ProcedureCategory._1" [(ngModel)]="category" inputId="major"
+                    (onClick)="onFilterChange('major')"></p-radioButton>
                   <label for="major" class="ml-2">Major</label>
                 </li>
                 <li class="mb-2">
@@ -70,7 +70,7 @@
           <p-table #dataTable sortMode="multiple" [value]="primengTableHelper.records"
             [rows]="primengTableHelper.defaultRecordsCountPerPage" [paginator]="false" [lazy]="true"
             (onLazyLoad)="list($event)" [tableStyle]="{ 'min-width': '40rem' }">
-            
+
             <ng-template pTemplate="header">
               <tr>
                 <th class="text-center">Name</th>
@@ -84,7 +84,8 @@
             <ng-template pTemplate="body" let-procedure>
               <tr>
                 <td class="text-center">{{ procedure.name }}</td>
-                <td class="text-center"> {{ procedure.category == 0 ? 'Minor' : procedure.category == 1 ? 'Major' : 'Life Saving' }} </td>
+                <td class="text-center"> {{ procedure.category == 0 ? 'Minor' : procedure.category == 1 ? 'Major' :
+                  'Life Saving' }} </td>
                 <td class="text-center">{{ procedure.defaultCharge | currency:'INR' }}</td>
                 <td class="text-center">
                   <span *ngIf="procedure.isActive; else inactive">
@@ -96,11 +97,11 @@
                 </td>
                 <td class="text-center">
                   <button class="btn btn-sm border rounded-1 px-2" type="button"
-                    (click)="rowMenu.toggle($event); selectedRecord = procedure">
+                    (click)="onRowMenuClick($event, procedure, rowMenu)">
                     <i class="pi pi-ellipsis-v"></i>
                   </button>
-                  <p-menu #rowMenu [popup]="true" [style]="{'min-width':'100px'}"
-                    [model]="editDeleteMenus" appendTo="body"></p-menu>
+                  <p-menu #rowMenu [popup]="true" [style]="{'min-width':'100px'}" [model]="editDeleteMenus"
+                    appendTo="body"></p-menu>
                 </td>
               </tr>
             </ng-template>
@@ -114,8 +115,7 @@
         <!-- Paginator -->
         <p-paginator [rows]="primengTableHelper.defaultRecordsCountPerPage" #paginator (onPageChange)="list($event)"
           [totalRecords]="primengTableHelper.totalRecordsCount"
-          [rowsPerPageOptions]="primengTableHelper.predefinedRecordsCountPerPage"
-          [showCurrentPageReport]="true"
+          [rowsPerPageOptions]="primengTableHelper.predefinedRecordsCountPerPage" [showCurrentPageReport]="true"
           [currentPageReportTemplate]="'TotalRecordsCount' | localize: primengTableHelper.totalRecordsCount">
         </p-paginator>
       </div>

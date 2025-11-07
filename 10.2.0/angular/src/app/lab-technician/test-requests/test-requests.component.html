@@ -59,20 +59,21 @@
                                     </span>
                                 </td>
                                 <td class="text-center">
-                                     <span [className]="getStatusSeverity(record.testStatus)">
+                                    <span [className]="getStatusSeverity(record.testStatus)">
                                         <b>{{ getStatusLabel(record.testStatus) }}</b>
                                     </span>
                                 </td>
                                 <td class="text-center">
                                     <button class="btn btn-sm border rounded-1 px-3" type="button"
                                         style="background-color: #f8fafc;"
-                                        (click)="rowMenu.toggle($event); selectedRecord = record">
+                                        (click)="onRowMenuClick($event, record, rowMenu)">
                                         <i class="fa-solid fa-ellipsis-vertical"></i>
                                     </button>
 
                                     <p-menu #rowMenu [popup]="true" [style]="{'min-width':'120px','max-width':'180px'}"
-                                        [model]="getMenu(record)" appendTo="body">
+                                        [model]="testMenus" appendTo="body">
                                     </p-menu>
+
                                 </td>
                             </tr>
                         </ng-template>
@@ -85,8 +86,7 @@
                 <p-paginator [rows]="primengTableHelper.defaultRecordsCountPerPage" #paginator
                     (onPageChange)="list($event)" [totalRecords]="primengTableHelper.totalRecordsCount"
                     [rowsPerPageOptions]="primengTableHelper.predefinedRecordsCountPerPage"
-                    [showCurrentPageReport]="true" 
-                    [currentPageReportTemplate]="'TotalRecordsCount' | localize:
+                    [showCurrentPageReport]="true" [currentPageReportTemplate]="'TotalRecordsCount' | localize:
                      primengTableHelper.totalRecordsCount"></p-paginator>
 
             </div>

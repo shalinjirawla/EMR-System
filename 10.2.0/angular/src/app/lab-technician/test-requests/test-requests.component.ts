@@ -42,6 +42,9 @@ export class TestRequestsComponent extends PagedListingComponentBase<Prescriptio
     isActive: boolean | null;
     items: MenuItem[] | undefined;
     editDeleteMenus: MenuItem[] | undefined;
+    selectedRecord: any;
+    testMenus: MenuItem[] = [];
+
     testStatus = [
         { label: 'Pending', value: LabTestStatus._0 },
         { label: 'In Progress', value: LabTestStatus._1 },
@@ -73,6 +76,12 @@ export class TestRequestsComponent extends PagedListingComponentBase<Prescriptio
             { label: 'Home', routerLink: '/' },
             { label: 'Test-Requests' },
         ];
+    }
+
+    onRowMenuClick(event: any, record: any, rowMenu: any): void {
+        this.selectedRecord = record;
+        this.testMenus = this.getMenu(record); // build menu dynamically for that record
+        rowMenu.toggle(event)
     }
 
     getMenu(record: any): MenuItem[] {
@@ -164,7 +173,7 @@ export class TestRequestsComponent extends PagedListingComponentBase<Prescriptio
             default: return '';
         }
     }
-    getStatusSeverity(value: number){
+    getStatusSeverity(value: number) {
         switch (value) {
             case LabTestStatus._0: return 'badge-soft-warning p-1 rounded';        // Pending
             case LabTestStatus._1: return 'badge-soft-primary p-1 rounded';   // In Progress

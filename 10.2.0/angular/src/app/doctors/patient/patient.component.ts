@@ -90,8 +90,9 @@ export class PatientComponent extends PagedListingComponentBase<PatientDto> impl
             { label: 'Home', routerLink: '/' },
             { label: this.l('Patients') }
         ];
+        this.patientMenus = this.getPatientMenu(null);
     }
-    getPatientMenu(record: PatientsForDoctorAndNurseDto): MenuItem[] {
+    getPatientMenu(record: PatientsForDoctorAndNurseDto | null): MenuItem[] {
         return [
             {
                 label: this.l('View'),
@@ -117,7 +118,11 @@ export class PatientComponent extends PagedListingComponentBase<PatientDto> impl
             },
         ];
     }
-
+    onRowMenuClick(event: any, record: PatientsForDoctorAndNurseDto, rowMenu: any): void {
+        this.selectedRecord = record;
+        this.patientMenus = this.getPatientMenu(record);
+        rowMenu.toggle(event);
+    }
 
     clearFilters(): void {
         this.keyword = '';
