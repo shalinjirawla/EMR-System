@@ -3,6 +3,7 @@ using Abp.Domain.Repositories;
 using Abp.EntityFrameworkCore.Repositories;
 using Abp.Extensions;
 using Abp.UI;
+using EFCore.BulkExtensions;
 using EMRSystem.Appointments;
 using EMRSystem.Deposit;
 using EMRSystem.EmergencyChargeEntries;
@@ -119,168 +120,157 @@ namespace EMRSystem.Invoice
             );
         }
 
+
         public override async Task<InvoiceDto> CreateAsync(CreateUpdateInvoiceDto input)
         {
-            // Step 1: Map invoice from input
-            var invoice = ObjectMapper.Map<Invoices.Invoice>(input);
-            invoice.InvoiceNo = await GenerateInvoiceNoAsync(input.TenantId);
-
-            // Step 2: Check patient admission & billing mode
-            var activeAdmission = await _admissionRepository.FirstOrDefaultAsync(x =>
-                x.PatientId == input.PatientId &&
-                !x.IsDischarged);
-
-            BillingMethod? billingMode = activeAdmission?.BillingMode;
-
-            // Step 3: Save invoice basic data
-            invoice.Status = (billingMode == null || billingMode == BillingMethod.SelfPay)
-                ? InvoiceStatus.Paid
-                : InvoiceStatus.Unpaid;
-
-            await Repository.InsertAsync(invoice);
-            await CurrentUnitOfWork.SaveChangesAsync();
-
-            // Step 4: Save invoice items
-            foreach (var item in input.Items)
+            using (var uow = UnitOfWorkManager.Begin())
             {
-                var invoiceItem = ObjectMapper.Map<InvoiceItem>(item);
-                invoiceItem.InvoiceId = invoice.Id;
-                await Repository.GetDbContext().Set<InvoiceItem>().AddAsync(invoiceItem);
-            }
-            await CurrentUnitOfWork.SaveChangesAsync();
+                var dbContext = Repository.GetDbContext();
 
-            // Step 5: If billing is SELF PAY → handle deposit logic
-            if (billingMode == null || billingMode == BillingMethod.SelfPay)
-            {
-                var patientDeposit = await _patientDepositRepository.FirstOrDefaultAsync(x =>
-                    x.PatientId == input.PatientId && x.TenantId == input.TenantId);
+                // Step 1: Prepare invoice
+                var invoice = ObjectMapper.Map<Invoices.Invoice>(input);
+                invoice.InvoiceNo = await GenerateInvoiceNoAsync(input.TenantId);
 
-                if (patientDeposit == null)
-                    throw new UserFriendlyException("Patient Deposit record not found.");
+                var activeAdmission = await _admissionRepository.FirstOrDefaultAsync(x =>
+                    x.PatientId == input.PatientId && !x.IsDischarged);
 
-                decimal remainingToDebit = input.TotalAmount;
+                var billingMode = activeAdmission?.BillingMode;
+                invoice.Status = (billingMode == null || billingMode == BillingMethod.SelfPay)
+                    ? InvoiceStatus.Paid
+                    : InvoiceStatus.Unpaid;
 
-                // ✅ FIFO — pick oldest credit entries with remaining balance
-                var creditEntries = await _depositTransactionRepository.GetAll()
-                    .Where(x => x.PatientDepositId == patientDeposit.Id
-                        && x.TransactionType == TransactionType.Credit
-                        && x.RemainingAmount > 0)
-                    .OrderBy(x => x.TransactionDate)
+                await dbContext.Set<Invoices.Invoice>().AddAsync(invoice);
+                await dbContext.SaveChangesAsync(); // To get Invoice.Id
+
+                // Step 2: Bulk insert invoice items
+                if (input.Items != null && input.Items.Any())
+                {
+                    var invoiceItems = input.Items.Select(item =>
+                    {
+                        var entity = ObjectMapper.Map<InvoiceItem>(item);
+                        entity.InvoiceId = invoice.Id;
+                        return entity;
+                    }).ToList();
+
+                    await dbContext.BulkInsertAsync(invoiceItems, new BulkConfig
+                    {
+                        PreserveInsertOrder = true,
+                        SetOutputIdentity = false
+                    });
+                }
+
+                // Step 3: Billing Mode Handling
+                if (billingMode == null || billingMode == BillingMethod.SelfPay)
+                {
+                    var patientDeposit = await _patientDepositRepository.FirstOrDefaultAsync(x =>
+                        x.PatientId == input.PatientId && x.TenantId == input.TenantId);
+
+                    if (patientDeposit == null)
+                        throw new UserFriendlyException("Patient Deposit record not found.");
+
+                    decimal remainingToDebit = input.TotalAmount;
+
+                    // FIFO credit selection
+                    var creditEntries = await _depositTransactionRepository.GetAll()
+                        .Where(x => x.PatientDepositId == patientDeposit.Id
+                            && x.TransactionType == TransactionType.Credit
+                            && x.RemainingAmount > 0)
+                        .OrderBy(x => x.TransactionDate)
+                        .ToListAsync();
+
+                    foreach (var credit in creditEntries)
+                    {
+                        if (remainingToDebit <= 0)
+                            break;
+
+                        var deduct = Math.Min(credit.RemainingAmount, remainingToDebit);
+                        credit.RemainingAmount -= deduct;
+                        remainingToDebit -= deduct;
+                    }
+
+                    if (creditEntries.Any())
+                        await dbContext.BulkUpdateAsync(creditEntries, new BulkConfig { PreserveInsertOrder = true });
+
+                    // Debit entry
+                    var debitTransaction = new DepositTransaction
+                    {
+                        TenantId = input.TenantId,
+                        PatientDepositId = patientDeposit.Id,
+                        Amount = input.TotalAmount,
+                        TransactionType = TransactionType.Debit,
+                        TransactionDate = DateTime.Now,
+                        Description = $"Invoice {invoice.InvoiceNo}",
+                        IsPaid = false,
+                        RemainingAmount = 0
+                    };
+
+                    await dbContext.Set<DepositTransaction>().AddAsync(debitTransaction);
+
+                    patientDeposit.TotalDebitAmount += input.TotalAmount;
+                    patientDeposit.TotalBalance = patientDeposit.TotalCreditAmount - patientDeposit.TotalDebitAmount;
+                    dbContext.Set<PatientDeposit>().Update(patientDeposit); // ✅ sync Update
+                }
+                else
+                {
+                    var patientInsurance = await _patientInsuranceRepository.FirstOrDefaultAsync(x =>
+                        x.PatientId == input.PatientId && x.IsActive);
+
+                    if (patientInsurance == null)
+                        throw new UserFriendlyException("No active insurance found for this patient.");
+
+                    var claim = new InsuranceClaim
+                    {
+                        TenantId = input.TenantId,
+                        InvoiceId = invoice.Id,
+                        PatientInsuranceId = patientInsurance.Id,
+                        TotalAmount = input.TotalAmount,
+                        Status = ClaimStatus.Pending,
+                        CreatedDate = DateTime.Now
+                    };
+
+                    await dbContext.Set<InsuranceClaim>().AddAsync(claim);
+                    await dbContext.SaveChangesAsync();
+
+                    invoice.InsuranceClaimId = claim.Id;
+                    invoice.IsClaimGenerated = true;
+                    dbContext.Set<Invoices.Invoice>().Update(invoice); // ✅ sync Update
+                }
+
+                // Step 4: Handle emergency/IPD charges in bulk
+                var patient = await _patientRepository.FirstOrDefaultAsync(x => x.Id == input.PatientId);
+                if (patient != null && patient.IsEmergencyCharge)
+                {
+                    patient.IsEmergencyCharge = false;
+                    dbContext.Set<Patient>().Update(patient); // ✅ sync Update
+                }
+
+                var emergencyCharges = await _emergencyChargeEntriesRepository.GetAll()
+                    .Where(x => x.PatientId == input.PatientId && !x.IsProcessed)
                     .ToListAsync();
 
-                foreach (var credit in creditEntries)
+                if (emergencyCharges.Any())
                 {
-                    if (remainingToDebit <= 0)
-                        break;
-
-                    var deduct = Math.Min(credit.RemainingAmount, remainingToDebit);
-                    credit.RemainingAmount -= deduct;
-                    remainingToDebit -= deduct;
-
-                    await _depositTransactionRepository.UpdateAsync(credit);
+                    emergencyCharges.ForEach(c => c.IsProcessed = true);
+                    await dbContext.BulkUpdateAsync(emergencyCharges);
                 }
 
-                // ✅ Create Debit transaction entry for invoice payment
-                var transaction = new DepositTransaction
+                var charges = await GetChargesByPatientAsync(input.PatientId, input.InvoiceType);
+                if (charges.Any())
                 {
-                    TenantId = input.TenantId,
-                    PatientDepositId = patientDeposit.Id,
-                    Amount = input.TotalAmount,
-                    TransactionType = TransactionType.Debit,
-                    PaymentMethod = null,
-                    TransactionDate = DateTime.Now,
-                    Description = $"Invoice {invoice.InvoiceNo}",
-                    ReceiptNo = null,
-                    IsPaid = false,
-                    RemainingAmount = 0,
-                    RefundedAmount = 0,
-                    IsRefund = false,
-                    RefundTransactionId = null,
-                    RefundDate = null,
-                    RefundReceiptNo = null
-                };
+                    var chargeIds = charges.Select(c => c.Id).ToList();
+                    var chargeEntities = await _ipdChargeEntryRepository.GetAll()
+                        .Where(x => chargeIds.Contains(x.Id))
+                        .ToListAsync();
 
-                await _depositTransactionRepository.InsertAsync(transaction);
-
-                // ✅ Update wallet summary
-                patientDeposit.TotalDebitAmount += input.TotalAmount;
-                patientDeposit.TotalBalance = patientDeposit.TotalCreditAmount - patientDeposit.TotalDebitAmount;
-
-                await _patientDepositRepository.UpdateAsync(patientDeposit);
-                await CurrentUnitOfWork.SaveChangesAsync();
-            }
-            else
-            {
-                // Step 6: Billing is Insurance — create claim entry
-
-                // Get PatientInsuranceId
-                var patientInsurance = await _patientInsuranceRepository.FirstOrDefaultAsync(x =>
-                    x.PatientId == input.PatientId && x.IsActive);
-
-                if (patientInsurance == null)
-                {
-                    throw new UserFriendlyException("No active insurance found for this patient.");
+                    chargeEntities.ForEach(c => c.IsProcessed = true);
+                    await dbContext.BulkUpdateAsync(chargeEntities);
                 }
 
-                // Create InsuranceClaim
-                var claim = new InsuranceClaim
-                {
-                    TenantId = input.TenantId,
-                    InvoiceId = invoice.Id,
-                    PatientInsuranceId = patientInsurance.Id,
-                    TotalAmount = input.TotalAmount,
-                    AmountPayByInsurance = 0,
-                    AmountPayByPatient = 0,
-                    Status = ClaimStatus.Pending,
-                    Remarks = null,
-                    CreatedDate = DateTime.Now
-                };
+                await dbContext.SaveChangesAsync();
+                await uow.CompleteAsync();
 
-                await _insuranceClaimRepository.InsertAsync(claim);
-                await CurrentUnitOfWork.SaveChangesAsync();
-
-                // Link claim to invoice
-                invoice.InsuranceClaimId = claim.Id;
-                invoice.IsClaimGenerated = true;
-                await Repository.UpdateAsync(invoice);
-                await CurrentUnitOfWork.SaveChangesAsync();
+                return MapToEntityDto(invoice);
             }
-
-            // Step 7: Process emergency and ipd charges (same as before)
-            var patient = await _patientRepository.FirstOrDefaultAsync(x => x.Id == input.PatientId);
-            if (patient != null && patient.IsEmergencyCharge)
-            {
-                patient.IsEmergencyCharge = false;
-                await _patientRepository.UpdateAsync(patient);
-            }
-
-            var emergencyCharges = await _emergencyChargeEntriesRepository.GetAllListAsync(x =>
-                x.PatientId == input.PatientId && !x.IsProcessed);
-
-            if (emergencyCharges.Any())
-            {
-                foreach (var charge in emergencyCharges)
-                {
-                    charge.IsProcessed = true;
-                    await _emergencyChargeEntriesRepository.UpdateAsync(charge);
-                }
-            }
-
-            var charges = await GetChargesByPatientAsync(input.PatientId, input.InvoiceType);
-            if (charges.Any())
-            {
-                foreach (var chargeDto in charges)
-                {
-                    var chargeEntity = await _ipdChargeEntryRepository.GetAsync(chargeDto.Id);
-                    chargeEntity.IsProcessed = true;
-                    await _ipdChargeEntryRepository.UpdateAsync(chargeEntity);
-                }
-            }
-
-            await CurrentUnitOfWork.SaveChangesAsync();
-
-            // Step 8: Return DTO
-            return MapToEntityDto(invoice);
         }
 
         public virtual async Task<InvoiceDto> CollectCoPayAsync(long invoiceId)

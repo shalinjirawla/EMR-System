@@ -25,6 +25,8 @@ namespace EMRSystem.Doctor.Dto
         public string RegistrationNumber { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public long AbpUserId { get; set; }
+        public long Fee { get; set; }
+
         public bool isEmergencyDoctor { get; set; }
     }
 }

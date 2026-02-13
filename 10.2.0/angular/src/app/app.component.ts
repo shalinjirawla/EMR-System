@@ -24,7 +24,7 @@ export class AppComponent extends AppComponentBase implements OnInit {
     }
 
     ngOnInit(): void {
-        this.renderer.addClass(document.body, 'sidebar-mini');
+        this.renderer.addClass(document.body, 'sidebar-collapse');
 
         SignalRAspNetCoreHelper.initSignalR();
 

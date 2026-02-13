@@ -5322,6 +5322,62 @@ export class DoctorServiceProxy {
     }
 
     /**
+     * @param body (optional) 
+     * @return OK
+     */
+    create(body: CreateUpdateDoctorDto | undefined): Observable<DoctorDto> {
+        let url_ = this.baseUrl + "/api/services/app/Doctor/Create";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<DoctorDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<DoctorDto>;
+        }));
+    }
+
+    protected processCreate(response: HttpResponseBase): Observable<DoctorDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DoctorDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * @return OK
      */
     getAllDoctors(): Observable<DoctorDtoListResultDto> {
@@ -5654,62 +5710,6 @@ export class DoctorServiceProxy {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = DoctorDtoPagedResultDto.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    /**
-     * @param body (optional) 
-     * @return OK
-     */
-    create(body: CreateUpdateDoctorDto | undefined): Observable<DoctorDto> {
-        let url_ = this.baseUrl + "/api/services/app/Doctor/Create";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(body);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-                "Accept": "text/plain"
-            })
-        };
-
-        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processCreate(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processCreate(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<DoctorDto>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<DoctorDto>;
-        }));
-    }
-
-    protected processCreate(response: HttpResponseBase): Observable<DoctorDto> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = DoctorDto.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -30655,6 +30655,7 @@ export class CreateUpdateDoctorDto implements ICreateUpdateDoctorDto {
     registrationNumber: string | undefined;
     dateOfBirth: moment.Moment | undefined;
     abpUserId: number;
+    fee: number;
     isEmergencyDoctor: boolean;
 
     constructor(data?: ICreateUpdateDoctorDto) {
@@ -30679,6 +30680,7 @@ export class CreateUpdateDoctorDto implements ICreateUpdateDoctorDto {
             this.registrationNumber = _data["registrationNumber"];
             this.dateOfBirth = _data["dateOfBirth"] ? moment(_data["dateOfBirth"].toString()) : <any>undefined;
             this.abpUserId = _data["abpUserId"];
+            this.fee = _data["fee"];
             this.isEmergencyDoctor = _data["isEmergencyDoctor"];
         }
     }
@@ -30703,6 +30705,7 @@ export class CreateUpdateDoctorDto implements ICreateUpdateDoctorDto {
         data["registrationNumber"] = this.registrationNumber;
         data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
         data["abpUserId"] = this.abpUserId;
+        data["fee"] = this.fee;
         data["isEmergencyDoctor"] = this.isEmergencyDoctor;
         return data;
     }
@@ -30727,6 +30730,7 @@ export interface ICreateUpdateDoctorDto {
     registrationNumber: string | undefined;
     dateOfBirth: moment.Moment | undefined;
     abpUserId: number;
+    fee: number;
     isEmergencyDoctor: boolean;
 }
 
@@ -35397,6 +35401,7 @@ export class DoctorDto implements IDoctorDto {
     registrationNumber: string | undefined;
     dateOfBirth: moment.Moment | undefined;
     abpUser: UserDto;
+    fee: number;
     prescriptions: PrescriptionDto[] | undefined;
     isEmergencyDoctor: boolean;
 
@@ -35422,6 +35427,7 @@ export class DoctorDto implements IDoctorDto {
             this.registrationNumber = _data["registrationNumber"];
             this.dateOfBirth = _data["dateOfBirth"] ? moment(_data["dateOfBirth"].toString()) : <any>undefined;
             this.abpUser = _data["abpUser"] ? UserDto.fromJS(_data["abpUser"]) : <any>undefined;
+            this.fee = _data["fee"];
             if (Array.isArray(_data["prescriptions"])) {
                 this.prescriptions = [] as any;
                 for (let item of _data["prescriptions"])
@@ -35451,6 +35457,7 @@ export class DoctorDto implements IDoctorDto {
         data["registrationNumber"] = this.registrationNumber;
         data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
         data["abpUser"] = this.abpUser ? this.abpUser.toJSON() : <any>undefined;
+        data["fee"] = this.fee;
         if (Array.isArray(this.prescriptions)) {
             data["prescriptions"] = [];
             for (let item of this.prescriptions)
@@ -35480,6 +35487,7 @@ export interface IDoctorDto {
     registrationNumber: string | undefined;
     dateOfBirth: moment.Moment | undefined;
     abpUser: UserDto;
+    fee: number;
     prescriptions: PrescriptionDto[] | undefined;
     isEmergencyDoctor: boolean;
 }

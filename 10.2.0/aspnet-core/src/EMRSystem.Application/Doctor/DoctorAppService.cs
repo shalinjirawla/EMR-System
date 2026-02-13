@@ -36,14 +36,32 @@ namespace EMRSystem.Doctor
    IDoctorAppService
     {
         private readonly UserManager _userManager;
+        private readonly IRepository<DoctorMaster.DoctorMaster, long> _doctorMasterRepository;
         public DoctorAppService(
             IRepository<EMRSystem.Doctors.Doctor, long> doctorRepository,
-            UserManager userManager
+            UserManager userManager,
+             IRepository<DoctorMaster.DoctorMaster, long> doctorMasterRepository
             ) : base(doctorRepository)
         {
             _userManager = userManager;
+            _doctorMasterRepository = doctorMasterRepository;
+
         }
 
+        public override async Task<DoctorDto> CreateAsync(CreateUpdateDoctorDto input)
+        {
+            var doctor = ObjectMapper.Map<EMRSystem.Doctors.Doctor>(input);
+            doctor.TenantId = AbpSession.TenantId ?? input.TenantId;
+            var doctorId = await Repository.InsertAndGetIdAsync(doctor);
+            var doctorMaster = new DoctorMaster.DoctorMaster
+            {
+                TenantId = doctor.TenantId,
+                DoctorId = doctorId,
+                Fee = input.Fee
+            };
+            await _doctorMasterRepository.InsertAsync(doctorMaster);
+            return MapToEntityDto(doctor);
+        }
         public async Task<ListResultDto<DoctorDto>> GetAllDoctors()
         {
             var doctors = await Repository

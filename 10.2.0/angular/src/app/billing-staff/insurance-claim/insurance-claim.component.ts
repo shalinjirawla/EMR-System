@@ -39,7 +39,7 @@ export class InsuranceClaimComponent extends PagedListingComponentBase<Insurance
   keyword = '';
   items: MenuItem[];
   selectedRecord: InsuranceClaimDto;
-menuItems: MenuItem[] = [];
+  menuItems: MenuItem[] = [];
   constructor(
     injector: Injector,
     private _modalService: BsModalService,
@@ -79,13 +79,13 @@ menuItems: MenuItem[] = [];
         this.cd.detectChanges();
       });
   }
-openRowMenu(event: Event, record: InsuranceClaimDto, menu: any): void {
-  this.selectedRecord = record;
+  openRowMenu(event: Event, record: InsuranceClaimDto, menu: any): void {
+    this.selectedRecord = record;
 
-  // generate menu fresh for selected record
-  this.menuItems = this.getMenuForStatus(record.status);
+    // generate menu fresh for selected record
+    this.menuItems = this.getMenuForStatus(record.status);
     menu.toggle(event);
-}
+  }
 
   // ----------------------------
   // 🎯 Conditional Action Menus
@@ -110,15 +110,21 @@ openRowMenu(event: Event, record: InsuranceClaimDto, menu: any): void {
           },
         ];
 
-      case 2: // PartialApproved
+      case 2: // Partial Approved
       case 3: // Approved
-        return[
+        return [
           {
-            label:'Mark As Paid',
-            icon:'fas fa-file-invoice-dollar',
-            command:() => this.markAsPaid(this.selectedRecord)
-          }
-        ]
+            label: 'Mark As Paid',
+            icon: 'fas fa-file-invoice-dollar',
+            command: () => this.markAsPaid(this.selectedRecord),
+          },
+          {
+            label: 'View Claim',
+            icon: 'pi pi-eye',
+            command: () => this.viewClaim(this.selectedRecord),
+          },
+        ];
+
       case 4: // Rejected
       case 5: // Paid
         return [

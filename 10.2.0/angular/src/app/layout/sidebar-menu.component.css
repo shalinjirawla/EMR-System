@@ -82,3 +82,24 @@ li a {
     border-radius: 5px !important;
     color: #fff !important;
 }
+/* Sidebar width transition fix */
+body.sidebar-collapse .main-sidebar {
+  margin-left: -250px !important;
+  transition: margin-left 0.3s ease-in-out;
+}
+
+body.sidebar-open .main-sidebar {
+  margin-left: 0 !important;
+  transition: margin-left 0.3s ease-in-out;
+}
+
+/* Optional - adjust content when sidebar collapses */
+body.sidebar-collapse .content-wrapper {
+  margin-left: 0 !important;
+  transition: margin-left 0.3s ease-in-out;
+}
+
+body.sidebar-open .content-wrapper {
+  margin-left: 250px !important;
+  transition: margin-left 0.3s ease-in-out;
+}

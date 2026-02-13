@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace EMRSystem.Migrations
 {
     /// <inheritdoc />
-    public partial class firstchanges : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -529,6 +529,28 @@ namespace EMRSystem.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_HealthPackages", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "InsuranceMasters",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TenantId = table.Column<int>(type: "int", nullable: false),
+                    InsuranceName = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatorUserId = table.Column<long>(type: "bigint", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastModifierUserId = table.Column<long>(type: "bigint", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeleterUserId = table.Column<long>(type: "bigint", nullable: true),
+                    DeletionTime = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_InsuranceMasters", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -1446,11 +1468,16 @@ namespace EMRSystem.Migrations
                     InvoiceNo = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     InvoiceType = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
                     InvoiceDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    SubTotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    GstAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     TotalAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    PaymentMethod = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true)
+                    PaymentMethod = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
+                    IsClaimGenerated = table.Column<bool>(type: "bit", nullable: false),
+                    InsuranceClaimId = table.Column<long>(type: "bigint", nullable: true),
+                    ApprovedAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    CoPayAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    IsConvertedToFinalInvoice = table.Column<bool>(type: "bit", nullable: false),
+                    FinalInvoiceId = table.Column<long>(type: "bigint", nullable: true),
+                    IsFinalInvoice = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1522,6 +1549,37 @@ namespace EMRSystem.Migrations
                         column: x => x.PatientId,
                         principalTable: "Patients",
                         principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PatientInsurances",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TenantId = table.Column<int>(type: "int", nullable: false),
+                    PatientId = table.Column<long>(type: "bigint", nullable: false),
+                    InsuranceId = table.Column<long>(type: "bigint", nullable: false),
+                    PolicyNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CoverageLimit = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    CoPayPercentage = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PatientInsurances", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PatientInsurances_InsuranceMasters_InsuranceId",
+                        column: x => x.InsuranceId,
+                        principalTable: "InsuranceMasters",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_PatientInsurances_Patients_PatientId",
+                        column: x => x.PatientId,
+                        principalTable: "Patients",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -1626,6 +1684,84 @@ namespace EMRSystem.Migrations
                         column: x => x.PatientId,
                         principalTable: "Patients",
                         principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "BirthRecords",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TenantId = table.Column<int>(type: "int", nullable: false),
+                    MotherId = table.Column<long>(type: "bigint", nullable: false),
+                    Gender = table.Column<int>(type: "int", nullable: false),
+                    BirthDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    BirthTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    BirthWeight = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    BirthType = table.Column<int>(type: "int", nullable: false),
+                    DeliveryType = table.Column<int>(type: "int", nullable: false),
+                    DoctorId = table.Column<long>(type: "bigint", nullable: true),
+                    NurseId = table.Column<long>(type: "bigint", nullable: true),
+                    IsStillBirth = table.Column<bool>(type: "bit", nullable: false),
+                    FatherName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BirthRecords", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_BirthRecords_Doctors_DoctorId",
+                        column: x => x.DoctorId,
+                        principalTable: "Doctors",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_BirthRecords_Nurses_NurseId",
+                        column: x => x.NurseId,
+                        principalTable: "Nurses",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_BirthRecords_Patients_MotherId",
+                        column: x => x.MotherId,
+                        principalTable: "Patients",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DeathRecords",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TenantId = table.Column<int>(type: "int", nullable: false),
+                    PatientId = table.Column<long>(type: "bigint", nullable: false),
+                    DeathDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DeathTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DoctorId = table.Column<long>(type: "bigint", nullable: true),
+                    NurseId = table.Column<long>(type: "bigint", nullable: true),
+                    CauseOfDeath = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsPostMortemDone = table.Column<bool>(type: "bit", nullable: false),
+                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DeathRecords", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DeathRecords_Doctors_DoctorId",
+                        column: x => x.DoctorId,
+                        principalTable: "Doctors",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_DeathRecords_Nurses_NurseId",
+                        column: x => x.NurseId,
+                        principalTable: "Nurses",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_DeathRecords_Patients_PatientId",
+                        column: x => x.PatientId,
+                        principalTable: "Patients",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -1826,7 +1962,10 @@ namespace EMRSystem.Migrations
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     UnitPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    EntryDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    EntryDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsCoveredByInsurance = table.Column<bool>(type: "bit", nullable: false),
+                    ApprovedAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    NotApprovedAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1864,6 +2003,42 @@ namespace EMRSystem.Migrations
                         name: "FK_MedicineOrderItems_PharmacistInventory_MedicineId",
                         column: x => x.MedicineId,
                         principalTable: "PharmacistInventory",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "InsuranceClaims",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TenantId = table.Column<int>(type: "int", nullable: false),
+                    InvoiceId = table.Column<long>(type: "bigint", nullable: false),
+                    PatientInsuranceId = table.Column<long>(type: "bigint", nullable: false),
+                    TotalAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    AmountPayByInsurance = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    AmountPayByPatient = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    Remarks = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    SubmittedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    RespondedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    PaidOn = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_InsuranceClaims", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_InsuranceClaims_Invoices_InvoiceId",
+                        column: x => x.InvoiceId,
+                        principalTable: "Invoices",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_InsuranceClaims_PatientInsurances_PatientInsuranceId",
+                        column: x => x.PatientInsuranceId,
+                        principalTable: "PatientInsurances",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -1924,8 +2099,9 @@ namespace EMRSystem.Migrations
                     AdmissionType = table.Column<int>(type: "int", nullable: false),
                     IsDischarged = table.Column<bool>(type: "bit", nullable: false),
                     DischargeDateTime = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    TotalCharges = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    TotalDeposits = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                    ReasonForAdmit = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    BillingMode = table.Column<int>(type: "int", nullable: false),
+                    PatientInsuranceId = table.Column<long>(type: "bigint", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1944,6 +2120,11 @@ namespace EMRSystem.Migrations
                         name: "FK_Admissions_Nurses_NurseId",
                         column: x => x.NurseId,
                         principalTable: "Nurses",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Admissions_PatientInsurances_PatientInsuranceId",
+                        column: x => x.PatientInsuranceId,
+                        principalTable: "PatientInsurances",
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Admissions_Patients_PatientId",
@@ -2046,7 +2227,15 @@ namespace EMRSystem.Migrations
                     DoctorId = table.Column<long>(type: "bigint", nullable: true),
                     DischargeDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DischargeSummary = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DischargeStatus = table.Column<int>(type: "int", nullable: false)
+                    DischargeStatus = table.Column<int>(type: "int", nullable: false),
+                    ProvisionalDiagnosis = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FinalDiagnosis = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    InvestigationSummary = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ConditionAtDischarge = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DietAdvice = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Activity = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FollowUpDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    FollowUpDoctorId = table.Column<long>(type: "bigint", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -2063,6 +2252,11 @@ namespace EMRSystem.Migrations
                         principalTable: "Doctors",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_PatientDischarges_Doctors_FollowUpDoctorId",
+                        column: x => x.FollowUpDoctorId,
+                        principalTable: "Doctors",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_PatientDischarges_Patients_PatientId",
                         column: x => x.PatientId,
@@ -2177,7 +2371,13 @@ namespace EMRSystem.Migrations
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ReceiptNo = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     IsPaid = table.Column<bool>(type: "bit", nullable: false),
-                    PaymentIntentId = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    PaymentIntentId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RemainingAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    RefundedAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    IsRefund = table.Column<bool>(type: "bit", nullable: false),
+                    RefundTransactionId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RefundDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    RefundReceiptNo = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -2238,6 +2438,7 @@ namespace EMRSystem.Migrations
                     ChargeType = table.Column<int>(type: "int", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
                     EntryDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsProcessed = table.Column<bool>(type: "bit", nullable: false),
                     ReferenceId = table.Column<long>(type: "bigint", nullable: true),
@@ -2282,6 +2483,7 @@ namespace EMRSystem.Migrations
                     EntryDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsProcessed = table.Column<bool>(type: "bit", nullable: false),
                     ReferenceId = table.Column<long>(type: "bigint", nullable: true),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
                     PrescriptionId = table.Column<long>(type: "bigint", nullable: true)
                 },
                 constraints: table =>
@@ -2879,6 +3081,11 @@ namespace EMRSystem.Migrations
                 column: "PatientId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Admissions_PatientInsuranceId",
+                table: "Admissions",
+                column: "PatientInsuranceId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Admissions_RoomId",
                 table: "Admissions",
                 column: "RoomId");
@@ -2950,6 +3157,21 @@ namespace EMRSystem.Migrations
                 column: "BillId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_BirthRecords_DoctorId",
+                table: "BirthRecords",
+                column: "DoctorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BirthRecords_MotherId",
+                table: "BirthRecords",
+                column: "MotherId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BirthRecords_NurseId",
+                table: "BirthRecords",
+                column: "NurseId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ConsultationRequests_PrescriptionId",
                 table: "ConsultationRequests",
                 column: "PrescriptionId",
@@ -2965,6 +3187,21 @@ namespace EMRSystem.Migrations
                 name: "IX_ConsultationRequests_RequestingDoctorId",
                 table: "ConsultationRequests",
                 column: "RequestingDoctorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DeathRecords_DoctorId",
+                table: "DeathRecords",
+                column: "DoctorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DeathRecords_NurseId",
+                table: "DeathRecords",
+                column: "NurseId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DeathRecords_PatientId",
+                table: "DeathRecords",
+                column: "PatientId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_DepositTransactions_PatientDepositId",
@@ -3037,6 +3274,27 @@ namespace EMRSystem.Migrations
                 name: "IX_HealthPackageLabReportsTypes_LabReportsTypeId",
                 table: "HealthPackageLabReportsTypes",
                 column: "LabReportsTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_InsuranceClaims_InvoiceId",
+                table: "InsuranceClaims",
+                column: "InvoiceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_InsuranceClaims_PatientInsuranceId",
+                table: "InsuranceClaims",
+                column: "PatientInsuranceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_InsuranceClaims_TenantId_InvoiceId",
+                table: "InsuranceClaims",
+                columns: new[] { "TenantId", "InvoiceId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_InsuranceMasters_TenantId_InsuranceName",
+                table: "InsuranceMasters",
+                columns: new[] { "TenantId", "InsuranceName" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_InvoiceItems_InvoiceId",
@@ -3205,9 +3463,30 @@ namespace EMRSystem.Migrations
                 column: "DoctorId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_PatientDischarges_FollowUpDoctorId",
+                table: "PatientDischarges",
+                column: "FollowUpDoctorId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_PatientDischarges_PatientId",
                 table: "PatientDischarges",
                 column: "PatientId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PatientInsurances_InsuranceId",
+                table: "PatientInsurances",
+                column: "InsuranceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PatientInsurances_PatientId",
+                table: "PatientInsurances",
+                column: "PatientId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PatientInsurances_TenantId_PatientId_InsuranceId",
+                table: "PatientInsurances",
+                columns: new[] { "TenantId", "PatientId", "InsuranceId" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Patients_AbpUserId",
@@ -3525,7 +3804,13 @@ namespace EMRSystem.Migrations
                 name: "BillItem");
 
             migrationBuilder.DropTable(
+                name: "BirthRecords");
+
+            migrationBuilder.DropTable(
                 name: "ConsultationRequests");
+
+            migrationBuilder.DropTable(
+                name: "DeathRecords");
 
             migrationBuilder.DropTable(
                 name: "DepositTransactions");
@@ -3541,6 +3826,9 @@ namespace EMRSystem.Migrations
 
             migrationBuilder.DropTable(
                 name: "HealthPackageLabReportsTypes");
+
+            migrationBuilder.DropTable(
+                name: "InsuranceClaims");
 
             migrationBuilder.DropTable(
                 name: "InvoiceItems");
@@ -3699,7 +3987,7 @@ namespace EMRSystem.Migrations
                 name: "Nurses");
 
             migrationBuilder.DropTable(
-                name: "Patients");
+                name: "PatientInsurances");
 
             migrationBuilder.DropTable(
                 name: "Rooms");
@@ -3708,10 +3996,16 @@ namespace EMRSystem.Migrations
                 name: "Departments");
 
             migrationBuilder.DropTable(
-                name: "AbpUsers");
+                name: "InsuranceMasters");
+
+            migrationBuilder.DropTable(
+                name: "Patients");
 
             migrationBuilder.DropTable(
                 name: "RoomTypeMasters");
+
+            migrationBuilder.DropTable(
+                name: "AbpUsers");
         }
     }
 }
