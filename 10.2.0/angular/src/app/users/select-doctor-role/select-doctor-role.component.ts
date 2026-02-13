@@ -32,6 +32,7 @@ export class SelectDoctorRoleComponent implements OnInit {
     dateOfBirth: null,
     id: 0,
     isEmergencyDoctor: false,
+    fee:0
   };
   constructor(
     private _departmentService: DepartmentServiceProxy,

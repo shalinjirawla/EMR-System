@@ -28,14 +28,12 @@
 
   <div class="form-group row required mb-0">
     <div class="col-md-4">
-      <label class="col-form-label">Gender</label>
-      <div class="d-flex flex-row">
-        <div *ngFor="let gender of genders" class=" mr-2">
-          <p-radiobutton name="gender" [value]="gender" [(ngModel)]="doctorData.gender"
-            (ngModelChange)="onInputChange()" #genderEl required #genderModel="ngModel" size="small" class="mr-2" />
-          <label class="m-0" [for]="'gender_' + gender">{{ gender }}</label>
-        </div>
-      </div>
+      <!-- Years of Experience -->
+      <label class="col-form-label" for="fee">Consultation Fee</label>
+      <p-inputnumber class="w-100" inputId="integeronly" name="fee" required min="0"
+        [(ngModel)]="doctorData.fee" (ngModelChange)="onInputChange()" #feeModel="ngModel" #feeEl
+        placeholder="Enter Fee" />
+      <abp-validation-summary [control]="feeModel" [controlEl]="feeEl"></abp-validation-summary>
     </div>
 
     <div class="col-md-4 d-flex flex-column">
@@ -55,12 +53,22 @@
   </div>
 
   <div class="form-group row required mb-0">
+    <div class="col-md-4">
+      <label class="col-form-label">Gender</label>
+      <div class="d-flex flex-row">
+        <div *ngFor="let gender of genders" class=" mr-2">
+          <p-radiobutton name="gender" [value]="gender" [(ngModel)]="doctorData.gender"
+            (ngModelChange)="onInputChange()" #genderEl required #genderModel="ngModel" size="small" class="mr-2" />
+          <label class="m-0" [for]="'gender_' + gender">{{ gender }}</label>
+        </div>
+      </div>
+    </div>
     <div class="col-md-4 d-flex flex-column">
       <label class="col-form-label">Is EmergencyDoctor?</label>
       <p-checkbox (onChange)="OnCheckIsEmergencyDoctor($event)" [(ngModel)]="doctorData.isEmergencyDoctor"
         name="isEmergencyDoctor" [binary]="true" class="ml-2" />
     </div>
-    <div class="col-md-8" *ngIf="!isEmergencyDoctor">
+    <div class="col-md-4" *ngIf="!isEmergencyDoctor">
       <label class="col-form-label" for="department">Department</label>
       <p-select [options]="departments" placeholder="Select department" optionLabel="name"
         (ngModelChange)="onInputChange()" #departmentModel="ngModel" #departmentEl optionValue="id"

@@ -163,10 +163,21 @@ public class UserAppService : AsyncCrudAppService<User, UserDto, long, PagedUser
 
     protected override IQueryable<User> CreateFilteredQuery(PagedUserResultRequestDto input)
     {
-        return Repository.GetAllIncluding(x => x.Roles)
-            .WhereIf(!input.Keyword.IsNullOrWhiteSpace(), x => x.UserName.Contains(input.Keyword) || x.Name.Contains(input.Keyword) || x.EmailAddress.Contains(input.Keyword))
+        var query = Repository.GetAllIncluding(x => x.Roles)
+            .WhereIf(
+                !input.Keyword.IsNullOrWhiteSpace(),
+                x => x.UserName.Contains(input.Keyword) ||
+                     x.Name.Contains(input.Keyword) ||
+                     x.EmailAddress.Contains(input.Keyword)
+            )
             .WhereIf(input.IsActive.HasValue, x => x.IsActive == input.IsActive);
+
+        // If no sorting is passed, default to Id descending
+        return string.IsNullOrWhiteSpace(input.Sorting)
+            ? query.OrderByDescending(x => x.Id)
+            : query.OrderBy(input.Sorting);
     }
+
 
     protected override async Task<User> GetEntityByIdAsync(long id)
     {
@@ -182,8 +193,16 @@ public class UserAppService : AsyncCrudAppService<User, UserDto, long, PagedUser
 
     protected override IQueryable<User> ApplySorting(IQueryable<User> query, PagedUserResultRequestDto input)
     {
+        // If no sorting is provided, use Id descending as default
+        if (input.Sorting.IsNullOrWhiteSpace())
+        {
+            return query.OrderByDescending(x => x.Id);
+        }
+
+        // Otherwise, apply dynamic sorting
         return query.OrderBy(input.Sorting);
     }
+
 
     protected virtual void CheckErrors(IdentityResult identityResult)
     {

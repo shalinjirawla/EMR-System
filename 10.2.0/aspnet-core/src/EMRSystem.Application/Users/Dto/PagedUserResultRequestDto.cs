@@ -15,7 +15,7 @@ public class PagedUserResultRequestDto : PagedResultRequestDto, IShouldNormalize
     {
         if (string.IsNullOrEmpty(Sorting))
         {
-            Sorting = "UserName,EmailAddress";
+            Sorting = "";
         }
 
         Keyword = Keyword?.Trim();

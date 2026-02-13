@@ -1,4 +1,4 @@
-import { Component, Injector, OnInit } from '@angular/core';
+import { Component, Injector, OnInit, Renderer2 } from '@angular/core';
 import { AppComponentBase } from '@shared/app-component-base';
 import { Router, RouterEvent, NavigationEnd, PRIMARY_OUTLET, RouterLink } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
@@ -6,6 +6,7 @@ import { filter } from 'rxjs/operators';
 import { MenuItem } from '@shared/layout/menu-item';
 import { NgTemplateOutlet } from '@angular/common';
 import { CollapseDirective } from 'ngx-bootstrap/collapse';
+import { LayoutStoreService } from '@shared/layout/layout-store.service';
 
 @Component({
     selector: 'sidebar-menu',
@@ -20,15 +21,21 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
     activatedMenuItems: MenuItem[] = [];
     routerEvents: BehaviorSubject<RouterEvent> = new BehaviorSubject(undefined);
     homeRoute = '/app/about';
-
+     sidebarExpanded: boolean = false;
     constructor(
         injector: Injector,
-        private router: Router
+        private router: Router,
+        private _layoutStore: LayoutStoreService,
+        private renderer: Renderer2,
     ) {
         super(injector);
     }
 
     ngOnInit(): void {
+        this._layoutStore.sidebarExpanded.subscribe((value) => {
+      this.sidebarExpanded = value;
+      this.applySidebarState();
+    });
         this.menuItems = this.getMenuItems();
         this.patchMenuItems(this.menuItems);
 
@@ -41,6 +48,17 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
         });
     }
 
+     applySidebarState(): void {
+    if (this.sidebarExpanded) {
+      // Sidebar open
+      this.renderer.removeClass(document.body, 'sidebar-collapse');
+      this.renderer.addClass(document.body, 'sidebar-open');
+    } else {
+      // Sidebar closed
+      this.renderer.removeClass(document.body, 'sidebar-open');
+      this.renderer.addClass(document.body, 'sidebar-collapse');
+    }
+  }
     // getMenuItems(): MenuItem[] {
     //     return [
     //         new MenuItem(this.l('HomePage'), '/app/home', 'fas fa-home'),

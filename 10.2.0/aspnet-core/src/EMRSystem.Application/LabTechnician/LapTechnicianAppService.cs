@@ -16,7 +16,6 @@ using EMRSystem.Authorization.Users;
 
 namespace EMRSystem.LabTechnician
 {
-    [AbpAuthorize(PermissionNames.Pages_LabReports)]
     public class LapTechnicianAppService :
         AsyncCrudAppService<EMRSystem.LabReports.LabTechnician, LabTechniciansDto, long, PagedAndSortedResultRequestDto, CreateUpdateLabTechnicianDto, CreateUpdateLabTechnicianDto>,
             ILapTechnicianAppService

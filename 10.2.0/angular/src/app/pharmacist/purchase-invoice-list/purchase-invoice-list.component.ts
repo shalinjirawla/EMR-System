@@ -134,7 +134,6 @@ ngOnInit(): void {
   }
 
   editInvoice(dto: PurchaseInvoiceDto): void {
-    debugger
     this.showCreateOrEditInvoice(dto.id);
   }
   viewInvoice(dto: PurchaseInvoiceDto): void {

@@ -54,7 +54,7 @@
   <div class="form-group row required mb-0 mt-2">
     <div class="col-md-12 d-flex flex-column">
       <label class="col-form-label" for="address">Address</label>
-      <textarea (ngModelChange)="onInputChange()" rows="5" cols="30" pTextarea [(ngModel)]="patient.address" required
+      <textarea id="address" name="address"  [(ngModel)]="patient.address" (ngModelChange)="onInputChange()" rows="5" cols="30" pTextarea  required
         #addressModel="ngModel" #addressEl placeholder="Enter address"></textarea>
       <abp-validation-summary [control]="addressModel" [controlEl]="addressEl"></abp-validation-summary>
     </div>

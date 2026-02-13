@@ -367,9 +367,9 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
       return true;
     }
 
-    if (!this.prescription.items || this.prescription.items.length === 0) {
-      return true;
-    }
+    // if (!this.prescription.items || this.prescription.items.length === 0) {
+    //   return true;
+    // }
 
     return this.prescription.items.some(item =>
       !item.medicineName?.trim() ||
