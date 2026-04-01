@@ -1,80 +1,77 @@
-<div class="form-container" style="position: relative;">
+<div class="form-container">
   <div class="overlay" *ngIf="isSaving">
     <p-progressSpinner></p-progressSpinner>
   </div>
 
-  <form class="form-horizontal d-flex flex-column" style="height: 90vh; display: flex; flex-direction: column;"
-    autocomplete="off" #createProcedureForm="ngForm" (ngSubmit)="save()">
-     <abp-modal-header style="flex: 0 0 auto;" title="Create Procedure Receipt"
-    (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
+  <form class="form-horizontal d-flex flex-column h-100" autocomplete="off" #createProcedureForm="ngForm"
+    (ngSubmit)="save()">
 
-      <div class="modal-body flex-grow-1" style="overflow-y: auto; padding-right: 15px;">
+    <abp-modal-header title="Create Procedure Receipt" (onCloseClick)="bsModalRef.hide()">
+    </abp-modal-header>
 
-      <!-- Patient Selection -->
-      <div class="row">
-        <div class="col-md-12">
-          <label><b>Select Patient</b></label>
-          <p-select [options]="patients" optionLabel="fullName" optionValue="id"
-          placeholder="Select Patient"
-          [(ngModel)]="selectedPatient" name="patientId"
-          (onChange)="onPatientChange()"
-          class="w-100" required appendTo="self">
+    <div class="modal-body flex-grow-1">
+
+      <!-- Patient -->
+      <div class="form-card">
+        <label>Select Patient</label>
+        <p-select [options]="patients" optionLabel="fullName" optionValue="id" placeholder="Select Patient"
+          [(ngModel)]="selectedPatient" name="patientId" (onChange)="onPatientChange()" class="w-100" required
+          appendTo="self">
         </p-select>
-        </div>
       </div>
 
-      <!-- Prescription Selection -->
-      <div class="row mt-3" *ngIf="prescriptions.length">
-        <div class="col-md-12">
-          <label><b>Select Prescription</b></label>
-          <p-select appendTo="self" [options]="prescriptions" optionLabel="prescriptionName" optionValue="id"
-            placeholder="Select Prescription" [(ngModel)]="selectedPrescription" name="prescriptionId"
-            (onChange)="onPrescriptionChange($event.value)" class="w-100" required>
-          </p-select>
-        </div>
+      <!-- Prescription -->
+      <div class="form-card" *ngIf="prescriptions.length">
+        <label>Select Prescription</label>
+        <p-select appendTo="self" [options]="prescriptions" optionLabel="prescriptionName" optionValue="id"
+          placeholder="Select Prescription" [(ngModel)]="selectedPrescription" name="prescriptionId"
+          (onChange)="onPrescriptionChange($event.value)" class="w-100" required>
+        </p-select>
       </div>
 
-      <!-- Procedures List -->
-      <div class="row mt-3" *ngIf="selectedProcedures.length">
-        <div class="col-md-12">
-          <h5>Selected Procedures</h5>
-          <ul class="list-group">
-            <li *ngFor="let proc of selectedProcedures" class="list-group-item d-flex justify-content-between">
-              <span>{{ proc.name }}</span>
-              <span>₹{{ proc.price }}</span>
-            </li>
-          </ul>
-          <div class="mt-2 text-right">
-            <strong>Total: ₹{{ totalAmount }}</strong>
+      <!-- Procedures -->
+      <div class="form-card" *ngIf="selectedProcedures.length">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h5 class="mb-0">Selected Procedures</h5>
+          <span class="total-badge">₹{{ totalAmount }}</span>
+        </div>
+
+        <div class="procedure-list">
+          <div *ngFor="let proc of selectedProcedures" class="procedure-item">
+            <span>{{ proc.name }}</span>
+            <strong>₹{{ proc.price }}</strong>
           </div>
         </div>
       </div>
 
-      <!-- Payment Method -->
-      <div class="row mt-3">
-        <div class="col-md-12">
-          <label>Payment Method</label>
-          <div class="d-flex">
-            <div class="payment-option" [class.active]="paymentMethod === PaymentMethod._1"
-              (click)="setPaymentMethod(PaymentMethod._1)">
-              💳 Card
-            </div>
-            <div class="payment-option ml-2" [class.active]="paymentMethod === PaymentMethod._0"
-              (click)="setPaymentMethod(PaymentMethod._0)">
-              💵 Cash
-            </div>
+      <!-- Payment -->
+      <div class="form-card">
+        <label>Payment Method</label>
+
+        <div class="payment-container">
+          <div class="payment-option" [class.active]="paymentMethod === PaymentMethod._1"
+            (click)="setPaymentMethod(PaymentMethod._1)">
+            💳 Card
+          </div>
+
+          <div class="payment-option" [class.active]="paymentMethod === PaymentMethod._0"
+            (click)="setPaymentMethod(PaymentMethod._0)">
+            💵 Cash
           </div>
         </div>
       </div>
 
     </div>
 
-    <abp-modal-footer style="flex: 0 0 auto;" [cancelDisabled]="isSaving"
+    <abp-modal-footer [cancelDisabled]="isSaving"
       [saveDisabled]="!createProcedureForm.form.valid || !selectedProcedures.length || isSaving"
       (onCancelClick)="bsModalRef.hide()">
+
       <ng-container *ngIf="isSaving">
-        <i class="pi pi-spin pi-spinner" style="margin-right: 8px;"></i> Saving...
+        <i class="pi pi-spin pi-spinner mr-2"></i> Saving...
       </ng-container>
+
     </abp-modal-footer>
+
   </form>
 </div>

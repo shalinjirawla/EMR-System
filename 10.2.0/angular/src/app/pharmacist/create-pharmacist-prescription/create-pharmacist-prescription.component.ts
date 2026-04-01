@@ -118,26 +118,6 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
     });
   }
 
-  onMedicineTypeSelect(item: LocalPharmacistItem) {
-    if (!item || !item.medicineFormId) {
-      this.medicinesByType = [];
-      if (item) { item.medicineId = null; item.dosage = ''; }
-      return;
-    }
-    this._medicineMasterService.getMedicinesByFormId(item.medicineFormId).subscribe({
-      next: (res: any) => {
-        this.medicinesByType = (res || []).map((x: any) => ({ id: x.id, medicineName: x.medicineName, dosageOption: x.dosageOption }));
-        item.medicineId = null;
-        item.dosage = '';
-      },
-      error: (err) => {
-        this.notify.error('Could not load medicines for selected type');
-        this.medicinesByType = [];
-        item.medicineId = null;
-        item.dosage = '';
-      }
-    });
-  }
 
   onMedicineSelect(item: LocalPharmacistItem) {
     if (item.medicineId && this.isMedicineDisabled({ id: item.medicineId })) {
@@ -148,7 +128,6 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
       });
       item.medicineId = null;
       item.medicineName = '';
-      item.dosage = '';
       item.unitPrice = 0;
       this.cdRef.detectChanges();
       return;
@@ -156,14 +135,12 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
     const selected = this.medicinesByType.find(m => m.id === item.medicineId);
     if (selected) {
       item.medicineName = selected.medicineName;
-      item.dosage = selected.dosageOption;
       this.fetchBatchesForMedicine(item.medicineId as number, () => {
         const best = this.pickBestBatch(this.medicineBatches[item.medicineId as number] || []);
         if (best) item.unitPrice = best.sellingPrice ?? item.unitPrice ?? 0;
       });
     } else {
       item.medicineName = '';
-      item.dosage = '';
       item.unitPrice = 0;
     }
   }
@@ -262,6 +239,7 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
 
       const row: LocalPharmacistItem = {
         ...this.createItemTemplate(templateItem),
+        numberOfMedicine: templateItem.numberOfMedicine,
         qty: take,
         unitPrice: batch.sellingPrice ?? (templateItem.unitPrice ?? 0),
         batchId: batchId,
@@ -327,9 +305,6 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
     if (!medId) {
       this.messageService.add({ severity: 'warn', summary: 'Select medicine', detail: 'Please select a medicine.' });
       return;
-    }
-    if (this.newPrescriptionItem.durationValue && this.newPrescriptionItem.durationUnit) {
-      this.newPrescriptionItem.duration = `${this.newPrescriptionItem.durationValue} ${this.newPrescriptionItem.durationUnit}`;
     }
     this.fetchBatchesForMedicine(medId, () => {
       const totalAvailable = this.medicineStocks[medId] || 0;
@@ -419,12 +394,9 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
       pharmacistPrescriptionId: itm.pharmacistPrescriptionId,
       medicineId: itm.medicineId,
       medicineName: itm.medicineName,
-      dosage: itm.dosage,
       frequency: itm.frequency,
-      duration: itm.duration,
-      instructions: itm.instructions,
+      numberOfMedicine: itm.numberOfMedicine,
       isPrescribe: false,
-      medicineFormId: itm.medicineFormId,
 
       qty: 1,
       unitPrice: bestBatch.sellingPrice ?? (itm.unitPrice ?? 0),
@@ -454,32 +426,23 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
   canSplitToNewBatch(itm: LocalPharmacistItem): boolean {
     try {
       const medId = itm.medicineId as number;
-      if (!medId || !itm.batchId) return false;
+      if (!medId) return false;
 
-      const currentBatch = this.medicineBatches[medId]?.find((b: any) => b.id === itm.batchId);
-      if (!currentBatch) return false;
+      // Show split icon if there are ANY batches with stock available
+      const batches = this.medicineBatches[medId] || [];
+      const availableBatches = batches.filter(b => {
+        // If we already have a batch, don't show the same one as an "other" option
+        if (itm.batchId && b.id === itm.batchId) return false;
 
-      const batchTotalQty = currentBatch.quantity || 0;
-      const currentQty = itm.qty || 0;
+        const allocated = this.getAllocatedForBatch(medId, b.id) || 0;
+        const remaining = Math.max(0, (b.quantity || 0) - allocated);
+        return remaining > 0;
+      });
 
-      const isAtBatchLimit = currentQty >= batchTotalQty;
+      return availableBatches.length > 0;
 
-      if (!isAtBatchLimit) {
-        return false;
-      }
 
-      const otherBatches = (this.medicineBatches[medId] || [])
-        .filter(b => {
-          if (b.id === itm.batchId) return false;
-          if ((b.quantity || 0) <= 0) return false;
 
-          const allocated = this.getAllocatedForBatch(medId, b.id) || 0;
-          const remaining = Math.max(0, (b.quantity || 0) - allocated);
-          return remaining > 0;
-        });
-      const result = otherBatches.length > 0;
-
-      return result;
     } catch (error) {
       return false;
     }
@@ -672,15 +635,11 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
         pharmacistPrescriptionId: itm.pharmacistPrescriptionId,
         medicineId: itm.medicineId,
         medicineName: itm.medicineName,
-        dosage: itm.dosage,
         frequency: itm.frequency,
-        duration: itm.duration,
-        instructions: itm.instructions,
         qty: take,
         unitPrice: batch.sellingPrice ?? (itm.unitPrice ?? 0),
         totalPayableAmount: ((batch.sellingPrice ?? (itm.unitPrice ?? 0)) * take),
         isPrescribe: itm.isPrescribe ?? false,
-        medicineFormId: itm.medicineFormId,
         batchId: batchId,
         batchNo: batch.batchNo,
         expiryDate: batch.expiryDate ? new Date(batch.expiryDate) : null,
@@ -698,24 +657,17 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
 
   private createItemTemplate(itm: LocalPharmacistItem): LocalPharmacistItem {
 
-    let duration = itm.duration;
-    if (!duration && itm.durationValue && itm.durationUnit) {
-      duration = `${itm.durationValue} ${itm.durationUnit}`;
-    }
     return {
       prescriptionId: itm.prescriptionId,
       pharmacistPrescriptionId: itm.pharmacistPrescriptionId,
       medicineId: itm.medicineId,
       medicineName: itm.medicineName,
-      dosage: itm.dosage,
       frequency: itm.frequency,
-      duration: duration,
-      instructions: itm.instructions,
+      numberOfMedicine: itm.numberOfMedicine,
       qty: 0,
       unitPrice: itm.unitPrice ?? 0,
       totalPayableAmount: itm.totalPayableAmount ?? 0,
       isPrescribe: itm.isPrescribe ?? false,
-      medicineFormId: itm.medicineFormId,
       _isNew: true
     };
   }
@@ -826,6 +778,7 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
     }
     const template: LocalPharmacistItem = {
       ...prescriptionItem,
+      numberOfMedicine: prescriptionItem.numberOfMedicine || 1,
       _isNew: false,
       _rowId: this.nextRowId()
     };

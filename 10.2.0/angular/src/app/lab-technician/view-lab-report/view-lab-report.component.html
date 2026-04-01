@@ -1,71 +1,88 @@
-<div class="lab-report-card" *ngIf="report"
-     style="height: 90vh; overflow-y: auto; padding: 15px; box-sizing: border-box;">
+<div class="lab-report-card" *ngIf="report">
+
   <!-- Header -->
-  <div class="report-header d-flex justify-content-between align-items-center">
-    <div>
-      <h5 class="tenant-name">{{ report.tenantName }}</h5>
-      <small>Diagnostic Center</small>
+  <div class="report-header">
+    <div class="left">
+      <h4>{{ report.tenantName }}</h4>
+      <span>Diagnostic Center</span>
     </div>
-    <img src="/assets/img/download.jpg" alt="Logo" class="lab-logo" />
+
+    <div class="center">
+      <h3>LABORATORY REPORT</h3>
+    </div>
+
+    <div class="right">
+      <img src="/assets/img/download.jpg" class="lab-logo" />
+    </div>
   </div>
 
-  <!-- Title -->
-  <h4 class="report-title text-center">Laboratory Report</h4>
-
-  <!-- Patient Info -->
-  <div class="patient-info row">
-    <div class="col-md-6"><strong>Patient Name:</strong> {{ report.patientName }}</div>
-    <div class="col-md-6 text-md-end"><strong>Patient ID:</strong> {{ report.patientId }}</div>
-    <div class="col-md-6 mt-2"><strong>Referring Doctor:</strong> {{ report.doctorName }}</div>
-    <div class="col-md-6 mt-2 text-md-end"><strong>Report No:</strong> {{ report.id }}</div>
-    <div class="col-md-6 mt-2"><strong>Date:</strong> {{ report.recordedDate | date: 'dd/MM/yyyy' }}</div>
-    <div class="col-md-3 mt-2"><strong>Age:</strong> {{ calculateAgeDisplay(report.patientDateOfBirth) }}</div>
-    <div class="col-md-3 mt-2 text-md-end"><strong>Gender:</strong> {{ report.gender }}</div>
+  <!-- Patient Info Card -->
+  <div class="info-card">
+    <div><strong>Patient:</strong> {{ report.patientName }}</div>
+    <div><strong>ID:</strong> {{ report.patientId }}</div>
+    <div><strong>Age/Gender:</strong> {{ calculateAgeDisplay(report.patientDateOfBirth) }} / {{ report.gender }}</div>
+    <div><strong>Doctor:</strong> {{ report.doctorName }}</div>
+    <div><strong>Report No:</strong> {{ report.id }}</div>
+    <div><strong>Date:</strong> {{ report.recordedDate | date: 'dd/MM/yyyy' }}</div>
   </div>
 
   <!-- Test Title -->
-  <div class="test-title text-center my-3">
-    Report For: <span>{{ report.testName }}</span>
+  <div class="test-title">
+    {{ report.testName }}
   </div>
 
-  <!-- Results Table -->
-  <div class="table-responsive mt-3">
-    <table class="table table-bordered align-middle text-center">
-      <thead>
-        <tr>
-          <th>Test</th>
-          <th>Result</th>
-          <th>Normal Range</th>
-          <th>Unit</th>
-          <th>Flag</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let item of report.labReportResultItem">
-          <td class="text-start">{{ item.test }}</td>
-          <td class="fw-bold">{{ item.result }}</td>
-          <td>
-            <ng-container *ngIf="item.minValue != null && item.maxValue != null; else noRange">
-              {{ item.minValue }} - {{ item.maxValue }}
-            </ng-container>
-            <ng-template #noRange>-</ng-template>
-          </td>
-          <td>{{ item.unit || '-' }}</td>
-          <td>
-            <ng-container *ngIf="item.flag && item.flag.trim() !== ''; else noFlag">
-              <p-tag [value]="item.flag" [severity]="getSeverity(item.flag)"></p-tag>
-            </ng-container>
-            <ng-template #noFlag>-</ng-template>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+  <!-- Table -->
+  <table class="report-table">
+    <thead>
+      <tr>
+        <th class="text-start">Test Name</th>
+        <th>Result</th>
+        <th>Normal Range</th>
+        <th>Unit</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let item of report.labReportResultItem"
+        [ngClass]="{'abnormal': item.flag === 'High' || item.flag === 'Low'}">
+
+        <td class="test">{{ item.test }}</td>
+
+        <td class="result">
+          {{ item.result }}
+        </td>
+
+        <td>
+          <ng-container *ngIf="item.minValue != null && item.maxValue != null; else noRange">
+            {{ item.minValue }} - {{ item.maxValue }}
+          </ng-container>
+          <ng-template #noRange>-</ng-template>
+        </td>
+
+        <td>{{ item.unit || '-' }}</td>
+
+        <td>
+          <p-tag *ngIf="item.flag" [value]="item.flag" [severity]="getSeverity(item.flag)">
+          </p-tag>
+          <span *ngIf="!item.flag">-</span>
+        </td>
+
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Footer -->
+  <div class="report-footer">
+    <div class="note">
+      <strong>Note:</strong> This is a computer generated report.
+    </div>
+
+    <div class="signature">
+      <div>Authorized Signatory</div>
+      <h6>{{ report.doctorName }}</h6>
+      <small>Reg No: {{ report.doctorRegistrationNumber }}</small>
+    </div>
   </div>
 
-  <!-- Signature -->
-  <div class="signature text-end mt-5">
-    <p class="mb-0">Authorized Signatory</p>
-    <h6 class="fw-bold">{{ report.doctorName }}</h6>
-    <small>Reg No: {{ report.doctorRegistrationNumber }}</small>
-  </div>
 </div>

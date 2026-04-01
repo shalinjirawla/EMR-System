@@ -1,110 +1,128 @@
-<form class="form-horizontal d-flex flex-column" style="height: 90vh; display: flex; flex-direction: column;"
-  autocomplete="off" #createAppoinmentModal="ngForm" (ngSubmit)="save()">
-  <abp-modal-header style="flex: 0 0 auto;" title="Create New Appointment"
-    (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
+<form class="form-horizontal d-flex flex-column h-100" autocomplete="off" #createAppoinmentModal="ngForm"
+  (ngSubmit)="save()">
 
-  <div class="modal-body flex-grow-1" style="overflow-y: auto; padding-right: 15px;">
+  <!-- HEADER -->
+  <abp-modal-header title="📅 Create New Appointment" (onCloseClick)="bsModalRef.hide()">
+  </abp-modal-header>
 
-    <!-- Top Bar with Add New Patient Button -->
-    <div class="d-flex justify-content-end mb-3">
-      <p-button label="Add New Patient" icon="pi pi-user-plus" severity="info" variant="outlined"
+  <!-- BODY -->
+  <div class="modal-body flex-grow-1 custom-scroll">
+
+    <!-- 🔹 ACTION BAR -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div class="section-title">👤 Patient Details</div>
+
+      <p-button label="Add Patient" icon="pi pi-user-plus" severity="info" variant="outlined"
         *ngIf="showAddPatientButton" (onClick)="showCreatePatientDialog()">
       </p-button>
     </div>
 
-    <!-- Form Row -->
-    <div class="row g-3">
-      <!-- Patient Select -->
-      <div class="col-md-6">
-        <label class="fw-bold mb-2">Select Patient</label>
-        <p-select [options]="patients" optionLabel="fullName" optionValue="id" placeholder="Select a patient"
-          [(ngModel)]="appointment.patientId" (onChange)="onPatientChange($event.value)" name="patientId" class="w-100"
-          required>
-        </p-select>
-      </div>
+    <!-- 🔹 PATIENT CARD -->
+    <div class="card custom-card mb-3">
+      <div class="row">
+        <div class="col-md-6">
+          <label class="form-label">Select Patient</label>
+          <p-select [options]="patients" optionLabel="fullName" optionValue="id" [(ngModel)]="appointment.patientId"
+            (onChange)="onPatientChange($event.value)" name="patientId" class="w-100" placeholder="Choose patient"
+            required>
+          </p-select>
+        </div>
 
-      <!-- Appointment Type -->
-      <div class="col-md-6">
-        <label class="fw-bold mb-2">Appointment Type</label>
-        <p-select [options]="appointmentTypes" optionLabel="name" optionValue="id" placeholder="Select type"
-          [(ngModel)]="appointment.appointmentTypeId" name="appointmentTypeId" class="w-100" required>
-        </p-select>
-      </div>
-    </div>
-
-
-    <!-- Department & Doctor -->
-    <div class="row mt-3">
-      <div class="col-md-6 d-flex flex-column">
-        <label>Select Department</label>
-        <p-select [options]="departments" optionLabel="departmentName" [optionValue]="'id'"
-          placeholder="Select department" [(ngModel)]="appointment.departmentId" (onChange)="onSelectDepartment($event)"
-          name="departmentId" class="w-100" required>
-        </p-select>
-      </div>
-
-      <div class="col-md-6 d-flex flex-column">
-        <label>Select Doctor</label>
-        <p-select [options]="departmentWiseDoctor" optionLabel="fullName" [optionValue]="'id'"
-          placeholder="Select doctor" [(ngModel)]="appointment.doctorId" name="doctorId" class="w-100" required>
-        </p-select>
-      </div>
-    </div>
-
-    <!-- Status & Appointment Date -->
-    <div class="row mt-3">
-      <div class="col-md-6 d-flex flex-column">
-        <label>Status</label>
-        <p-select [options]="statusOptions" [optionValue]="'value'" optionLabel="label" placeholder="Appointment Status"
-          [(ngModel)]="appointment.status" name="status" class="w-100" required>
-        </p-select>
-      </div>
-
-      <div class="col-md-6 d-flex flex-column">
-        <label>Appointment Date</label>
-        <p-datepicker [(ngModel)]="appointment.appointmentDate" name="appointmentDate" [showIcon]="true"
-          placeholder="Select appointment date" [minDate]="today" required>
-        </p-datepicker>
-      </div>
-    </div>
-
-    <!-- Payment Method Toggle (only if NOT admitted) -->
-    <div class="row mt-3" *ngIf="!isPatientAdmitted">
-      <div class="col-md-12">
-        <label>Mode of Payment</label>
-        <div class="d-flex">
-          <div class="payment-option" [class.active]="appointment.paymentMethod === 1" (click)="togglePaymentMethod(1)">
-            Card
-          </div>
-          <div class="payment-option ml-2" [class.active]="appointment.paymentMethod === 0"
-            (click)="togglePaymentMethod(0)">
-            Cash
-          </div>
+        <div class="col-md-6">
+          <label class="form-label">Appointment Type</label>
+          <p-select [options]="appointmentTypes" optionLabel="name" optionValue="id"
+            [(ngModel)]="appointment.appointmentTypeId" name="appointmentTypeId" class="w-100" placeholder="Select type"
+            required>
+          </p-select>
         </div>
       </div>
     </div>
 
-    <!-- Follow-up -->
-    <div class="row mt-3">
-      <div class="col-md-12 d-flex align-items-center">
-        <p-checkbox [(ngModel)]="appointment.isFollowUp" name="isFollowUp" binary="true">
-        </p-checkbox>
-        <span class="ml-2"><b>Is FollowUp</b></span>
+    <!-- 🔹 DOCTOR SELECTION -->
+    <div class="card custom-card mb-3">
+      <div class="section-title">🩺 Doctor Assignment</div>
+
+      <div class="row mt-2">
+        <div class="col-md-6">
+          <label class="form-label">Department</label>
+          <p-select [options]="departments" optionLabel="departmentName" optionValue="id"
+            [(ngModel)]="appointment.departmentId" (onChange)="onSelectDepartment($event)" name="departmentId"
+            class="w-100" placeholder="Select department" required>
+          </p-select>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Doctor</label>
+          <p-select [options]="departmentWiseDoctor" optionLabel="fullName" optionValue="id"
+            [(ngModel)]="appointment.doctorId" name="doctorId" class="w-100" placeholder="Select doctor" required>
+          </p-select>
+        </div>
       </div>
     </div>
 
-    <!-- Reason -->
-    <div class="row mt-3">
-      <div class="col-md-12 d-flex flex-column">
-        <label>Reason</label>
-        <textarea pTextarea [(ngModel)]="appointment.reasonForVisit" name="reasonForVisit"
-          placeholder="Reason for visit" rows="3" class="w-100" required>
-        </textarea>
+    <!-- 🔹 SCHEDULE -->
+    <div class="card custom-card mb-3">
+      <div class="section-title">⏰ Schedule</div>
+
+      <div class="row mt-2">
+        <div class="col-md-6">
+          <label class="form-label">Status</label>
+          <p-select [options]="statusOptions" optionLabel="label" optionValue="value" [(ngModel)]="appointment.status"
+            name="status" class="w-100" placeholder="Select status" required>
+          </p-select>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Appointment Date</label>
+          <p-datepicker [(ngModel)]="appointment.appointmentDate" name="appointmentDate" [showIcon]="true"
+            [minDate]="today" class="w-100" placeholder="Select date" required>
+          </p-datepicker>
+        </div>
       </div>
     </div>
+
+    <!-- 🔹 PAYMENT -->
+    <div class="card custom-card mb-3" *ngIf="!isPatientAdmitted">
+      <div class="section-title">💳 Payment Method</div>
+
+      <div class="payment-toggle mt-2">
+        <div class="payment-option" [class.active]="appointment.paymentMethod === 1" (click)="togglePaymentMethod(1)">
+          💳 Card
+        </div>
+
+        <div class="payment-option" [class.active]="appointment.paymentMethod === 0" (click)="togglePaymentMethod(0)">
+          💵 Cash
+        </div>
+      </div>
+    </div>
+
+    <!-- 🔹 EXTRA -->
+    <div class="card custom-card mb-3">
+      <div class="section-title">⚙️ Additional Info</div>
+
+      <div class="row mt-2">
+        <div class="col-md-12 flex align-items-center gap-2">
+          <p-checkbox [(ngModel)]="appointment.isFollowUp" name="isFollowUp" binary="true">
+          </p-checkbox>
+          <label>Follow-up Appointment</label>
+        </div>
+      </div>
+
+      <div class="row mt-3">
+        <div class="col-md-12">
+          <label class="form-label">Reason</label>
+          <textarea pTextarea [(ngModel)]="appointment.reasonForVisit" name="reasonForVisit" rows="3" class="w-100"
+            placeholder="Enter reason for visit" required>
+          </textarea>
+        </div>
+      </div>
+    </div>
+
   </div>
 
-  <abp-modal-footer style="flex: 0 0 auto;" [cancelDisabled]="saving" [saveDisabled]="!isFormValid || saving"
+  <!-- FOOTER -->
+  <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="!isFormValid || saving"
     (onCancelClick)="bsModalRef.hide()">
   </abp-modal-footer>
+
 </form>

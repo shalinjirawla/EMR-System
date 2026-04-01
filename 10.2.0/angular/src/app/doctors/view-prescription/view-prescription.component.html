@@ -44,10 +44,6 @@
             <td class="info-label">Blood Group:</td>
             <td>{{prescription?.patientBloodGroup || 'NA'}}</td>
           </tr>
-          <!-- <tr>
-              <td class="info-label">UHID:</td>
-              <td>AH{{prescription?.id | number:'6.0'}}</td>
-            </tr> -->
         </table>
       </div>
 
@@ -66,11 +62,27 @@
             <td class="info-label">Reg. No:</td>
             <td>{{prescription?.doctorRegistrationNumber}}</td>
           </tr>
-          <!-- <tr>
-              <td class="info-label">Consultation:</td>
-              <td>{{prescription?.appointmentDate | date:'shortTime'}} - {{prescription?.issueDate | date:'shortTime'}}</td>
-            </tr> -->
         </table>
+      </div>
+    </div>
+
+    <div class="symptoms-box">
+      <h3 class="section-title">
+        <i class="fas fa-notes-medical"></i> SYMPTOMS
+      </h3>
+
+      <div class="symptoms-content">
+        <div *ngIf="prescription?.symptoms; else noSymptoms">
+          <ul class="symptoms-list">
+            <li *ngFor="let symptom of prescription?.symptoms?.split(',')">
+              <i class="fas fa-circle"></i> {{ symptom.trim() }}
+            </li>
+          </ul>
+        </div>
+
+        <ng-template #noSymptoms>
+          <div class="no-symptoms">No Symptoms Provided</div>
+        </ng-template>
       </div>
     </div>
 
@@ -85,16 +97,6 @@
           </div>
         </div>
       </div>
-
-      <!-- <div class="followup-box" [class.required]="prescription?.isFollowUpRequired">
-          <h3 class="section-title"><i class="fas fa-calendar-check"></i> FOLLOW UP</h3>
-          <div class="followup-content">
-            <div class="followup-status">{{prescription?.isFollowUpRequired ? 'REQUIRED' : 'Not Required'}}</div>
-            <div class="followup-date" *ngIf="prescription?.isFollowUpRequired">
-              Recommended after 3 days
-            </div>
-          </div>
-        </div> -->
     </div>
 
     <!-- Medications -->
@@ -104,18 +106,16 @@
         <thead>
           <tr>
             <th width="25%">Medicine</th>
-            <th width="15%">Dosage</th>
             <th width="20%">Frequency</th>
-            <th width="15%">Duration</th>
+            <th width="15%">No. of Medicine</th>
             <th width="25%">Instructions</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let item of prescription?.items">
             <td>{{item.medicineName}}</td>
-            <td>{{item.dosage}}</td>
             <td>{{item.frequency}}</td>
-            <td>{{item.duration}}</td>
+            <td>{{item.numberOfMedicine}}</td>
             <td>{{item.instructions || 'As directed'}}</td>
           </tr>
           <tr *ngIf="!prescription?.items?.length">
@@ -146,16 +146,6 @@
           </li>
         </ul>
       </div>
-
-      <!-- <div class="advice-section">
-          <h3 class="section-title"><i class="fas fa-heartbeat"></i> GENERAL ADVICE</h3>
-          <ul class="advice-list">
-            <li>Maintain adequate hydration</li>
-            <li>Avoid strenuous activities</li>
-            <li>Follow dietary restrictions if any</li>
-            <li>Report any adverse reactions immediately</li>
-          </ul>
-        </div> -->
     </div>
   </div>
 
@@ -178,10 +168,6 @@
 </div>
 
 <div class="action-buttons d-print-none">
-
-  <!-- <button class="btn btn-primary" (click)="printPrescription()">
-      <i class="fas fa-print"></i> Print Prescription
-    </button> -->
   <button class="btn btn-success" (click)="downloadAsPDF()">
     <i class="fas fa-file-pdf"></i> Save as PDF
   </button>

@@ -405,25 +405,68 @@
     background: #27ae60;
     color: white;
 }
+
 .procedures-section {
-  padding: 12px;
+    padding: 12px;
 }
 
 .procedures-list {
-  list-style: none;
-  padding: 0;
-  margin: 10px 0 0;
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0;
 }
 
 .procedures-list li {
-  padding: 6px 0;
-  border-bottom: 1px dashed #ddd;
-  font-size: 13px;
+    padding: 6px 0;
+    border-bottom: 1px dashed #ddd;
+    font-size: 13px;
 }
 
 .procedures-list i {
-  margin-right: 8px;
-  color: #e74c3c; /* red icon for emergency look */
+    margin-right: 8px;
+    color: #e74c3c;
+    /* red icon for emergency look */
+}
+
+/* Symptoms Box - better than diagnosis visually */
+.symptoms-box {
+    border-left: 4px solid #3498db;
+    background: #f4f9ff;
+    padding: 12px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+.symptoms-content {
+    margin-top: 8px;
+}
+
+/* Symptoms list style */
+.symptoms-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.symptoms-list li {
+    font-size: 13px;
+    padding: 6px 0;
+    border-bottom: 1px dashed #ddd;
+    display: flex;
+    align-items: center;
+}
+
+.symptoms-list li i {
+    font-size: 6px;
+    margin-right: 8px;
+    color: #3498db;
+}
+
+/* Empty state */
+.no-symptoms {
+    font-size: 13px;
+    color: #999;
+    font-style: italic;
 }
 
 /* Print Styles */
@@ -467,5 +510,229 @@
     @page {
         size: A4;
         margin: 10mm;
+    }
+}
+
+/* ===== GLOBAL POLISH ===== */
+.prescription-container {
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    max-width: 210mm;
+    margin: 20px auto;
+    background: #ffffff;
+    color: #2d3436;
+    border-radius: 10px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+/* ===== LETTERHEAD UPGRADE ===== */
+.letterhead {
+    padding: 20px 25px 10px;
+    background: linear-gradient(135deg, #1a5276, #2e86c1);
+    color: white;
+}
+
+.hospital-info h1 {
+    color: #fff;
+    font-size: 24px;
+    letter-spacing: 1px;
+}
+
+.tagline {
+    color: #d6eaf8;
+}
+
+.contact-info {
+    color: #ebf5fb;
+}
+
+.contact-info i {
+    color: #aed6f1;
+}
+
+.logo-symbol {
+    font-size: 42px;
+}
+
+.prescription-meta {
+    color: #d6eaf8;
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.letterhead-border {
+    height: 4px;
+    background: linear-gradient(to right, #f1c40f, #e67e22);
+}
+
+/* ===== SECTION HEADINGS ===== */
+.section-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a5276;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 4px;
+}
+
+/* ===== INFO CARDS ===== */
+.info-grid>div {
+    background: #f9fbfd;
+    padding: 14px;
+    border-radius: 10px;
+    border: 1px solid #eef2f7;
+}
+
+/* ===== TABLE CLEANUP ===== */
+.info-table tr {
+    border-bottom: none;
+}
+
+.info-table td {
+    padding: 6px 0;
+}
+
+.info-label {
+    color: #636e72;
+    font-weight: 500;
+}
+
+/* ===== SYMPTOMS ===== */
+.symptoms-box {
+    border-left: 4px solid #3498db;
+    background: #f0f8ff;
+    padding: 14px;
+    border-radius: 10px;
+}
+
+.symptoms-list li {
+    border: none;
+    padding: 5px 0;
+}
+
+.symptoms-list li i {
+    color: #0984e3;
+}
+
+/* ===== DIAGNOSIS ===== */
+.diagnosis-box {
+    border-left: 4px solid #e74c3c;
+    background: #fff5f5;
+    border-radius: 10px;
+}
+
+.primary-diagnosis {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+/* ===== MEDICATION TABLE (UPGRADE) ===== */
+.medication-table {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.medication-table th {
+    background: linear-gradient(135deg, #1a5276, #2e86c1);
+    font-size: 12px;
+    letter-spacing: 0.5px;
+}
+
+.medication-table td {
+    font-size: 13px;
+}
+
+.medication-table tr:hover {
+    background: #f1f7ff;
+}
+
+/* zebra improved */
+.medication-table tr:nth-child(even) {
+    background-color: #f9fbfd;
+}
+
+/* ===== TESTS / PROCEDURES ===== */
+.tests-section,
+.procedures-section {
+    background: #f9fbfd;
+    border-radius: 10px;
+    border: 1px solid #eef2f7;
+}
+
+.tests-list li,
+.procedures-list li {
+    border: none;
+    padding: 6px 0;
+}
+
+/* ===== FOOTER ===== */
+.prescription-footer {
+    margin-top: 20px;
+    padding: 20px;
+    background: #f9fbfd;
+}
+
+.signature-line {
+    height: 2px;
+    background: #2d3436;
+}
+
+.footer-notes p {
+    font-size: 13px;
+    color: #1a5276;
+    border: none;
+}
+
+/* ===== BUTTONS ===== */
+.action-buttons {
+    background: #ffffff;
+    border-top: 1px solid #eee;
+}
+
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: 0.2s;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    border: none;
+}
+
+.btn-success:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3);
+}
+
+.btn-secondary:hover {
+    background: #dee2e6;
+}
+
+/* ===== PRINT PERFECTION ===== */
+@media print {
+    .prescription-container {
+        box-shadow: none !important;
+        border-radius: 0 !important;
+    }
+
+    .letterhead {
+        background: white !important;
+        color: black !important;
+    }
+
+    .hospital-info h1 {
+        color: #1a5276 !important;
+    }
+
+    .contact-info,
+    .tagline {
+        color: #333 !important;
+    }
+
+    .medication-table th {
+        background: #1a5276 !important;
+        color: white !important;
     }
 }

@@ -13223,6 +13223,62 @@ export class MedicineMasterServiceProxy {
     }
 
     /**
+     * @param body (optional) 
+     * @return OK
+     */
+    searchMedicinesWithPaging(body: MedicineSearchInputDto | undefined): Observable<MedicineLookupDtoPagedResultDto> {
+        let url_ = this.baseUrl + "/api/services/app/MedicineMaster/SearchMedicinesWithPaging";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processSearchMedicinesWithPaging(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processSearchMedicinesWithPaging(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<MedicineLookupDtoPagedResultDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<MedicineLookupDtoPagedResultDto>;
+        }));
+    }
+
+    protected processSearchMedicinesWithPaging(response: HttpResponseBase): Observable<MedicineLookupDtoPagedResultDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = MedicineLookupDtoPagedResultDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * @return OK
      */
     getMedicinesWithStock(): Observable<MedicineWithStockDto[]> {
@@ -19150,6 +19206,62 @@ export class PrescriptionServiceProxy {
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param symptoms (optional) 
+     * @return OK
+     */
+    getSmartSuggestionBySymptoms(symptoms: string | undefined): Observable<CreateUpdatePrescriptionDto> {
+        let url_ = this.baseUrl + "/api/services/app/Prescription/GetSmartSuggestionBySymptoms?";
+        if (symptoms === null)
+            throw new Error("The parameter 'symptoms' cannot be null.");
+        else if (symptoms !== undefined)
+            url_ += "symptoms=" + encodeURIComponent("" + symptoms) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetSmartSuggestionBySymptoms(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetSmartSuggestionBySymptoms(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<CreateUpdatePrescriptionDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<CreateUpdatePrescriptionDto>;
+        }));
+    }
+
+    protected processGetSmartSuggestionBySymptoms(response: HttpResponseBase): Observable<CreateUpdatePrescriptionDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CreateUpdatePrescriptionDto.fromJS(resultData200);
+            return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -32915,6 +33027,7 @@ export class CreateUpdatePrescriptionDto implements ICreateUpdatePrescriptionDto
     id: number;
     tenantId: number;
     diagnosis: string | undefined;
+    symptoms: string | undefined;
     notes: string | undefined;
     issueDate: moment.Moment;
     isFollowUpRequired: boolean;
@@ -32930,6 +33043,7 @@ export class CreateUpdatePrescriptionDto implements ICreateUpdatePrescriptionDto
     specialistDoctorId: number | undefined;
     isSpecialAdviceRequired: boolean;
     createUpdateConsultationRequests: CreateUpdateConsultationRequestsDto;
+    labTests: PrescriptionLabTestDto[] | undefined;
 
     constructor(data?: ICreateUpdatePrescriptionDto) {
         if (data) {
@@ -32945,6 +33059,7 @@ export class CreateUpdatePrescriptionDto implements ICreateUpdatePrescriptionDto
             this.id = _data["id"];
             this.tenantId = _data["tenantId"];
             this.diagnosis = _data["diagnosis"];
+            this.symptoms = _data["symptoms"];
             this.notes = _data["notes"];
             this.issueDate = _data["issueDate"] ? moment(_data["issueDate"].toString()) : <any>undefined;
             this.isFollowUpRequired = _data["isFollowUpRequired"];
@@ -32972,6 +33087,11 @@ export class CreateUpdatePrescriptionDto implements ICreateUpdatePrescriptionDto
             this.specialistDoctorId = _data["specialistDoctorId"];
             this.isSpecialAdviceRequired = _data["isSpecialAdviceRequired"];
             this.createUpdateConsultationRequests = _data["createUpdateConsultationRequests"] ? CreateUpdateConsultationRequestsDto.fromJS(_data["createUpdateConsultationRequests"]) : <any>undefined;
+            if (Array.isArray(_data["labTests"])) {
+                this.labTests = [] as any;
+                for (let item of _data["labTests"])
+                    this.labTests.push(PrescriptionLabTestDto.fromJS(item));
+            }
         }
     }
 
@@ -32987,6 +33107,7 @@ export class CreateUpdatePrescriptionDto implements ICreateUpdatePrescriptionDto
         data["id"] = this.id;
         data["tenantId"] = this.tenantId;
         data["diagnosis"] = this.diagnosis;
+        data["symptoms"] = this.symptoms;
         data["notes"] = this.notes;
         data["issueDate"] = this.issueDate ? this.issueDate.toISOString() : <any>undefined;
         data["isFollowUpRequired"] = this.isFollowUpRequired;
@@ -33014,6 +33135,11 @@ export class CreateUpdatePrescriptionDto implements ICreateUpdatePrescriptionDto
         data["specialistDoctorId"] = this.specialistDoctorId;
         data["isSpecialAdviceRequired"] = this.isSpecialAdviceRequired;
         data["createUpdateConsultationRequests"] = this.createUpdateConsultationRequests ? this.createUpdateConsultationRequests.toJSON() : <any>undefined;
+        if (Array.isArray(this.labTests)) {
+            data["labTests"] = [];
+            for (let item of this.labTests)
+                data["labTests"].push(item.toJSON());
+        }
         return data;
     }
 
@@ -33029,6 +33155,7 @@ export interface ICreateUpdatePrescriptionDto {
     id: number;
     tenantId: number;
     diagnosis: string | undefined;
+    symptoms: string | undefined;
     notes: string | undefined;
     issueDate: moment.Moment;
     isFollowUpRequired: boolean;
@@ -33044,19 +33171,17 @@ export interface ICreateUpdatePrescriptionDto {
     specialistDoctorId: number | undefined;
     isSpecialAdviceRequired: boolean;
     createUpdateConsultationRequests: CreateUpdateConsultationRequestsDto;
+    labTests: PrescriptionLabTestDto[] | undefined;
 }
 
 export class CreateUpdatePrescriptionItemDto implements ICreateUpdatePrescriptionItemDto {
     id: number;
     tenantId: number;
     medicineName: string | undefined;
-    dosage: string | undefined;
+    numberOfMedicine: number;
     frequency: string | undefined;
-    duration: string | undefined;
-    instructions: string | undefined;
     prescriptionId: number;
     medicineId: number;
-    medicineFormId: number;
     qty: number;
     unitPrice: number;
     isPrescribe: boolean;
@@ -33076,13 +33201,10 @@ export class CreateUpdatePrescriptionItemDto implements ICreateUpdatePrescriptio
             this.id = _data["id"];
             this.tenantId = _data["tenantId"];
             this.medicineName = _data["medicineName"];
-            this.dosage = _data["dosage"];
+            this.numberOfMedicine = _data["numberOfMedicine"];
             this.frequency = _data["frequency"];
-            this.duration = _data["duration"];
-            this.instructions = _data["instructions"];
             this.prescriptionId = _data["prescriptionId"];
             this.medicineId = _data["medicineId"];
-            this.medicineFormId = _data["medicineFormId"];
             this.qty = _data["qty"];
             this.unitPrice = _data["unitPrice"];
             this.isPrescribe = _data["isPrescribe"];
@@ -33102,13 +33224,10 @@ export class CreateUpdatePrescriptionItemDto implements ICreateUpdatePrescriptio
         data["id"] = this.id;
         data["tenantId"] = this.tenantId;
         data["medicineName"] = this.medicineName;
-        data["dosage"] = this.dosage;
+        data["numberOfMedicine"] = this.numberOfMedicine;
         data["frequency"] = this.frequency;
-        data["duration"] = this.duration;
-        data["instructions"] = this.instructions;
         data["prescriptionId"] = this.prescriptionId;
         data["medicineId"] = this.medicineId;
-        data["medicineFormId"] = this.medicineFormId;
         data["qty"] = this.qty;
         data["unitPrice"] = this.unitPrice;
         data["isPrescribe"] = this.isPrescribe;
@@ -33128,13 +33247,10 @@ export interface ICreateUpdatePrescriptionItemDto {
     id: number;
     tenantId: number;
     medicineName: string | undefined;
-    dosage: string | undefined;
+    numberOfMedicine: number;
     frequency: string | undefined;
-    duration: string | undefined;
-    instructions: string | undefined;
     prescriptionId: number;
     medicineId: number;
-    medicineFormId: number;
     qty: number;
     unitPrice: number;
     isPrescribe: boolean;
@@ -33982,12 +34098,12 @@ export class CreateUpdateVitalDto implements ICreateUpdateVitalDto {
     tenantId: number;
     dateRecorded: moment.Moment | undefined;
     bloodPressure: string | undefined;
-    heartRate: string | undefined;
+    heartRate: number;
     respirationRate: number;
     temperature: number;
     oxygenSaturation: number;
-    height: string | undefined;
-    weight: string | undefined;
+    height: number;
+    weight: number;
     bmi: string | undefined;
     notes: string | undefined;
     patientId: number;
@@ -34060,12 +34176,12 @@ export interface ICreateUpdateVitalDto {
     tenantId: number;
     dateRecorded: moment.Moment | undefined;
     bloodPressure: string | undefined;
-    heartRate: string | undefined;
+    heartRate: number;
     respirationRate: number;
     temperature: number;
     oxygenSaturation: number;
-    height: string | undefined;
-    weight: string | undefined;
+    height: number;
+    weight: number;
     bmi: string | undefined;
     notes: string | undefined;
     patientId: number;
@@ -41182,6 +41298,61 @@ export interface IMedicineLookupDto {
     dosageOption: string | undefined;
 }
 
+export class MedicineLookupDtoPagedResultDto implements IMedicineLookupDtoPagedResultDto {
+    items: MedicineLookupDto[] | undefined;
+    totalCount: number;
+
+    constructor(data?: IMedicineLookupDtoPagedResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(MedicineLookupDto.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): MedicineLookupDtoPagedResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new MedicineLookupDtoPagedResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+
+    clone(): MedicineLookupDtoPagedResultDto {
+        const json = this.toJSON();
+        let result = new MedicineLookupDtoPagedResultDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IMedicineLookupDtoPagedResultDto {
+    items: MedicineLookupDto[] | undefined;
+    totalCount: number;
+}
+
 export class MedicineMasterDto implements IMedicineMasterDto {
     id: number;
     tenantId: number;
@@ -41681,6 +41852,57 @@ export interface IMedicineOrderItemDto {
     medicineName: string | undefined;
     quantity: number;
     dosage: string | undefined;
+}
+
+export class MedicineSearchInputDto implements IMedicineSearchInputDto {
+    maxResultCount: number;
+    skipCount: number;
+    keyword: string | undefined;
+
+    constructor(data?: IMedicineSearchInputDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.maxResultCount = _data["maxResultCount"];
+            this.skipCount = _data["skipCount"];
+            this.keyword = _data["keyword"];
+        }
+    }
+
+    static fromJS(data: any): MedicineSearchInputDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new MedicineSearchInputDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["maxResultCount"] = this.maxResultCount;
+        data["skipCount"] = this.skipCount;
+        data["keyword"] = this.keyword;
+        return data;
+    }
+
+    clone(): MedicineSearchInputDto {
+        const json = this.toJSON();
+        let result = new MedicineSearchInputDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IMedicineSearchInputDto {
+    maxResultCount: number;
+    skipCount: number;
+    keyword: string | undefined;
 }
 
 export class MedicineStatusResult implements IMedicineStatusResult {
@@ -44924,16 +45146,13 @@ export class PharmacistPrescriptionItemWithUnitPriceDto implements IPharmacistPr
     prescriptionId: number | undefined;
     pharmacistPrescriptionId: number | undefined;
     medicineId: number;
+    numberOfMedicine: number;
     medicineName: string | undefined;
-    dosage: string | undefined;
     frequency: string | undefined;
-    duration: string | undefined;
-    instructions: string | undefined;
     qty: number;
     unitPrice: number;
     totalPayableAmount: number;
     isPrescribe: boolean;
-    medicineFormId: number;
     batchId: number;
 
     constructor(data?: IPharmacistPrescriptionItemWithUnitPriceDto) {
@@ -44950,16 +45169,13 @@ export class PharmacistPrescriptionItemWithUnitPriceDto implements IPharmacistPr
             this.prescriptionId = _data["prescriptionId"];
             this.pharmacistPrescriptionId = _data["pharmacistPrescriptionId"];
             this.medicineId = _data["medicineId"];
+            this.numberOfMedicine = _data["numberOfMedicine"];
             this.medicineName = _data["medicineName"];
-            this.dosage = _data["dosage"];
             this.frequency = _data["frequency"];
-            this.duration = _data["duration"];
-            this.instructions = _data["instructions"];
             this.qty = _data["qty"];
             this.unitPrice = _data["unitPrice"];
             this.totalPayableAmount = _data["totalPayableAmount"];
             this.isPrescribe = _data["isPrescribe"];
-            this.medicineFormId = _data["medicineFormId"];
             this.batchId = _data["batchId"];
         }
     }
@@ -44976,16 +45192,13 @@ export class PharmacistPrescriptionItemWithUnitPriceDto implements IPharmacistPr
         data["prescriptionId"] = this.prescriptionId;
         data["pharmacistPrescriptionId"] = this.pharmacistPrescriptionId;
         data["medicineId"] = this.medicineId;
+        data["numberOfMedicine"] = this.numberOfMedicine;
         data["medicineName"] = this.medicineName;
-        data["dosage"] = this.dosage;
         data["frequency"] = this.frequency;
-        data["duration"] = this.duration;
-        data["instructions"] = this.instructions;
         data["qty"] = this.qty;
         data["unitPrice"] = this.unitPrice;
         data["totalPayableAmount"] = this.totalPayableAmount;
         data["isPrescribe"] = this.isPrescribe;
-        data["medicineFormId"] = this.medicineFormId;
         data["batchId"] = this.batchId;
         return data;
     }
@@ -45002,16 +45215,13 @@ export interface IPharmacistPrescriptionItemWithUnitPriceDto {
     prescriptionId: number | undefined;
     pharmacistPrescriptionId: number | undefined;
     medicineId: number;
+    numberOfMedicine: number;
     medicineName: string | undefined;
-    dosage: string | undefined;
     frequency: string | undefined;
-    duration: string | undefined;
-    instructions: string | undefined;
     qty: number;
     unitPrice: number;
     totalPayableAmount: number;
     isPrescribe: boolean;
-    medicineFormId: number;
     batchId: number;
 }
 
@@ -45288,6 +45498,7 @@ export class Prescription implements IPrescription {
     id: number;
     tenantId: number;
     diagnosis: string | undefined;
+    symptoms: string | undefined;
     notes: string | undefined;
     issueDate: moment.Moment;
     isFollowUpRequired: boolean;
@@ -45327,6 +45538,7 @@ export class Prescription implements IPrescription {
             this.id = _data["id"];
             this.tenantId = _data["tenantId"];
             this.diagnosis = _data["diagnosis"];
+            this.symptoms = _data["symptoms"];
             this.notes = _data["notes"];
             this.issueDate = _data["issueDate"] ? moment(_data["issueDate"].toString()) : <any>undefined;
             this.isFollowUpRequired = _data["isFollowUpRequired"];
@@ -45390,6 +45602,7 @@ export class Prescription implements IPrescription {
         data["id"] = this.id;
         data["tenantId"] = this.tenantId;
         data["diagnosis"] = this.diagnosis;
+        data["symptoms"] = this.symptoms;
         data["notes"] = this.notes;
         data["issueDate"] = this.issueDate ? this.issueDate.toISOString() : <any>undefined;
         data["isFollowUpRequired"] = this.isFollowUpRequired;
@@ -45453,6 +45666,7 @@ export interface IPrescription {
     id: number;
     tenantId: number;
     diagnosis: string | undefined;
+    symptoms: string | undefined;
     notes: string | undefined;
     issueDate: moment.Moment;
     isFollowUpRequired: boolean;
@@ -45483,6 +45697,7 @@ export class PrescriptionDto implements IPrescriptionDto {
     id: number;
     tenantId: number;
     diagnosis: string | undefined;
+    symptoms: string | undefined;
     notes: string | undefined;
     issueDate: moment.Moment;
     isFollowUpRequired: boolean;
@@ -45514,6 +45729,7 @@ export class PrescriptionDto implements IPrescriptionDto {
             this.id = _data["id"];
             this.tenantId = _data["tenantId"];
             this.diagnosis = _data["diagnosis"];
+            this.symptoms = _data["symptoms"];
             this.notes = _data["notes"];
             this.issueDate = _data["issueDate"] ? moment(_data["issueDate"].toString()) : <any>undefined;
             this.isFollowUpRequired = _data["isFollowUpRequired"];
@@ -45565,6 +45781,7 @@ export class PrescriptionDto implements IPrescriptionDto {
         data["id"] = this.id;
         data["tenantId"] = this.tenantId;
         data["diagnosis"] = this.diagnosis;
+        data["symptoms"] = this.symptoms;
         data["notes"] = this.notes;
         data["issueDate"] = this.issueDate ? this.issueDate.toISOString() : <any>undefined;
         data["isFollowUpRequired"] = this.isFollowUpRequired;
@@ -45616,6 +45833,7 @@ export interface IPrescriptionDto {
     id: number;
     tenantId: number;
     diagnosis: string | undefined;
+    symptoms: string | undefined;
     notes: string | undefined;
     issueDate: moment.Moment;
     isFollowUpRequired: boolean;
@@ -45743,13 +45961,10 @@ export interface IPrescriptionDtoPagedResultDto {
 export class PrescriptionItem implements IPrescriptionItem {
     id: number;
     medicineName: string | undefined;
-    dosage: string | undefined;
+    numberOfMedicine: number;
     frequency: string | undefined;
-    duration: string | undefined;
-    instructions: string | undefined;
     prescriptionId: number | undefined;
     medicineId: number;
-    medicineFormId: number;
     qty: number;
     prescription: Prescription;
     unitPrice: number;
@@ -45770,13 +45985,10 @@ export class PrescriptionItem implements IPrescriptionItem {
         if (_data) {
             this.id = _data["id"];
             this.medicineName = _data["medicineName"];
-            this.dosage = _data["dosage"];
+            this.numberOfMedicine = _data["numberOfMedicine"];
             this.frequency = _data["frequency"];
-            this.duration = _data["duration"];
-            this.instructions = _data["instructions"];
             this.prescriptionId = _data["prescriptionId"];
             this.medicineId = _data["medicineId"];
-            this.medicineFormId = _data["medicineFormId"];
             this.qty = _data["qty"];
             this.prescription = _data["prescription"] ? Prescription.fromJS(_data["prescription"]) : <any>undefined;
             this.unitPrice = _data["unitPrice"];
@@ -45797,13 +46009,10 @@ export class PrescriptionItem implements IPrescriptionItem {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["medicineName"] = this.medicineName;
-        data["dosage"] = this.dosage;
+        data["numberOfMedicine"] = this.numberOfMedicine;
         data["frequency"] = this.frequency;
-        data["duration"] = this.duration;
-        data["instructions"] = this.instructions;
         data["prescriptionId"] = this.prescriptionId;
         data["medicineId"] = this.medicineId;
-        data["medicineFormId"] = this.medicineFormId;
         data["qty"] = this.qty;
         data["prescription"] = this.prescription ? this.prescription.toJSON() : <any>undefined;
         data["unitPrice"] = this.unitPrice;
@@ -45824,13 +46033,10 @@ export class PrescriptionItem implements IPrescriptionItem {
 export interface IPrescriptionItem {
     id: number;
     medicineName: string | undefined;
-    dosage: string | undefined;
+    numberOfMedicine: number;
     frequency: string | undefined;
-    duration: string | undefined;
-    instructions: string | undefined;
     prescriptionId: number | undefined;
     medicineId: number;
-    medicineFormId: number;
     qty: number;
     prescription: Prescription;
     unitPrice: number;
@@ -45842,13 +46048,10 @@ export interface IPrescriptionItem {
 export class PrescriptionItemDto implements IPrescriptionItemDto {
     id: number;
     medicineName: string | undefined;
-    dosage: string | undefined;
     frequency: string | undefined;
-    duration: string | undefined;
-    instructions: string | undefined;
     prescriptionId: number;
     medicineId: number;
-    medicineFormId: number;
+    numberOfMedicine: number;
     qty: number;
     unitPrice: number;
     isPrescribe: boolean;
@@ -45867,13 +46070,10 @@ export class PrescriptionItemDto implements IPrescriptionItemDto {
         if (_data) {
             this.id = _data["id"];
             this.medicineName = _data["medicineName"];
-            this.dosage = _data["dosage"];
             this.frequency = _data["frequency"];
-            this.duration = _data["duration"];
-            this.instructions = _data["instructions"];
             this.prescriptionId = _data["prescriptionId"];
             this.medicineId = _data["medicineId"];
-            this.medicineFormId = _data["medicineFormId"];
+            this.numberOfMedicine = _data["numberOfMedicine"];
             this.qty = _data["qty"];
             this.unitPrice = _data["unitPrice"];
             this.isPrescribe = _data["isPrescribe"];
@@ -45892,13 +46092,10 @@ export class PrescriptionItemDto implements IPrescriptionItemDto {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["medicineName"] = this.medicineName;
-        data["dosage"] = this.dosage;
         data["frequency"] = this.frequency;
-        data["duration"] = this.duration;
-        data["instructions"] = this.instructions;
         data["prescriptionId"] = this.prescriptionId;
         data["medicineId"] = this.medicineId;
-        data["medicineFormId"] = this.medicineFormId;
+        data["numberOfMedicine"] = this.numberOfMedicine;
         data["qty"] = this.qty;
         data["unitPrice"] = this.unitPrice;
         data["isPrescribe"] = this.isPrescribe;
@@ -45917,13 +46114,10 @@ export class PrescriptionItemDto implements IPrescriptionItemDto {
 export interface IPrescriptionItemDto {
     id: number;
     medicineName: string | undefined;
-    dosage: string | undefined;
     frequency: string | undefined;
-    duration: string | undefined;
-    instructions: string | undefined;
     prescriptionId: number;
     medicineId: number;
-    medicineFormId: number;
+    numberOfMedicine: number;
     qty: number;
     unitPrice: number;
     isPrescribe: boolean;
@@ -45987,10 +46181,8 @@ export interface IPrescriptionItemDtoPagedResultDto {
 
 export class PrescriptionItemViewDto implements IPrescriptionItemViewDto {
     medicineName: string | undefined;
-    dosage: string | undefined;
+    numberOfMedicine: number;
     frequency: string | undefined;
-    duration: string | undefined;
-    instructions: string | undefined;
     medicineId: number;
 
     constructor(data?: IPrescriptionItemViewDto) {
@@ -46005,10 +46197,8 @@ export class PrescriptionItemViewDto implements IPrescriptionItemViewDto {
     init(_data?: any) {
         if (_data) {
             this.medicineName = _data["medicineName"];
-            this.dosage = _data["dosage"];
+            this.numberOfMedicine = _data["numberOfMedicine"];
             this.frequency = _data["frequency"];
-            this.duration = _data["duration"];
-            this.instructions = _data["instructions"];
             this.medicineId = _data["medicineId"];
         }
     }
@@ -46023,10 +46213,8 @@ export class PrescriptionItemViewDto implements IPrescriptionItemViewDto {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["medicineName"] = this.medicineName;
-        data["dosage"] = this.dosage;
+        data["numberOfMedicine"] = this.numberOfMedicine;
         data["frequency"] = this.frequency;
-        data["duration"] = this.duration;
-        data["instructions"] = this.instructions;
         data["medicineId"] = this.medicineId;
         return data;
     }
@@ -46041,10 +46229,8 @@ export class PrescriptionItemViewDto implements IPrescriptionItemViewDto {
 
 export interface IPrescriptionItemViewDto {
     medicineName: string | undefined;
-    dosage: string | undefined;
+    numberOfMedicine: number;
     frequency: string | undefined;
-    duration: string | undefined;
-    instructions: string | undefined;
     medicineId: number;
 }
 
@@ -46391,6 +46577,7 @@ export interface IPrescriptionLabTestViewDto {
 export class PrescriptionViewDto implements IPrescriptionViewDto {
     id: number;
     diagnosis: string | undefined;
+    symptoms: string | undefined;
     notes: string | undefined;
     issueDate: moment.Moment;
     isFollowUpRequired: boolean;
@@ -46419,6 +46606,7 @@ export class PrescriptionViewDto implements IPrescriptionViewDto {
         if (_data) {
             this.id = _data["id"];
             this.diagnosis = _data["diagnosis"];
+            this.symptoms = _data["symptoms"];
             this.notes = _data["notes"];
             this.issueDate = _data["issueDate"] ? moment(_data["issueDate"].toString()) : <any>undefined;
             this.isFollowUpRequired = _data["isFollowUpRequired"];
@@ -46459,6 +46647,7 @@ export class PrescriptionViewDto implements IPrescriptionViewDto {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["diagnosis"] = this.diagnosis;
+        data["symptoms"] = this.symptoms;
         data["notes"] = this.notes;
         data["issueDate"] = this.issueDate ? this.issueDate.toISOString() : <any>undefined;
         data["isFollowUpRequired"] = this.isFollowUpRequired;
@@ -46499,6 +46688,7 @@ export class PrescriptionViewDto implements IPrescriptionViewDto {
 export interface IPrescriptionViewDto {
     id: number;
     diagnosis: string | undefined;
+    symptoms: string | undefined;
     notes: string | undefined;
     issueDate: moment.Moment;
     isFollowUpRequired: boolean;
@@ -51015,12 +51205,12 @@ export class Vital implements IVital {
     tenantId: number;
     dateRecorded: moment.Moment | undefined;
     bloodPressure: string | undefined;
-    heartRate: string | undefined;
+    heartRate: number;
     respirationRate: number;
     temperature: number;
     oxygenSaturation: number;
-    height: string | undefined;
-    weight: string | undefined;
+    height: number;
+    weight: number;
     bmi: string | undefined;
     notes: string | undefined;
     patientId: number;
@@ -51099,12 +51289,12 @@ export interface IVital {
     tenantId: number;
     dateRecorded: moment.Moment | undefined;
     bloodPressure: string | undefined;
-    heartRate: string | undefined;
+    heartRate: number;
     respirationRate: number;
     temperature: number;
     oxygenSaturation: number;
-    height: string | undefined;
-    weight: string | undefined;
+    height: number;
+    weight: number;
     bmi: string | undefined;
     notes: string | undefined;
     patientId: number;
@@ -51118,12 +51308,12 @@ export class VitalDto implements IVitalDto {
     tenantId: number;
     dateRecorded: moment.Moment | undefined;
     bloodPressure: string | undefined;
-    heartRate: string | undefined;
+    heartRate: number;
     respirationRate: number;
     temperature: number;
     oxygenSaturation: number;
-    height: string | undefined;
-    weight: string | undefined;
+    height: number;
+    weight: number;
     bmi: string | undefined;
     notes: string | undefined;
     patient: PatientDto;
@@ -51196,12 +51386,12 @@ export interface IVitalDto {
     tenantId: number;
     dateRecorded: moment.Moment | undefined;
     bloodPressure: string | undefined;
-    heartRate: string | undefined;
+    heartRate: number;
     respirationRate: number;
     temperature: number;
     oxygenSaturation: number;
-    height: string | undefined;
-    weight: string | undefined;
+    height: number;
+    weight: number;
     bmi: string | undefined;
     notes: string | undefined;
     patient: PatientDto;

@@ -1,32 +1,130 @@
-.payment-option {
-    padding: 10px 20px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    cursor: pointer;
-    user-select: none;
-    background-color: #f8f9fa;
-    font-weight: 500;
-    text-align: center;
-    flex: 1;
-    transition: background-color 0.2s, border-color 0.2s;
-  }
-  
-  .payment-option.active {
-    background-color: #0d6efd;
-    color: white;
-    border-color: #0d6efd;
-  }
-  .overlay {
+/* ===== CONTAINER ===== */
+.form-container {
+  position: relative;
+}
+
+/* ===== OVERLAY ===== */
+.overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.7);
+  inset: 0;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(3px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
 }
 
-  
+/* ===== BODY ===== */
+.modal-body {
+  padding: 20px;
+  background: #f6f9fc;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* ===== CARD STYLE ===== */
+.form-card {
+  background: #ffffff;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid #eef1f4;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+}
+
+/* ===== LABEL ===== */
+label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 6px;
+  display: block;
+}
+
+/* ===== INPUT ===== */
+.p-dropdown,
+.p-select {
+  border-radius: 10px !important;
+}
+
+/* ===== PROCEDURE LIST ===== */
+.procedure-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.procedure-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f8f9fa;
+  transition: 0.2s;
+}
+
+.procedure-item:hover {
+  background: #eef4ff;
+}
+
+/* ===== TOTAL BADGE ===== */
+.total-badge {
+  background: #2f9e44;
+  color: white;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+}
+
+/* ===== PAYMENT ===== */
+.payment-container {
+  display: flex;
+  gap: 10px;
+}
+
+.payment-option {
+  flex: 1;
+  padding: 12px;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 500;
+  cursor: pointer;
+  background: #f1f3f5;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+/* hover */
+.payment-option:hover {
+  background: #e7f0ff;
+}
+
+/* active */
+.payment-option.active {
+  background: linear-gradient(135deg, #4c6ef5, #5c7cfa);
+  color: #fff;
+  border: none;
+  box-shadow: 0 4px 10px rgba(76, 110, 245, 0.3);
+}
+
+/* ===== HEADER ===== */
+abp-modal-header {
+  /* background: linear-gradient(135deg, #4c6ef5, #5c7cfa); */
+  color: rgb(0, 0, 0) !important;
+}
+
+/* ===== BUTTONS ===== */
+.p-button {
+  border-radius: 8px !important;
+}
+
+/* ===== SCROLL ===== */
+.modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+  background: #ced4da;
+  border-radius: 10px;
+}

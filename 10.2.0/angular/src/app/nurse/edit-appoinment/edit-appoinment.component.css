@@ -1,3 +1,48 @@
-::ng-deep .p-datepicker{
+/* Scroll */
+.custom-scroll {
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+/* Cards */
+.custom-card {
+    border-radius: 14px;
+    padding: 18px;
+    background: #ffffff;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+    border: 1px solid #f1f1f1;
+}
+
+/* Section Title */
+.section-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #444;
+}
+
+/* Labels */
+.form-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #666;
+}
+
+/* Readonly Card Style */
+.readonly-card {
+    background: #f8f9fa;
+    border: 1px dashed #ddd;
+}
+
+/* Inputs */
+input,
+textarea,
+.p-select,
+.p-dropdown,
+.p-datepicker {
+    border-radius: 8px !important;
+}
+
+/* Datepicker fix */
+::ng-deep .p-datepicker {
     width: 100% !important;
 }

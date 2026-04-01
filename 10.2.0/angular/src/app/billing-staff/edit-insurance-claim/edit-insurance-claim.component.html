@@ -1,73 +1,86 @@
-<form #claimForm="ngForm" class="d-flex flex-column h-100" (ngSubmit)="save()">
-    <abp-modal-header [title]="'Edit Insurance Claim'" (onCloseClick)="bsModalRef.hide()">
+<form #claimForm="ngForm" class="d-flex flex-column h-100 animate-in" (ngSubmit)="save()">
+    <abp-modal-header [title]="'🛡️ Edit Insurance Claim'" (onCloseClick)="bsModalRef.hide()">
     </abp-modal-header>
 
-    <div class="modal-body flex-grow-1 overflow-auto p-3" style="max-height: 70vh;">
-        <!-- Patient & Insurance Summary -->
-        <div class="card shadow-sm mb-4 border-0 rounded-3">
-            <div class="card-body">
-                <div class="row text-muted">
-                    <div class="col-md-4 mb-2">
-                        <strong class="text-dark">Patient:</strong> {{ patientName }}
-                    </div>
-                    <div class="col-md-4 mb-2">
-                        <strong class="text-dark">Insurance:</strong> {{ insuranceName }}
-                    </div>
-                    <div class="col-md-4 mb-2">
-                        <strong class="text-dark">Total Amount:</strong>
-                        <span class="text-success fw-bold">₹{{ invoice?.totalAmount | number:'1.2-2' }}</span>
-                    </div>
+    <div class="modal-body flex-grow-1 overflow-auto" style="max-height: 75vh;">
+        <!-- 🏥 PATIENT & INSURANCE SUMMARY -->
+        <div class="section-title">
+            <i class="pi pi-id-card"></i> Case Summary
+        </div>
+        <div class="custom-card mb-4">
+            <div class="row align-items-center">
+                <div class="col-md-4 mb-2 mb-md-0 border-end">
+                    <span class="summary-label">Patient Name</span>
+                    <span class="summary-value text-primary font-weight-bold">{{ patientName }}</span>
+                </div>
+                <div class="col-md-4 mb-2 mb-md-0 border-end pl-md-4">
+                    <span class="summary-label">Insurance Provider</span>
+                    <span class="summary-value px-2 py-1 bg-light border rounded text-dark">{{ insuranceName }}</span>
+                </div>
+                <div class="col-md-4 pl-md-4">
+                    <span class="summary-label">Total Invoice Amount</span>
+                    <span class="summary-value text-success" style="font-size: 1.25rem;">
+                        ₹{{ (invoice?.totalAmount | number:'1.2-2') }}
+                    </span>
                 </div>
             </div>
         </div>
 
-        <!-- Status -->
-        <div class="mb-4">
-            <label class="form-label fw-bold text-dark d-block mb-2">Claim Status</label>
-
-            <p-dropdown [options]="statusList" [(ngModel)]="claim.status" name="status" optionLabel="label"
+        <!-- 🏷️ CLAIM STATUS SECTION -->
+        <div class="section-title">
+            <i class="pi pi-tag"></i> Claim Lifecycle
+        </div>
+        <div class="mb-4 bg-white p-3 rounded-3 border-start border-primary border-4 shadow-sm">
+            <label class="form-label font-weight-bold text-dark d-block mb-2">Adjust Claim Status</label>
+            <p-select [options]="statusList" [(ngModel)]="claim.status" name="status" optionLabel="label"
                 optionValue="value" placeholder="Select Status" [showClear]="true" [filter]="true"
-                class="w-100 shadow-sm">
-            </p-dropdown>
+                class="w-100 shadow-sm custom-dropdown" appendTo="body">
+            </p-select>
+            <small class="text-muted mt-2 d-block">* Only 'Pending' and 'Submitted' claims can be modified.</small>
         </div>
 
-
-        <!-- Items Table -->
-        <p-table [value]="items" class="p-datatable-sm p-datatable-striped shadow-sm rounded-3"
+        <!-- 📋 ITEMS TABLE MODERNIZED -->
+        <div class="section-title">
+            <i class="pi pi-list"></i> Line Item Approvals
+        </div>
+        <p-table [value]="items" class="p-datatable-sm shadow-sm"
             [tableStyle]="{ 'min-width': '60rem' }">
             <ng-template pTemplate="header">
                 <tr>
-                    <th class="text-center">Description</th>
-                    <th class="text-center">Qty</th>
-                    <th class="text-center">Unit Price</th>
-                    <th class="text-center">Total</th>
-                    <th class="text-center">Covered</th>
-                    <th class="text-center">Approved</th>
-                    <th class="text-center">Not Approved</th>
+                    <th style="min-width: 180px;">Description</th>
+                    <th class="text-center" style="width: 80px;">Qty</th>
+                    <th class="text-right" style="width: 120px;">Unit Price</th>
+                    <th class="text-right" style="width: 120px;">Net Total</th>
+                    <th class="text-center" style="width: 100px;">Covered?</th>
+                    <th class="text-center" style="width: 160px;">Approved Amount</th>
+                    <th class="text-right" style="width: 140px;">Patient Payable</th>
                 </tr>
             </ng-template>
 
             <ng-template pTemplate="body" let-item>
                 <tr>
-                    <td class="text-center">{{ item.description }}</td>
-                    <td class="text-center">{{ item.quantity }}</td>
-                    <td class="text-center">₹{{ item.unitPrice | number:'1.2-2' }}</td>
-                    <td class="text-center">
-                        <span class="fw-semibold text-success">₹{{ getTotal(item) | number:'1.2-2' }}</span>
+                    <td class="font-weight-bold text-dark">{{ item.description }}</td>
+                    <td class="text-center"><span class="badge bg-light text-dark font-weight-bold">{{ item.quantity }}</span></td>
+                    <td class="text-right text-muted italic">₹{{ item.unitPrice | number:'1.2-2' }}</td>
+                    <td class="text-right">
+                        <span class="font-weight-bold text-success">₹{{ getTotal(item) | number:'1.2-2' }}</span>
                     </td>
                     <td class="text-center">
                         <p-checkbox [(ngModel)]="item.isCoveredByInsurance" [name]="'covered-' + item.id" binary="true"
-                            [disabled]="!isEditable()" (onChange)="onCoveredChange(item)">
+                            [disabled]="!isEditable()" (onChange)="onCoveredChange(item)"
+                            class="custom-checkbox">
                         </p-checkbox>
                     </td>
                     <td class="text-center">
-                        <input type="number" class="form-control form-control-sm" [(ngModel)]="item.approvedAmount"
-                            [min]="0" [max]="getTotal(item)" [name]="'approved-' + item.id"
+                        <p-inputNumber [(ngModel)]="item.approvedAmount" [name]="'approved-' + item.id"
+                            [min]="0" [max]="getTotal(item)" mode="currency" currency="INR" locale="en-IN"
                             [disabled]="!item.isCoveredByInsurance || !isEditable()"
-                            (ngModelChange)="onApprovedChange(item)" />
+                            (ngModelChange)="onApprovedChange(item)"
+                            class="w-100 premium-inputnumber" [showButtons]="false">
+                        </p-inputNumber>
                     </td>
-                    <td class="text-center">
-                        <span class="badge bg-danger-subtle text-danger fw-semibold">
+                    <td class="text-right">
+                        <span class="badge-not-approved shadow-sm">
                             ₹{{ getNotApproved(item) | number:'1.2-2' }}
                         </span>
                     </td>
@@ -77,12 +90,12 @@
     </div>
 
     <abp-modal-footer>
-        <div class="d-flex justify-content-end gap-2">
-            <button type="submit" class="btn btn-primary px-4" [disabled]="saving || !isEditable()">
-                <i class="fas fa-save me-2"></i> Save
+        <div class="d-flex justify-content-end gap-3 p-2">
+            <button type="button" class="btn btn-cancel shadow-sm" (click)="bsModalRef.hide()">
+                <i class="fas fa-times mr-2"></i> Cancel
             </button>
-            <button type="button" class="btn btn-outline-secondary px-4" (click)="bsModalRef.hide()">
-                <i class="fas fa-times me-2"></i> Cancel
+            <button type="submit" class="btn btn-save" [disabled]="saving || !isEditable()">
+                <i class="fas fa-save mr-2"></i> Update Claim
             </button>
         </div>
     </abp-modal-footer>

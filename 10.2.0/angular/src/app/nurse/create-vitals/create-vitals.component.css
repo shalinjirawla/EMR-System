@@ -1,0 +1,44 @@
+/* Scroll */
+.custom-scroll {
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+/* Cards */
+.custom-card {
+    border-radius: 14px;
+    padding: 18px;
+    background: #ffffff;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+    border: 1px solid #eef2f7;
+}
+
+/* Section Title */
+.section-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* Labels */
+.form-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #666;
+    margin-bottom: 4px;
+}
+
+/* Inputs */
+input,
+textarea,
+.p-select {
+    width: 100%;
+    border-radius: 8px !important;
+}
+
+/* Focus effect */
+input:focus,
+textarea:focus {
+    border-color: #3a67e5;
+    box-shadow: 0 0 0 2px rgba(58, 103, 229, 0.1);
+}

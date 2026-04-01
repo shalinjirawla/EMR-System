@@ -81,7 +81,7 @@ export class CreateVitalsComponent extends AppComponentBase implements OnInit {
     input.notes = this.vital.notes;
     input.patientId = this.vital.patientId;
     input.nurseId = this.vital.nurseId;
-
+    debugger
     this.saving = true;
     this._vitalService.create(input).subscribe({
       next: () => {

@@ -1,32 +1,42 @@
 <div class="receipt-wrapper" id="receiptToPrint">
 
-  <!-- Header -->
+  <!-- 🔹 HEADER -->
   <header class="receipt-header">
     <div class="left">
+      <div class="clinic-logo">🏥</div>
       <div>
         <h1 class="hospital-name">{{hospitalName}}</h1>
-        <small class="meta-row">123 Medical Complex, Health Nagar, Mumbai-400001 • +91 9876543210</small>
+        <small class="meta-row">
+          123 Medical Complex, Mumbai • +91 9876543210
+        </small>
       </div>
     </div>
+
     <div class="right">
-      <h1 class="title">APPOINTMENT RECEIPT</h1>
-      <div class="meta-row"><strong>No:</strong> {{receipt?.receiptNumber}}</div>
-      <div class="meta-row"><strong>Date:</strong> {{receipt?.paymentDate | date:'dd/MM/yyyy'}}</div>
-      <div class="meta-row"><strong>Status: </strong>
-        <span class="badge ok">{{receipt?.status}}</span>
+      <h2 class="title">Appointment Receipt</h2>
+      <div class="meta-box">
+        <div><span>No:</span> {{receipt?.receiptNumber}}</div>
+        <div><span>Date:</span> {{receipt?.paymentDate | date:'dd/MM/yyyy'}}</div>
+        <div>
+          <span>Status:</span>
+          <span class="badge ok">{{receipt?.status}}</span>
+        </div>
       </div>
     </div>
   </header>
 
-  <!-- Patient Info -->
+  <!-- 🔹 PATIENT INFO -->
   <section class="info-block" *ngIf="receipt">
-    <h4 class="block-title">Patient Information</h4>
-    <p><strong>Patient Name:</strong> {{receipt.patientName}}</p>
-    <p><strong>Consultant:</strong> Dr. {{receipt.doctorName}}</p>
-    <p><strong>Appointment Date:</strong> {{receipt.appointmentDate | date:'dd-MMM-yyyy'}}</p>
+    <h4 class="block-title">Patient Details</h4>
+
+    <div class="info-grid">
+      <div><strong>Patient:</strong> {{receipt.patientName}}</div>
+      <div><strong>Doctor:</strong> Dr. {{receipt.doctorName}}</div>
+      <div><strong>Date:</strong> {{receipt.appointmentDate | date:'dd-MMM-yyyy'}}</div>
+    </div>
   </section>
 
-  <!-- Table -->
+  <!-- 🔹 BILL TABLE -->
   <table class="bill-table">
     <thead>
       <tr>
@@ -34,35 +44,39 @@
         <th class="text-right">Amount (₹)</th>
       </tr>
     </thead>
+
     <tbody>
       <tr>
         <td>Consultation Fees</td>
         <td class="text-right">{{receipt.consultationFee | number:'1.2-2'}}</td>
       </tr>
     </tbody>
+
     <tfoot>
       <tr>
-        <td><strong>Total Paid</strong></td>
-        <td class="text-right"><strong>{{receipt.consultationFee | number:'1.2-2'}}</strong></td>
+        <td>Total Paid</td>
+        <td class="text-right total">
+          ₹ {{receipt.consultationFee | number:'1.2-2'}}
+        </td>
       </tr>
     </tfoot>
   </table>
 
-  <!-- Payment Info -->
-  <section class="payment-signature-row">
-  <div class="payment-section">
-    <p><strong>Payment Mode:</strong> {{receipt.paymentMethod}}</p>
-    <p><strong>Paid On:</strong> {{receipt.paymentDate | date:'dd-MMM-yyyy hh:mm a'}}</p>
-  </div>
+  <!-- 🔹 PAYMENT BOX -->
+  <section class="payment-box">
+    <div>
+      <p><strong>Payment Mode:</strong> {{receipt.paymentMethod}}</p>
+      <p><strong>Paid On:</strong> {{receipt.paymentDate | date:'dd-MMM-yyyy hh:mm a'}}</p>
+    </div>
 
-  <div class="signature">
-    Authorized Signature
-  </div>
-</section>
+    <div class="signature">
+      Authorized Signature
+    </div>
+  </section>
 
-
+  <!-- 🔹 ACTIONS -->
   <div class="action-row">
-    <button class="btn btn-primary" (click)="print()">Print</button>
+    <button class="btn btn-primary" (click)="print()">🖨 Print</button>
     <button class="btn btn-outline" (click)="close()">Close</button>
   </div>
 

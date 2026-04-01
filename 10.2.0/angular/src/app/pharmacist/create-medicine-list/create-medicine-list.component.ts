@@ -11,6 +11,7 @@ import { AbpModalHeaderComponent } from '../../../shared/components/modal/abp-mo
 import { AbpModalFooterComponent } from '../../../shared/components/modal/abp-modal-footer.component';
 import { AppComponentBase } from '@shared/app-component-base';
 import { CreateUpdateMedicineMasterDto, MedicineFormMasterDto, MedicineFormMasterServiceProxy, MedicineMasterServiceProxy, StrengthUnitMasterDto, StrengthUnitMasterServiceProxy } from '@shared/service-proxies/service-proxies';
+import { SelectModule } from 'primeng/select';
 
 
 @Component({
@@ -19,7 +20,7 @@ import { CreateUpdateMedicineMasterDto, MedicineFormMasterDto, MedicineFormMaste
   imports: [
     FormsModule,
     CommonModule,
-    DropdownModule,
+    SelectModule,
     InputTextModule,
     InputNumberModule,
     CheckboxModule,
@@ -27,7 +28,7 @@ import { CreateUpdateMedicineMasterDto, MedicineFormMasterDto, MedicineFormMaste
     AbpModalHeaderComponent,
     AbpModalFooterComponent
   ],
-  providers:[MedicineMasterServiceProxy,MedicineFormMasterServiceProxy,StrengthUnitMasterServiceProxy],
+  providers: [MedicineMasterServiceProxy, MedicineFormMasterServiceProxy, StrengthUnitMasterServiceProxy],
   templateUrl: './create-medicine-list.component.html',
   styleUrl: './create-medicine-list.component.css'
 })
@@ -58,7 +59,7 @@ export class CreateMedicineListComponent extends AppComponentBase implements OnI
     this.loadDropdownData();
   }
 
-    loadDropdownData() {
+  loadDropdownData() {
     this._formService.getAlldicineFormByTenantId(abp.session.tenantId).subscribe(res => {
       this.formOptions = res.items;
     });

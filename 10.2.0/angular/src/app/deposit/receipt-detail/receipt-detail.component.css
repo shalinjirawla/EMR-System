@@ -1,193 +1,184 @@
+/* Wrapper */
 .receipt-wrapper {
-  width: 100%;
-  max-width: 800px;
+  max-width: 750px;
   margin: auto;
   background: #fff;
-  color: #1C2434;
+  padding: 28px;
+  border-radius: 10px;
   font-family: "Inter", sans-serif;
-  padding: 32px;
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+  color: #1e293b;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
 }
 
-/* Header */
+/* HEADER */
 .receipt-header {
   display: flex;
   justify-content: space-between;
-  border-bottom: 2px solid #C7D5EA;
-  padding-bottom: 15px;
-}
-
-.left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.clinic-logo img {
-  width: 55px;
-  height: 55px;
-  object-fit: contain;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 14px;
 }
 
 .hospital-name {
-  margin: 0;
-  font-size: 34px;
+  font-size: 24px;
   font-weight: 700;
-  color: #0B3C73;
-}
-
-.title {
-  font-size: 22px;
-  color: #0B3C73;
-  font-weight: 700;
-  margin: 0;
-}
-
-.meta-row {
-  font-size: 15px;
+  color: #0f172a;
   margin-bottom: 4px;
 }
 
-.badge.ok {
-  background: #E8FFF0;
-  color: #0F7A2F;
-  border: 1px solid #0F7A2F;
-  border-radius: 4px;
-  padding: 2px 5px;
-}
-
-.badge.pending {
-  background: #FFF4F4;
-  color: #B71C1C;
-  border: 1px solid #B71C1C;
-  border-radius: 4px;
-  padding: 2px 5px;
-}
-
-/* Info Block */
-.info-block {
-  margin-top: 18px;
-  padding: 14px;
-  border: 1px solid #E2E8F3;
-  background: #FAFBFD;
-  border-radius: 6px;
-}
-
-.block-title {
-  font-size: 14px;
+.receipt-title {
+  font-size: 16px;
   font-weight: 700;
-  color: #0B3C73;
-  margin-bottom: 10px;
+  color: #2563eb;
+  margin-bottom: 6px;
 }
 
-/* Table */
+.meta {
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* STATUS */
+.status {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.status.paid {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status.pending {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* INFO GRID */
+.info-grid {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  background: #f8fafc;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.info-grid .full {
+  grid-column: span 2;
+}
+
+.info-grid label {
+  font-size: 11px;
+  color: #64748b;
+  display: block;
+}
+
+.info-grid span {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* TABLE */
 .bill-table {
   width: 100%;
+  margin-top: 18px;
   border-collapse: collapse;
-  margin-top: 20px;
-  font-size: 14px;
 }
 
 .bill-table th {
   text-align: left;
+  font-size: 12px;
   padding: 10px;
-  border-bottom: 2px solid #D8E2F4;
-  color: #0B3C73;
+  background: #f1f5f9;
+  color: #475569;
 }
 
 .bill-table td {
-  padding: 9px;
-  border-bottom: 1px solid #EBEFF7;
+  padding: 10px;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .text-right {
   text-align: right;
 }
 
-tfoot td {
-  border-top: 2px solid #D8E2F4;
-  font-weight: 700;
-}
-
-/* Payment Info + Signature */
-.payment-signature-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-top: 25px;
-  padding-top: 10px;
-  border-top: 1px dashed #c9d6ec;
-}
-
-.payment-section p {
-  margin: 4px 0;
-  font-size: 14px;
-  color: #333;
-}
-
-.signature {
-  text-align: right;
-  border-top: 1.3px solid #99b9e8;
-  width: 160px;
-  padding-top: 5px;
-  font-size: 13px;
-  margin-top: 38px;
-  color: #444;
-  opacity: 0.9;
-}
-
-/* Buttons */
-.action-row {
-  margin-top: 20px;
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-}
-
-.btn {
-  padding: 8px 18px;
-  border-radius: 6px;
-  cursor: pointer;
+.amount {
   font-weight: 600;
 }
 
+.total {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+/* FOOTER */
+.footer-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  padding-top: 10px;
+  border-top: 1px dashed #cbd5f5;
+}
+
+.paid-on {
+  font-size: 12px;
+  color: #475569;
+}
+
+.signature {
+  width: 150px;
+  text-align: center;
+  border-top: 1px solid #94a3b8;
+  padding-top: 4px;
+  font-size: 12px;
+}
+
+/* BUTTONS */
+.action-row {
+  margin-top: 18px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 .btn-primary {
-  background: linear-gradient(90deg, #2183e3 70%, #23d3d3 100%);
-  color: #fff;
+  background: #2563eb;
+  color: white;
   border: none;
 }
 
 .btn-outline {
-  border: 2px solid #0B3C73;
-  color: #0B3C73;
-  background: #fff;
+  border: 1px solid #2563eb;
+  background: white;
+  color: #2563eb;
 }
 
-/* Print Styles */
+/* PRINT */
 @media print {
   @page {
-    size: A4 portrait;
     margin: 10mm;
   }
 
-  body {
-    margin: 0;
-    background: #fff !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
   .receipt-wrapper {
-    width: 100% !important;
-    max-width: 100% !important;
-    box-shadow: none !important;
-    border-radius: 0 !important;
-    padding: 0 !important;
-    margin: 0 !important;
+    box-shadow: none;
+    padding: 0;
+    border-radius: 0;
   }
 
   .action-row {
-    display: none !important;
+    display: none;
   }
 }

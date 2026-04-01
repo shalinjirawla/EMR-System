@@ -1,10 +1,51 @@
-::ng-deep .p-fieldset-legend {
-  background: none !important;
-  width: auto !important;
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-  padding-left: 5px !important;
-  padding-right: 5px !important;
-  border: none !important;
-  font-size: 15px !important;
+.custom-scroll {
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+/* Cards */
+.custom-card {
+  border-radius: 14px;
+  padding: 18px;
+  background: #ffffff;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f1f1f1;
+}
+
+.card-title {
+  font-weight: 600;
+  font-size: 15px;
+  margin-bottom: 10px;
+  color: #444;
+}
+
+/* Labels */
+.form-label {
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: #666;
+}
+
+/* Prescription item card */
+.item-card {
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 12px;
+  background: #fafafa;
+}
+
+.item-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  color: #555;
+}
+
+/* Inputs */
+input,
+textarea,
+.p-dropdown,
+.p-multiselect {
+  border-radius: 8px !important;
 }

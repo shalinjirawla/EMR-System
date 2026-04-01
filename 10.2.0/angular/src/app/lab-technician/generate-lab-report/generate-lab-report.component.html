@@ -1,46 +1,66 @@
-<form class="form-horizontal d-flex flex-column" style="height: 90vh; display: flex; flex-direction: column;"
-    autocomplete="off" #labResultForm="ngForm" (ngSubmit)="save()">
-    <abp-modal-header style="flex: 0 0 auto;" title="Generate Lab Report - {{testName}}"
-        (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
+<form class="lab-report-form d-flex flex-column h-100" autocomplete="off" #labResultForm="ngForm" (ngSubmit)="save()">
 
-    <div class="modal-body flex-grow-1" style="overflow-y: auto; padding-right: 15px;">
-        <div class="patient-info">
-            <span class="label">Patient:</span>
-            <span class="value">{{ patientName }}</span>
+    <abp-modal-header title="Generate Lab Report - {{testName}}" (onCloseClick)="bsModalRef.hide()">
+    </abp-modal-header>
+
+    <div class="modal-body flex-grow-1">
+
+        <!-- Patient Card -->
+        <div class="patient-card">
+            <div class="patient-left">
+                <div class="avatar">👤</div>
+                <div>
+                    <div class="patient-name">{{ patientName }}</div>
+                    <div class="patient-sub">Lab Test: {{ testName }}</div>
+                </div>
+            </div>
         </div>
+
+        <!-- Table -->
         <div class="table-container" *ngIf="labReportItems.length > 0">
             <table class="lab-report-table">
                 <thead>
                     <tr>
                         <th>Test</th>
-                        <th>Min Value</th>
-                        <th>Max Value</th>
+                        <th>Range</th>
                         <th>Result</th>
                         <th>Unit</th>
-                        <th>Flag</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
+
                 <tbody>
-                    <tr *ngFor="let item of labReportItems; let i = index">
-                        <td>{{ item.test }}</td>
-                        <td>{{ item.minValue }}</td>
-                        <td>{{ item.maxValue }}</td>
+                    <tr *ngFor="let item of labReportItems; let i = index"
+                        [ngClass]="{'abnormal': item.flag === 'High' || item.flag === 'Low'}">
+
+                        <td class="test-name">
+                            {{ item.test }}
+                        </td>
+
+                        <td class="range">
+                            {{ item.minValue }} - {{ item.maxValue }}
+                        </td>
+
                         <td>
                             <input type="text" pInputText [(ngModel)]="item.result" [name]="'itemResult' + i"
-                                (ngModelChange)="onResultChange(item)" class="result-input" placeholder="Result" />
+                                (ngModelChange)="onResultChange(item)" class="result-input" placeholder="Enter value" />
                         </td>
+
                         <td>{{ item.unit }}</td>
+
                         <td>
-                            <p-tag [severity]="getSeverity(item.flag)"
-                                [value]="item.flag && item.flag !== 'NA' ? item.flag : 'Unset'"></p-tag>
+                            <p-tag [severity]="getSeverity(item.flag)" [value]="item.flag || 'Pending'">
+                            </p-tag>
                         </td>
+
                     </tr>
                 </tbody>
-
             </table>
         </div>
+
     </div>
-    <abp-modal-footer style="flex: 0 0 auto;" [cancelDisabled]="saving" [saveDisabled]="isSaveDisabled()"
-        (onCancelClick)="bsModalRef.hide()">
+
+    <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="isSaveDisabled()" (onCancelClick)="bsModalRef.hide()">
     </abp-modal-footer>
+
 </form>

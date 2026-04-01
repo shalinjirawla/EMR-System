@@ -1,136 +1,158 @@
-<form class="form-horizontal d-flex flex-column" style="height: 90vh; display: flex; flex-direction: column;"
-  autocomplete="off" #invoiceForm="ngForm" (ngSubmit)="save()">
-  <abp-modal-header style="flex: 0 0 auto;" title="Create New Invoice"
-    (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
+<form class="form-container h-100" autocomplete="off" #invoiceForm="ngForm" (ngSubmit)="save()">
 
-  <div class="modal-body flex-grow-1" style="overflow-y: auto; padding-right: 15px;">
-    <!-- Payment processing indicators -->
-    <div *ngIf="paymentProcessingError" class="alert alert-danger mt-3">
-      {{ paymentProcessingError }}
-    </div>
-    <div *ngIf="isProcessingPayment" class="payment-processing">
-      <p-progressSpinner styleClass="w-2rem h-2rem" strokeWidth="8"></p-progressSpinner>
-      <p class="mt-3 fw-bold text-primary">Processing payment...</p>
-    </div>
-
-    <!-- Patient Selection -->
-    <div class="card mb-3 shadow-sm">
-      <div class="card-header bg-light">
-        <h6 class="mb-0"><i class="fas fa-user me-2"></i> Patient Details</h6>
-      </div>
-      <div class="card-body">
-        <label class="fw-bold mb-2">Select Patient</label>
-        <p-select [(ngModel)]="selectedPatientId" name="patientId" filter="true" [options]="patients"
-          optionLabel="fullName" optionValue="id" placeholder="Select a patient" class="w-100" required
-          (onChange)="onPatientChange($event)">
-        </p-select>
-      </div>
-    </div>
-
-    <!-- Invoice Type -->
-    <div class="card mb-3 shadow-sm" *ngIf="showInvoiceTypeDropdown">
-      <div class="card-header bg-light">
-        <h6 class="mb-0"><i class="fas fa-file-invoice me-2"></i> Invoice Type</h6>
-      </div>
-      <div class="card-body">
-        <p-dropdown [(ngModel)]="selectedInvoiceType" name="invoiceType" [options]="invoiceTypeOptions"
-          optionLabel="label" optionValue="value" placeholder="Select invoice type" class="w-100"
-          (onChange)="onInvoiceTypeChange($event)">
-        </p-dropdown>
-      </div>
-    </div>
-
-    <!-- Payment Method -->
-    <div class="card mb-3 shadow-sm" *ngIf="selectedInvoiceType === invoiceTypeEnum.FullInvoice">
-      <div class="card-header bg-light">
-        <h6 class="mb-0"><i class="fas fa-credit-card me-2"></i> Payment Method</h6>
-      </div>
-      <div class="card-body">
-        <p-dropdown [(ngModel)]="invoice.paymentMethod" name="paymentMethod" [options]="paymentMethodOptions"
-          optionLabel="label" optionValue="value" placeholder="Select payment method" class="w-100">
-        </p-dropdown>
-      </div>
-    </div>
-
-    <!-- Invoice Items -->
-    <div class="card mb-4 shadow-sm">
-      <div class="card-header bg-light">
-        <h6 class="mb-0"><i class="fas fa-list me-2"></i> Invoice Items</h6>
-      </div>
-      <div class="card-body">
-        <!-- Add New Item -->
-        <div class="row g-3 align-items-end">
-          <div class="col-md-6">
-            <label class="form-label">Description</label>
-            <input type="text" class="form-control" [(ngModel)]="newItem.description" name="newItemDescription">
-          </div>
-          <div class="col-md-2">
-            <label class="form-label">Unit Price</label>
-            <input type="number" class="form-control" [(ngModel)]="newItem.unitPrice" name="newItemUnitPrice" min="0">
-          </div>
-          <div class="col-md-2">
-            <label class="form-label">Quantity</label>
-            <input type="number" class="form-control" [(ngModel)]="newItem.quantity" name="newItemQuantity" min="1"
-              value="1">
-          </div>
-          <div class="col-md-2">
-            <button type="button" class="btn btn-success" (click)="addItem()" [disabled]="!canAddItem()">
-              <i class="fas fa-plus me-1"></i> Add Item
-            </button>
-          </div>
-        </div>
-
-        <!-- Items Table -->
-        <div class="table-responsive mt-3">
-          <table class="table table-bordered align-middle">
-            <thead class="table-light">
-              <tr>
-                <th>Description</th>
-                <th>Date</th>
-                <th>Unit Price</th>
-                <th>Qty</th>
-                <th>Total</th>
-                <th style="width: 100px;">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let item of invoice.items; let i = index">
-                <td>{{item.description}}</td>
-                <td>{{item.entryDate | date:'dd/MM/yyyy'}}</td>
-                <td>{{item.unitPrice | currency:'INR':'symbol'}}</td>
-                <td>{{item.quantity}}</td>
-                <td class="fw-bold">{{item.unitPrice * item.quantity | currency:'INR':'symbol'}}</td>
-                <td>
-                  <button *ngIf="item.isRemovable" type="button" class="btn btn-sm btn-outline-danger"
-                    (click)="removeItem(i)">
-                    <i class="fas fa-trash"></i>
-                  </button>
-                </td>
-              </tr>
-              <tr *ngIf="invoice.items.length === 0">
-                <td colspan="6" class="text-center text-muted">No charges added yet</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- Invoice Summary -->
-    <div class="card shadow-sm">
-      <div class="card-header bg-light">
-        <h6 class="mb-0"><i class="fas fa-calculator me-2"></i> Summary</h6>
-      </div>
-      <div class="card-body">
-        <div class="d-flex justify-content-between fw-bold text-primary fs-5">
-          <span>Total Amount:</span>
-          <span>{{calculateTotal() | currency:'INR':'symbol'}}</span>
-        </div>
-      </div>
-    </div>
+  <!-- LOADING OVERLAY -->
+  <div class="overlay" *ngIf="saving">
+    <p-progressSpinner></p-progressSpinner>
   </div>
 
-  <abp-modal-footer style="flex: 0 0 auto;" [cancelDisabled]="saving" [saveDisabled]="isSaveDisabled()"
-    (onCancelClick)="bsModalRef.hide()">
+  <!-- HEADER -->
+  <abp-modal-header title="🧾 Create New Invoice" (onCloseClick)="bsModalRef.hide()">
+  </abp-modal-header>
+
+  <!-- BODY -->
+  <div class="modal-body flex-grow-1 custom-scroll">
+
+    <!-- ERROR NOTIFICATIONS -->
+    <div *ngIf="paymentProcessingError" class="alert alert-danger mb-3 animate-fade-in">
+      <i class="pi pi-exclamation-triangle mr-2"></i> {{ paymentProcessingError }}
+    </div>
+
+    <!-- PAYMENT PROCESSING LOADER -->
+    <div *ngIf="isProcessingPayment" class="payment-processing">
+      <p-progressSpinner styleClass="w-3rem h-3rem" strokeWidth="6"></p-progressSpinner>
+      <p class="mt-3 fw-bold text-primary">Processing Secure Payment...</p>
+    </div>
+
+    <!-- 👤 PATIENT DETAILS CARD -->
+    <div class="card custom-card">
+      <div class="section-title">
+        <span>👤 Patient Details</span>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <label class="form-label">Select Patient *</label>
+          <p-select [(ngModel)]="selectedPatientId" name="patientId" filter="true" [options]="patients"
+            optionLabel="fullName" optionValue="id" placeholder="Search and select patient" class="w-100" required
+            (onChange)="onPatientChange($event)">
+          </p-select>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <!-- 📄 INVOICE TYPE CARD -->
+      <div class="col-md-12" *ngIf="showInvoiceTypeDropdown">
+        <div class="card custom-card">
+          <div class="section-title">
+            <span>📄 Invoice Type</span>
+          </div>
+          <p-dropdown [(ngModel)]="selectedInvoiceType" name="invoiceType" [options]="invoiceTypeOptions"
+            optionLabel="label" optionValue="value" placeholder="Select type" class="w-100"
+            (onChange)="onInvoiceTypeChange($event)">
+          </p-dropdown>
+        </div>
+      </div>
+      <!-- 
+       💳 PAYMENT METHOD CARD 
+       <div class="col-md-6" *ngIf="selectedInvoiceType === invoiceTypeEnum.FullInvoice">
+        <div class="card custom-card">
+          <div class="section-title">
+            <span>💳 Payment Method</span>
+          </div>
+          <p-dropdown [(ngModel)]="invoice.paymentMethod" name="paymentMethod" [options]="paymentMethodOptions"
+            optionLabel="label" optionValue="value" placeholder="Select method" class="w-100">
+          </p-dropdown>
+        </div>
+      </div> -->
+    </div>
+
+    <!-- ➕ INVOICE ITEMS CARD -->
+    <div class="card custom-card">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="section-title mb-0">🛒 Invoice Items</div>
+      </div>
+
+      <!-- ADD NEW ITEM FORM -->
+      <div class="row g-3 align-items-end mb-4 p-3 bg-light rounded shadow-sm border">
+        <div class="col-md-6">
+          <label class="form-label">Charge Description</label>
+          <input type="text" pInputText [(ngModel)]="newItem.description" name="newItemDescription" 
+            placeholder="e.g. Consultation Fee" class="w-100">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Amount (₹)</label>
+          <p-inputNumber [(ngModel)]="newItem.unitPrice" name="newItemUnitPrice" [min]="0" placeholder="0.00"
+            styleClass="w-100">
+          </p-inputNumber>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Qty</label>
+          <p-inputNumber [(ngModel)]="newItem.quantity" name="newItemQuantity" [min]="1" placeholder="1"
+            styleClass="w-100">
+          </p-inputNumber>
+        </div>
+        <div class="col-md-2">
+          <button type="button" pButton label="Add" icon="pi pi-plus" class="p-button-success w-100" (click)="addItem()"
+            [disabled]="!canAddItem()">
+          </button>
+        </div>
+      </div>
+
+      <!-- ITEMS TABLE -->
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th>Date</th>
+              <th class="text-right">Price</th>
+              <th class="text-right">Qty</th>
+              <th class="text-right">Total</th>
+              <th style="width: 80px;" class="text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of invoice.items; let i = index">
+              <td class="font-weight-600">{{item.description}}</td>
+              <td class="text-muted small">{{item.entryDate | date:'dd/MM/yyyy'}}</td>
+              <td class="text-right">₹{{item.unitPrice | number:'1.2-2'}}</td>
+              <td class="text-right"><span class="badge badge-pill badge-light border">{{item.quantity}}</span></td>
+              <td class="text-right font-weight-bold text-dark">₹{{item.unitPrice * item.quantity | number:'1.2-2'}}
+              </td>
+              <td class="text-center">
+                <button *ngIf="item.isRemovable" type="button" pButton icon="pi pi-trash"
+                  class="p-button-rounded p-button-danger p-button-text p-button-sm" (click)="removeItem(i)"
+                  pTooltip="Remove Item">
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="invoice.items.length === 0">
+              <td colspan="6" class="text-center py-5 text-muted">
+                <i class="pi pi-shopping-cart d-block mb-2" style="font-size: 2rem; opacity: 0.5;"></i>
+                No items have been added to this invoice yet.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 📊 INVOICE SUMMARY CARD -->
+    <div class="row justify-content-end">
+      <div class="col-md-5">
+        <div class="card shadow-sm border-0">
+          <div class="total-box">
+            <span>Invoice Grand Total</span>
+            <h5 class="text-primary">₹{{calculateTotal() | number:'1.2-2'}}</h5>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="isSaveDisabled()" (onCancelClick)="bsModalRef.hide()">
   </abp-modal-footer>
+
 </form>

@@ -1,43 +1,50 @@
-<form class="form-horizontal" autocomplete="off" #createDepositForm="ngForm" (ngSubmit)="save()">
-  <abp-modal-header title="Collect Deposit" (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
+<form class="deposit-form" autocomplete="off" #createDepositForm="ngForm" (ngSubmit)="save()">
 
+  <!-- HEADER -->
+  <abp-modal-header title="Collect Deposit" (onCloseClick)="bsModalRef.hide()">
+  </abp-modal-header>
+
+  <!-- BODY -->
   <div class="modal-body">
+
     <!-- Amount -->
-    <div class="row">
-      <div class="col-md-12">
-        <label><b>Amount</b></label>
-        <input type="number"
-               class="form-control"
-               [(ngModel)]="amount"
-               name="amount"
-               placeholder="Enter amount"
-               required />
+    <div class="form-group">
+      <label>Amount</label>
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <span class="input-group-text">₹</span>
+        </div>
+        <input type="number" class="form-control custom-input" [(ngModel)]="amount" name="amount"
+          placeholder="Enter amount" required />
       </div>
     </div>
 
     <!-- Payment Method -->
-    <div class="row mt-3">
-      <div class="col-md-12">
-        <label><b>Payment Method</b></label>
-        <div class="d-flex">
-          <div class="payment-option"
-               [class.active]="paymentMethod === PaymentMethod._0"
-               (click)="setPaymentMethod(PaymentMethod._0)">
-            💵 Cash
-          </div>
-          <div class="payment-option ml-2"
-               [class.active]="paymentMethod === PaymentMethod._1"
-               (click)="setPaymentMethod(PaymentMethod._1)">
-            💳 Card
-          </div>
+    <div class="form-group mt-3">
+      <label>Payment Method</label>
+
+      <div class="payment-container">
+
+        <div class="payment-card" [class.active]="paymentMethod === PaymentMethod._0"
+          (click)="setPaymentMethod(PaymentMethod._0)">
+          <div class="icon">💵</div>
+          <div class="text">Cash</div>
         </div>
+
+        <div class="payment-card" [class.active]="paymentMethod === PaymentMethod._1"
+          (click)="setPaymentMethod(PaymentMethod._1)">
+          <div class="icon">💳</div>
+          <div class="text">Card</div>
+        </div>
+
       </div>
     </div>
+
   </div>
 
-  <abp-modal-footer
-    [cancelDisabled]="isSaving"
-    [saveDisabled]="!createDepositForm.form.valid || isSaving"
+  <!-- FOOTER -->
+  <abp-modal-footer [cancelDisabled]="isSaving" [saveDisabled]="!createDepositForm.form.valid || isSaving"
     (onCancelClick)="bsModalRef.hide()">
   </abp-modal-footer>
+
 </form>

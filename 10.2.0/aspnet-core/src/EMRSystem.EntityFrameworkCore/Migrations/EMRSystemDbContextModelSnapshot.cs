@@ -17,7 +17,7 @@ namespace EMRSystem.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.9")
+                .HasAnnotation("ProductVersion", "9.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -3858,6 +3858,9 @@ namespace EMRSystem.Migrations
                     b.Property<long?>("SpecialistDoctorId")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("Symptoms")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("TenantId")
                         .HasColumnType("int");
 
@@ -3886,29 +3889,20 @@ namespace EMRSystem.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("Dosage")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Duration")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Frequency")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Instructions")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsPrescribe")
                         .HasColumnType("bit");
-
-                    b.Property<long>("MedicineFormId")
-                        .HasColumnType("bigint");
 
                     b.Property<int>("MedicineId")
                         .HasColumnType("int");
 
                     b.Property<string>("MedicineName")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("NumberOfMedicine")
+                        .HasColumnType("int");
 
                     b.Property<long?>("PharmacistPrescriptionId")
                         .HasColumnType("bigint");
@@ -4216,11 +4210,11 @@ namespace EMRSystem.Migrations
                     b.Property<DateTime?>("DateRecorded")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("HeartRate")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("HeartRate")
+                        .HasColumnType("int");
 
-                    b.Property<string>("Height")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Height")
+                        .HasColumnType("int");
 
                     b.Property<string>("Notes")
                         .HasColumnType("nvarchar(max)");
@@ -4243,8 +4237,8 @@ namespace EMRSystem.Migrations
                     b.Property<int>("TenantId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Weight")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Weight")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

@@ -1,22 +1,71 @@
-::ng-deep .p-datepicker{
-    width: 100% !important;
+/* Scroll */
+.custom-scroll {
+  overflow-y: auto;
+  padding-right: 10px;
 }
+
+/* Cards */
+.custom-card {
+  border-radius: 14px;
+  padding: 18px;
+  background: #ffffff;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f1f1f1;
+}
+
+/* Section Titles */
+.section-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #444;
+}
+
+/* Labels */
+.form-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+/* Payment Toggle */
+.payment-toggle {
+  display: flex;
+  gap: 10px;
+}
+
 .payment-option {
-    padding: 10px 20px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    cursor: pointer;
-    user-select: none;
-    background-color: #f8f9fa;
-    font-weight: 500;
-    text-align: center;
-    flex: 1;
-    transition: background-color 0.2s, border-color 0.2s;
-  }
-  
-  .payment-option.active {
-    background-color: #0d6efd;
-    color: white;
-    border-color: #0d6efd;
-  }
-  
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  text-align: center;
+  cursor: pointer;
+  border: 1px solid #ddd;
+  background: #f8f9fa;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.payment-option:hover {
+  background: #eef3ff;
+}
+
+.payment-option.active {
+  background: linear-gradient(135deg, #4facfe, #00c6ff);
+  color: white;
+  border: none;
+}
+
+/* Inputs */
+input,
+textarea,
+.p-dropdown,
+.p-select,
+.p-datepicker {
+  border-radius: 8px !important;
+}
+
+/* Fix datepicker full width */
+::ng-deep .p-datepicker {
+  width: 100% !important;
+}

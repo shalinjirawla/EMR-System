@@ -18,6 +18,7 @@ import {
   StrengthUnitMasterDto,
   StrengthUnitMasterServiceProxy
 } from '@shared/service-proxies/service-proxies';
+import { SelectModule } from 'primeng/select';
 
 @Component({
   selector: 'app-edit-medicine-list',
@@ -25,6 +26,7 @@ import {
   imports: [
     FormsModule,
     CommonModule,
+    SelectModule,
     DropdownModule,
     InputTextModule,
     InputNumberModule,
@@ -54,7 +56,7 @@ export class EditMedicineListComponent extends AppComponentBase implements OnIni
     private _medicineService: MedicineMasterServiceProxy,
     private _formService: MedicineFormMasterServiceProxy,
     private _strengthService: StrengthUnitMasterServiceProxy,
-    public cd:ChangeDetectorRef
+    public cd: ChangeDetectorRef
   ) {
     super(injector);
   }
@@ -72,12 +74,12 @@ export class EditMedicineListComponent extends AppComponentBase implements OnIni
   loadDropdownData() {
     this._formService.getAlldicineFormByTenantId(abp.session.tenantId).subscribe(res => {
       this.formOptions = res.items;
-        this.cd.detectChanges();
+      this.cd.detectChanges();
 
     });
     this._strengthService.getAllStrengthUnitsByTenantId(abp.session.tenantId).subscribe(res => {
       this.strengthUnitOptions = res.items;
-        this.cd.detectChanges();
+      this.cd.detectChanges();
 
     });
   }

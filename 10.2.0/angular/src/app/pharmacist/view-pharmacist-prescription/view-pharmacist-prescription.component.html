@@ -1,97 +1,132 @@
-<div class="prescription-container" *ngIf="prescription">
-  <!-- Header -->
+<div class="prescription-container shadow-lg animate-in" *ngIf="prescription">
+  <!-- 🏥 CLINIC HEADER -->
   <div class="header">
-    <h2 class="clinic-name">{{ prescription.tenantName }}</h2>
-    <p class="sub">Receipt #: {{ prescription.receiptNumber }}</p>
+    <div class="clinic-name">🏢 {{ prescription.tenantName }}</div>
+    <div class="sub">🧾 Receipt Number: <span class="font-weight-bold text-dark">{{ prescription.receiptNumber }}</span>
+    </div>
+    <div class="sub">📅 Issued: {{ prescription.issueDate | date:"dd MMM yyyy, hh:mm a" }}</div>
   </div>
 
-  <!-- Patient & Doctor Info -->
+  <!-- 👥 INFO GRID -->
   <div class="grid">
-    <div class="card-section">
-      <h4>👤 Patient Info</h4>
-      <p><strong>Patient ID:</strong> {{ prescription.patientId }}</p>
-      <p><strong>Name:</strong> {{ prescription.patientName }}</p>
-      <p><strong>DOB:</strong> {{ prescription.patientDateOfBirth | date:"dd/MM/yyyy" }}</p>
-      <p><strong>Gender:</strong> {{ prescription.gender }}</p>
+    <!-- 👤 PATIENT INFO CARD -->
+    <div class="custom-card">
+      <div class="section-title">
+        <span>👤 Patient Details</span>
+      </div>
+      <div class="info-p">
+        <strong>Patient ID</strong>
+        <span>{{ prescription.patientId }}</span>
+      </div>
+      <div class="info-p">
+        <strong>Name</strong>
+        <span>{{ prescription.patientName }}</span>
+      </div>
+      <div class="info-p">
+        <strong>DOB / Gender</strong>
+        <span>{{ prescription.patientDateOfBirth | date:"dd/MM/yyyy" }} ({{ prescription.gender }})</span>
+      </div>
     </div>
 
-    <div class="card-section">
-      <h4>🩺 Doctor Info</h4>
-      <p><strong>Name:</strong> Dr. {{ prescription.doctorName }}</p>
-      <p><strong>Reg No:</strong> {{ prescription.doctorRegistrationNumber }}</p>
-      <p><strong>Issue Date:</strong> {{ prescription.issueDate | date:"dd/MM/yyyy hh:mm a" }}</p>
+    <!-- 🩺 DOCTOR INFO CARD -->
+    <div class="custom-card">
+      <div class="section-title">
+        <span>🩺 Clinical Info</span>
+      </div>
+      <div class="info-p">
+        <strong>Prescribed By</strong>
+        <span>Dr. {{ prescription.doctorName }}</span>
+      </div>
+      <div class="info-p">
+        <strong>Registration No</strong>
+        <span>{{ prescription.doctorRegistrationNumber }}</span>
+      </div>
+      <div class="info-p">
+        <strong>Clinic Case ID</strong>
+        <span>#{{ prescription.id }}</span>
+      </div>
     </div>
   </div>
 
-  <!-- Medicines -->
-  <div class="card-section" style="margin-bottom: 20px;">
-    <h4>💊 Prescribed Medicines</h4>
+  <!-- 💊 MEDICINE LIST CARD -->
+  <div class="custom-card">
+    <div class="section-title">
+      <span>💊 Prescribed Medicines</span>
+    </div>
     <div class="table-responsive">
       <table class="medicine-table">
         <thead>
           <tr>
             <th>Medicine</th>
-            <th>Dosage</th>
             <th>Frequency</th>
-            <th>Duration</th>
-            <th>Instructions</th>
-            <th>Qty</th>
             <th>Price</th>
+            <th>Qty</th>
+            <th class="text-right">Total</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let item of prescription.prescriptionItems">
-            <td>{{ item.medicineName }}</td>
-            <td>{{ item.dosage }}</td>
+            <td>
+              <div class="font-weight-bold text-primary">{{ item.medicineName }}</div>
+              <div class="text-muted small" *ngIf="item.instructions">📝 {{ item.instructions }}</div>
+            </td>
             <td>{{ item.frequency }}</td>
-            <td>{{ item.duration }}</td>
-            <td>{{ item.instructions }}</td>
-            <td>{{ item.qty }}</td>
-            <td>{{ item.unitPrice | currency:"INR" }}</td>
+            <td>{{ item.unitPrice | number:'1.2-2' }}</td>
+            <td><span class="badge info">{{ item.qty }}</span></td>
+            <td class="font-weight-bold text-dark text-right">₹{{ (item.unitPrice * item.qty) | number:'1.2-2' }}</td>
           </tr>
         </tbody>
       </table>
     </div>
   </div>
 
-  <!-- Payment & Pickup -->
+  <!-- 💳 PAYMENT & COLLECTION SUMMARY -->
   <div class="grid">
-    <div class="card-section">
-      <h4>💳 Payment</h4>
-      <p>
-        <strong>Status:</strong>&nbsp;
+    <!-- PAYMENT DETAILS -->
+    <div class="custom-card">
+      <div class="section-title">
+        <span>💳 Payment Status</span>
+      </div>
+      <div class="info-p">
+        <strong>Payment Status</strong>
         <span class="badge" [ngClass]="prescription.isPaid ? 'success' : 'danger'">
-          {{ prescription.isPaid ? "Paid" : "Unpaid" }}
+          {{ prescription.isPaid ? "✅ Fully Paid" : "❌ Payment Pending" }}
         </span>
-      </p>
-      <p>
-        <strong>Grand Total:</strong>
-        <span class="total-amount">{{ prescription.grandTotal | currency:"INR" }}</span>
-      </p>
+      </div>
+      <div class="total-box mt-3">
+        <span class="text-muted small">Grand Total Payable</span>
+        <span class="total-amount">₹{{ prescription.grandTotal | number:'1.2-2' }}</span>
+      </div>
     </div>
 
-    <div class="card-section">
-      <h4>📦 Pickup</h4>
-      <p>
-        <strong>Status:</strong>&nbsp;
+    <!-- COLLECTION DETAILS -->
+    <div class="custom-card">
+      <div class="section-title">
+        <span>📦 Pharmacy Pickup</span>
+      </div>
+      <div class="info-p">
+        <strong>Collection Status</strong>
         <span class="badge" [ngClass]="prescription.collectionStatus === 1 ? 'info' : 'warning'">
-          {{ prescription.collectionStatus === 1 ? "Collected" : "Pending" }}
+          {{ prescription.collectionStatus === 1 ? "📦 Collected" : "⏳ Pending" }}
         </span>
-      </p>
-      <p *ngIf="prescription.pickedUpByNurseId">
-        <strong>Picked Up By:</strong> {{ prescription.pickedUpByNurse }} (Nurse)
-      </p>
-      <p *ngIf="prescription.pickedUpByPatientId">
-        <strong>Picked Up By:</strong> {{ prescription.pickedUpByPatient }} (Patient)
-      </p>
-      <p><strong>Notes:</strong> {{ prescription.pharmacyNotes || "-" }}</p>
+      </div>
+      <div class="info-p" *ngIf="prescription.pickedUpByNurseId || prescription.pickedUpByPatientId">
+        <strong>Picked Up By</strong>
+        <span>{{ prescription.pickedUpByNurse || prescription.pickedUpByPatient }}</span>
+      </div>
+      <div class="info-p mt-2" *ngIf="prescription.pharmacyNotes">
+        <strong>Pharmacy Notes</strong>
+        <span class="text-muted italic">{{ prescription.pharmacyNotes }}</span>
+      </div>
     </div>
   </div>
 
-  <!-- Footer -->
+  <!-- 🖋️ SIGNATURE FOOTER -->
   <div class="footer">
-    <p>Prescribed & Signed By</p>
-    <h5>Dr. {{ prescription.doctorName }}</h5>
-    <small>Reg No: {{ prescription.doctorRegistrationNumber }}</small>
+    <div class="signature-box">
+      <p class="mb-4">Digitally Signed & Validated By</p>
+      <h5>Dr. {{ prescription.doctorName }}</h5>
+      <p>Reg No: {{ prescription.doctorRegistrationNumber }}</p>
+    </div>
   </div>
 </div>

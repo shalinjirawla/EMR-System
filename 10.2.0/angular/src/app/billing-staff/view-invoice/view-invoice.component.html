@@ -1,70 +1,80 @@
-<div class="invoice-wrapper" id="invoiceToPrint">
+<div class="invoice-wrapper shadow-lg animate-in" id="invoiceToPrint">
 
-  <!-- Header -->
+  <!-- 🏥 CLINIC HEADER -->
   <header class="inv-header">
     <div class="left">
-      <!-- <img src="assets/logo.png" alt="Hospital Logo" class="logo"> -->
       <div>
-        <h1 class="hospital-name">{{hospitalName}}</h1>
-        <small>Plot 42, Health District, Mumbai • +91 22 1234 5678 • info&#x40;hospital.com</small>
+        <h1 class="hospital-name">🏢 {{hospitalName}}</h1>
+        <small>📍 Plot 42, Health District, Mumbai • 📞 +91 22 1234 5678 • ✉️ info&#x40;hospital.com</small>
       </div>
     </div>
     <div class="right">
       <h1 class="title">INVOICE</h1>
-      <div class="meta-row"><strong>No:</strong> {{invoice.invoiceNo}}</div>
-      <div class="meta-row"><strong>Date:</strong> {{invoice.invoiceDate | date:'dd/MM/yyyy'}}</div>
-      <div class="meta-row"><strong>Status: </strong>
-        <span class="badge" [ngClass]="invoice.status == 1 ? 'ok' :invoice.status == 2 ? 'partial' :'err'">
-          {{invoice.status == 1? 'PAID': invoice.status == 2? 'CoPay Collected': 'UNPAID'}}
+      <div class="meta-row"><strong>No:</strong> #{{invoice.invoiceNo}}</div>
+      <div class="meta-row"><strong>Date:</strong> {{invoice.invoiceDate | date:'dd MMM yyyy'}}</div>
+      <div class="meta-row d-flex align-items-center justify-content-end">
+        <strong>Status:</strong>
+        <span class="badge ml-2" [ngClass]="invoice.status == 1 ? 'ok' : invoice.status == 2 ? 'partial' : 'err'">
+          {{invoice.status == 1? '✅ PAID': invoice.status == 2? '📂 CoPay Collected': '❌ UNPAID'}}
         </span>
       </div>
     </div>
   </header>
 
-  <!-- Patient Block -->
+  <!-- 👥 PATIENT & BILLING INFO -->
   <section class="info-block">
-    <div>
-      <h4 class="block-title mb-4">Patient Information</h4>
-      <p><strong>Patient ID:</strong> {{invoice.patientId}}</p>
-      <p><strong>Name:</strong> {{invoice.patientName}}</p>
-      <p><strong>Gender:</strong> {{invoice.patientGender}}</p>
-      <p><strong>Blood Group:</strong> {{invoice.patientBloodGroup}}</p>
-      <p><strong>Date of Birth:</strong> {{ invoice.patientDOB | date:'dd/MM/yyyy' }}</p>
+    <div class="block-title">👤 Patient Details</div>
+    <div class="row">
+      <div class="col-6">
+        <p><strong>Patient ID:</strong> <span>{{invoice.patientId}}</span></p>
+        <p><strong>Full Name:</strong> <span class="font-weight-bold">{{invoice.patientName}}</span></p>
+        <p><strong>Gender / Blood:</strong> <span>{{invoice.patientGender}} ({{invoice.patientBloodGroup}})</span></p>
+      </div>
+      <div class="col-6">
+        <p><strong>DOB:</strong> <span>{{ invoice.patientDOB | date:'dd/MM/yyyy' }}</span></p>
+        <p><strong>Billing Cycle:</strong> <span>Standard Medical Billing</span></p>
+        <p><strong>System Case ID:</strong> <span>#{{invoice.id}}</span></p>
+      </div>
     </div>
   </section>
 
-  <!-- Table -->
-  <table class="bill-table">
-    <thead>
-      <tr>
-        <th class="text-left">Description</th>
-        <th class="text-center">Date</th>
-        <th class="text-center">Qty</th>
-        <th class="text-center">Amount (₹)</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let item of invoice.items">
-        <td class="text-left">{{item.description}}</td>
-        <td class="text-center">{{item.entryDate | date:'dd/MM/yyyy'}}</td>
-        <td class="text-center">{{item.quantity}}</td>
-        <td class="text-center">{{ (item.quantity * item.unitPrice) | number:'1.2-2' }}</td>
-      </tr>
-    </tbody>
-  </table>
+  <!-- 💊 CHARGES TABLE -->
+  <div class="table-container mb-4">
+    <div class="block-title">🛒 Description of Charges</div>
+    <table class="bill-table">
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th class="text-center">Entry Date</th>
+          <th class="text-center">Qty</th>
+          <th class="text-right">Amount (₹)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of invoice.items">
+          <td class="font-weight-bold text-dark">{{item.description}}</td>
+          <td class="text-center text-muted">{{item.entryDate | date:'dd/MM/yyyy'}}</td>
+          <td class="text-center"><span class="badge info">{{item.quantity}}</span></td>
+          <td class="text-right font-weight-bold">₹{{ (item.quantity * item.unitPrice) | number:'1.2-2' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-  <!-- Totals -->
-  <div class="total-box">
-    <span>Total Amount</span>
+  <!-- 📊 TOTAL SUMMARY -->
+  <div class="total-box shadow-sm">
+    <span>Invoice Grand Total</span>
     <h2>₹{{invoice.totalAmount | number:'1.2-2'}}</h2>
   </div>
 
-  <!-- Footer -->
+  <!-- 📝 FOOTER & ACTIONS -->
   <footer class="inv-footer">
-    <small>Digitally generated bill — Signature not required</small>
+    <small>🛡️ This is a digitally generated medical bill. Signature and physical stamp are not required for validation.</small>
 
     <div class="action-row">
-      <button class="btn btn-primary" (click)="printInvoice()">Print</button>
+      <button type="button" class="btn btn-primary animate-pulse" (click)="printInvoice()">
+        <i class="pi pi-print mr-2"></i> Print Official Copy
+      </button>
     </div>
   </footer>
 

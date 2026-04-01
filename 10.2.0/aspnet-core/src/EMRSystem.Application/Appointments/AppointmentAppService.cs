@@ -345,7 +345,7 @@ namespace EMRSystem.Appointments
             if (patient == null)
                 throw new UserFriendlyException("Patient not found");
 
-            //if (patient.IsAdmitted)
+            /*//if (patient.IsAdmitted)
             //{
             //    // Verify admissions exist
             //    if (!patient.Admissions.Any())
@@ -389,7 +389,7 @@ namespace EMRSystem.Appointments
             //    };
             //}
             //else
-            //{
+            //{*/
             // OPD Patient - Handle payment
             var appointment = ObjectMapper.Map<Appointment>(dto);
             appointment.IsPaid = (dto.PaymentMethod != PaymentMethod.Card);
