@@ -1,201 +1,213 @@
-<div class="form-container" style="position: relative;">
-    <div class="overlay" *ngIf="isSaving">
-        <p-progressSpinner></p-progressSpinner>
-    </div>
-    <form class="form-horizontal d-flex flex-column" style="height: 90vh; display: flex; flex-direction: column;"
-        autocomplete="off" #createPharmacistPrescriptionForm="ngForm" (ngSubmit)="save()">
-        <abp-modal-header style="flex: 0 0 auto;" title="Edit Pharmacist Prescription"
-            (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
+<div class="form-container h-100" style="position: relative;">
+  <!-- LOADING OVERLAY -->
+  <div class="overlay" *ngIf="isSaving">
+    <p-progressSpinner></p-progressSpinner>
+  </div>
 
-        <div class="modal-body flex-grow-1" style="overflow-y: auto; padding-right: 15px;">
-            <!-- Selected Prescription -->
-            <div class="row">
-                <div class="col-md-12">
-                    <label>Selected Prescription</label>
-                </div>
-                <div class="col-md-12">
-                    <input type="text" class="form-control" [disabled]="true" [(ngModel)]="selectedPrescriptionName"
-                        name="selectedPrescriptionName" class="w-100" />
-                </div>
-            </div>
+  <form class="form-horizontal d-flex flex-column h-100" autocomplete="off"
+    #createPharmacistPrescriptionForm="ngForm" (ngSubmit)="save()">
 
-            <!-- Prescription Items Table -->
-            <div *ngIf="selectedPrescriptionItem?.length > 0" class="mt-3">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5>Selected Prescription Items</h5>
-                    <p-button label="Add Item" severity="info" icon="fa-solid fa-plus" (click)="NewItem()"
-                        *ngIf="!newPrescriptionItem"></p-button>
-                </div>
+    <!-- HEADER -->
+    <abp-modal-header title="📝 Edit Pharmacist Prescription" (onCloseClick)="bsModalRef.hide()">
+    </abp-modal-header>
 
-                <p-table [value]="selectedPrescriptionItem" class="p-datatable-sm shadow-md rounded"
-                    [tableStyle]="{ 'min-width': '50rem' }" [dataKey]="'_rowId'">
-                    <ng-template pTemplate="header">
-                        <tr>
-                            <th>Medicine</th>
-                            <th>Dosage</th>
-                            <th>Frequency</th>
-                            <th>Duration</th>
-                            <th>Instructions</th>
-                            <th>Price</th>
-                            <th>Stock</th>
-                            <th>Qty</th>
-                            <th class="text-right">Line Total</th>
-                            <th>Action</th>
-                        </tr>
-                    </ng-template>
-                    <ng-template pTemplate="body" let-itm let-i="rowIndex">
-                        <tr>
-                            <td>
-                                {{ itm.medicineName }}
-                                <div *ngIf="itm.batchNo" class="text-muted small">
-                                    {{ itm.batchNo }}{{ itm.expiryDate ? ' • ' + (itm.expiryDate | date:'dd/MM/yyyy') :
-                                    '' }}
-                                </div>
-                            </td>
-                            <td>{{ itm.dosage }}</td>
-                            <td>{{ itm.frequency }}</td>
-                            <td>{{ itm.duration }}</td>
-                            <td>{{ itm.instructions }}</td>
-                            <td>{{ itm.unitPrice | number:'1.2-2' }}</td>
-                            <td>
-                                <span [class.text-danger]="getRemainingStock(itm) === 0"
-                                    [class.text-warning]="getRemainingStock(itm) > 0 && getRemainingStock(itm) < 10">
-                                    {{ getStockForItem(itm) }}
-                                </span>
-                            </td>
-                            <td style="width:160px;">
-                                <p-inputNumber [ngModel]="itm.qty" (ngModelChange)="onQtyChange(itm, $event)"
-                                    [showButtons]="true" [min]="1"
-                                    [max]="getMaxPossibleQtyForCurrentBatch(itm, itm.medicineId)"
-                                    name="quantity{{itm._rowId}}">
-                                </p-inputNumber>
-                            </td>
-                            <td class="text-right">{{ (itm.unitPrice * itm.qty) | number:'1.2-2' }}</td>
-                            <td>
-                                <div class="d-flex flex-column">
-                                    <p-button *ngIf="itm._isNew" variant="text" severity="danger"
-                                        (click)="removeItem(i)" icon="fa-solid fa-xmark" class="mb-1" />
-                                    <p-button *ngIf="canSplitToNewBatch(itm)" variant="text" severity="info"
-                                        (click)="splitToNewBatch(itm)" icon="fa-solid fa-code-branch"
-                                        title="Remaining quantity add from another batch" class="mb-1" />
-                                </div>
-                            </td>
-                        </tr>
-                    </ng-template>
+    <!-- BODY -->
+    <div class="modal-body flex-grow-1 custom-scroll">
+      <p-toast appendTo="body"></p-toast>
 
-                    <ng-template pTemplate="footer">
-                        <tr>
-                            <td colspan="12">
-                                <div class="text-right">
-                                    <h5><strong>Total: ₹{{ getPrescriptionTotal() | number:'1.2-2' }}</strong></h5>
-                                </div>
-                            </td>
-                        </tr>
-                    </ng-template>
-                </p-table>
 
-                <p-toast></p-toast>
+      <!-- 👤 SELECTED PRESCRIPTION HEADER -->
+      <div class="card custom-card mb-3">
+        <div class="section-title">👤 Selected Prescription</div>
+        <div class="row">
+          <div class="col-md-12">
+            <label class="form-label">Prescription Details</label>
+            <input type="text" pInputText [disabled]="true" [(ngModel)]="selectedPrescriptionName"
+              name="selectedPrescriptionName" class="w-100" style="background: #f1f5f9; font-weight: 600;" />
+          </div>
+        </div>
+      </div>
 
-                <div *ngIf="newPrescriptionItem as item" class="d-flex align-items-center justify-content-between mt-3">
-                    <div class="card p-3 mb-0 w-100 mr-3">
-                        <div class="row mb-3">
-                            <div class="col-md-3">
-                                <label><b>Medicine Type</b></label>
-                                <p-dropdown name="itemMedicineType" appendTo="self" class="w-100"
-                                    [(ngModel)]="item.medicineFormId" [options]="medicineTypes" optionLabel="name"
-                                    optionValue="id" placeholder="Select Type" (onChange)="onMedicineTypeSelect(item)"
-                                    required>
-                                </p-dropdown>
-                            </div>
-
-                            <div class="col-md-3">
-                                <label><b>Medicine</b></label>
-                                <p-dropdown name="itemMedicine" appendTo="self" class="w-100"
-                                    [(ngModel)]="item.medicineId" [options]="medicinesByType" optionLabel="medicineName"
-                                    optionValue="id" placeholder="Select Medicine" (onChange)="onMedicineSelect(item)"
-                                    [disabled]="!item.medicineFormId" [optionDisabled]="isMedicineDisabled.bind(this)"
-                                    required>
-                                </p-dropdown>
-                                <small *ngIf="item.medicineId && isMedicineDisabled(item.medicineId)"
-                                    class="text-warning d-block mt-1">
-                                    This medicine is already included from prescription
-                                </small>
-                            </div>
-
-                            <div class="col-md-3 d-flex flex-column">
-                                <label><b>Dosage</b></label>
-                                <input type="text" pInputText [(ngModel)]="item.dosage" name="itemDosage"
-                                    placeholder="Dosage" [readonly]="true" required style="width: 100% !important;">
-                            </div>
-
-                            <div class="col-md-3 d-flex flex-column">
-                                <label><b>Price</b></label>
-                                <p-inputNumber [(ngModel)]="item.unitPrice" name="medicinePrice" [disabled]="true"
-                                    placeholder="Price"></p-inputNumber>
-                            </div>
-                        </div>
-
-                        <div class="row mb-2">
-                            <div class="col-md-3">
-                                <label><b>Frequency</b></label>
-                                <p-dropdown appendTo="self" class="w-100" name="itemFrequency"
-                                    [(ngModel)]="item.frequency" [options]="frequencyOptions" optionLabel="label"
-                                    optionValue="value" placeholder="Select Frequency" required>
-                                </p-dropdown>
-                            </div>
-
-                            <div class="col-md-3">
-                                <label><b>Duration</b></label>
-                                <div class="d-flex">
-                                    <input type="number" pInputText [(ngModel)]="item.durationValue" min="1"
-                                        placeholder="Value" class="form-control mr-1" name="durationValue" required>
-                                    <p-dropdown appendTo="self" class="flex-fill" [(ngModel)]="item.durationUnit"
-                                        [options]="durationUnits" optionLabel="label" optionValue="value"
-                                        name="itemDurationUnit" required>
-                                    </p-dropdown>
-                                </div>
-                            </div>
-
-                            <div class="col-md-2 d-flex flex-column">
-                                <label><b>Qty</b></label>
-                                <p-inputNumber [ngModel]="item.qty" (ngModelChange)="onQtyChange(item, $event)"
-                                    [showButtons]="true" [min]="1" name="qtyNewItem">
-                                </p-inputNumber>
-                            </div>
-
-                            <div class="col-md-4 d-flex flex-column">
-                                <label><b>Instructions</b></label>
-                                <textarea pInputText [(ngModel)]="item.instructions" name="itemInstructions"
-                                    placeholder="Instructions" rows="1" style="width: 100% !important;"
-                                    required></textarea>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="d-flex flex-column">
-                        <p-button severity="success" icon="fa-solid fa-check" (click)="addItem()"
-                            [disabled]="!createPharmacistPrescriptionForm.form.valid" class="mb-2"></p-button>
-                        <p-button severity="danger" icon="fa-solid fa-xmark"
-                            (click)="newPrescriptionItem = null"></p-button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row mt-2">
-                <div class="col-md-12">
-                    <label>Notes</label>
-                    <textarea pTextarea [(ngModel)]="_pharmacyNotes" name="pharmacyNotes" placeholder="Notes" rows="3"
-                        class="w-100" required></textarea>
-                </div>
-            </div>
+      <!-- 💊 PHARMACY ITEMS TABLE -->
+      <div class="card custom-card mb-3" *ngIf="selectedPrescriptionItem?.length > 0 || newPrescriptionItem">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="section-title mb-0">💊 Prescription Items</div>
+          <button type="button" pButton label="Add Medicine" icon="pi pi-plus" class="p-button-sm"
+            (click)="NewItem()" *ngIf="!newPrescriptionItem">
+          </button>
         </div>
 
-        <abp-modal-footer [cancelDisabled]="isSaving" style="flex: 0 0 auto;"
-            [saveDisabled]="!createPharmacistPrescriptionForm.form.valid || isSaving"
-            (onCancelClick)="bsModalRef.hide()">
-            <ng-container *ngIf="isSaving">
-                <i class="pi pi-spin pi-spinner" style="margin-right: 8px;"></i> Saving...
-            </ng-container>
-        </abp-modal-footer>
-    </form>
+        <!-- ITEMS TABLE -->
+        <p-table *ngIf="selectedPrescriptionItem?.length > 0" [value]="selectedPrescriptionItem"
+          styleClass="p-datatable-sm p-datatable-striped" [tableStyle]="{ 'min-width': '50rem' }" [dataKey]="'_rowId'">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Medicine</th>
+              <th>Dosage</th>
+              <th>Frequency</th>
+              <th>Duration</th>
+              <th>Price</th>
+              <th>Stock</th>
+              <th>Qty</th>
+              <th class="text-right">Total</th>
+              <th style="width: 120px; text-align: center;">Actions</th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-itm let-i="rowIndex">
+            <tr>
+              <td>
+                <div class="font-weight-bold">{{ itm.medicineName }}</div>
+                <div *ngIf="itm.batchNo" class="text-muted small">
+                  {{ itm.batchNo }}{{ itm.expiryDate ? ' • ' + (itm.expiryDate | date:'dd/MM/yyyy') : '' }}
+                </div>
+              </td>
+              <td>{{ itm.dosage }}</td>
+              <td>{{ itm.frequency }}</td>
+              <td>{{ itm.duration }}</td>
+              <td>₹{{ itm.unitPrice | number:'1.2-2' }}</td>
+              <td>
+                <span [class.text-danger]="getRemainingStock(itm) === 0"
+                  [class.text-warning]="getRemainingStock(itm) > 0 && getRemainingStock(itm) < 10"
+                  class="font-weight-bold">
+                  {{ getStockForItem(itm) }}
+                </span>
+              </td>
+              <td style="width: 140px;">
+                <p-inputNumber [ngModel]="itm.qty" (ngModelChange)="onQtyChange(itm, $event)" [showButtons]="true"
+                  [min]="1" [max]="getMaxPossibleQtyForCurrentBatch(itm, itm.medicineId)"
+                  name="quantity{{itm._rowId}}" styleClass="w-100">
+                </p-inputNumber>
+              </td>
+              <td class="text-right font-weight-bold text-primary">
+                ₹{{ (itm.unitPrice * itm.qty) | number:'1.2-2' }}
+              </td>
+              <td class="text-center">
+                <div class="d-flex justify-content-center gap-2">
+                  <button type="button" pButton icon="fa-solid fa-trash"
+                    class="p-button-rounded p-button-danger p-button-text p-button-sm"
+                    (click)="removeItem(i)" *ngIf="itm._isNew" pTooltip="Remove Item">
+                  </button>
+                  <button type="button" pButton icon="fa-solid fa-code-branch"
+                    class="p-button-rounded p-button-info p-button-text p-button-sm"
+                    (click)="splitToNewBatch(itm)" *ngIf="canSplitToNewBatch(itm)" pTooltip="Split Batch">
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="footer">
+            <tr>
+              <td colspan="9">
+                <div class="total-box">
+                  <span>Grand Total</span>
+                  <h5>₹{{ getPrescriptionTotal() | number:'1.2-2' }}</h5>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+
+        <!-- ➕ ADD NEW ITEM SECTION (UI Modernized only) -->
+        <div *ngIf="newPrescriptionItem as item" class="secondary-card mt-3">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="section-title mb-0" style="font-size: 13px;">➕ Add Manual Medicine</div>
+            <button type="button" pButton icon="pi pi-times" class="p-button-rounded p-button-secondary p-button-text p-button-sm"
+              (click)="newPrescriptionItem = null">
+            </button>
+          </div>
+
+          <div class="row">
+            <div class="col-md-3">
+              <label class="form-label">Type *</label>
+              <p-dropdown name="itemMedicineType" appendTo="body" [baseZIndex]="11000" class="w-100"
+                [(ngModel)]="item.medicineFormId" [options]="medicineTypes" optionLabel="name" optionValue="id"
+                placeholder="Select type" (onChange)="onMedicineTypeSelect(item)" required>
+              </p-dropdown>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Medicine *</label>
+              <p-dropdown name="itemMedicine" appendTo="body" [baseZIndex]="11000" class="w-100"
+                [(ngModel)]="item.medicineId" [options]="medicinesByType" optionLabel="medicineName" optionValue="id"
+                placeholder="Search medicine..." (onChange)="onMedicineSelect(item)" [disabled]="!item.medicineFormId"
+                [optionDisabled]="isMedicineDisabled.bind(this)" [filter]="true" required>
+              </p-dropdown>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Price</label>
+              <p-inputNumber [(ngModel)]="item.unitPrice" name="medicinePrice" [disabled]="true"
+                mode="currency" currency="INR">
+              </p-inputNumber>
+            </div>
+          </div>
+
+          <div class="row mt-3">
+            <div class="col-md-3">
+              <label class="form-label">Frequency *</label>
+              <p-dropdown appendTo="body" [baseZIndex]="11000" class="w-100" name="itemFrequency"
+                [(ngModel)]="item.frequency" [options]="frequencyOptions" optionLabel="label" optionValue="value"
+                placeholder="Select" required>
+              </p-dropdown>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Duration *</label>
+              <div class="d-flex gap-2">
+                <input type="number" pInputText [(ngModel)]="item.durationValue" min="1" placeholder="Val"
+                  class="w-50" name="durationValue" required>
+                <p-dropdown appendTo="body" [baseZIndex]="11000" class="flex-grow-1" [(ngModel)]="item.durationUnit"
+                  [options]="durationUnits" optionLabel="label" optionValue="value" name="itemDurationUnit" required>
+                </p-dropdown>
+              </div>
+            </div>
+
+            <div class="col-md-2">
+              <label class="form-label">Qty *</label>
+              <p-inputNumber [ngModel]="item.qty" (ngModelChange)="onQtyChange(item, $event)" [showButtons]="true"
+                [min]="1" name="qtyNewItem" styleClass="w-100">
+              </p-inputNumber>
+            </div>
+
+            <div class="col-md-3 d-flex align-items-end">
+              <button type="button" pButton label="Add to List" icon="pi pi-check" severity="success"
+                class="w-100" (click)="addItem()" [disabled]="!createPharmacistPrescriptionForm.form.valid">
+              </button>
+            </div>
+          </div>
+
+          <div class="row mt-3">
+            <div class="col-md-12">
+              <label class="form-label">Instructions</label>
+              <textarea pInputTextarea [(ngModel)]="item.instructions" name="itemInstructions"
+                placeholder="Enter special instructions..." class="w-100" rows="1" style="resize: none;"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 📝 NOTES SECTION -->
+      <div class="row mt-1">
+        <div class="col-md-12">
+          <div class="card custom-card">
+            <div class="section-title">📝 Additional Notes</div>
+            <textarea pTextarea [(ngModel)]="_pharmacyNotes" name="pharmacyNotes" placeholder="Write pharmacy notes here..."
+              rows="3" class="w-100" style="resize: none;" required></textarea>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <abp-modal-footer [cancelDisabled]="isSaving"
+      [saveDisabled]="!createPharmacistPrescriptionForm.form.valid || isSaving || selectedPrescriptionItem?.length === 0"
+      (onCancelClick)="bsModalRef.hide()">
+      <span *ngIf="isSaving">
+        <i class="pi pi-spin pi-spinner mr-2"></i> Saving Changes...
+      </span>
+    </abp-modal-footer>
+  </form>
 </div>

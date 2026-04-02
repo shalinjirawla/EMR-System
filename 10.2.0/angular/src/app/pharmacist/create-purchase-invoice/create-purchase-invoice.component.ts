@@ -3,7 +3,6 @@ import { NgForm, FormsModule } from '@angular/forms';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
-import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { CalendarModule } from 'primeng/calendar';
@@ -17,11 +16,12 @@ import {
   MedicineMasterServiceProxy, MedicineMasterDto
 } from '@shared/service-proxies/service-proxies';
 import moment from 'moment';
+import { SelectModule } from 'primeng/select';
 
 @Component({
   selector: 'app-create-purchase-invoice',
   standalone: true,
-  imports: [FormsModule, CommonModule, ButtonModule, DropdownModule, InputTextModule, InputNumberModule,
+  imports: [FormsModule, CommonModule, ButtonModule, SelectModule, InputTextModule, InputNumberModule,
     CalendarModule, DatePickerModule, TableModule, AbpModalHeaderComponent, AbpModalFooterComponent],
   providers: [PurchaseInvoiceServiceProxy, MedicineMasterServiceProxy],
   templateUrl: './create-purchase-invoice.component.html',

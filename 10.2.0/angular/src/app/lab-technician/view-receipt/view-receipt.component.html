@@ -1,39 +1,44 @@
 <div class="receipt-wrapper" id="labReceiptToPrint">
+
   <!-- Header -->
   <header class="receipt-header">
     <div class="left">
-      <div>
-        <h1 class="hospital-name">{{ hospitalName }}</h1>
-        <small class="meta-row">
-          123 Medical Complex, Health Nagar, Mumbai-400001 • +91 9876543210 • GSTIN: 27ABCDE1234F1Z5
-        </small>
-      </div>
+      <h1 class="hospital-name">{{ hospitalName }}</h1>
+      <p class="hospital-sub">
+        123 Medical Complex, Health Nagar, Mumbai-400001 <br>
+        +91 9876543210 • GSTIN: 27ABCDE1234F1Z5
+      </p>
     </div>
 
     <div class="right">
-      <h1 class="title">LAB TEST PAYMENT RECEIPT</h1>
-      <div class="meta-row">
-        <strong>No:</strong> {{ receiptDetail?.receiptNumber || labReceiptId }}
-      </div>
-      <div class="meta-row">
-        <strong>Date:</strong>
-        {{ receiptDetail?.paymentDate | date: 'dd/MM/yyyy' }}
-      </div>
-      <div class="meta-row">
-        <strong>Status:</strong>
-        <span class="badge ok">{{ receiptDetail?.status }}</span>
+      <h2 class="title">Lab Payment Receipt</h2>
+
+      <div class="meta-box">
+        <div><span>No:</span> {{ receiptDetail?.receiptNumber || labReceiptId }}</div>
+        <div><span>Date:</span> {{ receiptDetail?.paymentDate | date: 'dd/MM/yyyy' }}</div>
+        <div>
+          <span>Status:</span>
+          <span class="badge ok">{{ receiptDetail?.status }}</span>
+        </div>
       </div>
     </div>
   </header>
 
-  <!-- Patient Info -->
+  <!-- Info -->
   <section class="info-block" *ngIf="receiptDetail">
-    <h4 class="block-title">Patient Information</h4>
-    <p><strong>Patient Name:</strong> {{ receiptDetail.patient?.fullName || 'N/A' }}</p>
-    <p><strong>Payment Mode:</strong> {{ receiptDetail.paymentMethod || 'N/A' }}</p>
+    <div class="info-grid">
+      <div>
+        <label>Patient Name</label>
+        <p>{{ receiptDetail.patient?.fullName || 'N/A' }}</p>
+      </div>
+      <div>
+        <label>Payment Mode</label>
+        <p>{{ receiptDetail.paymentMethod || 'N/A' }}</p>
+      </div>
+    </div>
   </section>
 
-  <!-- Payment Items Table -->
+  <!-- Table -->
   <table class="bill-table" *ngIf="receiptDetail?.items?.length">
     <thead>
       <tr>
@@ -41,38 +46,50 @@
         <th class="text-right">Amount (₹)</th>
       </tr>
     </thead>
+
     <tbody>
       <ng-container *ngFor="let it of receiptDetail.items">
+
         <!-- Package -->
-        <tr *ngIf="it.isPackage">
+        <tr *ngIf="it.isPackage" class="package-row">
           <td>
-            <strong>{{ it.packageName }}</strong>
-            <ul class="package-items">
-              <li *ngFor="let p of it.packageTests">- {{ p }}</li>
-            </ul>
+            <div class="package-title">{{ it.packageName }}</div>
+
+            <div class="package-list">
+              <span *ngFor="let p of it.packageTests">• {{ p }}</span>
+            </div>
           </td>
-          <td class="text-right">{{ it.packagePrice | number:'1.2-2' }}</td>
+          <td class="text-right package-price">
+            ₹{{ it.packagePrice | number:'1.2-2' }}
+          </td>
         </tr>
-        <!-- Single Test -->
+
+        <!-- Single -->
         <tr *ngIf="!it.isPackage">
           <td>{{ it.labReportTypeName }}</td>
-          <td class="text-right">{{ it.labReportPrice | number:'1.2-2' }}</td>
+          <td class="text-right">
+            ₹{{ it.labReportPrice | number:'1.2-2' }}
+          </td>
         </tr>
+
       </ng-container>
     </tbody>
+
     <tfoot>
       <tr>
-        <td><strong>Total Paid</strong></td>
-        <td class="text-right"><strong>{{ receiptDetail.totalFee | number:'1.2-2' }}</strong></td>
+        <td>Total Paid</td>
+        <td class="text-right total-amount">
+          ₹{{ receiptDetail.totalFee | number:'1.2-2' }}
+        </td>
       </tr>
     </tfoot>
   </table>
 
-  <!-- Payment Details + Signature -->
+  <!-- Payment + Signature -->
   <section class="payment-signature-row">
-    <div class="payment-section">
+    <div class="payment-card">
       <p><strong>Paid On:</strong> {{ receiptDetail.paymentDate | date: 'dd-MMM-yyyy hh:mm a' }}</p>
-      <p><strong>Receipt Source:</strong> {{ receiptDetail.source || 'N/A' }} Patient</p>
+      <p><strong>Source:</strong> {{ receiptDetail.source || 'N/A' }} Patient</p>
     </div>
 
     <div class="signature">
@@ -83,10 +100,11 @@
   <!-- Buttons -->
   <div class="action-row">
     <button class="btn btn-primary" (click)="print()">
-      <i class="fas fa-print"></i> Print
+      Print
     </button>
     <button class="btn btn-outline" (click)="close()">
-      <i class="fas fa-times"></i> Close
+      Close
     </button>
   </div>
+
 </div>

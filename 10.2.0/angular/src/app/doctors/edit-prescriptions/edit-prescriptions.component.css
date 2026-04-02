@@ -1,10 +1,287 @@
-::ng-deep .p-fieldset-legend {
-    background: none !important;
-    width: auto !important;
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    padding-left: 5px !important;
-    padding-right: 5px !important;
-    border: none  !important;
-    font-size: 15px  !important;
+/* ===== MODAL BODY ===== */
+/* Premium Design Tokens */
+:host {
+    --primary-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    --surface-glass: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.3);
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.modal-body {
+    background-color: #f8fafc;
+    padding: 2rem !important;
+}
+
+/* Glassmorphism Suggestion Popup */
+.suggestion-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.suggestion-card {
+    background: var(--surface-glass);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    width: 600px;
+    max-width: 90%;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.suggestion-header {
+    background: var(--primary-gradient);
+    padding: 1.5rem;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.suggestion-header h5 {
+    margin: 0;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.close-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.close-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+.suggestion-body {
+    padding: 1.5rem;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.section {
+    margin-bottom: 1.25rem;
+}
+
+.section label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #64748b;
+    margin-bottom: 0.5rem;
+}
+
+.section .value {
+    font-size: 0.95rem;
+    color: #1e293b;
+    line-height: 1.5;
+    background: rgba(255, 255, 255, 0.5);
+    padding: 0.75rem;
+    border-radius: 8px;
+}
+
+.chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.chip {
+    background: #e0e7ff;
+    color: #4338ca;
+    padding: 0.4rem 0.8rem;
+    border-radius: 9999px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border: 1px solid #c7d2fe;
+}
+
+.chip.secondary {
+    background: #f1f5f9;
+    color: #475569;
+    border-color: #e2e8f0;
+}
+
+.suggestion-footer {
+    padding: 1.25rem;
+    background: rgba(255, 255, 255, 0.5);
+    border-top: 1px solid var(--glass-border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.btn {
+    padding: 0.6rem 1.2rem;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+}
+
+.cancel-btn {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+.cancel-btn:hover {
+    background: #e2e8f0;
+}
+
+.apply-btn {
+    background: var(--primary-gradient);
+    color: white;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+.apply-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Form Styling */
+label {
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.p-inputtext, .p-dropdown, .p-multiselect, .p-autocomplete, .p-select {
+    border-radius: 10px !important;
+    border-color: #e2e8f0 !important;
+    transition: all 0.2s !important;
+}
+
+.p-inputtext:focus, .p-dropdown:focus, .p-multiselect:focus, .p-select:focus {
+    border-color: #6366f1 !important;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
+}
+
+/* Table Design */
+.table-container {
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    border: 1px solid #f1f5f9;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table thead th {
+    background: #f8fafc;
+    border-bottom: 2px solid #f1f5f9;
+    color: #64748b;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 1rem;
+}
+
+.table tbody td {
+    padding: 1rem;
+    vertical-align: middle;
+    color: #334155;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.table tbody tr:hover {
+    background-color: #fcfdfe;
+}
+
+/* Add Item Section */
+.add-item-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 16px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid #f1f5f9;
+    margin-bottom: 2rem;
+}
+
+/* ===== DURATION INPUT GROUP ===== */
+.col-md-4.d-flex input {
+    border-radius: 10px 0 0 10px !important;
+}
+
+.col-md-4.d-flex .p-dropdown {
+    border-radius: 0 10px 10px 0 !important;
+}
+
+/* ===== CHECKBOX ===== */
+.p-checkbox {
+    transform: scale(1.1);
+}
+
+/* ===== SCROLLBAR ===== */
+.modal-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: #ced4da;
+    border-radius: 10px;
+}
+
+/* ===== SMALL UX ===== */
+.mt-3 {
+    margin-top: 1rem !important;
+}
+
+.mt-4 {
+    margin-top: 1.5rem !important;
+}
+
+/* dropdown panel */
+.p-dropdown-panel {
+    border-radius: 10px !important;
+}
+
+/* disabled field */
+.p-disabled {
+    background: #f1f3f5 !important;
+    opacity: 0.8;
 }

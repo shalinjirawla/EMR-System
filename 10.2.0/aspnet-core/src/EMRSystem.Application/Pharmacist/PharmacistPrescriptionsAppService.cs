@@ -244,10 +244,7 @@ namespace EMRSystem.Pharmacist
                                     await AdjustStockAsync(existing.MedicineId,dto.BatchId, diff);
 
                                 existing.Qty = newQty;
-                                existing.Dosage = dto.Dosage;
                                 existing.Frequency = dto.Frequency;
-                                existing.Duration = dto.Duration;
-                                existing.Instructions = dto.Instructions;
                                 existing.IsPrescribe = true;
                                 existing.PharmacistPrescriptionId = pharmacistPrescriptionId;
 
@@ -319,10 +316,8 @@ namespace EMRSystem.Pharmacist
                                 await AdjustStockAsync(existing.MedicineId,dto.BatchId, diff);
 
                             existing.Qty = newQty;
-                            existing.Dosage = dto.Dosage;
                             existing.Frequency = dto.Frequency;
-                            existing.Duration = dto.Duration;
-                            existing.Instructions = dto.Instructions;
+                            existing.NumberOfMedicine = dto.NumberOfMedicine;
                             existing.PharmacistPrescriptionId = pharmacistPrescriptionId;
 
                             await _prescriptionItemRepository.UpdateAsync(existing);
@@ -493,7 +488,7 @@ namespace EMRSystem.Pharmacist
                             TenantId = prescription.TenantId,
                             PatientId = prescription.Prescriptions.PatientId,
                             ChargeType = ChargeType.Medicine,
-                            Description = $"Medicine: {item.MedicineName} ({item.Dosage})",
+                            Description = $"Medicine: {item.MedicineName}",
                             Amount = item.UnitPrice,
                             Quantity = item.Qty,
                             EntryDate = DateTime.Now,
@@ -516,7 +511,7 @@ namespace EMRSystem.Pharmacist
                             TenantId = prescription.TenantId,
                             PatientId = prescription.Prescriptions.PatientId ?? 0,
                             ChargeType = ChargeType.Medicine,
-                            Description = $"Medicine: {item.MedicineName} ({item.Dosage})",
+                            Description = $"Medicine: {item.MedicineName}",
                             Quantity = item.Qty,
                             Amount = item.UnitPrice,
                             EntryDate = DateTime.Now,

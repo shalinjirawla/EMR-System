@@ -49,6 +49,41 @@ namespace EMRSystem.Medicines
             var itemDtos = ObjectMapper.Map<List<MedicineMasterDto>>(list);
             return itemDtos;
         }
+
+        public async Task<PagedResultDto<MedicineLookupDto>> SearchMedicinesWithPagingAsync(MedicineSearchInputDto input)
+        {
+            var tenantId = AbpSession.TenantId ?? 0;
+
+            var query = Repository.GetAll()
+                .Include(x => x.StrengthUnit)
+                .Where(x => x.TenantId == tenantId && x.IsAvailable);
+
+            // 🔍 Search filter (optional)
+            if (!input.Keyword.IsNullOrWhiteSpace())
+            {
+                query = query.Where(x => x.Name.ToLower().Contains(input.Keyword.ToLower()));
+            }
+
+            var totalCount = await query.CountAsync();
+
+            var medicines = await query
+                .OrderBy(x => x.Name)
+                .Skip(input.SkipCount)   // 👈 lazy loading key
+                .Take(input.MaxResultCount)
+                .ToListAsync();
+
+            var result = medicines.Select(m => new MedicineLookupDto
+            {
+                Id = m.Id,
+                MedicineName = m.Name,
+                MedicineFormId = m.MedicineFormId,
+                DosageOption = m.Strength.HasValue
+                    ? $"{m.Strength.Value:0.##} {m.StrengthUnit.Name}"
+                    : $"N/A {m.StrengthUnit.Name}"
+            }).ToList();
+
+            return new PagedResultDto<MedicineLookupDto>(totalCount, result);
+        }
         public async Task<List<MedicineWithStockDto>> GetMedicinesWithStockAsync()
         {
             var tenantId = AbpSession.TenantId ?? 0;

@@ -3,10 +3,8 @@ import { NgForm, FormsModule } from '@angular/forms';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
-import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { CalendarModule } from 'primeng/calendar';
 import { TableModule } from 'primeng/table';
 import { AbpModalHeaderComponent } from '../../../shared/components/modal/abp-modal-header.component';
 import { AbpModalFooterComponent } from '../../../shared/components/modal/abp-modal-footer.component';
@@ -19,15 +17,20 @@ import {
   MedicineMasterDto
 } from '@shared/service-proxies/service-proxies';
 import moment from 'moment';
+import { DatePickerModule } from 'primeng/datepicker';
+import { SelectModule } from 'primeng/select';
+
 
 @Component({
   selector: 'app-edit-purchase-invoice',
   standalone: true,
-  imports: [FormsModule, CommonModule, ButtonModule, DropdownModule, InputTextModule, InputNumberModule,
-    CalendarModule, TableModule, AbpModalHeaderComponent, AbpModalFooterComponent],
+  imports: [FormsModule, CommonModule, ButtonModule, SelectModule, DatePickerModule, InputTextModule, InputNumberModule,
+    TableModule, AbpModalHeaderComponent, AbpModalFooterComponent],
   providers: [PurchaseInvoiceServiceProxy, MedicineMasterServiceProxy],
-  templateUrl: './edit-purchase-invoice.component.html'
+  templateUrl: './edit-purchase-invoice.component.html',
+  styleUrls: ['./edit-purchase-invoice.component.css']
 })
+
 export class EditPurchaseInvoiceComponent extends AppComponentBase implements OnInit {
   @ViewChild('purchaseInvoiceForm', { static: true }) purchaseInvoiceForm: NgForm;
   @ViewChild('itemForm') itemForm: NgForm;

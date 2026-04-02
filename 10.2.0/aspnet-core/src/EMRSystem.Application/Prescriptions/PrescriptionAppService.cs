@@ -20,6 +20,7 @@ using EMRSystem.NumberingService;
 using EMRSystem.Patients;
 using EMRSystem.Patients.Dto;
 using EMRSystem.Pharmacists;
+using EMRSystem.PrescriptionLabTest.Dto;
 using EMRSystem.Prescriptions.Dto;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
@@ -143,10 +144,8 @@ namespace EMRSystem.Prescriptions
                         {
                             Id = i.Id,
                             MedicineName = i.MedicineName,
-                            Dosage = i.Dosage,
+                            NumberOfMedicine = i.NumberOfMedicine,
                             Frequency = i.Frequency,
-                            Duration = i.Duration,
-                            Instructions = i.Instructions,
                             PharmacistPrescriptionId = i.PharmacistPrescriptionId
                         }).ToList(),
                         LabTests = x.LabTests.Select(lt => new EMRSystem.LabReports.PrescriptionLabTest
@@ -646,6 +645,7 @@ namespace EMRSystem.Prescriptions
                     Id = x.Id,
                     TenantId = x.TenantId,
                     Diagnosis = x.Diagnosis,
+                    Symptoms = x.Symptoms,
                     Notes = x.Notes,
                     IssueDate = x.IssueDate,
                     IsFollowUpRequired = x.IsFollowUpRequired,
@@ -674,11 +674,8 @@ namespace EMRSystem.Prescriptions
                         Id = i.Id,
                         MedicineName = i.MedicineName,
                         MedicineId = i.MedicineId,
-                        Dosage = i.Dosage,
+                        NumberOfMedicine = i.NumberOfMedicine,
                         Frequency = i.Frequency,
-                        MedicineFormId = i.MedicineFormId,
-                        Duration = i.Duration,
-                        Instructions = i.Instructions,
                         PharmacistPrescriptionId = i.PharmacistPrescriptionId
                     }).ToList(),
                     LabTests = x.LabTests.Select(lt => new EMRSystem.LabReports.PrescriptionLabTest
@@ -757,6 +754,7 @@ namespace EMRSystem.Prescriptions
             {
                 Id = prescription.Prescription.Id,
                 Diagnosis = prescription.Prescription.Diagnosis,
+                Symptoms = prescription.Prescription.Symptoms,
                 Notes = prescription.Prescription.Notes,
                 IssueDate = prescription.Prescription.IssueDate,
                 IsFollowUpRequired = prescription.Prescription.IsFollowUpRequired,
@@ -776,10 +774,8 @@ namespace EMRSystem.Prescriptions
                 Items = prescription.Items.Select(i => new PrescriptionItemViewDto
                 {
                     MedicineName = i.MedicineName,
-                    Dosage = i.Dosage,
+                    NumberOfMedicine = i.NumberOfMedicine,
                     Frequency = i.Frequency,
-                    Duration = i.Duration,
-                    Instructions = i.Instructions,
                     MedicineId = i.MedicineId
                 }).ToList(),
 
@@ -857,15 +853,12 @@ namespace EMRSystem.Prescriptions
                         PrescriptionId = x.PrescriptionId,
                         MedicineId = x.MedicineId,
                         MedicineName = x.MedicineName,
-                        Dosage = x.Dosage,
+                        NumberOfMedicine = x.NumberOfMedicine,
                         Frequency = x.Frequency,
-                        Duration = x.Duration,
-                        Instructions = x.Instructions,
                         Qty = x.Qty,
                         UnitPrice = unitPrice,
                         IsPrescribe = x.IsPrescribe,
                         TotalPayableAmount = x.Qty * unitPrice,
-                        MedicineFormId = x.MedicineFormId,
                         PharmacistPrescriptionId = x.PharmacistPrescriptionId,
                     };
                 }).ToList(),
@@ -1009,6 +1002,70 @@ namespace EMRSystem.Prescriptions
                     dbEx.GetBaseException().Message
                 );
             }
+        }
+
+        public async Task<CreateUpdatePrescriptionDto> GetSmartSuggestionBySymptoms(string symptoms)
+        {
+            if (string.IsNullOrWhiteSpace(symptoms))
+                return null;
+
+            var fromDate = DateTime.Now.AddMonths(-3);
+            var keywords = symptoms.ToLower().Split(' ');
+
+            var prescription = await Repository.GetAll()
+                .Include(x => x.Items)
+                .Include(x => x.LabTests)
+                        .ThenInclude(lt => lt.LabReportsType)
+                .Include(x => x.SelectedEmergencyProcedureses)
+                .Where(x =>
+                    x.IssueDate >= fromDate &&
+                    keywords.Any(k => x.Symptoms.ToLower().Contains(k))
+                )
+                .OrderByDescending(x => x.IssueDate)
+                .FirstOrDefaultAsync();
+
+            if (prescription == null)
+                return null;
+
+            // ✅ Direct object mapping (NO init)
+            var result = new CreateUpdatePrescriptionDto
+            {
+                TenantId = prescription.TenantId,
+                Diagnosis = prescription.Diagnosis,
+                Symptoms = prescription.Symptoms,
+                Notes = prescription.Notes,
+                IsFollowUpRequired = prescription.IsFollowUpRequired,
+                LabTestIds = prescription.LabTests
+                    .Select(x => x.LabReportsTypeId)
+                    .ToList(),
+
+                LabTests = prescription.LabTests
+                    .Select(x => new PrescriptionLabTestDto
+                    {
+                        LabReportsTypeId = x.LabReportsTypeId,
+                        ReportTypeName = x.LabReportsType != null
+                            ? x.LabReportsType.ReportType
+                            : "",
+                        TestStatus = x.TestStatus,
+                        IsPaid = x.IsPaid
+                    }).ToList(),
+
+                EmergencyProcedures = prescription.SelectedEmergencyProcedureses
+                    .Select(p => new CreateUpdateSelectedEmergencyProceduresDto
+                    {
+                        EmergencyProcedureId = p.EmergencyProcedureId
+                    }).ToList(),
+
+                Items = prescription.Items.Select(i => new CreateUpdatePrescriptionItemDto
+                {
+                    MedicineId = i.MedicineId,
+                    MedicineName = i.MedicineName,
+                    NumberOfMedicine = i.NumberOfMedicine,
+                    Frequency = i.Frequency,
+                }).ToList()
+            };
+
+            return result;
         }
     }
 }

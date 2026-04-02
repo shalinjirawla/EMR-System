@@ -1,78 +1,96 @@
 .procedure-receipt-wrapper {
-  width: 100%;
-  max-width: 800px;
-  height: 90vh;
-  overflow-y: auto;
+  max-width: 820px;
   margin: auto;
   background: #fff;
-  color: #1C2434;
+  padding: 28px;
+  border-radius: 14px;
   font-family: "Inter", sans-serif;
-  padding: 32px;
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.06);
+  color: #1a1f36;
 }
 
 /* Header */
 .receipt-header {
   display: flex;
   justify-content: space-between;
-  border-bottom: 2px solid #C7D5EA;
-  padding-bottom: 15px;
+  border-bottom: 2px solid #e4ecf7;
+  padding-bottom: 16px;
 }
 
 .hospital-name {
-  margin: 0;
-  font-size: 34px;
+  font-size: 28px;
   font-weight: 700;
-  color: #0B3C73;
+  color: #0b3c73;
+}
+
+.hospital-sub {
+  font-size: 13px;
+  color: #666;
+  margin-top: 4px;
 }
 
 .title {
-  font-size: 22px;
-  color: #0B3C73;
+  font-size: 20px;
   font-weight: 700;
-  margin: 0;
+  text-align: right;
+  color: #0b3c73;
 }
 
-.meta-row {
-  font-size: 15px;
-  margin-bottom: 4px;
+.meta-box {
+  margin-top: 8px;
+  font-size: 13px;
+  text-align: right;
 }
 
-/* Info Block */
+.meta-box span {
+  font-weight: 600;
+  color: #444;
+}
+
+/* Info */
 .info-block {
-  margin-top: 18px;
+  margin-top: 20px;
   padding: 14px;
-  border: 1px solid #E2E8F3;
-  background: #FAFBFD;
-  border-radius: 6px;
+  background: #f8fbff;
+  border: 1px solid #e1eaf5;
+  border-radius: 8px;
 }
 
-.block-title {
-  font-size: 14px;
-  font-weight: 700;
-  color: #0B3C73;
-  margin-bottom: 10px;
+.info-grid label {
+  font-size: 12px;
+  color: #666;
+}
+
+.info-grid p {
+  font-weight: 600;
+  margin: 4px 0 0;
 }
 
 /* Table */
 .bill-table {
   width: 100%;
+  margin-top: 22px;
   border-collapse: collapse;
-  margin-top: 20px;
   font-size: 14px;
 }
 
+.bill-table thead {
+  background: #f1f6fd;
+}
+
 .bill-table th {
-  text-align: left;
-  padding: 10px;
-  border-bottom: 2px solid #D8E2F4;
-  color: #0B3C73;
+  padding: 12px;
+  font-weight: 600;
+  color: #0b3c73;
 }
 
 .bill-table td {
-  padding: 9px;
-  border-bottom: 1px solid #EBEFF7;
+  padding: 11px;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.bill-table tbody tr:hover {
+  background: #fafcff;
 }
 
 .text-right {
@@ -80,96 +98,86 @@
 }
 
 tfoot td {
-  border-top: 2px solid #D8E2F4;
+  padding: 14px;
   font-weight: 700;
+  border-top: 2px solid #d8e2f4;
 }
 
-/* Payment + Signature Row */
+.total-amount {
+  font-size: 16px;
+  color: #0b3c73;
+}
+
+/* Payment + Signature */
 .payment-signature-row {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-top: 25px;
-  padding-top: 10px;
-  border-top: 1px dashed #c9d6ec;
+  margin-top: 28px;
+  align-items: flex-end;
 }
 
-.payment-section p {
-  margin: 4px 0;
-  font-size: 14px;
-  color: #333;
+.payment-card {
+  background: #f8fbff;
+  border: 1px solid #e1eaf5;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 13px;
 }
 
 .signature {
-  text-align: right;
-  border-top: 1.3px solid #99b9e8;
-  width: 160px;
-  padding-top: 5px;
-  font-size: 13px;
-  margin-top: 38px;
-  color: #444;
-  opacity: 0.9;
+  width: 180px;
+  text-align: center;
+  border-top: 1.5px solid #9bbce6;
+  padding-top: 6px;
+  font-size: 12px;
+  color: #555;
 }
 
 /* Buttons */
 .action-row {
-  margin-top: 20px;
+  margin-top: 24px;
   display: flex;
   justify-content: center;
   gap: 12px;
 }
 
 .btn {
-  padding: 8px 18px;
+  padding: 9px 18px;
   border-radius: 6px;
-  cursor: pointer;
   font-weight: 600;
+  cursor: pointer;
 }
 
 .btn-primary {
-  background: linear-gradient(90deg, #2183e3 70%, #23d3d3 100%);
-  color: #fff;
+  background: linear-gradient(90deg, #1d72e8, #27c1c1);
+  color: white;
   border: none;
 }
 
 .btn-outline {
-  border: 2px solid #0B3C73;
-  color: #0B3C73;
-  background: #fff;
+  border: 1.5px solid #0b3c73;
+  color: #0b3c73;
+  background: white;
 }
 
+/* Status Badge */
 .badge.ok {
-  background: #E8FFF0;
-  color: #0F7A2F;
-  border: 1px solid #0F7A2F;
-  border-radius: 4px;
-  padding: 2px 5px;
+  background: #e9fff3;
+  color: #0f7a2f;
+  padding: 3px 6px;
+  border-radius: 5px;
+  font-size: 12px;
+  border: 1px solid #0f7a2f;
 }
 
-/* Print Styles */
+/* Print */
 @media print {
-  @page {
-    size: A4 portrait;
-    margin: 10mm;
-  }
-
-  body {
-    margin: 0;
-    background: #fff !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
+  .action-row {
+    display: none !important;
   }
 
   .procedure-receipt-wrapper {
-    width: 100% !important;
-    max-width: 100% !important;
-    box-shadow: none !important;
-    border-radius: 0 !important;
-    padding: 0 !important;
-    margin: 0 !important;
-  }
-
-  .action-row {
-    display: none !important;
+    box-shadow: none;
+    padding: 0;
   }
 }

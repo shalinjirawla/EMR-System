@@ -145,54 +145,7 @@ export class EditPharmacistPrescriptionComponent extends AppComponentBase implem
       error: () => this.notify.error('Could not load medicine types')
     });
   }
-  onMedicineTypeSelect(item: LocalPharmacistItem) {
-    if (!item || !item.medicineFormId) {
-      this.medicinesByType = [];
-      if (item) { item.medicineId = null; item.dosage = ''; }
-      return;
-    }
-    this._medicineMasterService.getMedicinesByFormId(item.medicineFormId).subscribe({
-      next: (res: any) => {
-        this.medicinesByType = (res || []).map((x: any) => ({ id: x.id, medicineName: x.medicineName, dosageOption: x.dosageOption }));
-        item.medicineId = null;
-        item.dosage = '';
-      },
-      error: (err) => {
-        this.notify.error('Could not load medicines for selected type');
-        this.medicinesByType = [];
-        item.medicineId = null;
-        item.dosage = '';
-      }
-    });
-  }
-  onMedicineSelect(item: LocalPharmacistItem) {
-    if (item.medicineId && this.isMedicineDisabled({ id: item.medicineId })) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Medicine Already Added',
-        detail: 'This medicine is already included from the selected prescription. Please select another medicine.'
-      });
-      item.medicineId = null;
-      item.medicineName = '';
-      item.dosage = '';
-      item.unitPrice = 0;
-      this.cdRef.detectChanges();
-      return;
-    }
-    const selected = this.medicinesByType.find(m => m.id === item.medicineId);
-    if (selected) {
-      item.medicineName = selected.medicineName;
-      item.dosage = selected.dosageOption;
-      this.fetchBatchesForMedicine(item.medicineId as number, () => {
-        const best = this.pickBestBatch(this.medicineBatches[item.medicineId as number] || []);
-        if (best) item.unitPrice = best.sellingPrice ?? item.unitPrice ?? 0;
-      });
-    } else {
-      item.medicineName = '';
-      item.dosage = '';
-      item.unitPrice = 0;
-    }
-  }
+
   isMedicineDisabled(medicine: any): boolean {
     return this.disabledMedicineIds.has(medicine.id);
   }
@@ -469,7 +422,7 @@ export class EditPharmacistPrescriptionComponent extends AppComponentBase implem
                     this.cdRef.detectChanges();
 
                   }
-                    this.cdRef.detectChanges();
+                  this.cdRef.detectChanges();
 
                 });
               }
@@ -482,7 +435,7 @@ export class EditPharmacistPrescriptionComponent extends AppComponentBase implem
             this.selectedPrescriptionName = `${res.patientName || ''} - ${res.issueDate.toDate().toLocaleDateString()} - ${res.prescriptionId}`;
             this.selectedPrescriptionItem = [...this.selectedPrescriptionItem];
             this.total = this.getPrescriptionTotal();
-                    this.cdRef.detectChanges();
+            this.cdRef.detectChanges();
 
           }
           this.cdRef.detectChanges();
@@ -593,10 +546,7 @@ export class EditPharmacistPrescriptionComponent extends AppComponentBase implem
       prescriptionId: null,
       medicineId: 0,
       medicineName: '',
-      dosage: '',
       frequency: '',
-      duration: '',
-      instructions: '',
       qty: 1,
       unitPrice: 0,
       totalPayableAmount: 0,
@@ -624,9 +574,6 @@ export class EditPharmacistPrescriptionComponent extends AppComponentBase implem
     if (!medId) {
       this.messageService.add({ severity: 'warn', summary: 'Select medicine', detail: 'Please select a medicine.' });
       return;
-    }
-    if (this.newPrescriptionItem.durationValue && this.newPrescriptionItem.durationUnit) {
-      this.newPrescriptionItem.duration = `${this.newPrescriptionItem.durationValue} ${this.newPrescriptionItem.durationUnit}`;
     }
     this.fetchBatchesForMedicine(medId, () => {
       const totalAvailable = this.medicineStocks[medId] || 0;
@@ -755,13 +702,8 @@ export class EditPharmacistPrescriptionComponent extends AppComponentBase implem
       pharmacistPrescriptionId: null,
       medicineId: item.medicineId,
       medicineName: item.medicineName,
-      dosage: item.dosage,
       frequency: item.frequency,
-      duration: item.duration,
-      instructions: item.instructions,
       isPrescribe: item.isPrescribe,
-      durationValue: item.durationValue,
-      durationUnit: item.durationUnit,
       _isNew: true
     } as LocalPharmacistItem;
   }
@@ -805,31 +747,6 @@ export class EditPharmacistPrescriptionComponent extends AppComponentBase implem
     });
   }
 
-  onMedicineChange(item: LocalPharmacistItem) {
-    const selected = this.medicineOptions.find(m => m.value === item.medicineId);
-    if (selected) {
-      item.medicineName = selected.name;
-      if (this.medicineDosageOptions[selected.name]) {
-        item.dosage = this.selectedMedicineUnits[selected.name];
-      } else {
-        item.dosage = '';
-      }
-    }
-
-    if (item.medicineId && item.medicineId > 0) {
-      this.GetPriceOfMedicine(item.medicineId);
-
-      // Fetch batches for the selected medicine
-      this.fetchBatchesForMedicine(item.medicineId, () => {
-        // Auto-select the best batch price
-        const batches = this.medicineBatches[item.medicineId!] || [];
-        const bestBatch = batches.find(b => !b.isExpire) || batches[0];
-        if (bestBatch) {
-          item.unitPrice = bestBatch.sellingPrice;
-        }
-      });
-    }
-  }
 
   GetPriceOfMedicine(_medicineId: number) {
     this._pharmacistInventoryService.get(_medicineId).subscribe({

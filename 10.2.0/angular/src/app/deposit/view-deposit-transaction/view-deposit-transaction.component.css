@@ -1,39 +1,129 @@
-/* Summary cards layout */
-.transaction-summary .summary-card {
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-  transition: transform 0.2s ease;
+/* Wrapper */
+.transaction-wrapper {
+  padding: 16px;
 }
 
-.transaction-summary .summary-card:hover {
+/* ================= SUMMARY ================= */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.summary-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: 0.2s;
+}
+
+.summary-card:hover {
   transform: translateY(-3px);
 }
 
-/* Credit card */
-.transaction-summary .credit {
-  border-left: 4px solid #28a745;
+/* Title */
+.summary-card .title {
+  font-size: 12px;
+  color: #777;
+  margin-bottom: 4px;
 }
 
-/* Debit card */
-.transaction-summary .debit {
-  border-left: 4px solid #dc3545;
+/* Value */
+.summary-card .value {
+  font-size: 18px;
+  font-weight: 700;
 }
 
-/* Balance card */
-.transaction-summary .balance {
-  border-left: 4px solid #007bff;
+/* Colors */
+.summary-card.credit {
+  border-left: 4px solid #22c55e;
 }
 
-/* Table custom style */
-:host ::ng-deep .custom-transaction-table thead th {
-  background-color: #f4f6f9;
-  font-weight: 600;
+.summary-card.debit {
+  border-left: 4px solid #ef4444;
+}
+
+.summary-card.balance {
+  border-left: 4px solid #3b82f6;
+}
+
+.value.positive {
+  color: #16a34a;
+}
+
+.value.negative {
+  color: #dc2626;
+}
+
+/* ================= TABLE ================= */
+.table-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 10px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+}
+
+/* Header */
+:host ::ng-deep .modern-table thead th {
+  background: #f8fafc;
+  font-size: 12px;
   text-transform: uppercase;
-  color: #495057;
+  color: #666;
   padding: 12px;
-  border-bottom: 2px solid #dee2e6;
+  border-bottom: 1px solid #eee;
 }
 
-:host ::ng-deep .custom-transaction-table tbody tr:hover {
-  background-color: #f9fcff;
+/* Rows */
+:host ::ng-deep .modern-table tbody tr {
+  transition: 0.2s;
+}
+
+:host ::ng-deep .modern-table tbody tr:hover {
+  background: #f9fbff;
+}
+
+/* Cells */
+:host ::ng-deep .modern-table td {
+  padding: 12px;
+  font-size: 13px;
+  vertical-align: middle;
+}
+
+/* Amount */
+.amount {
+  font-weight: 600;
+}
+
+/* Time */
+.time {
+  font-size: 11px;
+  color: #888;
+}
+
+/* Receipt */
+.receipt {
+  font-size: 12px;
+  background: #f1f5f9;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+/* Tags */
+.tag {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.credit-tag {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.debit-tag {
+  background: #fee2e2;
+  color: #991b1b;
 }

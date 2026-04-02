@@ -27,6 +27,7 @@ import { AvatarModule } from 'primeng/avatar';
 import { AvatarGroupModule } from 'primeng/avatargroup';
 import { InputTextModule } from 'primeng/inputtext';
 import { CheckboxModule } from 'primeng/checkbox';
+import { CreatePrescriptionsComponent } from '../create-prescriptions/create-prescriptions.component';
 
 @Component({
   selector: 'app-view-appoinment',
@@ -86,6 +87,11 @@ export class ViewAppoinmentComponent extends PagedListingComponentBase<Appointme
     ];
     this.editDeleteMenus = [
       {
+        label: this.l('Prescription'),
+        icon: 'pi pi-file-edit',
+        command: () => this.showCreatePrescriptionDialog({ id: this.selectedRecord.patient.id } as PatientDto),
+      },
+      {
         label: 'Rescheduled',
         icon: 'pi pi-clock',
         visible: this.selectedRecord?.status !== 0 && this.selectedRecord?.status !== 1,
@@ -104,6 +110,15 @@ export class ViewAppoinmentComponent extends PagedListingComponentBase<Appointme
         command: () => this.changeStatusofAppoinment(this.selectedRecord.id, 4)
       }
     ];
+  }
+
+  showCreatePrescriptionDialog(patient: PatientDto): void {
+    const createPrescriptionDialog: BsModalRef = this._modalService.show(CreatePrescriptionsComponent, {
+      class: 'modal-lg',
+      initialState: { selectedPatient: patient },
+    });
+
+    createPrescriptionDialog.content.onSave.subscribe(() => this.refresh());
   }
   clearFilters(): void {
     this.keyword = '';

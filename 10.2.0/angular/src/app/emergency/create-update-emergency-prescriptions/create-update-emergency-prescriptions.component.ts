@@ -294,20 +294,14 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
           isSpecialAdviceRequired: result.isSpecialAdviceRequired,
           createUpdateConsultationRequests: result.createUpdateConsultationRequests ? result.createUpdateConsultationRequests : new CreateUpdateConsultationRequestsDto(),
           items: result.items.map(i => {
-            const durationParts = i.duration?.split(' ') || ['', ''];
+
             return {
               ...new CreateUpdatePrescriptionItemDto(),
               id: i.id,
               tenantId: i.tenantId,
               medicineName: i.medicineName,
               medicineId: i.medicineId,
-              medicineFormId: i.medicineFormId,
-              dosage: i.dosage,
               frequency: i.frequency,
-              duration: i.duration,
-              durationValue: durationParts[0] ? parseInt(durationParts[0]) : 1,
-              durationUnit: durationParts[1] || 'Days',
-              instructions: i.instructions,
               prescriptionId: i.prescriptionId,
               filteredMedicines: [] // Initialize empty array
             };
@@ -437,7 +431,7 @@ export class CreateUpdateEmergencyPrescriptionsComponent extends AppComponentBas
         tenantId: abp.session.tenantId,
         medicineName: item.medicineName,
         medicineId: item.medicineId,
-        medicineFormId:item.medicineFormId,
+        medicineFormId: item.medicineFormId,
         dosage: item.dosage,
         frequency: item.frequency,
         duration: `${item.durationValue} ${item.durationUnit}`,

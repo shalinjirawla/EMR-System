@@ -1,6 +1,7 @@
 ﻿using Abp.Application.Services.Dto;
 using EMRSystem.Doctor.Dto;
 using EMRSystem.EmergencyProcedure.Dto;
+using EMRSystem.PrescriptionLabTest.Dto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,8 @@ namespace EMRSystem.Prescriptions.Dto
     {
         public int TenantId { get; set; }
         public string Diagnosis { get; set; }
+        public string Symptoms { get; set; }
+
         public string Notes { get; set; }
         public DateTime IssueDate { get; set; } = DateTime.Now;
         public bool IsFollowUpRequired { get; set; }
@@ -28,5 +31,6 @@ namespace EMRSystem.Prescriptions.Dto
         public long? SpecialistDoctorId { get; set; }
         public bool IsSpecialAdviceRequired { get; set; }
         public CreateUpdateConsultationRequestsDto CreateUpdateConsultationRequests { get; set; }
+        public List<PrescriptionLabTestDto> LabTests { get; set; }
     }
 }

@@ -1,41 +1,34 @@
 <div class="receipt-wrapper" id="depositReceiptToPrint">
-  <!-- Header -->
+
+  <!-- HEADER -->
   <header class="receipt-header">
+
     <div class="left">
-      <div>
-        <h1 class="hospital-name">{{ hospitalName }}</h1>
-        <small class="meta-row">
-          123 Medical Complex, Health Nagar, Mumbai-400001 • +91 9876543210
-        </small>
-      </div>
+      <h1 class="hospital-name">{{ hospitalName }}</h1>
+      <div class="meta">123 Medical Complex, Health Nagar, Mumbai-400001</div>
+      <div class="meta">+91 9876543210</div>
     </div>
 
     <div class="right">
-      <h1 class="title">DEPOSIT PAYMENT RECEIPT</h1>
-      <div class="meta-row">
-        <strong>No:</strong> {{ receipt?.receiptNo || 'N/A' }}
-      </div>
-      <div class="meta-row">
-        <strong>Date:</strong> {{ receipt?.transactionDate | date:'dd/MM/yyyy' }}
-      </div>
-      <div class="meta-row">
-        <strong>Status: </strong>
-        <span class="badge" [ngClass]="receipt?.isPaid ? 'ok' : 'pending'">
-          {{ receipt?.isPaid ? 'Paid' : 'Pending' }}
-        </span>
-      </div>
+      <div class="receipt-title">DEPOSIT RECEIPT</div>
+      <div class="meta"><b>No:</b> {{ receipt?.receiptNo || 'N/A' }}</div>
+      <div class="meta"><b>Date:</b> {{ receipt?.transactionDate | date:'dd MMM yyyy' }}</div>
+
+      <span class="status" [ngClass]="receipt?.isPaid ? 'paid' : 'pending'">
+        {{ receipt?.isPaid ? 'PAID' : 'PENDING' }}
+      </span>
     </div>
+
   </header>
 
-  <!-- Patient Info -->
-  <section class="info-block" *ngIf="receipt">
-    <h4 class="block-title">Patient Information</h4>
-    <p><strong>Patient Name:</strong> {{ patientName || 'N/A' }}</p>
-    <p><strong>Payment Method:</strong> {{ receipt.paymentMethod == 0 ? 'Cash' : 'Card' }}</p>
-    <p><strong>Description:</strong> {{ receipt.description || 'N/A' }}</p>
+  <!-- INFO -->
+  <section class="info-grid" *ngIf="receipt">
+    <div><label>Patient</label><span>{{ patientName || 'N/A' }}</span></div>
+    <div><label>Payment</label><span>{{ receipt.paymentMethod == 0 ? 'Cash' : 'Card' }}</span></div>
+    <div class="full"><label>Description</label><span>{{ receipt.description || 'N/A' }}</span></div>
   </section>
 
-  <!-- Table -->
+  <!-- TABLE -->
   <table class="bill-table">
     <thead>
       <tr>
@@ -43,24 +36,26 @@
         <th class="text-right">Amount (₹)</th>
       </tr>
     </thead>
+
     <tbody>
       <tr>
         <td>Deposit Amount</td>
-        <td class="text-right">{{ receipt.amount | number:'1.2-2' }}</td>
+        <td class="text-right amount">₹ {{ receipt.amount | number:'1.2-2' }}</td>
       </tr>
     </tbody>
+
     <tfoot>
       <tr>
-        <td><strong>Total Paid</strong></td>
-        <td class="text-right"><strong>{{ receipt.amount | number:'1.2-2' }}</strong></td>
+        <td>Total Paid</td>
+        <td class="text-right total">₹ {{ receipt.amount | number:'1.2-2' }}</td>
       </tr>
     </tfoot>
   </table>
 
-  <!-- Payment Info + Signature -->
-  <section class="payment-signature-row">
-    <div class="payment-section">
-      <p><strong>Paid On:</strong> {{ receipt.transactionDate | date:'dd-MMM-yyyy hh:mm a' }}</p>
+  <!-- FOOT -->
+  <section class="footer-row">
+    <div class="paid-on">
+      Paid On: {{ receipt.transactionDate | date:'dd MMM yyyy, hh:mm a' }}
     </div>
 
     <div class="signature">
@@ -68,13 +63,10 @@
     </div>
   </section>
 
-  <!-- Action Buttons -->
+  <!-- ACTION -->
   <div class="action-row">
-    <button class="btn btn-primary" (click)="print()">
-      <i class="fas fa-print"></i> Print
-    </button>
-    <button class="btn btn-outline" (click)="close()">
-      <i class="fas fa-times"></i> Close
-    </button>
+    <button class="btn btn-primary" (click)="print()">Print</button>
+    <button class="btn btn-outline" (click)="close()">Close</button>
   </div>
+
 </div>

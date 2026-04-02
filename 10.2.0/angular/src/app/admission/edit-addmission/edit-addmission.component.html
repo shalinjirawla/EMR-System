@@ -1,108 +1,134 @@
-<form class="form-horizontal d-flex flex-column" style="height: 90vh; display: flex; flex-direction: column;"
-    autocomplete="off" #editAdmissionForm="ngForm" (ngSubmit)="save()">
+<form class="admission-form" #editAdmissionForm="ngForm" (ngSubmit)="save()" autocomplete="off">
 
-    <abp-modal-header style="flex: 0 0 auto;" title="Edit Admission"
-        (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
+    <!-- HEADER -->
+    <abp-modal-header title="Edit Admission" (onCloseClick)="bsModalRef.hide()">
+    </abp-modal-header>
 
-    <div class="modal-body flex-grow-1" style="overflow-y: auto; padding-right: 15px;">
+    <div class="modal-body custom-body">
 
-        <!-- Patient & Admission Type -->
-        <div class="row mt-3">
-            <div class="col-md-6 d-flex flex-column">
-                <label><b>Select Patient</b></label>
-                <p-select [options]="patients" optionLabel="fullName" [optionValue]="'id'"
-                    [(ngModel)]="admission.patientId" name="patientId" class="w-100" required></p-select>
-            </div>
-            <div class="col-md-6 d-flex flex-column">
-                <label>Admission Type</label>
-                <p-select [(ngModel)]="admission.admissionType" name="admissionType" [options]="admissionTypeOptions"
-                    optionLabel="label" optionValue="value" placeholder="Select admission type" class="w-100"
-                    required></p-select>
-            </div>
-        </div>
+        <!-- 👤 Patient -->
+        <div class="card-section">
+            <h5 class="section-title">👤 Patient Details</h5>
 
-        <!-- Doctor & Nurse -->
-        <div class="row mt-3">
-            <div class="col-md-6 d-flex flex-column">
-                <label>Select Doctor</label>
-                <p-select [(ngModel)]="admission.doctorId" [optionValue]="'id'" name="doctorId" [options]="doctors"
-                    optionLabel="fullName" placeholder="Select doctor" class="w-100" required></p-select>
-            </div>
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    <label>Select Patient</label>
+                    <p-select [options]="patients" optionLabel="fullName" optionValue="id"
+                        [(ngModel)]="admission.patientId" name="patientId" required>
+                    </p-select>
+                </div>
 
-            <div class="col-md-6 d-flex flex-column">
-                <label>Select Nurse</label>
-                <p-select [(ngModel)]="admission.nurseId" [optionValue]="'id'" name="nurseId" [options]="nurses"
-                    optionLabel="fullName" placeholder="Select nurse" class="w-100"></p-select>
+                <div class="col-md-6 form-group">
+                    <label>Admission Type</label>
+                    <p-select [(ngModel)]="admission.admissionType" [options]="admissionTypeOptions" optionLabel="label"
+                        optionValue="value" name="admissionType" required>
+                    </p-select>
+                </div>
             </div>
         </div>
 
-        <!-- Room & Bed -->
-        <div class="row mt-3">
-            <div class="col-md-6 d-flex flex-column">
-                <label>Select Room</label>
-                <p-select [(ngModel)]="admission.roomId" name="roomId" [filter]="true" [options]="roomOptions"
-                    optionValue="value" optionLabel="label" placeholder="Select room" class="w-100" required
-                    (onChange)="onRoomChange($event.value)"></p-select>
-            </div>
+        <!-- 👨‍⚕️ Staff -->
+        <div class="card-section">
+            <h5 class="section-title">👨‍⚕️ Medical Staff</h5>
 
-            <div class="col-md-6 d-flex flex-column">
-                <label>Select Bed</label>
-                <p-select [(ngModel)]="admission.bedId" name="bedId" [options]="beds" [filter]="true"
-                    optionLabel="bedNumber" optionValue="id" placeholder="Select bed" class="w-100"></p-select>
-            </div>
-        </div>
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    <label>Doctor</label>
+                    <p-select [(ngModel)]="admission.doctorId" [options]="doctors" optionLabel="fullName"
+                        optionValue="id" name="doctorId" required>
+                    </p-select>
+                </div>
 
-        <!-- Reason -->
-        <div class="row mt-3">
-            <div class="col-md-12 d-flex flex-column">
-                <label>Reason</label>
-                <textarea pTextarea [(ngModel)]="admission.reasonForAdmit" name="reasonForAdmit"
-                    placeholder="Reason for admission" rows="3" class="w-100" required>
-        </textarea>
+                <div class="col-md-6 form-group">
+                    <label>Nurse</label>
+                    <p-select [(ngModel)]="admission.nurseId" [options]="nurses" optionLabel="fullName" optionValue="id"
+                        name="nurseId">
+                    </p-select>
+                </div>
             </div>
         </div>
 
-        <!-- Billing Mode -->
-        <div class="row mt-3">
-            <div class="col-md-6 d-flex flex-column">
-                <label>Billing Mode</label>
-                <p-select [(ngModel)]="admission.billingMode" name="billingMode" [options]="billingMethodOptions"
-                    optionLabel="label" optionValue="value" class="w-100" required></p-select>
-            </div>
+        <!-- 🏥 Room -->
+        <div class="card-section">
+            <h5 class="section-title">🏥 Room Allocation</h5>
 
-            <div class="col-md-6 d-flex flex-column" *ngIf="admission.billingMode != BillingMethod._0">
-                <label>Insurance</label>
-                <p-select [(ngModel)]="admission.insuranceId" [options]="insurances" optionLabel="insuranceName"
-                    optionValue="id" placeholder="Select Insurance" name="insuranceId" class="w-100"
-                    required></p-select>
-            </div>
-        </div>
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    <label>Room</label>
+                    <p-select [(ngModel)]="admission.roomId" [options]="roomOptions" optionLabel="label"
+                        optionValue="value" name="roomId" [filter]="true" (onChange)="onRoomChange($event.value)"
+                        required>
+                    </p-select>
+                </div>
 
-        <!-- Insurance Details -->
-        <div class="row mt-3" *ngIf="admission.billingMode != BillingMethod._0">
-            <div class="col-md-12 d-flex flex-column">
-                <label>Policy Number</label>
-                <input type="text" class="form-control mb-2" placeholder="Policy Number"
-                    [(ngModel)]="admission.policyNumber" name="policyNumber" required />
+                <div class="col-md-6 form-group">
+                    <label>Bed</label>
+                    <p-select [(ngModel)]="admission.bedId" [options]="beds" optionLabel="bedNumber" optionValue="id"
+                        name="bedId" [filter]="true">
+                    </p-select>
+                </div>
             </div>
         </div>
 
-        <div class="row mt-3" *ngIf="admission.billingMode != BillingMethod._0">
-            <div class="col-md-6 d-flex flex-column">
-                <label>Coverage Limit</label>
-                <input type="number" class="form-control mb-2" placeholder="Coverage Limit"
-                    [(ngModel)]="admission.coverageLimit" name="coverageLimit" required />
+        <!-- 📝 Reason -->
+        <div class="card-section">
+            <h5 class="section-title">📝 Admission Reason</h5>
+
+            <textarea pTextarea [(ngModel)]="admission.reasonForAdmit" name="reasonForAdmit" rows="3"
+                placeholder="Enter reason..." required>
+            </textarea>
+        </div>
+
+        <!-- 💳 Billing -->
+        <div class="card-section">
+            <h5 class="section-title">💳 Billing Details</h5>
+
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    <label>Billing Mode</label>
+                    <p-select [(ngModel)]="admission.billingMode" [options]="billingMethodOptions" optionLabel="label"
+                        optionValue="value" name="billingMode" required>
+                    </p-select>
+                </div>
+
+                <div class="col-md-6 form-group" *ngIf="admission.billingMode != BillingMethod._0">
+                    <label>Insurance</label>
+                    <p-select [(ngModel)]="admission.insuranceId" [options]="insurances" optionLabel="insuranceName"
+                        optionValue="id" name="insuranceId" required>
+                    </p-select>
+                </div>
             </div>
 
-            <div class="col-md-6 d-flex flex-column">
-                <label>Co-Pay %</label>
-                <input type="number" class="form-control" placeholder="Co-Pay %" [(ngModel)]="admission.coPayPercentage"
-                    name="coPayPercentage" />
+            <div *ngIf="admission.billingMode != BillingMethod._0">
+
+                <div class="row mt-2">
+                    <div class="col-md-6 form-group">
+                        <label>Policy Number</label>
+                        <input type="text" class="form-control" [(ngModel)]="admission.policyNumber" name="policyNumber"
+                            required>
+                    </div>
+
+                    <div class="col-md-6 form-group">
+                        <label>Coverage Limit</label>
+                        <input type="number" class="form-control" [(ngModel)]="admission.coverageLimit"
+                            name="coverageLimit" required>
+                    </div>
+                </div>
+
+                <div class="form-group mt-2">
+                    <label>Co-Pay %</label>
+                    <input type="number" class="form-control" [(ngModel)]="admission.coPayPercentage"
+                        name="coPayPercentage">
+                </div>
+
             </div>
         </div>
 
     </div>
 
-    <abp-modal-footer style="flex: 0 0 auto;" [cancelDisabled]="saving"
-        [saveDisabled]="!editAdmissionForm.form.valid || saving" (onCancelClick)="bsModalRef.hide()"></abp-modal-footer>
+    <!-- FOOTER -->
+    <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="!editAdmissionForm.form.valid || saving"
+        (onCancelClick)="bsModalRef.hide()">
+    </abp-modal-footer>
+
 </form>

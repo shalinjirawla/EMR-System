@@ -1,179 +1,183 @@
-<form class="form-horizontal d-flex flex-column" style="height: 90vh; display: flex; flex-direction: column;"
-  autocomplete="off" #emergencyPrescriptionForm="ngForm" (ngSubmit)="save()">
-  <abp-modal-header style="flex: 0 0 auto;" [title]="id>0?'Edit Emergency Prescription':'Create Emergency Prescription'"
-    (onCloseClick)="bsModalRef.hide()"></abp-modal-header>
+<form class="form-horizontal d-flex flex-column h-100" autocomplete="off" #emergencyPrescriptionForm="ngForm"
+  (ngSubmit)="save()">
 
-  <div class="modal-body flex-grow-1" style="overflow-y: auto; padding-right: 15px;">
+  <!-- HEADER -->
+  <abp-modal-header [title]="id>0 ? '✏️ Edit Emergency Prescription' : '🆕 Create Emergency Prescription'"
+    (onCloseClick)="bsModalRef.hide()">
+  </abp-modal-header>
 
-    <!-- Emergency Selection -->
-    <div class="row">
-      <div class="col-md-12">
-        <label><b>Emergency Cases</b></label>
-        <p-select [options]="emergencyCase" placeholder="Select emergency case" optionLabel="emergencyNumber"
-          optionValue="id" [(ngModel)]="prescription.emergencyCaseId" name="emergencyCaseId" class="w-100" required>
-        </p-select>
-      </div>
-    </div>
+  <!-- BODY -->
+  <div class="modal-body flex-grow-1 custom-scroll">
 
-    <!-- Diagnosis -->
-    <div class="row mt-3">
-      <div class="col-md-6 d-flex flex-column">
-        <label>Diagnosis</label>
-        <input type="text" pInputText [(ngModel)]="prescription.diagnosis" name="diagnosis" required
-          placeholder="Enter diagnosis" />
-      </div>
-      <div class="col-md-6" *ngIf="isAdmin">
-        <label for="doctorSelect">Select Doctor</label>
-        <p-select id="doctorSelect" [(ngModel)]="prescription.doctorId" [optionValue]="'id'" name="doctorId"
-          [options]="doctors" optionLabel="fullName" placeholder="Select doctor" class="w-100" required />
-      </div>
-    </div>
+    <!-- 🔹 BASIC INFO CARD -->
+    <div class="card custom-card mb-3">
+      <div class="card-title">🚑 Emergency Details</div>
 
-    <div class="row mt-3">
-      <div class="col-md-12">
-        <label><b>Select Lab Tests (if required)</b></label>
-        <p-multiSelect [(ngModel)]="selectedLabTests" [options]="labTests" optionLabel="name"
-          placeholder="Select Lab Tests" display="chip" class="w-100" name="labTests">
-          <ng-template let-value pTemplate="selectedItems">
-            <div class="flex align-items-center gap-2" *ngFor="let option of selectedLabTests">
-              <div>{{option?.name || 'Loading...'}}</div>
-            </div>
-          </ng-template>
-          <ng-template let-option pTemplate="item">
-            <div class="flex align-items-center gap-2">
-              <div>{{option.name}}</div>
-            </div>
-          </ng-template>
-        </p-multiSelect>
-      </div>
-    </div>
-
-    <!-- Procedures Selection - NEW SECTION -->
-    <div class="row mt-3">
-      <div class="col-md-12">
-        <label><b>Select Procedures (if required)</b></label>
-        <p-multiSelect [(ngModel)]="selectedProcedures" [options]="_procedures" optionLabel="name" optionValue="id"
-          placeholder="Select Procedures" display="chip" class="w-100" name="procedures">
-        </p-multiSelect>
-      </div>
-    </div>
-
-
-    <!-- Notes -->
-    <div class="row mt-3">
-      <div class="col-md-12 d-flex flex-column">
-        <label>Notes</label>
-        <textarea pTextarea [(ngModel)]="prescription.notes" name="notes" rows="3" class="w-100"
-          placeholder="Enter notes"></textarea>
-      </div>
-    </div>
-
-    <!-- Issue Date & Follow-up -->
-    <div class="row mt-3">
-      <div class="col-md-6 d-flex">
-        <p-checkbox [(ngModel)]="prescription.isFollowUpRequired" name="isFollowUpRequired" inputId="followup"
-          [binary]="true" />
-        <label for="followup" class="ml-2"><b>Follow-up Required?</b></label>
-      </div>
-      <div class="col-md-6 d-flex">
-        <p-checkbox [(ngModel)]="prescription.isSpecialAdviceRequired" name="isSpecialAdviceRequired"
-          inputId="specialAdvice" [binary]="true" (onChange)="onChangeSpecialAdvice($event)" />
-        <label for="specialAdvice" class="ml-2"><b>Special Advice Required?</b></label>
-      </div>
-    </div>
-
-    <!-- Special Advice -->
-
-    <div class="row mt-3" *ngIf="_isSpecialAdviceRequired">
-      <div class="col-md-6">
-        <label for="doctorSelect">Select Department</label>
-        <p-select id="doctorSelect" [(ngModel)]="prescription.departmentId" [optionValue]="'id'" name="departmentId"
-          [options]="departmentList" optionLabel="departmentName" placeholder="Select doctor" class="w-100" required
-          (onChange)="OnSelectDepartMent($event)" />
-      </div>
-      <div class="col-md-6" *ngIf="_isSpecialDepartMentSelect">
-        <label for="doctorSelect">Select Specialize Doctor</label>
-        <p-select id="doctorSelect" [(ngModel)]="prescription.specialistDoctorId" [optionValue]="'id'"
-          name="specialistDoctorId" [options]="departmentWiseDoctor" optionLabel="fullName" placeholder="Select doctor"
-          class="w-100" required />
-      </div>
-    </div>
-    <!-- notes for specialist Doctor -->
-    <div class="row mt-3" *ngIf="_isSpecialDepartMentSelect">
-      <div class="col-md-12 d-flex flex-column">
-        <label>Notes for Specialist Doctor</label>
-        <textarea pTextarea [(ngModel)]="prescription.createUpdateConsultationRequests.notes" name="notes" rows="2"
-          class="w-100" placeholder="Enter notes"></textarea>
-      </div>
-    </div>
-
-    <!-- Prescription Items -->
-    <div class="row mt-4">
-      <div class="col-md-12">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <h5 class="mb-0"><b>Prescription Items</b></h5>
-          <p-button label="Add Item" variant="text" severity="info" (click)="addItem()" icon="fa-solid fa-plus" />
+      <div class="row">
+        <div class="col-md-12">
+          <label class="form-label">Emergency Case</label>
+          <p-select [options]="emergencyCase" optionLabel="emergencyNumber" optionValue="id"
+            [(ngModel)]="prescription.emergencyCaseId" name="emergencyCaseId" class="w-100"
+            placeholder="Select emergency case" required>
+          </p-select>
         </div>
-        <!-- Prescription Items -->
-        <div *ngFor="let item of prescription.items; let i = index"
-          class="d-flex align-items-center justify-content-between mt-2">
-          <p-fieldset>
-            <ng-template #header>
-              {{i + 1}}
-            </ng-template>
-            <div class="row mb-2">
-              <div class="col-md-4">
-                <p-dropdown appendTo="self" [(ngModel)]="item.medicineFormId" name="medicineForm{{i}}"
-                  [options]="medicineForms" optionLabel="label" optionValue="value" class="w-100"
-                  placeholder="Medicine Type" (onChange)="onMedicineFormChange(item, i)">
-                </p-dropdown>
-              </div>
+      </div>
 
-              <div class="col-md-4">
-                <p-dropdown appendTo="self" class="w-100" [(ngModel)]="item.medicineId" name="medicine{{i}}"
-                  [options]="item.filteredMedicines || []" optionLabel="label" optionValue="value"
-                  placeholder="Select Medicine" (onChange)="onMedicineChange(item, i)">
-                </p-dropdown>
-              </div>
+      <div class="row mt-3">
+        <div class="col-md-6">
+          <label class="form-label">Diagnosis</label>
+          <input pInputText [(ngModel)]="prescription.diagnosis" name="diagnosis" class="w-100"
+            placeholder="Enter diagnosis" required />
+        </div>
 
-              <div class="col-md-4">
-                <input type="text" [(ngModel)]="item.dosage" name="dosage{{i}}" pInputText placeholder="Dosage"
-                  readonly>
-              </div>
-            </div>
-            <!-- Row 2 -->
-            <div class="row mb-2">
-              <div class="col-md-4">
-                <p-dropdown appendTo="self" class="w-100" [(ngModel)]="item.frequency" name="frequency{{i}}"
-                  [options]="frequencyOptions" optionLabel="label" optionValue="value" placeholder="Frequency">
-                </p-dropdown>
-              </div>
+        <div class="col-md-6" *ngIf="isAdmin">
+          <label class="form-label">Doctor</label>
+          <p-select [(ngModel)]="prescription.doctorId" [options]="doctors" optionLabel="fullName" optionValue="id"
+            name="doctorId" class="w-100" placeholder="Select doctor" required>
+          </p-select>
+        </div>
+      </div>
+    </div>
 
-              <div class="col-md-4 d-flex">
-                <input type="number" pInputText [(ngModel)]="item.durationValue" name="durationValue{{i}}"
-                  placeholder="Duration" min="1" class="form-control mr-2"
-                  style="padding-top: 22px; padding-bottom: 22px;">
+    <!-- 🔹 LAB + PROCEDURES -->
+    <div class="card custom-card mb-3">
+      <div class="card-title">🧪 Tests & Procedures</div>
 
-                <p-dropdown appendTo="self" [(ngModel)]="item.durationUnit" name="durationUnit{{i}}"
-                  [options]="durationUnits" optionLabel="label" optionValue="value">
-                </p-dropdown>
-              </div>
+      <div class="row">
+        <div class="col-md-12">
+          <label class="form-label">Lab Tests</label>
+          <p-multiSelect [(ngModel)]="selectedLabTests" [options]="labTests" optionLabel="name" display="chip"
+            class="w-100" name="labTests" placeholder="Select lab tests">
+          </p-multiSelect>
+        </div>
+      </div>
 
-              <div class="col-md-4">
-                <textarea pInputText [(ngModel)]="item.instructions" class="form-control" name="instructions{{i}}"
-                  placeholder="Instructions" rows="1"></textarea>
-              </div>
-            </div>
-          </p-fieldset>
-          <div>
-            <p-button icon="pi pi-times" [rounded]="true" [text]="true" severity="danger" (click)="removeItem(i)" />
+      <div class="row mt-3">
+        <div class="col-md-12">
+          <label class="form-label">Procedures</label>
+          <p-multiSelect [(ngModel)]="selectedProcedures" [options]="_procedures" optionLabel="name" optionValue="id"
+            display="chip" class="w-100" name="procedures" placeholder="Select procedures">
+          </p-multiSelect>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🔹 FLAGS -->
+    <div class="card custom-card mb-3">
+      <div class="card-title">⚙️ Options</div>
+
+      <div class="row">
+        <div class="col-md-6 flex align-items-center gap-2">
+          <p-checkbox [(ngModel)]="prescription.isFollowUpRequired" name="isFollowUpRequired"
+            binary="true"></p-checkbox>
+          <label>Follow-up Required</label>
+        </div>
+
+        <div class="col-md-6 flex align-items-center gap-2">
+          <p-checkbox [(ngModel)]="prescription.isSpecialAdviceRequired" name="isSpecialAdviceRequired" binary="true"
+            (onChange)="onChangeSpecialAdvice($event)">
+          </p-checkbox>
+          <label>Special Advice Required</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🔹 SPECIAL ADVICE -->
+    <div class="card custom-card mb-3" *ngIf="_isSpecialAdviceRequired">
+      <div class="card-title">👨‍⚕️ Specialist Referral</div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <label class="form-label">Department</label>
+          <p-select [(ngModel)]="prescription.departmentId" [options]="departmentList" optionLabel="departmentName"
+            optionValue="id" name="departmentId" class="w-100" (onChange)="OnSelectDepartMent($event)">
+          </p-select>
+        </div>
+
+        <div class="col-md-6" *ngIf="_isSpecialDepartMentSelect">
+          <label class="form-label">Specialist Doctor</label>
+          <p-select [(ngModel)]="prescription.specialistDoctorId" [options]="departmentWiseDoctor"
+            optionLabel="fullName" optionValue="id" name="specialistDoctorId" class="w-100">
+          </p-select>
+        </div>
+      </div>
+
+      <div class="row mt-3" *ngIf="_isSpecialDepartMentSelect">
+        <div class="col-md-12">
+          <textarea pTextarea [(ngModel)]="prescription.createUpdateConsultationRequests.notes" name="notes" rows="2"
+            class="w-100" placeholder="Notes for specialist doctor">
+          </textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🔹 PRESCRIPTION ITEMS -->
+    <div class="card custom-card">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <div class="card-title">💊 Prescription Items</div>
+        <p-button label="Add Item" icon="pi pi-plus" severity="success" (click)="addItem()">
+        </p-button>
+      </div>
+
+      <div *ngFor="let item of prescription.items; let i = index" class="item-card mt-3">
+
+        <div class="item-header">
+          Item {{i + 1}}
+          <p-button icon="pi pi-times" severity="danger" text (click)="removeItem(i)">
+          </p-button>
+        </div>
+
+        <div class="row mt-2">
+          <div class="col-md-4">
+            <p-dropdown [(ngModel)]="item.medicineFormId" [options]="medicineForms" optionLabel="label"
+              optionValue="value" name="medicineForm{{i}}" placeholder="Medicine Type" class="w-100"
+              (onChange)="onMedicineFormChange(item, i)">
+            </p-dropdown>
+          </div>
+
+          <div class="col-md-4">
+            <p-dropdown [(ngModel)]="item.medicineId" [options]="item.filteredMedicines || []" optionLabel="label"
+              optionValue="value" name="medicine{{i}}" placeholder="Medicine" class="w-100"
+              (onChange)="onMedicineChange(item, i)">
+            </p-dropdown>
+          </div>
+
+          <div class="col-md-4">
+            <input pInputText [(ngModel)]="item.dosage" name="dosage{{i}}" class="w-100" placeholder="Dosage"
+              readonly />
           </div>
         </div>
+
+        <div class="row mt-2">
+          <div class="col-md-4">
+            <p-dropdown [(ngModel)]="item.frequency" [options]="frequencyOptions" optionLabel="label"
+              optionValue="value" name="frequency{{i}}" class="w-100" placeholder="Frequency">
+            </p-dropdown>
+          </div>
+
+          <div class="col-md-4 d-flex gap-2">
+            <input type="number" [(ngModel)]="item.durationValue" name="durationValue{{i}}" class="form-control"
+              placeholder="Duration" />
+
+            <p-dropdown [(ngModel)]="item.durationUnit" [options]="durationUnits" optionLabel="label"
+              optionValue="value">
+            </p-dropdown>
+          </div>
+
+          <div class="col-md-4">
+            <textarea pInputText [(ngModel)]="item.instructions" name="instructions{{i}}" class="w-100" rows="1"
+              placeholder="Instructions">
+            </textarea>
+          </div>
+        </div>
+
       </div>
     </div>
+
   </div>
 
-  <abp-modal-footer style="flex: 0 0 auto;" [cancelDisabled]="saving" [saveDisabled]="isSaveDisabled()"
-    (onCancelClick)="bsModalRef.hide()">
+  <!-- FOOTER -->
+  <abp-modal-footer [cancelDisabled]="saving" [saveDisabled]="isSaveDisabled()" (onCancelClick)="bsModalRef.hide()">
   </abp-modal-footer>
+
 </form>

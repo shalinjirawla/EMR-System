@@ -12,7 +12,11 @@ import { DropdownModule } from 'primeng/dropdown';
 import { SelectModule } from 'primeng/select';
 import moment from 'moment';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { TooltipModule } from 'primeng/tooltip';
+import { ButtonModule } from 'primeng/button';
 import { Calendar } from 'primeng/calendar';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'app-create-invoice',
@@ -21,12 +25,18 @@ import { Calendar } from 'primeng/calendar';
     FormsModule,
     CalendarModule,
     DropdownModule,
+    InputTextModule,
     CommonModule,
     SelectModule,
     AbpModalFooterComponent,
     AbpModalHeaderComponent,
-    ProgressSpinnerModule
+    ProgressSpinnerModule,
+    InputNumberModule,
+    TooltipModule,
+    ButtonModule
   ],
+
+
   templateUrl: './create-invoice.component.html',
   styleUrl: './create-invoice.component.css',
   providers: [PatientServiceProxy, InvoiceServiceProxy]

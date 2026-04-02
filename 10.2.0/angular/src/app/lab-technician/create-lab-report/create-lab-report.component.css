@@ -1,32 +1,105 @@
-.payment-option {
-    padding: 10px 20px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    cursor: pointer;
-    user-select: none;
-    background-color: #f8f9fa;
-    font-weight: 500;
-    text-align: center;
-    flex: 1;
-    transition: background-color 0.2s, border-color 0.2s;
-  }
-  
-  .payment-option.active {
-    background-color: #0d6efd;
-    color: white;
-    border-color: #0d6efd;
-  }
-  .overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.7);
+.form-layout {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
+  flex-direction: column;
+  height: 90vh;
 }
 
-  
+.custom-body {
+  overflow-y: auto;
+  padding: 16px;
+  background: #f6f9fc;
+}
+
+/* Card Layout */
+.form-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 14px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+}
+
+/* Section Title */
+.section-title {
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #0b3c73;
+}
+
+/* Test Item */
+.test-item {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.test-item.disabled {
+  opacity: 0.6;
+}
+
+.test-item .price {
+  font-weight: 500;
+}
+
+/* Suggestion */
+.suggestion-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #e2e8f0;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  background: #f9fbff;
+}
+
+/* Selected Tests */
+.selected-test {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.total-box {
+  margin-top: 10px;
+  text-align: right;
+  font-weight: 600;
+  color: #0b3c73;
+}
+
+/* Payment */
+.payment-container {
+  display: flex;
+  gap: 10px;
+}
+
+.payment-option {
+  flex: 1;
+  padding: 12px;
+  text-align: center;
+  border-radius: 8px;
+  border: 1px solid #d0d7e2;
+  cursor: pointer;
+  transition: 0.2s;
+  font-weight: 500;
+  background: #f8fafc;
+}
+
+.payment-option.active {
+  background: linear-gradient(90deg, #1d72e8, #27c1c1);
+  color: white;
+  border: none;
+}
+
+/* Overlay */
+.overlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}

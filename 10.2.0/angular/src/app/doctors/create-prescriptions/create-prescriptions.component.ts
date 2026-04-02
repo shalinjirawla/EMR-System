@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
-import { AppointmentServiceProxy, CreateUpdatePrescriptionItemDto, LabReportsTypeServiceProxy, PharmacistInventoryDtoPagedResultDto, PharmacistInventoryServiceProxy, PrescriptionItemDto, PrescriptionServiceProxy, PatientDropDownDto, EmergencyProcedureServiceProxy, EmergencyProcedureDto, CreateUpdateSelectedEmergencyProceduresDto, MedicineFormMasterServiceProxy, MedicineMasterServiceProxy } from '@shared/service-proxies/service-proxies';
+import { AppointmentServiceProxy, CreateUpdatePrescriptionItemDto, LabReportsTypeServiceProxy, PharmacistInventoryDtoPagedResultDto, PharmacistInventoryServiceProxy, PrescriptionItemDto, PrescriptionServiceProxy, PatientDropDownDto, EmergencyProcedureServiceProxy, EmergencyProcedureDto, CreateUpdateSelectedEmergencyProceduresDto, MedicineFormMasterServiceProxy, MedicineMasterServiceProxy, MedicineSearchInputDto } from '@shared/service-proxies/service-proxies';
 import { AbpModalHeaderComponent } from '../../../shared/components/modal/abp-modal-header.component';
 import { AbpModalFooterComponent } from '../../../shared/components/modal/abp-modal-footer.component';
 import { AppComponentBase } from '../../../shared/app-component-base';
@@ -22,12 +22,15 @@ import { PermissionCheckerService } from '@node_modules/abp-ng2-module';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { CreateUserDialogComponent } from '@app/users/create-user/create-user-dialog.component';
 import { FieldsetModule } from 'primeng/fieldset';
+import { AutoCompleteModule } from 'primeng/autocomplete';
+import { TooltipModule } from 'primeng/tooltip';
 @Component({
   selector: 'app-create-prescriptions',
   standalone: true,
   imports: [
-    FormsModule, CalendarModule, DropdownModule, InputText, FieldsetModule, CheckboxModule, InputTextModule, TextareaModule,
-    ButtonModule, CommonModule, SelectModule, AbpModalHeaderComponent, AbpModalFooterComponent, MultiSelectModule
+    FormsModule, CalendarModule, DropdownModule, FieldsetModule, CheckboxModule, InputTextModule, TextareaModule,
+    ButtonModule, CommonModule, SelectModule, AutoCompleteModule, AbpModalHeaderComponent, AbpModalFooterComponent, MultiSelectModule,
+    TooltipModule
   ],
   templateUrl: './create-prescriptions.component.html',
   styleUrls: ['./create-prescriptions.component.css'],
@@ -53,22 +56,23 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
 
   labTests: any[] = [];
   selectedLabTests: any[] = [];
+  selectedMedicine: any;
+  filteredMedicines: any[] = [];
+  frequencyInput: string = '';
+  numberOfMedicine: number = 1;
+  searchTimeout: any;
+  skipCount = 0;
+  maxResultCount = 20;
+  lastQuery = '';
+  loading = false;
+  editIndex: number = -1;
   // Medicine and Dosage related properties
   medicineForms: any[] = [];      // [{ label, value }]
   medicineDosageOptions: any = {}; // quick lookup
   medicineOptions: any[] = [];    // all medicines (not mandatory, per item filter hoga)
 
   // selectedMedicineUnits: { [medicineName: string]: string } = {};
-  frequencyOptions = [
-    { label: 'Once a day', value: 'Once a day' },
-    { label: 'Twice a day', value: 'Twice a day' },
-    { label: 'Three times a day', value: 'Three times a day' },
-    { label: 'Four times a day', value: 'Four times a day' },
-    { label: 'Every 6 hours', value: 'Every 6 hours' },
-    { label: 'Every 8 hours', value: 'Every 8 hours' },
-    { label: 'Every 12 hours', value: 'Every 12 hours' },
-    { label: 'As needed', value: 'As needed' }
-  ];
+
 
   durationUnits = [
     { label: 'Days', value: 'Days' },
@@ -104,7 +108,6 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
     private _pharmacistInventoryService: PharmacistInventoryServiceProxy,
     private permissionChecker: PermissionCheckerService,
     private _modalService: BsModalService,
-    private _medicineFormService: MedicineFormMasterServiceProxy, // NEW
     private _medicineMasterService: MedicineMasterServiceProxy
   ) {
     super(injector);
@@ -117,7 +120,8 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
     this.loadDoctors();
     this.LoadPatients();
     this.LoadLabReports();
-    this.loadMedicineForms();
+    this.searchMedicine(event);
+    //this.loadMedicineForms();
     // this.loadMedicines();
     this.loadProcedures();
     if (this.selectedPatient) {
@@ -125,8 +129,6 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
 
       if (this.selectedPatient.isAdmitted) {
         this.prescription.appointmentId = null;   // no appointment
-      } else {
-        this.LoadAppoinments();
       }
     }
     if (this.dischargePatientID > 0) {
@@ -135,69 +137,6 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
       this.showAddPatientButton = false;
     }
   }
-  loadMedicineForms() {
-    this._medicineFormService.getAlldicineFormByTenantId(abp.session.tenantId).subscribe({
-      next: (res: any) => {
-        // res.items will always exist in ListResultDto
-        const items: any[] = res.items || [];
-        this.medicineForms = items.map((m: any) => ({
-          label: m.name,
-          value: m.id
-        }));
-        this.cd.detectChanges();
-      },
-      error: (err) => {
-        this.notify.error('Could not load medicine forms');
-        console.error('Error loading medicine forms:', err);
-      }
-    });
-  }
-
-  onMedicineFormChange(item: any, index: number) {
-    const formId = item.medicineFormId;
-    if (!formId) {
-      item.filteredMedicines = [];
-      item.medicineId = 0;
-      item.medicineName = '';
-      item.dosage = '';
-      return;
-    }
-
-    this._medicineMasterService.getMedicinesByFormId(formId).subscribe({
-      next: (res) => {
-        const medicines = (res || []).map((it: any) => ({
-          label: it.medicineName,
-          value: it.id,
-          dosageOption: it.dosageOption
-        }));
-
-        item.filteredMedicines = medicines;
-
-        // reset medicine & dosage
-        item.medicineId = 0;
-        item.medicineName = '';
-        item.dosage = '';
-
-        this.cd.detectChanges();
-      },
-      error: (err) => {
-        this.notify.error('Could not load medicines for selected type');
-        console.error('Error loading medicines by form:', err);
-      }
-    });
-  }
-
-  onMedicineChange(item: any, index: number) {
-    const selected = (item.filteredMedicines || []).find((m: any) => m.value === item.medicineId);
-    if (selected) {
-      item.medicineName = selected.label;
-      item.dosage = selected.dosageOption; // ✅ auto-fill dosage
-    } else {
-      item.medicineName = '';
-      item.dosage = '';
-    }
-  }
-
 
 
   loadProcedures() {
@@ -214,67 +153,6 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
       this.cd.detectChanges();
     });
   }
-  // loadMedicines() {
-  //   // Call getAll() with default parameters to get all available medicines
-  //   this._pharmacistInventoryService.getAll(
-  //     undefined,  // keyword
-  //     undefined,  // sorting
-  //     undefined,  // minStock
-  //     undefined,  // maxStock
-  //     undefined,  // fromExpiryDate
-  //     true,       // isAvailable (only get available medicines)
-  //     undefined,  // skipCount
-  //     undefined   // maxResultCount
-  //   ).subscribe({
-  //     next: (res) => {
-  //       if (res.items && res.items.length > 0) {
-  //         this.medicineOptions = res.items.map(item => ({
-  //           label: item.medicineName,
-  //           value: item.id, // Use medicineId as value
-  //           name: item.medicineName // Store name separately
-  //         }));
-
-
-  //         // Prepare dosage options for each medicine
-  //         res.items.forEach(medicine => {
-  //           const unit = medicine.unit;
-  //           if (unit) {
-  //             // Split units if they are comma separated (e.g., "200 mg, 500 mg")
-  //             const units = unit.split(',').map(u => u.trim());
-  //             this.medicineDosageOptions[medicine.medicineName] = units;
-  //             this.selectedMedicineUnits[medicine.medicineName] = units[0];
-  //           }
-  //         });
-  //       }
-  //     },
-  //     error: (err) => {
-  //       this.notify.error('Could not load medicines');
-  //       console.error('Error loading medicines:', err);
-  //     }
-  //   });
-  // }
-  getDosageOptions(medicineName: string): any[] {
-    const dosage = this.medicineDosageOptions[medicineName];
-    if (!dosage) return [];
-    return [{ label: dosage, value: dosage }];
-  }
-
-  // onMedicineChange(item: any, index: number) {
-  //   const selected = this.medicineOptions.find(m => m.value === item.medicineId);
-  //   if (selected) {
-  //     item.medicineName = selected.label;
-
-  //     // Set default dosage directly from dosageOption (single strength)
-  //     if (selected.dosageOption) {
-  //       item.dosage = selected.dosageOption;
-  //     } else {
-  //       item.dosage = '';
-  //     }
-  //   } else {
-  //     item.medicineName = '';
-  //     item.dosage = '';
-  //   }
-  // }
 
 
   LoadPatients() {
@@ -291,23 +169,6 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
     return patient?.isAdmitted === true;
   }
 
-  LoadAppoinments() {
-    const patientId = this.prescription.patientId;
-    const doctorId = this.doctorID;
-
-    if (!patientId) return;
-
-    this._appointmentService.getPatientAppointment(patientId, doctorId).subscribe({
-      next: (res) => {
-        // Filter out completed (status == 2)
-        this.appointments = res.items.filter(app => app.status == 0 || app.status == 1 || app.status == 2) ;
-
-      },
-      error: (err) => {
-        // Handle error if needed
-      }
-    });
-  }
   LoadLabReports() {
     this._labService.getAllTestByTenantID(abp.session.tenantId).subscribe({
       next: (res) => {
@@ -352,6 +213,89 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
     this.prescription.items.splice(index, 1);
   }
 
+  searchMedicine(event: any) {
+    clearTimeout(this.searchTimeout);
+
+    this.searchTimeout = setTimeout(() => {
+
+      this.skipCount = 0;
+      this.lastQuery = event.query;
+
+      const input = new MedicineSearchInputDto();
+      input.keyword = event.query;
+      input.skipCount = this.skipCount;
+      input.maxResultCount = this.maxResultCount;
+
+      this._medicineMasterService
+        .searchMedicinesWithPaging(input)
+        .subscribe(res => {
+          this.filteredMedicines = res.items || [];
+        });
+
+    }, 300);
+  }
+
+  formatFrequency() {
+    if (!this.frequencyInput) return;
+
+    // 1. Remove all non-digits (old hyphens etc.)
+    let val = this.frequencyInput.replace(/[^0-9]/g, '');
+    
+    // 2. Limit to max 4 digits
+    val = val.substring(0, 4);
+
+    // 3. Format with hyphens (12 -> 1-2)
+    this.frequencyInput = val.split('').join('-');
+  }
+
+  addMedicineToList() {
+
+    if (!this.selectedMedicine || !this.frequencyInput || !this.numberOfMedicine) {
+      this.notify.warn("Fill all fields");
+      return;
+    }
+
+    const item = {
+      medicineId: this.selectedMedicine.id,
+      medicineName: this.selectedMedicine.medicineName,
+      frequency: this.frequencyInput,
+      numberOfMedicine: this.numberOfMedicine,
+      dosage: this.selectedMedicine.dosageOption,
+      instructions: '',
+      duration: '1 Days'
+    };
+
+    // Edit mode
+    if (this.editIndex >= 0) {
+      this.prescription.items[this.editIndex] = item;
+      this.editIndex = -1;
+    } else {
+      this.prescription.items.push(item);
+    }
+
+    // reset
+    this.selectedMedicine = null;
+    this.frequencyInput = '';
+    this.numberOfMedicine = 1;
+  }
+
+  editItem(index: number) {
+    const item = this.prescription.items[index];
+
+    this.selectedMedicine = {
+      id: item.medicineId,
+      medicineName: item.medicineName
+    };
+
+    this.frequencyInput = item.frequency;
+    this.numberOfMedicine = item.numberOfMedicine;
+
+    this.editIndex = index;
+  }
+
+  deleteItem(index: number) {
+    this.prescription.items.splice(index, 1);
+  }
   FetchDoctorID() {
     this._doctorService.getDoctorDetailsByAbpUserID(abp.session.userId).subscribe({
       next: (res) => {
@@ -371,13 +315,6 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
     //   return true;
     // }
 
-    return this.prescription.items.some(item =>
-      !item.medicineName?.trim() ||
-      !item.dosage?.trim() ||
-      !item.frequency?.trim() ||
-      // !item.durationValue ||
-      !item.instructions?.trim()
-    );
   }
 
   save(): void {
@@ -390,6 +327,7 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
     input.init({
       tenantId: this.prescription.tenantId,
       diagnosis: this.prescription.diagnosis,
+      symptoms: this.prescription.symptoms,
       notes: this.prescription.notes,
       issueDate: this.prescription.issueDate,
       isFollowUpRequired: this.prescription.isFollowUpRequired,
@@ -407,9 +345,11 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
     input.items = this.prescription.items
       .filter(item => item.medicineId > 0) // sirf medicineId > 0 hone wale bhej
       .map(item => {
+        debugger
         const dtoItem = new CreateUpdatePrescriptionItemDto();
         dtoItem.init({
           ...item,
+          numberOfMedicine: item.numberOfMedicine,
           duration: `${(item as any).durationValue} ${(item as any).durationUnit}`,
           medicineId: item.medicineId,
           isPrescribe: true
@@ -467,6 +407,99 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
         }
       }
       this.cd.detectChanges();
+    });
+  }
+
+  symptomTimer: any;
+  suggestionData: any;
+  showSuggestionPopup = false;
+
+  onSymptomsChange() {
+    clearTimeout(this.symptomTimer);
+
+    this.symptomTimer = setTimeout(() => {
+      if (this.prescription.symptoms?.length > 3) {
+        this.getSmartSuggestion();
+      }
+    }, 600);
+  }
+
+  getSmartSuggestion() {
+    this._prescriptionService.getSmartSuggestionBySymptoms(this.prescription.symptoms)
+      .subscribe(res => {
+        if (res) {
+          this.suggestionData = res
+          this.showSuggestionPopup = true;
+        }
+      });
+  }
+  applySuggestion() {
+
+    if (!confirm('This will replace current data. Continue?')) {
+      return;
+    }
+    const data = this.suggestionData;
+
+    // Diagnosis & Notes
+    this.prescription.symptoms = data.symptoms;
+    this.prescription.diagnosis = data.diagnosis;
+    this.prescription.notes = data.notes;
+
+    // Lab Tests
+    this.selectedLabTests = data.labTestIds;
+
+    // Procedures
+    this.selectedProcedures = data.emergencyProcedures.map(x => x.emergencyProcedureId);
+
+    // Medicines
+    this.prescription.items = data.items.map(item => {
+      return {
+        ...item,
+        durationValue: this.extractNumber(item.duration),
+        durationUnit: this.extractUnit(item.duration),
+        filteredMedicines: []
+      };
+    });
+    this.prescription.items.forEach((item, index) => {
+      this.loadMedicinesForItem(item, index);
+    });
+    this.showSuggestionPopup = false;
+  }
+
+  extractNumber(duration: string): number {
+    if (!duration) return 1;
+    return parseInt(duration.split(' ')[0]);
+  }
+
+  extractUnit(duration: string): string {
+    if (!duration) return 'Days';
+    return duration.split(' ')[1];
+  }
+
+  loadMedicinesForItem(item: any, index: number) {
+
+    if (!item.medicineFormId) return;
+
+    this._medicineMasterService.getMedicinesByFormId(item.medicineFormId).subscribe({
+      next: (res) => {
+
+        const medicines = (res || []).map((it: any) => ({
+          label: it.medicineName,
+          value: it.id,
+          dosageOption: it.dosageOption
+        }));
+
+        item.filteredMedicines = medicines;
+
+        // 🔥 Auto select correct medicine
+        const selected = medicines.find(m => m.value === item.medicineId);
+        if (selected) {
+          item.medicineName = selected.label;
+          item.dosage = selected.dosageOption;
+        }
+
+        this.cd.detectChanges();
+      }
     });
   }
 }

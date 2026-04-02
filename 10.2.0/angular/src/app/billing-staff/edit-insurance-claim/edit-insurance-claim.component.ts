@@ -11,13 +11,14 @@ import { TableModule } from 'primeng/table';
 import moment from 'moment';
 import { SelectModule } from 'primeng/select';
 import { CheckboxModule } from 'primeng/checkbox';
-import { DropdownModule } from 'primeng/dropdown';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { ButtonModule } from 'primeng/button';
 
 
 
 @Component({
   selector: 'app-edit-insurance-claim',
-  imports: [AbpModalFooterComponent, AbpModalHeaderComponent, FormsModule, CommonModule, TableModule, DropdownModule, CheckboxModule],
+  imports: [AbpModalFooterComponent, AbpModalHeaderComponent, FormsModule, CommonModule, TableModule, SelectModule, CheckboxModule, InputNumberModule, ButtonModule],
   providers: [InsuranceClaimServiceProxy, InvoiceServiceProxy],
   templateUrl: './edit-insurance-claim.component.html',
   styleUrl: './edit-insurance-claim.component.css'

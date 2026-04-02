@@ -1,20 +1,76 @@
-/* Add any custom styling you need here */
-.w-100 {
-    width: 100%;
+/* Scroll */
+.custom-scroll {
+    overflow-y: auto;
+    padding-right: 8px;
 }
 
-.mt-3 {
-    margin-top: 1rem;
+/* Cards */
+.custom-card {
+    border-radius: 12px;
+    padding: 14px 16px;
+    background: #fff;
+    border: 1px solid #f1f1f1;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
 }
 
-.gap-2 {
-    gap: 0.5rem;
+/* Section title */
+.section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
 }
 
-.w-50 {
-    width: 50%;
+/* Labels */
+.form-label {
+    font-size: 12.5px;
+    color: #666;
+    margin-bottom: 3px;
 }
 
-::ng-deep .p-datepicker{
+/* Inputs */
+input,
+textarea,
+.p-inputtext,
+.p-select,
+.p-inputnumber,
+.p-datepicker {
+    border-radius: 8px !important;
+    font-size: 13px;
+}
+
+/* spacing */
+.row.mt-3 {
+    margin-top: 10px !important;
+}
+
+/* Empty state */
+.empty-box {
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 13px;
+    color: #777;
+}
+
+/* Total */
+.total-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-radius: 10px;
+    background: #f1f7ff;
+    border: 1px solid #dbeafe;
+    font-size: 14px;
+}
+
+::ng-deep .custom-datepicker {
+    z-index: 12000 !important;
+
+}
+
+::ng-deep .p-datepicker {
     width: 100% !important;
+    min-width: 150px;
 }
