@@ -156,6 +156,8 @@ export class EditPrescriptionsComponent extends AppComponentBase implements OnIn
               id: i.id,
               tenantId: i.tenantId,
               medicineName: i.medicineName,
+              qty: i.qty,
+              pharmacistPrescriptionId: i.pharmacistPrescriptionId,
               numberOfMedicine: i.numberOfMedicine,
               medicineId: i.medicineId,
               frequency: i.frequency,
@@ -204,8 +206,6 @@ export class EditPrescriptionsComponent extends AppComponentBase implements OnIn
             });
           }
         });
-
-        this.loadAppointmentDetails();
         this.cd.detectChanges();
       },
       error: (err) => {
@@ -408,23 +408,6 @@ export class EditPrescriptionsComponent extends AppComponentBase implements OnIn
     });
   }
 
-
-
-  loadAppointmentDetails(): void {
-    if (!this.prescription.appointmentId) return;
-
-    this._appointmentService.get(this.prescription.appointmentId).subscribe({
-      next: (app) => {
-        const selectedPatient = this.patients.find(p => p.id === this.prescription.patientId);
-        const title = `${app.appointmentDate} - ${selectedPatient?.fullName || ''}`;
-        this.appointmentTitle = [{ id: app.id, title: title }];
-        this.cd.detectChanges();
-      },
-      error: (err) => {
-        console.error('Error loading appointment:', err);
-      }
-    });
-  }
   loadProcedures() {
     this._procedureService.getEmergencyProcedureList().subscribe(res => {
       this.procedures = res.map(p => ({ label: p.name, value: p.id }));
@@ -477,6 +460,7 @@ export class EditPrescriptionsComponent extends AppComponentBase implements OnIn
     });
 
     input.items = this.prescription.items.map(item => {
+      debugger
       const dtoItem = new CreateUpdatePrescriptionItemDto();
       dtoItem.init({
         id: item.id,
@@ -485,11 +469,12 @@ export class EditPrescriptionsComponent extends AppComponentBase implements OnIn
         medicineId: item.medicineId,
         frequency: item.frequency,
         numberOfMedicine: item.numberOfMedicine,
-        duration: `${item.durationValue} ${item.durationUnit}`,
-        instructions: item.instructions,
+        qty: item.qty,
         prescriptionId: this.prescription.id,
+        pharmacistPrescriptionId: item.pharmacistPrescriptionId,
         isPrescribe: true
       });
+
       return dtoItem;
     });
 

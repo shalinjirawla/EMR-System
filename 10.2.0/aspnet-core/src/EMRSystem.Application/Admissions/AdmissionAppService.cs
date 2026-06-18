@@ -8,6 +8,7 @@ using AutoMapper.Internal.Mappers;
 using EMRSystem.Admissions.Dto;
 using EMRSystem.Deposit;
 using EMRSystem.Insurances;
+using EMRSystem.Insurances.Dto;
 using EMRSystem.IpdChargeEntry;
 using EMRSystem.PatientDischarge;
 using EMRSystem.Patients;
@@ -94,37 +95,31 @@ namespace EMRSystem.Admissions
 
         public override async Task<AdmissionDto> CreateAsync(CreateUpdateAdmissionDto input)
         {
-            // Validate patient
-            var patient = await _patientRepo.FirstOrDefaultAsync(input.PatientId);
-            if (patient == null)
-            {
-                throw new UserFriendlyException("Invalid patient");
-            }
-            else
-            {
-                patient.IsAdmitted = true;
-                await _patientRepo.UpdateAsync(patient);
-            }
+            // 🔹 Validate Patient
+            var patient = await _patientRepo.FirstOrDefaultAsync(input.PatientId)
+                          ?? throw new UserFriendlyException("Invalid patient");
 
-            // Validate and update Room status
+            patient.IsAdmitted = true;
+            await _patientRepo.UpdateAsync(patient);
+
+            // 🔹 Validate & Update Bed
             if (input.BedId.HasValue)
             {
-                var bed = await _bedRepo.FirstOrDefaultAsync(input.BedId.Value);
-                if (bed == null)
-                    throw new UserFriendlyException("Invalid bed");
+                var bed = await _bedRepo.FirstOrDefaultAsync(input.BedId.Value)
+                          ?? throw new UserFriendlyException("Invalid bed");
 
                 bed.Status = BedStatus.Occupied;
                 await _bedRepo.UpdateAsync(bed);
             }
 
-            // ✅ Step 1: Map and insert admission
+            // 🔹 Create Admission
             var admission = ObjectMapper.Map<EMRSystem.Admission.Admission>(input);
             admission.PatientInsuranceId = null;
 
-            var newAdmissionId = await _repository.InsertAndGetIdAsync(admission);
-            await CurrentUnitOfWork.SaveChangesAsync();
+            await _repository.InsertAsync(admission);
+            await CurrentUnitOfWork.SaveChangesAsync(); // Ensure Admission.Id is generated
 
-            // ✅ Step 2: Create PatientDeposit entry
+            // 🔹 Create Patient Deposit
             var deposit = new PatientDeposit
             {
                 TenantId = admission.TenantId,
@@ -135,8 +130,11 @@ namespace EMRSystem.Admissions
             };
             await _patientDepositRepo.InsertAsync(deposit);
 
+            // 🔹 Fetch Room & RoomType (optimized flow)
             var room = await _roomRepo.GetAsync(admission.RoomId);
             var roomType = await _roomTypeRepo.GetAsync(room.RoomTypeMasterId);
+
+            // 🔹 Create IPD Charge Entry
             var ipdCharge = new EMRSystem.IpdChargeEntry.IpdChargeEntry
             {
                 TenantId = admission.TenantId,
@@ -145,87 +143,111 @@ namespace EMRSystem.Admissions
                 ChargeType = ChargeType.Room,
                 Description = $"Room Charge (Room No: {room.RoomNumber})",
                 Quantity = 1,
-                Amount = roomType.DefaultPricePerDay, // daily charge
+                Amount = roomType.DefaultPricePerDay,
                 EntryDate = DateTime.Now,
                 IsProcessed = false,
                 ReferenceId = room.Id
             };
             await _ipdChargeRepo.InsertAsync(ipdCharge);
 
-            await CurrentUnitOfWork.SaveChangesAsync();
-
-            var res = MapToEntityDto(admission);
-
-            var patientDischarge = new EMRSystem.PatientDischarge.PatientDischarge();
-            patientDischarge.TenantId = AbpSession.TenantId.Value;
-            patientDischarge.AdmissionId = admission.Id;
-            patientDischarge.PatientId = admission.PatientId;
-            patientDischarge.DischargeStatus = DischargeStatus.Pending;
-            patientDischarge.DischargeDate = null;
-            patientDischarge.DischargeSummary = null;
-            patientDischarge.DoctorId = null;
+            // 🔹 Create Patient Discharge Entry
+            var patientDischarge = new EMRSystem.PatientDischarge.PatientDischarge
+            {
+                TenantId = AbpSession.TenantId ?? throw new UserFriendlyException("Invalid tenant"),
+                AdmissionId = admission.Id,
+                PatientId = admission.PatientId,
+                DischargeStatus = DischargeStatus.Pending
+            };
             await _patientDischargeRepository.InsertAsync(patientDischarge);
 
-            if (input.BillingMode == BillingMethod.InsuranceOnly || input.BillingMode == BillingMethod.InsuranceSelfPay)
+            // 🔹 Handle Insurance (if applicable)
+            if (IsInsuranceApplicable(input))
             {
-                if (input.PatientInsurance != null)
-                {
-                    var insurance = ObjectMapper.Map<PatientInsurance>(input.PatientInsurance);
-                    insurance.PatientId = admission.PatientId;
-                    insurance.TenantId = admission.TenantId;
+                var insuranceId = await CreatePatientInsuranceAsync(input.PatientInsurance, admission);
 
-                    var insuranceId = await _patientInsuranceRepository.InsertAndGetIdAsync(insurance);
-                    await CurrentUnitOfWork.SaveChangesAsync();
-
-                    // ✅ Update admission with insurance ID
-                    admission.PatientInsuranceId = insuranceId;
-                    await _repository.UpdateAsync(admission);
-                    await CurrentUnitOfWork.SaveChangesAsync();
-                }
+                admission.PatientInsuranceId = insuranceId;
+                await _repository.UpdateAsync(admission);
             }
 
+            await CurrentUnitOfWork.SaveChangesAsync();
 
-            return res;
+            return MapToEntityDto(admission);
+        }
+
+        private bool IsInsuranceApplicable(CreateUpdateAdmissionDto input)
+        {
+            return (input.BillingMode == BillingMethod.InsuranceOnly ||
+                    input.BillingMode == BillingMethod.InsuranceSelfPay)
+                   && input.PatientInsurance != null;
+        }
+
+        private async Task<long> CreatePatientInsuranceAsync(
+            CreateUpdatePatientInsuranceDto input,
+            EMRSystem.Admission.Admission admission)
+        {
+            var insurance = ObjectMapper.Map<PatientInsurance>(input);
+
+            insurance.PatientId = admission.PatientId;
+            insurance.TenantId = admission.TenantId;
+
+            return await _patientInsuranceRepository.InsertAndGetIdAsync(insurance);
         }
 
         public override async Task<AdmissionDto> UpdateAsync(CreateUpdateAdmissionDto input)
         {
-            var admission = await _repository.GetAsync(input.Id);
-            if (admission == null)
-                throw new UserFriendlyException("Admission not found");
+            // 🔹 Validate Admission
+            var admission = await _repository.GetAsync(input.Id)
+                            ?? throw new UserFriendlyException("Admission not found");
 
-            // ✅ Handle bed change safely BEFORE mapping
-            if (input.BedId.HasValue)
+            // 🔹 Handle Bed Change
+            await HandleBedChangeAsync(admission, input.BedId);
+
+            // 🔹 Preserve BedId before mapping
+            var preservedBedId = admission.BedId;
+
+            // 🔹 Map updated fields (excluding BedId)
+            ObjectMapper.Map(input, admission);
+            admission.BedId = preservedBedId;
+
+            // 🔹 Handle Insurance Logic
+            await HandleInsuranceAsync(input, admission);
+
+            // 🔹 Persist Changes
+            await _repository.UpdateAsync(admission);
+            await CurrentUnitOfWork.SaveChangesAsync();
+
+            return MapToEntityDto(admission);
+        }
+
+        private async Task HandleBedChangeAsync(EMRSystem.Admission.Admission admission, long? newBedId)
+        {
+            if (!newBedId.HasValue)
+                return;
+
+            // If bed is changed → free old bed
+            if (admission.BedId.HasValue && admission.BedId.Value != newBedId.Value)
             {
-                if (admission.BedId.HasValue && admission.BedId.Value != input.BedId.Value)
+                var oldBed = await _bedRepo.FirstOrDefaultAsync(admission.BedId.Value);
+                if (oldBed != null)
                 {
-                    var oldBed = await _bedRepo.FirstOrDefaultAsync(admission.BedId.Value);
-                    if (oldBed != null)
-                    {
-                        oldBed.Status = BedStatus.Available;
-                        await _bedRepo.UpdateAsync(oldBed);
-                    }
+                    oldBed.Status = BedStatus.Available;
+                    await _bedRepo.UpdateAsync(oldBed);
                 }
-
-                var newBed = await _bedRepo.FirstOrDefaultAsync(input.BedId.Value);
-                if (newBed == null)
-                    throw new UserFriendlyException("Invalid bed");
-
-                newBed.Status = BedStatus.Occupied;
-                await _bedRepo.UpdateAsync(newBed);
-                admission.BedId = input.BedId.Value;
             }
 
-            // ✅ Keep old bedId safe before mapper
-            var oldBedId = admission.BedId;
+            // Assign new bed
+            var newBed = await _bedRepo.FirstOrDefaultAsync(newBedId.Value)
+                         ?? throw new UserFriendlyException("Invalid bed");
 
-            // ✅ Map remaining admission properties (except bedId)
-            ObjectMapper.Map(input, admission);
-            admission.BedId = oldBedId;
+            newBed.Status = BedStatus.Occupied;
+            await _bedRepo.UpdateAsync(newBed);
 
-            // ---------------- INSURANCE LOGIC ----------------
+            admission.BedId = newBedId.Value;
+        }
 
-            // If NO insurance (Self-pay)
+        private async Task HandleInsuranceAsync(CreateUpdateAdmissionDto input,EMRSystem.Admission.Admission admission)
+        {
+            // 🔸 Self Pay → deactivate existing insurance
             if (input.BillingMode == BillingMethod.SelfPay)
             {
                 var existingInsurance = await _patientInsuranceRepository.FirstOrDefaultAsync(x =>
@@ -238,50 +260,43 @@ namespace EMRSystem.Admissions
                     existingInsurance.IsActive = false;
                     await _patientInsuranceRepository.UpdateAsync(existingInsurance);
                 }
+
+                return;
+            }
+
+            // 🔸 Insurance Modes
+            if (input.PatientInsurance == null)
+                return;
+
+            // Update existing insurance
+            if (input.PatientInsurance.Id > 0)
+            {
+                var insurance = await _patientInsuranceRepository.GetAsync(input.PatientInsurance.Id);
+
+                insurance.InsuranceId = input.PatientInsurance.InsuranceId;
+                insurance.PolicyNumber = input.PatientInsurance.PolicyNumber;
+                insurance.CoverageLimit = input.PatientInsurance.CoverageLimit;
+                insurance.CoPayPercentage = input.PatientInsurance.CoPayPercentage;
+                insurance.IsActive = true;
+
+                await _patientInsuranceRepository.UpdateAsync(insurance);
             }
             else
             {
-                // Insurance billing modes (Insurance + Self / Cashless)
-
-                if (input.PatientInsurance != null)
+                // Create new insurance
+                var newInsurance = new PatientInsurance
                 {
-                    // Editing existing insurance
-                    if (input.PatientInsurance.Id > 0)
-                    {
-                        var insurance = await _patientInsuranceRepository.GetAsync(input.PatientInsurance.Id);
+                    TenantId = admission.TenantId,
+                    PatientId = admission.PatientId,
+                    InsuranceId = input.PatientInsurance.InsuranceId,
+                    PolicyNumber = input.PatientInsurance.PolicyNumber,
+                    CoverageLimit = input.PatientInsurance.CoverageLimit,
+                    CoPayPercentage = input.PatientInsurance.CoPayPercentage,
+                    IsActive = true
+                };
 
-                        insurance.InsuranceId = input.PatientInsurance.InsuranceId;
-                        insurance.PolicyNumber = input.PatientInsurance.PolicyNumber;
-                        insurance.CoverageLimit = input.PatientInsurance.CoverageLimit;
-                        insurance.CoPayPercentage = input.PatientInsurance.CoPayPercentage;
-                        insurance.IsActive = true;
-
-                        await _patientInsuranceRepository.UpdateAsync(insurance);
-                    }
-                    else
-                    {
-                        // New insurance during update
-                        var newInsurance = new PatientInsurance
-                        {
-                            TenantId = admission.TenantId,
-                            PatientId = admission.PatientId, // ✅ keep this
-                            InsuranceId = input.PatientInsurance.InsuranceId,
-                            PolicyNumber = input.PatientInsurance.PolicyNumber,
-                            CoverageLimit = input.PatientInsurance.CoverageLimit,
-                            CoPayPercentage = input.PatientInsurance.CoPayPercentage,
-                            IsActive = true
-                        };
-
-                        await _patientInsuranceRepository.InsertAsync(newInsurance);
-                    }
-                }
+                await _patientInsuranceRepository.InsertAsync(newInsurance);
             }
-
-            // ✅ Save changes
-            await _repository.UpdateAsync(admission);
-            await CurrentUnitOfWork.SaveChangesAsync();
-
-            return MapToEntityDto(admission);
         }
 
     }

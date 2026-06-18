@@ -18,22 +18,28 @@
       <div class="card custom-card mb-3">
         <div class="section-title">👤 Patient & Prescription</div>
 
-        <div class="row">
-          <div class="col-md-6">
-            <label class="form-label">Select Patient *</label>
-            <p-select [options]="patients" optionLabel="fullName" [optionValue]="'id'" placeholder="Search patient..."
-              [(ngModel)]="selectedPatient" name="patientId" (onChange)="onPatientChange()" class="w-100" required
-              [filter]="true" appendTo="body" [baseZIndex]="11000">
+        <div class="row g-3">
+          <div class="col-6 md:col-6" style="margin-bottom: 10px;">
+            <label class="form-label">Select Patient <span class="text-danger">*</span></label>
+            <p-select [options]="patients" optionLabel="fullName" optionValue="id" placeholder="Search patient..."
+              [(ngModel)]="selectedPatient" name="patientId" #patientId="ngModel" (onChange)="onPatientChange()" required [filter]="true"
+              class="w-100" [ngClass]="{'ng-invalid ng-dirty': patientId.invalid && (patientId.dirty || patientId.touched)}">
             </p-select>
+            <small class="text-danger d-block mt-1" *ngIf="patientId.invalid && (patientId.dirty || patientId.touched)">
+              Patient selection is required.
+            </small>
           </div>
 
-          <div class="col-md-6">
-            <label class="form-label">Select Prescription *</label>
+          <div class="col-6 md:col-6">
+            <label class="form-label">Select Prescription <span class="text-danger">*</span></label>
             <p-select [options]="prescriptions" optionLabel="prescriptionName" optionValue="id"
-              placeholder="Search prescription..." [(ngModel)]="selectedPrescription" name="prescriptionId"
-              (onChange)="onPrescriptionChange($event.value)" class="w-100" required [filter]="true" appendTo="body"
-              [baseZIndex]="11000">
+              placeholder="Search prescription..." [(ngModel)]="selectedPrescription" name="prescriptionId" #prescriptionId="ngModel"
+              (onChange)="onPrescriptionChange($event.value)" required [filter]="true" class="w-100"
+              [ngClass]="{'ng-invalid ng-dirty': prescriptionId.invalid && (prescriptionId.dirty || prescriptionId.touched)}">
             </p-select>
+            <small class="text-danger d-block mt-1" *ngIf="prescriptionId.invalid && (prescriptionId.dirty || prescriptionId.touched)">
+              Prescription selection is required.
+            </small>
           </div>
         </div>
       </div>
@@ -53,11 +59,11 @@
           <ng-template pTemplate="header">
             <tr>
               <th>Medicine</th>
-              <th>Frequency</th>
-              <th>No. of Medicine</th>
-              <th>Price</th>
-              <th>Stock</th>
-              <th>Qty</th>
+              <th class="text-center">Frequency</th>
+              <th class="text-center">No. of Medicine</th>
+              <th class="text-center">Price</th>
+              <th class="text-center">Stock</th>
+              <th class="text-center">Qty</th>
               <th class="text-right">Total</th>
               <th style="width: 120px; text-align: center;">Actions</th>
             </tr>
@@ -72,10 +78,10 @@
                   {{ itm.batchNo }}{{ itm.expiryDate ? ' • ' + (itm.expiryDate | date:'dd/MM/yyyy') : '' }}
                 </div>
               </td>
-              <td>{{ itm.frequency }}</td>
-              <td>{{ itm.numberOfMedicine }}</td>
-              <td>₹{{ itm.unitPrice | number:'1.2-2' }}</td>
-              <td>
+              <td class="text-center">{{ itm.frequency }}</td>
+              <td class="text-center">{{ itm.numberOfMedicine }}</td>
+              <td class="text-center">₹{{ itm.unitPrice | number:'1.2-2' }}</td>
+              <td class="text-center">
                 <span [class.text-danger]="getRemainingStock(itm) === 0"
                   [class.text-warning]="getRemainingStock(itm) > 0 && getRemainingStock(itm) < 10"
                   class="font-weight-bold">
@@ -129,83 +135,79 @@
             </button>
           </div>
 
-          <div class="row">
-            <div class="col-md-3">
-              <label class="form-label">Type *</label>
-              <p-select name="itemMedicineType" appendTo="body" [baseZIndex]="11000" class="w-100"
-                [(ngModel)]="item.medicineFormId" [options]="medicineTypes" optionLabel="name" optionValue="id"
-                placeholder="Select type" (onChange)="onMedicineTypeSelect(item)" required>
-              </p-select>
-            </div>
+          <div class="row g-3 align-items-end">
 
-            <div class="col-md-6">
+            <!-- Medicine -->
+            <div class="col-12 md:col-3" style="margin-bottom: 10px;">
               <label class="form-label">Medicine *</label>
-              <p-select name="itemMedicine" appendTo="body" [baseZIndex]="11000" class="w-100"
-                [(ngModel)]="item.medicineId" [options]="medicinesByType" optionLabel="medicineName" optionValue="id"
-                placeholder="Search medicine..." (onChange)="onMedicineSelect(item)" [disabled]="!item.medicineFormId"
-                [optionDisabled]="isMedicineDisabled.bind(this)" [filter]="true" required>
-              </p-select>
+              <p-autoComplete [(ngModel)]="selectedMedicine" [suggestions]="filteredMedicines"
+                (completeMethod)="searchMedicine($event)" field="medicineName" [dropdown]="true"
+                placeholder="Search medicine..." name="itemMedicine" #itemMedicine="ngModel" (onSelect)="onMedicineSelect($event)"
+                class="w-100" required [ngModelOptions]="{standalone: true}"
+                [ngClass]="{'ng-invalid ng-dirty': itemMedicine.invalid && (itemMedicine.dirty || itemMedicine.touched)}">
+              </p-autoComplete>
+              <small class="text-danger d-block mt-1" *ngIf="itemMedicine.invalid && (itemMedicine.dirty || itemMedicine.touched)">
+                Medicine is required.
+              </small>
             </div>
 
-            <div class="col-md-3">
-              <label class="form-label">Price</label>
-              <p-inputNumber [(ngModel)]="item.unitPrice" name="medicinePrice" [disabled]="true" mode="currency"
-                currency="INR">
-              </p-inputNumber>
-            </div>
-          </div>
-
-          <div class="row mt-3">
-            <div class="col-md-3">
+            <!-- Frequency -->
+            <div class="col-12 md:col-3" style="margin-bottom: 10px;">
               <label class="form-label">Frequency *</label>
-              <p-select appendTo="body" [baseZIndex]="11000" class="w-100" name="itemFrequency"
-                [(ngModel)]="item.frequency" [options]="frequencyOptions" optionLabel="label" optionValue="value"
-                placeholder="Select" required>
-              </p-select>
+              <input type="text" pInputText [(ngModel)]="frequencyInput" placeholder="1-0-1" name="itemFrequency" #itemFrequency="ngModel"
+                class="w-100" required pattern="^[0-9](-[0-9]){0,3}$" [ngModelOptions]="{standalone: true}"
+                [ngClass]="{'ng-invalid ng-dirty': itemFrequency.invalid && (itemFrequency.dirty || itemFrequency.touched)}" />
+              <small class="text-danger d-block mt-1" *ngIf="itemFrequency.errors?.required && (itemFrequency.dirty || itemFrequency.touched)">
+                Frequency is required.
+              </small>
+              <small class="text-danger d-block mt-1" *ngIf="itemFrequency.errors?.pattern && (itemFrequency.dirty || itemFrequency.touched)">
+                Format: 1-0-1
+              </small>
             </div>
 
-            <div class="col-md-4">
-              <label class="form-label">Duration *</label>
-              <div class="d-flex gap-2">
-                <input type="number" pInputText [(ngModel)]="item.durationValue" min="1" placeholder="Val" class="w-50"
-                  name="durationValue" required>
-                <p-select appendTo="body" [baseZIndex]="11000" class="flex-grow-1" [(ngModel)]="item.durationUnit"
-                  [options]="durationUnits" optionLabel="label" optionValue="value" name="itemDurationUnit" required>
-                </p-select>
-              </div>
-            </div>
-
-            <div class="col-md-2">
-              <label class="form-label">Qty *</label>
-              <p-inputNumber [ngModel]="item.qty" (ngModelChange)="onQtyChange(item, $event)" [showButtons]="true"
-                [min]="1" name="qtyNewItem" styleClass="w-100">
+            <!-- No of Med -->
+            <div class="col-6 md:col-2" style="margin-bottom: 20px;">
+              <label class="form-label">No. of Med *</label>
+              <p-inputNumber [(ngModel)]="item.numberOfMedicine" name="numberOfMedicineNew" #numberOfMedicineNew="ngModel" [min]="1" class="w-100" 
+                required [ngModelOptions]="{standalone: true}"
+                [ngClass]="{'ng-invalid ng-dirty': numberOfMedicineNew.invalid && (numberOfMedicineNew.dirty || numberOfMedicineNew.touched)}">
               </p-inputNumber>
+              <small class="text-danger d-block mt-1" *ngIf="numberOfMedicineNew.invalid && (numberOfMedicineNew.dirty || numberOfMedicineNew.touched)">
+                Min 1 required.
+              </small>
             </div>
 
-            <div class="col-md-3 d-flex align-items-end">
-              <button type="button" pButton label="Add to List" icon="pi pi-check" severity="success" class="w-100"
-                (click)="addItem()" [disabled]="!item.medicineId || !item.qty">
+            <!-- Qty -->
+            <div class="col-6 md:col-2" style="margin-bottom: 20px;">
+              <label class="form-label">Qty *</label>
+              <p-inputNumber [(ngModel)]="item.qty" (ngModelChange)="onQtyChange(item, $event)" [min]="1"
+                name="qtyNewItem" #qtyNewItem="ngModel" class="w-100" required [ngModelOptions]="{standalone: true}"
+                [ngClass]="{'ng-invalid ng-dirty': qtyNewItem.invalid && (qtyNewItem.dirty || qtyNewItem.touched)}">
+              </p-inputNumber>
+              <small class="text-danger d-block mt-1" *ngIf="qtyNewItem.invalid && (qtyNewItem.dirty || qtyNewItem.touched)">
+                Min 1 required.
+              </small>
+            </div>
+
+            <!-- Button FIX -->
+            <div class="col-12 md:col-2 d-flex align-items-end" style="margin-bottom: 10px;">
+              <button type="button" pButton label="Add" icon="pi pi-plus" class="w-100 p-button-success"
+                (click)="addItem()" [disabled]="itemMedicine.invalid || itemFrequency.invalid || numberOfMedicineNew.invalid || qtyNewItem.invalid">
               </button>
             </div>
-          </div>
 
-          <div class="row mt-3">
-            <div class="col-md-12">
-              <label class="form-label">Instructions</label>
-              <input pInputText [(ngModel)]="item.instructions" name="itemInstructions"
-                placeholder="Enter special instructions..." class="w-100" />
-            </div>
           </div>
         </div>
       </div>
 
       <!-- 📝 NOTES & 💰 PAYMENT -->
-      <div class="row mt-1">
+      <div class="row g-3 mt-1">
         <div class="col-md-7">
           <div class="card custom-card h-100">
             <div class="section-title">📝 Additional Notes</div>
             <textarea pTextarea [(ngModel)]="_pharmacyNotes" name="pharmacyNotes"
-              placeholder="Write pharmacy notes here..." rows="3" class="w-100" style="resize: none;"></textarea>
+              placeholder="Write pharmacy notes here..." rows="3" class="w-full"
+              style="resize: none; width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; font-size: 13.5px;"></textarea>
           </div>
         </div>
 
@@ -222,7 +224,7 @@
                 <i class="pi pi-money-bill mr-2"></i> Cash
               </div>
             </div>
-            <p-toast appendTo="body"></p-toast>
+            <p-toast></p-toast>
           </div>
         </div>
       </div>

@@ -240,7 +240,7 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
 
     // 1. Remove all non-digits (old hyphens etc.)
     let val = this.frequencyInput.replace(/[^0-9]/g, '');
-    
+
     // 2. Limit to max 4 digits
     val = val.substring(0, 4);
 
@@ -429,7 +429,9 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
       .subscribe(res => {
         if (res) {
           this.suggestionData = res
-          this.showSuggestionPopup = true;
+          if (this.suggestionData.length > 0) {
+            this.showSuggestionPopup = true;
+          }
         }
       });
   }

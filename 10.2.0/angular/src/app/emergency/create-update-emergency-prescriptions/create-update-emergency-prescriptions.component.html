@@ -111,66 +111,73 @@
       </div>
     </div>
 
-    <!-- 🔹 PRESCRIPTION ITEMS -->
-    <div class="card custom-card">
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <div class="card-title">💊 Prescription Items</div>
-        <p-button label="Add Item" icon="pi pi-plus" severity="success" (click)="addItem()">
-        </p-button>
+    <!-- 🔹 MEDICINE ENTRY CARD -->
+    <div class="card custom-card mb-3">
+      <div class="card-title">💊 Add Medication</div>
+      <div class="row align-items-end g-3">
+        <div class="col-md-5">
+          <label class="form-label">Medicine</label>
+          <p-autoComplete [(ngModel)]="selectedMedicine" [suggestions]="filteredMedicines"
+            (completeMethod)="searchMedicine($event)" field="medicineName" [dropdown]="true" [virtualScroll]="true"
+            [lazy]="true" [itemSize]="34" placeholder="Search medicine..." name="medicine" class="w-100">
+          </p-autoComplete>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Frequency</label>
+          <input type="text" pInputText [(ngModel)]="frequencyInput" placeholder="1-0-1" name="frequency" maxlength="7"
+            (input)="formatFrequency()" class="w-100" />
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Qty</label>
+          <input type="number" pInputText [(ngModel)]="numberOfMedicine" name="numberOfMedicine" min="1"
+            class="w-100" />
+        </div>
+        <div class="col-md-3">
+          <p-button [label]="editIndex >= 0 ? 'Update Medicine' : 'Add Medicine'"
+            [icon]="editIndex >= 0 ? 'pi pi-check' : 'pi pi-plus'" (click)="addMedicineToList()" styleClass="w-100"
+            [severity]="editIndex >= 0 ? 'success' : 'info'" />
+        </div>
       </div>
+    </div>
 
-      <div *ngFor="let item of prescription.items; let i = index" class="item-card mt-3">
-
-        <div class="item-header">
-          Item {{i + 1}}
-          <p-button icon="pi pi-times" severity="danger" text (click)="removeItem(i)">
-          </p-button>
-        </div>
-
-        <div class="row mt-2">
-          <div class="col-md-4">
-            <p-dropdown [(ngModel)]="item.medicineFormId" [options]="medicineForms" optionLabel="label"
-              optionValue="value" name="medicineForm{{i}}" placeholder="Medicine Type" class="w-100"
-              (onChange)="onMedicineFormChange(item, i)">
-            </p-dropdown>
-          </div>
-
-          <div class="col-md-4">
-            <p-dropdown [(ngModel)]="item.medicineId" [options]="item.filteredMedicines || []" optionLabel="label"
-              optionValue="value" name="medicine{{i}}" placeholder="Medicine" class="w-100"
-              (onChange)="onMedicineChange(item, i)">
-            </p-dropdown>
-          </div>
-
-          <div class="col-md-4">
-            <input pInputText [(ngModel)]="item.dosage" name="dosage{{i}}" class="w-100" placeholder="Dosage"
-              readonly />
-          </div>
-        </div>
-
-        <div class="row mt-2">
-          <div class="col-md-4">
-            <p-dropdown [(ngModel)]="item.frequency" [options]="frequencyOptions" optionLabel="label"
-              optionValue="value" name="frequency{{i}}" class="w-100" placeholder="Frequency">
-            </p-dropdown>
-          </div>
-
-          <div class="col-md-4 d-flex gap-2">
-            <input type="number" [(ngModel)]="item.durationValue" name="durationValue{{i}}" class="form-control"
-              placeholder="Duration" />
-
-            <p-dropdown [(ngModel)]="item.durationUnit" [options]="durationUnits" optionLabel="label"
-              optionValue="value">
-            </p-dropdown>
-          </div>
-
-          <div class="col-md-4">
-            <textarea pInputText [(ngModel)]="item.instructions" name="instructions{{i}}" class="w-100" rows="1"
-              placeholder="Instructions">
-            </textarea>
-          </div>
-        </div>
-
+    <!-- 🔹 ADDED MEDICINES TABLE -->
+    <div class="table-container mb-4" *ngIf="prescription.items.length > 0">
+      <div class="p-3 border-bottom bg-light d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 font-weight-bold text-dark">Added Medications</h6>
+        <span class="badge rounded-pill bg-primary shadow-sm">{{prescription.items.length}} items</span>
+      </div>
+      <div class="table-responsive">
+        <table class="table mb-0">
+          <thead>
+            <tr>
+              <th class="text-center" style="width: 50px;">#</th>
+              <th>Medicine</th>
+              <th>Frequency</th>
+              <th class="text-center" style="width: 80px;">Qty</th>
+              <th class="text-center" style="width: 100px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of prescription.items; let i = index">
+              <td class="text-center text-muted">{{i + 1}}</td>
+              <td>
+                <div class="fw-bold text-dark">{{item.medicineName}}</div>
+                <small class="text-muted">{{item.dosage}}</small>
+              </td>
+              <td>
+                <span class="badge border bg-light text-dark fw-normal px-2 py-1">{{item.frequency}}</span>
+              </td>
+              <td class="text-center">{{item.numberOfMedicine}}</td>
+              <td class="text-center">
+                <div class="d-flex justify-content-center gap-1">
+                  <p-button icon="pi pi-pencil" [text]="true" severity="info" (click)="editItem(i)" pTooltip="Edit" />
+                  <p-button icon="pi pi-trash" [text]="true" severity="danger" (click)="deleteItem(i)"
+                    pTooltip="Remove" />
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 

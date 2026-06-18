@@ -52,7 +52,6 @@ namespace EMRSystem.Prescriptions
         private readonly INumberingService _numberingService;
         private readonly IRepository<EMRSystem.Doctors.ConsultationRequests, long> _consultationRequestsRepository;
         private readonly IRepository<EMRSystem.Pharmacists.PharmacistPrescriptions, long> _pharmacistPrescriptionsRepository;
-        private readonly IRepository<EMRSystem.Pharmacists.PharmacistInventory, long> _pharmacistInventoryRepository;
 
         private readonly UserManager _userManager;
         public PrescriptionAppService(
@@ -70,8 +69,7 @@ namespace EMRSystem.Prescriptions
             IRepository<DoctorMaster.DoctorMaster, long> doctorMasterRepository,
             IRepository<EmergencyProcedure.EmergencyProcedure, long> emergencyProcedureRepository,
             IRepository<Doctors.ConsultationRequests, long> consultationRequestsRepository,
-            IRepository<EMRSystem.Pharmacists.PharmacistPrescriptions, long> pharmacistPrescriptionsRepository,
-            IRepository<Pharmacists.PharmacistInventory, long> pharmacistInventoryRepository
+            IRepository<EMRSystem.Pharmacists.PharmacistPrescriptions, long> pharmacistPrescriptionsRepository
             ) : base(repository)
         {
             _doctorAppService = doctorAppService;
@@ -88,7 +86,6 @@ namespace EMRSystem.Prescriptions
             _admissionRepository = admissionRepository;
             _consultationRequestsRepository = consultationRequestsRepository;
             _pharmacistPrescriptionsRepository = pharmacistPrescriptionsRepository;
-            _pharmacistInventoryRepository = pharmacistInventoryRepository;
             _medicineStockRepository = medicineStockRepository;
         }
         protected override IQueryable<Prescription> CreateFilteredQuery(PagedPrescriptionResultRequestDto input)
@@ -676,7 +673,9 @@ namespace EMRSystem.Prescriptions
                         MedicineId = i.MedicineId,
                         NumberOfMedicine = i.NumberOfMedicine,
                         Frequency = i.Frequency,
-                        PharmacistPrescriptionId = i.PharmacistPrescriptionId
+                        PharmacistPrescriptionId = i.PharmacistPrescriptionId,
+                        Qty = i.Qty
+
                     }).ToList(),
                     LabTests = x.LabTests.Select(lt => new EMRSystem.LabReports.PrescriptionLabTest
                     {

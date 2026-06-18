@@ -42,7 +42,9 @@ textarea,
   font-size: 13px;
 }
 
-
+::ng-deep .p-select {
+  width: 100% !important;
+}
 
 /* Payment selection */
 .payment-wrapper {
@@ -136,4 +138,30 @@ textarea,
   border: 1px dashed #cbd5e1;
   border-radius: 12px;
   padding: 16px;
+}
+
+/* fix dropdown + inputs full width */
+::ng-deep .p-dropdown,
+::ng-deep .p-autocomplete,
+::ng-deep .p-inputnumber,
+::ng-deep .p-inputtext {
+  width: 100% !important;
+}
+
+/* better spacing */
+.row.g-3 {
+  --bs-gutter-x: 1rem;
+  --bs-gutter-y: 1rem;
+}
+
+/* better alignment */
+.secondary-card .row>div {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+/* button height match inputs */
+.p-button {
+  height: 38px;
 }
