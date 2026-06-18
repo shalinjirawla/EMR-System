@@ -4,14 +4,13 @@ import { BsModalRef } from 'ngx-bootstrap/modal';
 import { AbpModalHeaderComponent } from "../../../shared/components/modal/abp-modal-header.component";
 import { AbpModalFooterComponent } from "../../../shared/components/modal/abp-modal-footer.component";
 import {
-  CollectionStatus, CreateUpdatePharmacistPrescriptionsDto, MedicineFormMasterServiceProxy,
+  CollectionStatus, CreateUpdatePharmacistPrescriptionsDto,
   MedicineMasterServiceProxy, PatientServiceProxy, PaymentMethod, PharmacistInventoryServiceProxy,
-  PharmacistPrescriptionItemWithUnitPriceDto, PharmacistPrescriptionsServiceProxy, PrescriptionItemsServiceProxy,
+  PharmacistPrescriptionItemWithUnitPriceDto, PharmacistPrescriptionsServiceProxy,
   PrescriptionServiceProxy,
 } from '@shared/service-proxies/service-proxies';
 import { MessageService } from 'primeng/api';
 import { AppComponentBase } from '@shared/app-component-base';
-import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectModule } from 'primeng/select';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
@@ -19,9 +18,11 @@ import { TextareaModule } from 'primeng/textarea';
 import moment from 'moment';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { TableModule } from 'primeng/table';
-import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
+import { AutoCompleteModule } from 'primeng/autocomplete';
+import { TooltipModule } from 'primeng/tooltip';
+import { MedicineSearchInputDto } from '@shared/service-proxies/service-proxies';
 
 interface LocalPharmacistItem extends Partial<PharmacistPrescriptionItemWithUnitPriceDto> {
   _rowId?: number;
@@ -37,12 +38,13 @@ interface LocalPharmacistItem extends Partial<PharmacistPrescriptionItemWithUnit
   selector: 'app-create-pharmacist-prescription',
   standalone: true,
   imports: [
-    AbpModalHeaderComponent, ToastModule, AbpModalFooterComponent, MultiSelectModule, FormsModule, SelectModule,
-    CommonModule, ButtonModule, TextareaModule, InputNumberModule, TableModule, DropdownModule, InputTextModule
+    AbpModalHeaderComponent, ToastModule, AbpModalFooterComponent, FormsModule, SelectModule,
+    CommonModule, ButtonModule, TextareaModule, InputNumberModule, TableModule, InputTextModule,
+    AutoCompleteModule, TooltipModule
   ],
   templateUrl: './create-pharmacist-prescription.component.html',
   styleUrl: './create-pharmacist-prescription.component.css',
-  providers: [PatientServiceProxy, MedicineMasterServiceProxy, MedicineFormMasterServiceProxy, PrescriptionItemsServiceProxy, PharmacistInventoryServiceProxy, MessageService, PrescriptionServiceProxy, PharmacistPrescriptionsServiceProxy]
+  providers: [PatientServiceProxy, MedicineMasterServiceProxy, PharmacistInventoryServiceProxy, MessageService, PrescriptionServiceProxy, PharmacistPrescriptionsServiceProxy]
 })
 export class CreatePharmacistPrescriptionComponent extends AppComponentBase implements OnInit {
   @ViewChild('createPharmacistPrescriptionForm', { static: true }) createPharmacistPrescriptionForm: NgForm;
@@ -62,27 +64,14 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
   _pharmacyNotes!: string;
   total: number = 0;
 
-  medicineTypes: any[] = [];
-  medicinesByType: any[] = [];
+  filteredMedicines: any[] = [];
+  selectedMedicine: any;
+  frequencyInput: string = '';
+  searchTimeout: any;
   medicineBatches: { [medicineId: number]: any[] } = {};
   medicineStocks: { [medicineId: number]: number } = {};
   batchAllocations: { [medicineId: number]: { [batchId: number]: number } } = {};
   disabledMedicineIds: Set<number> = new Set<number>();
-  frequencyOptions = [
-    { label: 'Once a day', value: 'Once a day' },
-    { label: 'Twice a day', value: 'Twice a day' },
-    { label: 'Three times a day', value: 'Three times a day' },
-    { label: 'Four times a day', value: 'Four times a day' },
-    { label: 'Every 6 hours', value: 'Every 6 hours' },
-    { label: 'Every 8 hours', value: 'Every 8 hours' },
-    { label: 'Every 12 hours', value: 'Every 12 hours' },
-    { label: 'As needed', value: 'As needed' }
-  ];
-  durationUnits = [
-    { label: 'Days', value: 'Days' },
-    { label: 'Weeks', value: 'Weeks' },
-    { label: 'Months', value: 'Months' }
-  ];
 
   private _rowCounter = 1;
   private nextRowId(): number { return this._rowCounter++; }
@@ -93,11 +82,9 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
     private cdRef: ChangeDetectorRef,
     private patientService: PatientServiceProxy,
     private prescriptionService: PrescriptionServiceProxy,
-    private PrescriptionItemsService: PrescriptionItemsServiceProxy,
     private pharmacistPrescriptionService: PharmacistPrescriptionsServiceProxy,
     private messageService: MessageService,
     private _pharmacistInventoryService: PharmacistInventoryServiceProxy,
-    private _medicineFormService: MedicineFormMasterServiceProxy,
     private _medicineMasterService: MedicineMasterServiceProxy
   ) {
     super(injector);
@@ -105,43 +92,55 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
 
   ngOnInit() {
     this.loadPatients();
-    this.loadMedicineTypes();
-  }
-
-  loadMedicineTypes() {
-    this._medicineForm_service_getAll();
-  }
-  private _medicineForm_service_getAll() {
-    this._medicineFormService.getAlldicineFormByTenantId(abp.session.tenantId).subscribe({
-      next: (res: any) => this.medicineTypes = (res.items || []).map((x: any) => ({ id: x.id, name: x.name })),
-      error: () => this.notify.error('Could not load medicine types')
-    });
   }
 
 
-  onMedicineSelect(item: LocalPharmacistItem) {
-    if (item.medicineId && this.isMedicineDisabled({ id: item.medicineId })) {
+  searchMedicine(event: any) {
+    clearTimeout(this.searchTimeout);
+    this.searchTimeout = setTimeout(() => {
+      const input = new MedicineSearchInputDto();
+      input.keyword = event.query;
+      input.skipCount = 0;
+      input.maxResultCount = 20;
+
+      this._medicineMasterService.searchMedicinesWithPaging(input).subscribe(res => {
+        this.filteredMedicines = res.items || [];
+      });
+    }, 300);
+  }
+
+  formatFrequency() {
+    if (!this.frequencyInput) return;
+    let val = this.frequencyInput.replace(/[^0-9]/g, '').substring(0, 4);
+    this.frequencyInput = val.split('').join('-');
+  }
+
+  onMedicineSelect(event: any) {
+    const selected = event.value || event;
+    if (!selected || !selected.id) return;
+
+    if (this.isMedicineDisabled(selected)) {
       this.messageService.add({
         severity: 'warn',
         summary: 'Medicine Already Added',
-        detail: 'This medicine is already included from the selected prescription. Please select another medicine.'
+        detail: 'This medicine is already included. Please select another.'
       });
-      item.medicineId = null;
-      item.medicineName = '';
-      item.unitPrice = 0;
+      this.selectedMedicine = null;
       this.cdRef.detectChanges();
       return;
     }
-    const selected = this.medicinesByType.find(m => m.id === item.medicineId);
-    if (selected) {
-      item.medicineName = selected.medicineName;
-      this.fetchBatchesForMedicine(item.medicineId as number, () => {
-        const best = this.pickBestBatch(this.medicineBatches[item.medicineId as number] || []);
-        if (best) item.unitPrice = best.sellingPrice ?? item.unitPrice ?? 0;
+
+    if (this.newPrescriptionItem) {
+      this.newPrescriptionItem.medicineId = selected.id;
+      this.newPrescriptionItem.medicineName = selected.medicineName;
+
+      this.fetchBatchesForMedicine(selected.id, () => {
+        const best = this.pickBestBatch(this.medicineBatches[selected.id] || []);
+        if (best && this.newPrescriptionItem) {
+          this.newPrescriptionItem.unitPrice = best.sellingPrice ?? this.newPrescriptionItem.unitPrice ?? 0;
+        }
+        this.cdRef.detectChanges();
       });
-    } else {
-      item.medicineName = '';
-      item.unitPrice = 0;
     }
   }
 
@@ -268,44 +267,30 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
   }
 
   NewItem(): void {
-    const dto = new PharmacistPrescriptionItemWithUnitPriceDto();
-    dto.init({
+    const item: LocalPharmacistItem = {
       prescriptionId: null,
       medicineId: 0,
       medicineName: '',
-      dosage: '',
       frequency: '',
-      duration: '',
-      instructions: '',
+      numberOfMedicine: 1, // New field
       qty: 1,
       unitPrice: 0,
-      totalPayableAmount: 0,
       isPrescribe: false,
-    });
-    const item: LocalPharmacistItem = dto as LocalPharmacistItem;
-    item.durationValue = 1;
-    item.durationUnit = 'Days';
-    item._isNew = true;
-    item._rowId = this.nextRowId();
+      _isNew: true,
+      _rowId: this.nextRowId()
+    };
     this.newPrescriptionItem = item;
   }
 
   addItem() {
     if (!this.newPrescriptionItem) return;
+    this.newPrescriptionItem.frequency = this.frequencyInput;
     const medId = this.newPrescriptionItem.medicineId as number;
-
-    if (medId && this.isMedicineDisabled({ id: medId })) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Invalid Selection',
-        detail: 'Cannot add medicine that is already in prescription.'
-      });
-      return;
-    }
     if (!medId) {
       this.messageService.add({ severity: 'warn', summary: 'Select medicine', detail: 'Please select a medicine.' });
       return;
     }
+
     this.fetchBatchesForMedicine(medId, () => {
       const totalAvailable = this.medicineStocks[medId] || 0;
       let requested = Number(this.newPrescriptionItem!.qty) || 1;
@@ -332,11 +317,13 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
         this.messageService.add({
           severity: 'success',
           summary: 'Medicine Added',
-          detail: `${this.newPrescriptionItem.medicineName} added successfully and disabled for future selection`
+          detail: `${this.newPrescriptionItem.medicineName} added successfully`
         });
       }
 
       this.newPrescriptionItem = null;
+      this.selectedMedicine = null;
+      this.frequencyInput = '';
       this.cdRef.detectChanges();
     });
   }
@@ -750,14 +737,7 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
     });
   }
 
-  getFilteredMedicines(): any[] {
-    if (!this.medicinesByType || this.medicinesByType.length === 0) {
-      return [];
-    }
-    return this.medicinesByType.filter(medicine =>
-      !this.disabledMedicineIds.has(medicine.id)
-    );
-  }
+
 
   isMedicineDisabled(medicine: any): boolean {
     return this.disabledMedicineIds.has(medicine.id);

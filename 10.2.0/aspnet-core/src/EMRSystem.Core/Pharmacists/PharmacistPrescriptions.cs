@@ -1,7 +1,6 @@
 ﻿using Abp.Domain.Entities;
 using EMRSystem.Doctors;
 using EMRSystem.Invoices;
-using EMRSystem.MedicineOrder;
 using EMRSystem.Nurses;
 using EMRSystem.Patients;
 using EMRSystem.Prescriptions;

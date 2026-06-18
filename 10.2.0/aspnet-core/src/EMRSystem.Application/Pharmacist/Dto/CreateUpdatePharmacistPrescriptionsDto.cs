@@ -1,6 +1,5 @@
 ﻿using Abp.Application.Services.Dto;
 using EMRSystem.Invoices;
-using EMRSystem.MedicineOrder;
 using EMRSystem.Pharmacists;
 using EMRSystem.Prescriptions.Dto;
 using System;

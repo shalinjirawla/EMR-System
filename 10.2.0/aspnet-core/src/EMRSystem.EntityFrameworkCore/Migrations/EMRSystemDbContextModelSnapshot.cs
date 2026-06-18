@@ -3223,73 +3223,6 @@ namespace EMRSystem.Migrations
                     b.ToTable("MedicineFormMasters", (string)null);
                 });
 
-            modelBuilder.Entity("EMRSystem.MedicineOrder.MedicineOrder", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("NurseId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("OrderDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long?>("PatientId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("Priority")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NurseId");
-
-                    b.HasIndex("PatientId");
-
-                    b.ToTable("MedicineOrders");
-                });
-
-            modelBuilder.Entity("EMRSystem.MedicineOrder.MedicineOrderItem", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Dosage")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long>("MedicineId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("MedicineName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long>("MedicineOrderId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MedicineId");
-
-                    b.HasIndex("MedicineOrderId");
-
-                    b.ToTable("MedicineOrderItems");
-                });
-
             modelBuilder.Entity("EMRSystem.Medicines.MedicineMaster", b =>
                 {
                     b.Property<long>("Id")
@@ -3711,52 +3644,6 @@ namespace EMRSystem.Migrations
                     b.HasIndex("AbpUserId");
 
                     b.ToTable("Pharmacists");
-                });
-
-            modelBuilder.Entity("EMRSystem.Pharmacists.PharmacistInventory", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<decimal>("CostPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("ExpiryDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsAvailable")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("MedicineName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("MinStock")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("PurchaseDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal>("SellingPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("Stock")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Unit")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("PharmacistInventory");
                 });
 
             modelBuilder.Entity("EMRSystem.Pharmacists.PharmacistPrescriptions", b =>
@@ -5065,43 +4952,6 @@ namespace EMRSystem.Migrations
                     b.Navigation("Patient");
                 });
 
-            modelBuilder.Entity("EMRSystem.MedicineOrder.MedicineOrder", b =>
-                {
-                    b.HasOne("EMRSystem.Nurses.Nurse", "Nurse")
-                        .WithMany("MedicineOrders")
-                        .HasForeignKey("NurseId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("EMRSystem.Patients.Patient", "Patient")
-                        .WithMany("MedicineOrders")
-                        .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.Navigation("Nurse");
-
-                    b.Navigation("Patient");
-                });
-
-            modelBuilder.Entity("EMRSystem.MedicineOrder.MedicineOrderItem", b =>
-                {
-                    b.HasOne("EMRSystem.Pharmacists.PharmacistInventory", "Medicine")
-                        .WithMany()
-                        .HasForeignKey("MedicineId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("EMRSystem.MedicineOrder.MedicineOrder", "MedicineOrder")
-                        .WithMany("Items")
-                        .HasForeignKey("MedicineOrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Medicine");
-
-                    b.Navigation("MedicineOrder");
-                });
-
             modelBuilder.Entity("EMRSystem.Medicines.MedicineMaster", b =>
                 {
                     b.HasOne("EMRSystem.MedicineFormMaster.MedicineFormMaster", "Form")
@@ -5636,11 +5486,6 @@ namespace EMRSystem.Migrations
                     b.Navigation("PrescriptionLabTests");
                 });
 
-            modelBuilder.Entity("EMRSystem.MedicineOrder.MedicineOrder", b =>
-                {
-                    b.Navigation("Items");
-                });
-
             modelBuilder.Entity("EMRSystem.Medicines.MedicineMaster", b =>
                 {
                     b.Navigation("Stocks");
@@ -5656,8 +5501,6 @@ namespace EMRSystem.Migrations
                     b.Navigation("Admissions");
 
                     b.Navigation("EmergencyCases");
-
-                    b.Navigation("MedicineOrders");
 
                     b.Navigation("PharmacistPrescriptions");
 
@@ -5681,8 +5524,6 @@ namespace EMRSystem.Migrations
                     b.Navigation("IpdChargeEntries");
 
                     b.Navigation("LabTestReceipts");
-
-                    b.Navigation("MedicineOrders");
 
                     b.Navigation("PatientDeposits");
 

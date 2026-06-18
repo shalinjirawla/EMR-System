@@ -33,7 +33,6 @@ namespace EMRSystem.Nurses
        // public ICollection<Patient> Patients { get; set; }
         //public virtual ICollection<Appointment> Appointments { get; set; }
         public ICollection<Visit> Visits { get; set; }
-        public virtual ICollection<MedicineOrder.MedicineOrder> MedicineOrders { get; set; }
         public virtual ICollection<EMRSystem.Admission.Admission> Admissions { get; set; }
         public virtual ICollection<EmergencyCase> EmergencyCases { get; set; }
         public virtual ICollection<Triage> Triages { get; set; }

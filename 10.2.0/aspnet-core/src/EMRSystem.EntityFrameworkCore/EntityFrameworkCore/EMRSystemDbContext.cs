@@ -43,7 +43,6 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
     public DbSet<LabTechnician> LabTechnician { get; set; }
     public DbSet<Nurse> Nurses { get; set; }
     public DbSet<Pharmacist> Pharmacists { get; set; }
-    public DbSet<PharmacistInventory> PharmacistInventory { get; set; }
     public DbSet<Appointment> Appointments { get; set; }
     public DbSet<LabReportsType> LabReportsTypes { get; set; }
     public DbSet<Patient> Patients { get; set; }
@@ -55,8 +54,6 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
     public DbSet<InvoiceItem> InvoiceItems { get; set; }
     public DbSet<Visit> Visits { get; set; }
     public DbSet<Department> Departments { get; set; }
-    public DbSet<EMRSystem.MedicineOrder.MedicineOrder> MedicineOrders { get; set; }
-    public DbSet<EMRSystem.MedicineOrder.MedicineOrderItem> MedicineOrderItems { get; set; }
     public DbSet<EMRSystem.Room.Room> Rooms { get; set; }
     public DbSet<RoomTypeMaster> RoomTypes { get; set; }
     public DbSet<RoomFacilityMaster> RoomFacilitiesMaster { get; set; }
@@ -359,33 +356,6 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
            .WithMany(lrt => lrt.LabReportResultItems) // Optional: Add if you want reverse navigation
            .HasForeignKey(plt => plt.PrescriptionLabTestId)
            .OnDelete(DeleteBehavior.Cascade);
-        // MedicineOrder - Nurse relationship
-        modelBuilder.Entity<EMRSystem.MedicineOrder.MedicineOrder>()
-            .HasOne(m => m.Nurse)
-            .WithMany(n => n.MedicineOrders)
-            .HasForeignKey(m => m.NurseId)
-            .OnDelete(DeleteBehavior.NoAction);
-
-        // MedicineOrder - Patient relationship
-        modelBuilder.Entity<EMRSystem.MedicineOrder.MedicineOrder>()
-            .HasOne(m => m.Patient)
-            .WithMany(p => p.MedicineOrders)
-            .HasForeignKey(m => m.PatientId)
-            .OnDelete(DeleteBehavior.NoAction);
-
-        // MedicineOrderItem - MedicineOrder relationship
-        modelBuilder.Entity<EMRSystem.MedicineOrder.MedicineOrderItem>()
-            .HasOne(m => m.MedicineOrder)
-            .WithMany(o => o.Items)
-            .HasForeignKey(m => m.MedicineOrderId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        // MedicineOrderItem - Medicine (PharmacistInventory)
-        modelBuilder.Entity<EMRSystem.MedicineOrder.MedicineOrderItem>()
-            .HasOne(m => m.Medicine)
-            .WithMany() // Assuming no navigation from inventory → order items
-            .HasForeignKey(m => m.MedicineId)
-            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<Invoice>(b =>
         {

@@ -4,8 +4,8 @@
     <p-progressSpinner></p-progressSpinner>
   </div>
 
-  <form class="form-horizontal d-flex flex-column h-100" autocomplete="off"
-    #createPharmacistPrescriptionForm="ngForm" (ngSubmit)="save()">
+  <form class="form-horizontal d-flex flex-column h-100" autocomplete="off" #createPharmacistPrescriptionForm="ngForm"
+    (ngSubmit)="save()">
 
     <!-- HEADER -->
     <abp-modal-header title="📝 Edit Pharmacist Prescription" (onCloseClick)="bsModalRef.hide()">
@@ -32,8 +32,8 @@
       <div class="card custom-card mb-3" *ngIf="selectedPrescriptionItem?.length > 0 || newPrescriptionItem">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <div class="section-title mb-0">💊 Prescription Items</div>
-          <button type="button" pButton label="Add Medicine" icon="pi pi-plus" class="p-button-sm"
-            (click)="NewItem()" *ngIf="!newPrescriptionItem">
+          <button type="button" pButton label="Add Medicine" icon="pi pi-plus" class="p-button-sm" (click)="NewItem()"
+            *ngIf="!newPrescriptionItem">
           </button>
         </div>
 
@@ -75,8 +75,8 @@
               </td>
               <td style="width: 140px;">
                 <p-inputNumber [ngModel]="itm.qty" (ngModelChange)="onQtyChange(itm, $event)" [showButtons]="true"
-                  [min]="1" [max]="getMaxPossibleQtyForCurrentBatch(itm, itm.medicineId)"
-                  name="quantity{{itm._rowId}}" styleClass="w-100">
+                  [min]="1" [max]="getMaxPossibleQtyForCurrentBatch(itm, itm.medicineId)" name="quantity{{itm._rowId}}"
+                  styleClass="w-100">
                 </p-inputNumber>
               </td>
               <td class="text-right font-weight-bold text-primary">
@@ -85,12 +85,12 @@
               <td class="text-center">
                 <div class="d-flex justify-content-center gap-2">
                   <button type="button" pButton icon="fa-solid fa-trash"
-                    class="p-button-rounded p-button-danger p-button-text p-button-sm"
-                    (click)="removeItem(i)" *ngIf="itm._isNew" pTooltip="Remove Item">
+                    class="p-button-rounded p-button-danger p-button-text p-button-sm" (click)="removeItem(i)"
+                    *ngIf="itm._isNew" pTooltip="Remove Item">
                   </button>
                   <button type="button" pButton icon="fa-solid fa-code-branch"
-                    class="p-button-rounded p-button-info p-button-text p-button-sm"
-                    (click)="splitToNewBatch(itm)" *ngIf="canSplitToNewBatch(itm)" pTooltip="Split Batch">
+                    class="p-button-rounded p-button-info p-button-text p-button-sm" (click)="splitToNewBatch(itm)"
+                    *ngIf="canSplitToNewBatch(itm)" pTooltip="Split Batch">
                   </button>
                 </div>
               </td>
@@ -109,59 +109,36 @@
           </ng-template>
         </p-table>
 
-        <!-- ➕ ADD NEW ITEM SECTION (UI Modernized only) -->
         <div *ngIf="newPrescriptionItem as item" class="secondary-card mt-3">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <div class="section-title mb-0" style="font-size: 13px;">➕ Add Manual Medicine</div>
-            <button type="button" pButton icon="pi pi-times" class="p-button-rounded p-button-secondary p-button-text p-button-sm"
+            <button type="button" pButton icon="pi pi-times"
+              class="p-button-rounded p-button-secondary p-button-text p-button-sm"
               (click)="newPrescriptionItem = null">
             </button>
           </div>
 
-          <div class="row">
-            <div class="col-md-3">
-              <label class="form-label">Type *</label>
-              <p-dropdown name="itemMedicineType" appendTo="body" [baseZIndex]="11000" class="w-100"
-                [(ngModel)]="item.medicineFormId" [options]="medicineTypes" optionLabel="name" optionValue="id"
-                placeholder="Select type" (onChange)="onMedicineTypeSelect(item)" required>
-              </p-dropdown>
-            </div>
-
-            <div class="col-md-6">
+          <div class="row align-items-end g-3">
+            <div class="col-md-5">
               <label class="form-label">Medicine *</label>
-              <p-dropdown name="itemMedicine" appendTo="body" [baseZIndex]="11000" class="w-100"
-                [(ngModel)]="item.medicineId" [options]="medicinesByType" optionLabel="medicineName" optionValue="id"
-                placeholder="Search medicine..." (onChange)="onMedicineSelect(item)" [disabled]="!item.medicineFormId"
-                [optionDisabled]="isMedicineDisabled.bind(this)" [filter]="true" required>
-              </p-dropdown>
+              <p-autoComplete [(ngModel)]="selectedMedicine" [suggestions]="filteredMedicines"
+                (completeMethod)="searchMedicine($event)" field="medicineName" [dropdown]="true" [virtualScroll]="true"
+                [lazy]="true" [itemSize]="34" placeholder="Search medicine..." name="itemMedicine" class="w-100"
+                (onSelect)="onMedicineSelect($event)" [baseZIndex]="11000">
+              </p-autoComplete>
             </div>
 
-            <div class="col-md-3">
-              <label class="form-label">Price</label>
-              <p-inputNumber [(ngModel)]="item.unitPrice" name="medicinePrice" [disabled]="true"
-                mode="currency" currency="INR">
-              </p-inputNumber>
-            </div>
-          </div>
-
-          <div class="row mt-3">
-            <div class="col-md-3">
+            <div class="col-md-2">
               <label class="form-label">Frequency *</label>
-              <p-dropdown appendTo="body" [baseZIndex]="11000" class="w-100" name="itemFrequency"
-                [(ngModel)]="item.frequency" [options]="frequencyOptions" optionLabel="label" optionValue="value"
-                placeholder="Select" required>
-              </p-dropdown>
+              <input type="text" pInputText [(ngModel)]="frequencyInput" placeholder="1-0-1" name="itemFrequency"
+                maxlength="7" (input)="formatFrequency()" class="w-100" />
             </div>
 
-            <div class="col-md-4">
-              <label class="form-label">Duration *</label>
-              <div class="d-flex gap-2">
-                <input type="number" pInputText [(ngModel)]="item.durationValue" min="1" placeholder="Val"
-                  class="w-50" name="durationValue" required>
-                <p-dropdown appendTo="body" [baseZIndex]="11000" class="flex-grow-1" [(ngModel)]="item.durationUnit"
-                  [options]="durationUnits" optionLabel="label" optionValue="value" name="itemDurationUnit" required>
-                </p-dropdown>
-              </div>
+            <div class="col-md-2">
+              <label class="form-label">No. of Med *</label>
+              <p-inputNumber [(ngModel)]="item.numberOfMedicine" name="numberOfMedicineNew" [min]="1" placeholder="No."
+                styleClass="w-100">
+              </p-inputNumber>
             </div>
 
             <div class="col-md-2">
@@ -171,30 +148,38 @@
               </p-inputNumber>
             </div>
 
-            <div class="col-md-3 d-flex align-items-end">
-              <button type="button" pButton label="Add to List" icon="pi pi-check" severity="success"
-                class="w-100" (click)="addItem()" [disabled]="!createPharmacistPrescriptionForm.form.valid">
+            <div class="col-md-1">
+              <button type="button" pButton icon="pi pi-plus" severity="success" class="w-100" (click)="addItem()"
+                [disabled]="!selectedMedicine || !frequencyInput">
               </button>
-            </div>
-          </div>
-
-          <div class="row mt-3">
-            <div class="col-md-12">
-              <label class="form-label">Instructions</label>
-              <textarea pInputTextarea [(ngModel)]="item.instructions" name="itemInstructions"
-                placeholder="Enter special instructions..." class="w-100" rows="1" style="resize: none;"></textarea>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- 📝 NOTES SECTION -->
+      <!-- 📝 NOTES & 💰 PAYMENT -->
       <div class="row mt-1">
-        <div class="col-md-12">
-          <div class="card custom-card">
+        <div class="col-md-7">
+          <div class="card custom-card h-100">
             <div class="section-title">📝 Additional Notes</div>
-            <textarea pTextarea [(ngModel)]="_pharmacyNotes" name="pharmacyNotes" placeholder="Write pharmacy notes here..."
-              rows="3" class="w-100" style="resize: none;" required></textarea>
+            <textarea pTextarea [(ngModel)]="_pharmacyNotes" name="pharmacyNotes"
+              placeholder="Write pharmacy notes here..." rows="3" class="w-100" style="resize: none;"></textarea>
+          </div>
+        </div>
+
+        <div class="col-md-5">
+          <div class="card custom-card h-100">
+            <div class="section-title">💰 Payment Method</div>
+            <div class="payment-wrapper">
+              <div class="payment-option" [class.active]="paymentMethod === PaymentMethod._1"
+                (click)="paymentMethod = PaymentMethod._1">
+                <i class="pi pi-credit-card mr-2"></i> Card
+              </div>
+              <div class="payment-option" [class.active]="paymentMethod === PaymentMethod._0"
+                (click)="paymentMethod = PaymentMethod._0">
+                <i class="pi pi-money-bill mr-2"></i> Cash
+              </div>
+            </div>
           </div>
         </div>
       </div>

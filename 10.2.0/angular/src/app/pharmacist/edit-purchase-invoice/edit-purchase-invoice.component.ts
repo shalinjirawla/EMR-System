@@ -32,8 +32,8 @@ import { SelectModule } from 'primeng/select';
 })
 
 export class EditPurchaseInvoiceComponent extends AppComponentBase implements OnInit {
-  @ViewChild('purchaseInvoiceForm', { static: true }) purchaseInvoiceForm: NgForm;
-  @ViewChild('itemForm') itemForm: NgForm;
+  @ViewChild('purchaseInvoiceForm', { static: true }) purchaseInvoiceForm!: NgForm;
+  @ViewChild('itemForm') itemForm!: NgForm;
   @Output() onSave = new EventEmitter<void>();
 
   saving = false;

@@ -12,7 +12,6 @@ import { ActivatedRoute } from '@angular/router';
 import { LazyLoadEvent } from 'primeng/api';
 import { finalize } from 'rxjs/operators';
 import { CreateMedicineListComponent } from '../create-medicine-list/create-medicine-list.component';
-import { EditMedicineComponent } from '../edit-medicine/edit-medicine.component';
 import { LocalizePipe } from '../../../shared/pipes/localize.pipe';
 import { FormsModule } from '@angular/forms';
 import { NgIf, DatePipe } from '@angular/common';
@@ -35,8 +34,8 @@ import { InputTextModule } from 'primeng/inputtext';
   animations: [appModuleAnimation()],
   standalone: true,
   imports: [
-    LocalizePipe, BreadcrumbModule, TooltipModule, CardModule, InputTextModule,MenuModule,FormsModule,TableModule,
-    CalendarModule,NgIf,PaginatorModule,ButtonModule,OverlayPanelModule,MenuModule],
+    LocalizePipe, BreadcrumbModule, TooltipModule, CardModule, InputTextModule, MenuModule, FormsModule, TableModule,
+    CalendarModule, NgIf, PaginatorModule, ButtonModule, OverlayPanelModule, MenuModule],
   providers: [MedicineMasterServiceProxy],
   templateUrl: './medicine-list.component.html',
   styleUrl: './medicine-list.component.css',
@@ -53,7 +52,7 @@ export class MedicineListComponent
   isAvailable: boolean | null;
   items: MenuItem[] | undefined;
   editDeleteMenus: MenuItem[] | undefined;
-  selectedRecord:MedicineMasterDto
+  selectedRecord: MedicineMasterDto
   constructor(
     injector: Injector,
     private _modalService: BsModalService,

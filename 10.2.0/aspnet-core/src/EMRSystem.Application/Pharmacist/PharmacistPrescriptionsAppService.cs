@@ -13,7 +13,6 @@ using EMRSystem.Invoices;
 using EMRSystem.IpdChargeEntry;
 using EMRSystem.LabReport.Dto;
 using EMRSystem.LabReports;
-using EMRSystem.MedicineOrder;
 using EMRSystem.Medicines;
 using EMRSystem.MultiTenancy;
 using EMRSystem.NumberingService;
@@ -49,7 +48,7 @@ namespace EMRSystem.Pharmacist
      IPharmacistPrescriptionsAppService
     {
 
-        private readonly IRepository<EMRSystem.Pharmacists.PharmacistInventory, long> _pharmacistInventoryRepository;
+        
         private readonly IRepository<EMRSystem.Prescriptions.PrescriptionItem, long> _prescriptionItemRepository;
         private readonly TenantManager _tenantManager;
         private readonly INumberingService _numberingService;
@@ -65,11 +64,9 @@ namespace EMRSystem.Pharmacist
             IRepository<EmergencyChargeEntry, long> emergencyChargeRepository,
             IRepository<EMRSystem.IpdChargeEntry.IpdChargeEntry, long> ipdChargeRepository,
 
-        ITempStripeDataService tempStripeDataService,
-            IRepository<Pharmacists.PharmacistInventory, long> pharmacistInventoryRepository, TenantManager tenantManager,
+        ITempStripeDataService tempStripeDataService,TenantManager tenantManager,
             IRepository<PrescriptionItem, long> prescriptionItemRepository) : base(repository)
         {
-            _pharmacistInventoryRepository = pharmacistInventoryRepository;
             _tenantManager = tenantManager;
             _emergencyChargeRepository = emergencyChargeRepository;
             _ipdChargeRepository = ipdChargeRepository;

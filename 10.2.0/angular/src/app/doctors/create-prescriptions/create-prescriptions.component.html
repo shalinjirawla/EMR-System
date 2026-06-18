@@ -35,7 +35,7 @@
             <label>💊 Medicines</label>
             <div class="chips">
               <span class="chip" *ngFor="let item of suggestionData?.items">
-                {{item.medicineName}} ({{item.dosage}})
+                {{item.medicineName}} ({{item.frequency}})
               </span>
             </div>
           </div>
@@ -78,8 +78,8 @@
           </div>
           <div class="col-md-6" *ngIf="isAdmin">
             <label>Select Doctor</label>
-            <p-select [(ngModel)]="prescription.doctorId" [optionValue]="'id'" name="doctorId"
-              [options]="doctors" optionLabel="fullName" placeholder="Select doctor" class="w-100" required />
+            <p-select [(ngModel)]="prescription.doctorId" [optionValue]="'id'" name="doctorId" [options]="doctors"
+              optionLabel="fullName" placeholder="Select doctor" class="w-100" required />
           </div>
         </div>
       </div>
@@ -89,8 +89,8 @@
         <div class="row">
           <div class="col-md-12">
             <label>Symptoms</label>
-            <textarea pTextarea [(ngModel)]="prescription.symptoms" name="symptoms" (input)="onSymptomsChange()" rows="2"
-              class="w-100" placeholder="Type symptoms to get smart suggestions..."></textarea>
+            <textarea pTextarea [(ngModel)]="prescription.symptoms" name="symptoms" (input)="onSymptomsChange()"
+              rows="2" class="w-100" placeholder="Type symptoms to get smart suggestions..."></textarea>
           </div>
         </div>
         <div class="row mt-3">
@@ -138,7 +138,8 @@
           </div>
           <div class="col-md-2">
             <label>Qty</label>
-            <input type="number" pInputText [(ngModel)]="numberOfMedicine" name="numberOfMedicine" min="1" class="w-100" />
+            <input type="number" pInputText [(ngModel)]="numberOfMedicine" name="numberOfMedicine" min="1"
+              class="w-100" />
           </div>
           <div class="col-md-3">
             <p-button label="Add Medicine" icon="pi pi-plus" (click)="addMedicineToList()" styleClass="w-100" />
@@ -173,7 +174,8 @@
               <td>{{item.numberOfMedicine}}</td>
               <td class="text-center">
                 <p-button icon="pi pi-pencil" [text]="true" severity="info" (click)="editItem(i)" pTooltip="Edit" />
-                <p-button icon="pi pi-trash" [text]="true" severity="danger" (click)="deleteItem(i)" pTooltip="Remove" />
+                <p-button icon="pi pi-trash" [text]="true" severity="danger" (click)="deleteItem(i)"
+                  pTooltip="Remove" />
               </td>
             </tr>
           </tbody>
