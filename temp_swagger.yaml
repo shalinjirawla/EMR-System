@@ -1,0 +1,678 @@
+﻿<USER_REQUEST>
+openapi: 3.0.0
+x-stoplight:
+  id: ae5xu107i6xpz
+info:
+  description: 'It is important to standardize the process of identification of an individual across healthcare providers, to ensure that the created medical records are issued to the right individual or accessed by a Health Information User through appropriate consent. <br><br><b>API Security</b> <br> You need Authorization Token and X-HIP-ID to consume APIs. <br><br> <b>Notes:</b> <ol> <li><b>In order to have access to HealthID APIs, your clientId must have hid role in gateway. So if you want access to these APIs then please request it in your ABDM on-boarding request.</b></li> <li><b>In order to have access to Integrated Programs HealthID APIs, your clientId must have integrated_program role in gateway. So if you want access to these APIs then please request it in your ABDM on-boarding request. Also, you will need to share integrated program benefit name to be used in this case.</b></li> <li><b>When calling APIs, please ensure that Authorization header must have format as <i>Bearer {Token_Value}</i>. Please note the prefix Bearer followed by space before token value.</b></li> <li><b>Check the state and district codes from LGD directory <a href="https://lgdirectory.gov.in/">here.</a></b></li> <li><b>Highlighted Changes in the API Version 3:</b> <ul> <li>Sensitive data (Data like OTP, Aadhaar Number, Password, Username etc.) have to be encrypted.</li> <li>Data is encrypted by the public certificate. The certificate can be downloaded from the <code>/v3/auth/cert</code> API under the <b>Authentication</b> tag in version 3.</li> <li>RSA Encryption to encrypt the data. Cipher Type - <b>RSA/ECB/PKCS1Padding</b>. An online tool to encrypt data is available <a href="https://devbeaver.com/rsa-encryption-decryption-tool">here</a> (For reference).</li> </ul> </li> </ol> <br> <b> <font size="3">Validations Regex Patterns </font> </b> <ol><li> Mobile Number  Validation :<code>  <b>(\\+91|0)?[1-9][0-9]{9}</b></code> </li> <li>Date of Birth Validation : <code> <b>\d{4}\-(0[0-9]|1[012])\-(0[0-9]|[12][0-9]|3[01])$</b> </code> </li> <li>Abha Address Validation: <code><b>(^[a-zA-Z0-9]+[.]?[a-zA-Z0-9]*[_]?[a-zA-Z0-9]+$)|(^[a-zA-Z0-9]+[_]?[a-zA-Z0-9]*[.]?[a-zA-Z0-9]+$)</b></code></li> <li> ABHA Number Validation: <code><b>\d{2}-\d{4}-\d{4}-\d{4}</b></code> <li> OTP Validation: <b><code>[0-9]{6}</code></b></li> <li>Password Validation: <b><code>^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$^*_-])[A-Za-z\d!@#$%^&*_-]{8,}$</b></code></li> <li>UUID Validation: <code>^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$</code></li> <li>Email  Validation: <code>^[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)*@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,7}$ </code></li> <li>Driving License Validation: <code>^[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)*@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,7}$</code></li> <li> Transaction Id Validation: <code>^[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)*@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,7}$</code></li><br><br> </ol><b> <font size="3"> Brief Description about Regex Patterns </b> <ol><li><b>Mobile Number Validation</b><ol type="a"><li>Optional Country Code or Leading Zero: Matches either +91 (country code for India) or 0, or neither, at the beginning of the string.</li><li>First Digit Non-Zero: Ensures the first digit after the country code or zero is a digit from 1 to 9 (non-zero).</li><li>Phone Number Length: Validates that the phone number part is exactly 10 digits long.</li><li>For example: <code>9876543210,+911234567890 </code></li></ol></li><li><b>Date of Birth Validation</b><ol type="a"><li>Year Validation: Matches exactly 4 digits. Ensures the year is a 4-digit number.</li><li>Month Validation: Matches a hyphen followed by either a digit from 0-9 (for months 01 to 09), a digit from 10 to 12 (for months 10 to 12). Ensures the month is between 01 and 12.</li><li>Day Validation: Matches a hyphen followed by either a digit from 0-9 (for days 01 to 09), a digit from 10 to 29 (for days 10 to 29), a digit from 30 to 31 (for days 30 and 31). Ensures the day is between 01 and 31.</li><li>For Example: <code>2023-04-15</code></li></ol></li></ol><ol start="3"><li><b>Abha Address Validation</b><ol type="a"><li>Start and End with Alphanumeric Characters: Ensures the address starts with one or more alphanumeric characters. Ensures the address ends with one or more alphanumeric characters.</li><li>Optional Period (.): Allows for an optional period (.) anywhere within the address.</li><li>Optional Underscore: Allows for an optional underscore (_) in between the alphanumeric characters.</li><li>Length Validation: Ensures the ABHA address is between 8 to 18 characters long.</li><li>For Example: <code>john.doe_123, alice_smith.456, user.name_1</code></li></ol></li></ol><ol start="4"><li><b>ABHA Number Validation</b><ol type="a"><li>Two Digit Prefix: Matches exactly 2 digits at the beginning.</li><li>Four Digit Groups: Matches exactly 4 digits, separated by hyphens.</li><li>Hyphen Separation: Each group of digits is separated by a hyphen.</li><li>Complete Format: Ensures the ABHA number is in the format 11-XXXX-XXXX-XXXX.</li></ol></li></ol> <ol start="5"><li><b>OTP Validation</b><ol type="a"><li>Digit Only: Ensures that only numeric digits (0-9) are used.</li><li>Exact Length: Ensures the OTP is exactly 6 digits long.</li><li>Complete Format: The OTP must match the format [0-9]{6}.</li><li>For Example: <code>123456, 654321, 000123</code></li></ol> <li><b>Password Validation</b><ol type="a"><li>Uppercase Letter: Ensures the password contains at least one uppercase letter (A-Z).</li><li>Digit: Ensures the password contains at least one digit (0-9).</li><li>Special Character: Ensures the password contains at least one special character from <code>!@#$%^&*-</code>.</li><li>Length: Ensures the password is at least 8 characters long.</li><li>Allowed Characters: The password can contain uppercase letters, lowercase letters, digits, and the specified special characters.</li><li>Complete Format: The password must match the pattern ^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*-])[A-Za-z\d!@#$%^&*-]{8,}$.</li><li>For Example: <code>Password1!, Secure#123, My_Pass4$ </code></li></ol></li> <li><b>UUID Validation</b><ol type="a"><li><b>8</b> Hexadecimal Characters: Ensures the UUID starts with exactly 8 hexadecimal characters (0-9, a-f).</li><li><b>4</b> Hexadecimal Characters: Ensures the next segment contains exactly 4 hexadecimal characters.</li><li>Version Indicator: Ensures the next segment starts with a digit between 1 and 5, followed by 3 hexadecimal characters.</li><li>Variant Indicator: Ensures the next segment starts with a digit from 8, 9, a, or b, followed by 3 hexadecimal characters.</li><li><b>12</b> Hexadecimal Characters: Ensures the UUID ends with exactly 12 hexadecimal characters.</li><li>Hyphen Separation: Each segment is separated by a hyphen (-).</li><li>Complete Format: The UUID must match the pattern ^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$.</li><li>For Example: <code>123e4567-e89b-12d3-a456-426614174000, 550e8400-e29b-41d4-a716-446655440000</code></li></ol></li><li><b>Email Validation</b><ol type = "a"><li>Alphanumeric Characters: Allows letters (a-z, A-Z) and numbers (0-9), as well as underscores (_) and hyphens (-).</li><li>Dot Separator: Allows dots (.) within the local part of the email.</li><li>At Symbol: Requires an @ symbol separating the local part and the domain part.</li><li>Domain: Allows letters (a-z, A-Z), numbers (0-9), and hyphens (-).</li><li>Domain Extension: Requires a domain extension with only letters, ranging from 2 to 7 characters.</li><li>Complete Format: The email must match the pattern ^[a-zA-Z0-9_-]+(?:\\.[a-zA-Z0-9_-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$.</li><li>For Example: <code>user.name@example.com, username_123@domain.org</code></li></ol></li><li><b>Driving License Validation</b><ol type = "a"><li>Alphanumeric Characters: The license must start with letters (a-z, A-Z) or numbers (0-9).</li><li>Optional Separator: Allows for an optional hyphen (-) or space ( ) as a separator, but only one.</li><li>Continuation: After the optional separator, the license continues with letters (a-z, A-Z) or numbers (0-9).</li><li>Complete Format: The license must match the pattern ^[a-zA-Z0-9]+([-\s]{0,1})[a-zA-Z0-9]+$.</li><li>For Example: <code>ABC123, ABC-123, ABC 123</code></li></ol></li><li><b>Transaction Id Validation</b><ol type="a"><li>8 Hexadecimal Characters: Ensures the Txn Id starts with exactly 8 hexadecimal characters (0-9, a-f).</li><li>4 Hexadecimal Characters: Ensures the next segment contains exactly 4 hexadecimal characters.</li><li>Version Indicator: Ensures the next segment starts with a digit between 1 and 5, followed by 3 hexadecimal characters.</li><li>Variant Indicator: Ensures the next segment starts with a digit from 8, 9, a, or b, followed by 3 hexadecimal characters.</li><li>12 Hexadecimal Characters: Ensures the Txn Id ends with exactly 12 hexadecimal characters.</li><li>Hyphen Separation: Each segment is separated by a hyphen (-).</li><li>Complete Format: The Txn Id must match the pattern ^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$.</li><li>For Example: <code>123e4567-e89b-12d3-a456-426614174000, 550e8400-e29b-41d4-a716-446655440000</code></li></ol></li>'
+  title: ABHA
+  version: 3.0.0
+servers:
+- url: https://abhasbx.abdm.gov.in
+- url: https://dev.abdm.gov.in
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+    apikeyAuth:
+      type: http
+      scheme: apikey
+    noauthAuth:
+      type: http
+      scheme: noauth
+    basicAuth:
+      type: http
+      scheme: basic
+tags:
+- name: Gateway Session
+- name: ABHA ENROLLMENT Via AADHAAR
+- name: ABHA CREATION USING FACE AUTH 
+- name: ABHA ENROLLMENT Via DL
+- name: ABHA LOGIN
+- name: ABHA PROFILE
+- name: ABHA CARD
+- name: FIND ABHA
+- name: BENEFIT APIS
+- name: ABHA ADDRESS VERIFICATION
+- name: CHILD ABHA (These APIs are intended for use only by specific Government integrators, approved by NHA)
+- name: UTILITIES
+paths:
+
+  /abha/api/v3/enrollment/request/otp:
+    post:
+      tags:
+      - ABHA ENROLLMENT Via AADHAAR
+      - ABHA ENROLLMENT Via DL
+      summary: 'Use Case: ABHA enrollment - Send OTP using Aadhaar number Mobile number, ABHA number, Driving Licence number and Email address'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                scope:
+                  type: string
+                  example: [ "email-verify", "abha-enrol", "mobile-verify", "dl-flow" ]
+                loginHint:
+                  type: string
+                  example: [ "aadhaar,email,mobile" ]
+                loginId:
+                  type: string
+                  example: "{{encrypted aadhaar number}},{{encrypted mobile number}},{{encrypted email address}}"
+                otpSystem:
+                  type: string
+                  example: "abdm,aadhaar"
+              required:
+              - scope
+              - loginHint
+              - loginId
+              - otpSystem
+            examples:
+              ABHA enrolment via Aadhaar-Send OTP:
+                value:
+                  txnId: '{{txnId}}'
+                  scope:
+                  - abha-enrol
+                  loginHint: aadhaar
+                  loginId: '{{encrypted aadhaar number}}'
+                  otpSystem: aadhaar
+              Mobile Update - Send OTP:
+                value:
+                  txnId: '{{txnId}}'
+                  scope:
+                  - abha-enrol
+                  - mobile-verify
+                  loginHint: mobile
+                  loginId: '{{encrypted mobileNumber}}'
+                  otpSystem: abdm
+              ABHA Creation via Aadhaar OTP-Send OTP:
+                value:
+                  txnId: '{{txnId}}'
+                  scope:
+                  - abha-enrol
+                  loginHint: aadhaar
+                  loginId: '{{encrypted aadhaar number}}'
+                  otpSystem: aadhaar
+              ABHA Enrolment via DL-Send OTP:
+                value:
+                  scope:
+                  - abha-enrol
+                  - mobile-verify
+                  - dl-flow
+                  loginHint: mobile
+                  loginId: '{{encrypted mobile number}}'
+                  otpSystem: abdm
+
+          application/xml:
+            schema:
+              type: object
+              properties: {}
+            examples:
+              '':
+                value: |-
+                  {
+                      "txnId": "",
+                      "scope": [
+                          "abha-enrol"
+                      ],
+                      "loginHint": "aadhaar",
+                      "loginId": "{{encrypted aadhaar}}",
+                      "otpSystem": "aadhaar"
+                  } 
+        description: "<b>Below is the Request Body description:</b><br><br>\r
+
+          \ \r
+
+          <!--<div> <table> <thead> <tr> <th>Attributes</th> <th>Description</th> </tr> </thead> <tbody> <tr> <td>scope <sup>* required</td> <td>Aadhaar/Abha/mobile</td> </tr> <tr> <td>loginHint <sup> * required</td> <td>Aadhaar,Abha And Mobile Number</td> </tr> <tr> <td>loginId <sup>* required </sup></td> <td>encrypted mobile-number</td> </tr> <tr> <td>otpSystem <sup>* required</td> <td>abdm/aadhaar</td> </tr> </tbody> </table> </div> <hr> --> <b>Note:</b> Mandatory fields can't be null.. <ol> <li> <p><strong>scope</strong> (required):</p> <ul> <li><strong>Description:</strong> Specifies the scope of the OTP request.</li> <li><strong>Example:</strong> <code>[\"abha-enrol\", \"mobile-verify\",]</code></li> <li><strong>Possible Values:</strong> <code>abha-enrol</code>, <code>mobile-verify</code>, <code>dl-flow</code> ,<code>email-verify</code>.</li> </ul> </li> <li> <p><strong>loginHint</strong> (required):</p> <ul> <li><strong>Description:</strong> Indicates the type of identifier being used for the OTP request.</li> <li><strong>Example:</strong> <code>aadhaar</code></li> <li><strong>Possible Values:</strong><code>aadhaar</code>, <code>mobile</code></li> </ul> </li> <li>  <p><strong>loginId</strong> (required):</p> <ul> <li><strong>Description:</strong> The encrypted identifier (ABHA Number, or Mobile Number) for which the OTP is being requested.</li> <li><strong>Example:</strong> <code>{{encrypted aadhaar number}}</code>, <code>{{encrypted mobile number}}</code>,<code>{{encrypted email address}}</code></li> </ul> </li>  <li> <p><strong>otpSystem</strong> (required):</p> <ul> <li><strong>Description:</strong> Specifies the system used for OTP generation.</li> <li><strong>Example:</strong> <code>abdm</code>, <code>aadhaar</code></li> <li><strong> Possilbe Values:</strong> <code>aadhaar, abdm</code></li> </ul> </li> </ol> <ol>"
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: REQUEST-ID
+        in: header
+        required: true
+        schema:
+          type: string
+        example: '{{$randomUUID}}'
+      - name: TIMESTAMP
+        in: header
+        required: true
+        schema:
+          type: string
+        example: '{{$isoTimestamp}}'
+      responses:
+        '200':
+          description: |-
+            The 200 response code indicates a successful request. In this context, it refers to the successful generation and delivery of an OTP (One-Time Password) for various services.<br><br> <strong>Types of OTP Responses:</strong> <ol> <li><strong>AADHAAR OTP Response:</strong> This OTP is generated for authentication or verification purposes related to AADHAAR, the unique identification number issued by the Indian government.</li> </ol>
+             <ol start ="2">
+            <li><strong>ABHA OTP Response:</strong> This OTP is generated for authentication or verification purposes related to ABHA (Ayushman Bharat Health Account), which is part of Indiaâ€™s health ID system</li> </ol>
+             <ol start="3">
+            <li><strong>Mobile OTP Response.</strong> This OTP is generated for general mobile number verification purposes, such as logging into an account, completing a transaction, or verifying identity</li> </ol> <ol start ="4"> <li><strong>DL OTP Response:</strong> This OTP is generated for authentication or verification purposes related to DL, the unique identification number issued by the Indian government</li> </ol><ol start ="5"> <li><strong>Email OTP Response:</strong> This OTP is generated for verification purposes of Email, the OTP is send to the registered email address </li> </ol>
+
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  txnId:
+                    type: string
+                    example: "c6a49f66-c740-4a7d-a93d-8c0431bbb8f3"
+                  message:
+                    type: string
+                    example: "OTP is sent to Aadhaar registered mobile number ending with*******0903,OTP sent to Aadhaar registered mobile number ending with ******0903,OTP sent to email address ending with *************2000@gmail.com"
+              examples:
+                ABHA Creation via Aadhaar OTP-REQUEST OTP FOR AADHAAR AUTHENTICATION:
+                  value:
+                    txnId: c6a49f66-c740-4a7d-a93d-8c0431bbb8f3
+                    message: OTP is sent to Aadhaar registered mobile number ending with*******0903
+                Mobile Update - Send OTP- positive flow:
+                  value:
+                    txnId: 37d8d312-35a0-41e7-a6e4-107h6b18a5fa
+                    message: OTP sent to mobile number ending with ******0903
+                ABHA Enrolment via DL- positive flow:
+                  value:
+                    txnId: 8f6752eb-0531-48fa-8aa0-48e64249d873
+                    message: OTP sent to mobile number ending with ******3640
+                ABHA enrolment via Aadhaar-positive flow:
+                  value:
+                    txnId: 37d8d312-35a0-41e7-a6e4-1074eb18a5fa
+                    message: OTP sent to Aadhaar registered mobile number ending with ******0903
+                Email Verify via OTP-positive flow:
+                  value:
+                    txnId: 37d8d312-35a0-41e7-a6e4-1074eb18a5fa
+                    message: OTP sent to email address ending with *************2000@gmail.com
+
+        '400':
+          description: 'The 400 response code indicates a bad request. In this context, it refers to various errors encountered during the OTP (One-Time Password) generation or validation process.<br><br> <strong>Types of OTP Response Errors:</strong> <ol> <li><strong>ABHA enrolment via Aadhar - Invalid Scope</strong>: This error occurs when the scope provided in the OTP request is invalid. The scope specifies the purpose of the OTP request, such as abha-enrol, mobile-verify, etc.</li> </ol> <ol start="2"> <li><strong>ABHA enrolment via Aadhar  -Send OTP- Invalid LoginId</strong>: This error occurs when the login ID provided for the Aadhaar OTP is invalid. The login ID should be the encrypted Aadhaar number.</li> </ol> <ol start="3"> <li><strong>Mobile Update -Send OTP- Invalid Scope</strong>:  This error occurs when the scope provided in the OTP request for mobile update is invalid.</li> </ol> <ol start="4"> <li><strong>Mobile Update -Send OTP- Invalid LoginId</strong>: This error occurs when the login ID provided for the mobile OTP is invalid. The login ID should be the encrypted mobile number.</li> </ol> <ol start="5"> <li><strong>Mobile Update -Send OTP- Invalid LoginHint</strong>: This error occurs when the login hint provided for the mobile OTP is invalid. The login hint should indicate the type of identifier being used, such as mobile.</li> </ol> <ol start="6"> <li><strong>ABHA enrolment via DL - Invalid Scope</strong>: This error occurs when the scope provided in the OTP request for DL (Driving License) enrolment is invalid.</li> </ol> <ol start="7"> <li><strong>ABHA enrolment via DL - Invalid LoginId</strong>: This error occurs when the login ID provided for the DL OTP is invalid. The login ID should be the encrypted DL number.</li> </ol> <ol start="8"> <li><strong>ABHA enrolment via DL -  Invalid LoginHint</strong>: This error occurs when the login hint provided for the DL OTP is invalid. The login hint should indicate the type of identifier being used, such as DL.</li> </ol> <ol start="9"> <li><strong>ABHA Creation via Aadhar- Invalid Scope</strong>: This error occurs when the scope provided in the OTP request for ABHA creation via Aadhaar is invalid.</li> </ol> <ol start="10"> <li><strong>ABHA Creation via Aadhar- Invalid Login Hint</strong>: This error occurs when the login hint provided for the Aadhaar OTP is invalid. The login hint should indicate the type of identifier being used, such as aadhaar.</li> </ol> <ol start="11"> <li><strong>ABHA enrolment via Aadhar  - Invalid Scope</strong>: The scope of the OTP response is invalid.</li> </ol><ol start="12"> <li><strong>ABHA Verify via Email- Invalid Scope</strong>: This error occurs when the scope provided in the OTP request for ABHA creation via email is invalid.</li> </ol> <ol start="13"> <li><strong>ABHA Verify via Email- Invalid Login Hint</strong>: This error occurs when the login hint provided for the email OTP is invalid. The login hint should indicate the type of identifier being used, such as aadhaar.</li> </ol> <ol start="14"> <li><strong>ABHA Verify via Email  - Invalid LoginHint</strong>: This error occurs when the email ID provided for the email OTP is invalid. The login ID should be the encrypted email address..</li> </ol> '
+
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - type: object
+                  properties:
+                    scope:
+                      type: string
+                      example: "Invalid Scope"
+                    timestamp:
+                      type: string
+                      format: date-time
+                      example: "2024-05-10 11:13:04"
+                - type: object
+                  properties:
+                    loginId:
+                      type: string
+                      example: "Invalid LoginId"
+                    timestamp:
+                      type: string
+                      format: date-time
+                      example: "2024-05-10 11:15:14"
+                - type: object
+                  properties:
+                    loginHint:
+                      type: string
+                      example: "Invalid Login Hint"
+                    timestamp:
+                      type: string
+                      format: date-time
+                      example: "2024-05-10 11:16:16"
+
+              examples:
+                ABHA enrolment via Aadhaar-Invalid scope:
+                  value:
+                    scope: Invalid Scope
+                    timestamp: '2024-05-10 11:13:04'
+                ABHA enrolment via Aadhaar-Invalid LoginId:
+                  value:
+                    loginId: Invalid LoginId
+                    timestamp: '2024-05-10 11:15:14'
+                ABHA enrolment via Aadhaar-Invalid Login Hint:
+                  value:
+                    loginHint: Invalid Login Hint
+                    timestamp: '2024-05-10 11:16:16'
+                Mobile Update - Send OTP-Invalid Scope:
+                  value:
+                    scope: Invalid Scope
+                    timestamp: '2024-05-10 11:13:04'
+                Mobile Update - Send OTP-Invalid LoginId:
+                  value:
+                    loginId: Invalid LoginId
+                    timestamp: '2024-05-10 11:15:14'
+                Mobile Update - Send OTP-Invalid Login Hint:
+                  value:
+                    loginHint: Invalid Login Hint
+                    timestamp: '2024-05-10 11:16:16'
+                ABHA Enrolment via DL-Invalid Scope:
+                  value:
+                    scope: Invalid Scope
+                    timestamp: '2024-05-10 11:13:04'
+                ABHA Enrolment via DL-Invalid LoginId:
+                  value:
+                    loginId: Invalid LoginId
+                    timestamp: '2024-05-10 11:15:14'
+                ABHA Enrolment via DL-Invalid Login Hint:
+                  value:
+                    loginHint: Invalid Login Hint
+                    timestamp: '2024-05-10 11:16:16'
+                ABHA Creation via Aadhaar OTP-Invalid scope:
+                  value:
+                    scope: Invalid Scope
+                    timestamp: '2024-05-10 11:13:04'
+                ABHA Creation via Aadhaar OTP-Invalid Login Hint:
+                  value:
+                    loginHint: Invalid Login Hint
+                    timestamp: '2024-05-10 11:16:16'
+                ABHA Verify via Email-Invalid Login Hint:
+                  value:
+                    loginHint: Invalid Login Hint
+                    timestamp: '2024-05-10 11:16:16'
+                ABHA Verify via Email-Invalid scope:
+                  value:
+                    scope: Invalid Scope
+                    timestamp: '2024-05-10 11:13:04'
+                ABHA Verify via Email-Invalid LoginId:
+                  value:
+                    loginId: Invalid LoginId
+                    timestamp: '2024-05-10 11:15:14'
+        '401':
+          description: 'The 401 response code indicates an unauthorized request. In this context, it refers to the lack of proper authentication during the operation of the Invalid Credentials <br><br> <strong>Types of OTP Response Errors:</strong> <ol> <li><strong>ABHA Enrolment via Aadhaar - Invalid Access Token</strong>: This error occurs when the access token provided for authorization is invalid. The access token is essential for authenticating the request, and an invalid token means the server cannot verify the userâ€™s identity.</li> </ol> <ol start="2"> <li><strong>Mobile Update - Send OTP - Invalid Access Token</strong>: This error occurs when the access token provided for authorization is invalid. The access token is essential for authenticating the request, and an invalid token means the server cannot verify the userâ€™s identity.</li> </ol> <ol start="3"> <li><strong>ABHA Creation via Aadhaar OTP - Invalid Access Token</strong>:  This error occurs when the access token provided for authorization is invalid. The access token is essential for authenticating the request, and an invalid token means the server cannot verify the userâ€™s identity.</li> </ol> <ol start="4"> <li><strong>EMail verification via  OTP - Invalid Access Token</strong>:  This error occurs when the access token provided for authorization is invalid. The access token is essential for authenticating the request, and an invalid token means the server cannot verify the userâ€™s identity.</li> </ol> '
+
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    example: "900901"
+                  message:
+                    type: string
+                    example: "Invalid Credentials"
+                  description:
+                    type: string
+                    example: "Invalid JWT token. Make sure you have provided the correct security credentials"
+              examples:
+                ABHA enrolment via Aadhaar-Invalid access token:
+
+                  value:
+                    code: '900901'
+                    message: Invalid Credentials
+                    description: Invalid JWT token. Make sure you have provided the correct security credentials
+                Mobile Update - Send OTP-Invalid access token:
+
+                  value:
+                    code: '900901'
+                    message: Invalid Credentials
+                    description: Invalid JWT token. Make sure you have provided the correct security credentials
+                ABHA Creation via Aadhaar OTP-Invalid access token:
+                  value:
+                    code: '900901'
+                    message: Invalid Credentials
+                    description: Invalid JWT token. Make sure you have provided the correct security credentials
+                Email verify via  OTP-Invalid access token:
+                  value:
+                    code: '900901'
+                    message: Invalid Credentials
+                    description: Invalid JWT token. Make sure you have provided the correct security credentials
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    example: "900900"
+                  message:
+                    type: string
+                    example: "Unclassified Authentication Failure"
+                  description:
+                    type: string
+                    example: "Access failure for API: /abha/api/v3, version: v3 status: (900900) - Unclassified Authentication Failure"
+
+              examples:
+                ABHA Enrolment via DL-Invalid access token:
+                  value:
+                    code: '900900'
+                    message: Unclassified Authentication Failure
+                    description: 'Access failure for API: /abha/api/v3, version: v3 status: (900900) - Unclassified Authentication Failure'
+
+      description: "This API endpoint is used to generate and send an OTP (One-Time Password) to the userâ€™s registered mobile number. The OTP is essential for verifying the userâ€™s identity and ensuring secure access to the ABHA (Ayushman Bharat Health Account) enrollment process. Depending on the type of identifier provided (Aadhaar Number, ABHA Number, or Mobile Number), the OTP will be generated and sent to the corresponding registered mobile number.\r
+
+        <br> <br> </ol>**Usage of this API for below scenarios: OTP Request**<br><br> **1. AADHAR OTP:**When the user wants to enroll using their Aadhar Number, an OTP is sent to the mobile number registered with their Aadhar linked mobile number. For this pass loginHint as \"Aadhar-number\".   <br>  **2. Mobile OTP:** When the user wants to enroll using their Mobile Number, an OTP is sent to the provided mobile number. For this pass loginHint as \"mobile-number\".<br> **3. DL OTP:** When the user wants to enroll using their DL, an OTP is sent to the mobile number registered with their DL. For this pass loginHint as \"Mobile\".<br><b>Note:</b><br> **1.**OTP will be valid for 10 minute only <br><br>"
+
+  /abha/api/v3/enrollment/enrol/byAadhaar:
+    post:
+      tags:
+      - ABHA ENROLLMENT Via AADHAAR
+      - CHILD ABHA (These APIs are intended for use only by specific Government integrators, approved by NHA)
+      summary: 'UseCase : Create ABHA number Via Aadhaar by verifying Aadhaar OTP, using Biometrics, using demoAuth and Child ABHA Creation.'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                authData:
+                  type: object
+                  properties:
+                    authMethods:
+                      type: string
+                      example: [ "otp", "demo_auth", "bio", "face", "iris", "child" ]
+                  required:
+                  - authMethods
+                  anyOf:
+                  - type: object
+                    properties:
+                      otp:
+                        type: object
+                        properties:
+                          txnId:
+                            type: string
+                            example: "{{txnId}}"
+                          otpValue:
+                            type: string
+                            example: "{{encrypted otp}}"
+                          mobile:
+                            type: string
+                            example: "{{mobile number}}"
+                        required:
+                        - txnId
+                        - otpValue
+                        - mobile
+                    required:
+                    - otp
+
+                  - type: object
+                    properties:
+                      demo_auth:
+                        type: object
+                        properties:
+                          aadhaarNumber:
+                            type: string
+                            example: "{{encrypted aadhaar number}}"
+                          districtCode:
+                            type: string
+                            example: "{{District code}}"
+                          stateCode:
+                            type: string
+                            example: "{{State code}}"
+                          dateOfBirth:
+                            type: string
+                            example: "{{DOB}}"
+                          gender:
+                            type: string
+                            example: "{{Gender}}"
+                          name:
+                            type: string
+                            example: "{{Full name}}"
+                          mobile:
+                            type: string
+                            example: "{{Mobile number}}"
+                          pinCode:
+                            type: string
+                            example: "{{Pincode}}"
+                          address:
+                            type: string
+                            example: "{{Address}}"
+                          profilePhoto:
+                            type: string
+                            example: "{{Base64 plain String}}"
+                        required:
+                        - aadhaarNumber
+                        - name
+                        - gender
+                        - dateOfBirth
+                        - districtCode
+                        - stateCode
+                    required:
+                    - demo_auth
+
+                  - type: object
+                    properties:
+                      bio:
+                        type: object
+                        properties:
+                          aadhaar:
+                            type: string
+                            example: "{{encrypted aadhaar number}}"
+                          fingerPrintAuthPid:
+                            type: string
+                            example: "{{fingerPrintAuthPid}}"
+                          mobile:
+                            type: string
+                            example: "{{mobile number}}"
+                        required:
+                        - aadhaar
+                        - fingerPrintAuthPid
+                        - mobile
+                    required:
+                    - bio
+                  - type: object
+                    properties:
+                      face:
+                        type: object
+                        properties:
+                          aadhaar:
+                            type: string
+                            example: "{{encrypted aadhaar number}}"
+                          rdPidData:
+                            type: string
+                            example: "{{faceAuthPid}}"
+                          mobile:
+                            type: string
+                            example: "{{mobile number}}"
+                        required:
+                        - aadhaar
+                        - fingerPrintAuthPid
+                        - mobile
+                    required:
+                    - face
+                  - type: object
+                    properties:
+                      iris:
+                        type: object
+                        properties:
+                          aadhaar:
+                            type: string
+                            example: "{{encrypted aadhaar number}}"
+                          Pid:
+                            type: string
+                            example: "{{PID}}"
+                          mobile:
+                            type: string
+                            example: "{{mobile number}}"
+                        required:
+                        - aadhaar
+                        - fingerPrintAuthPid
+                        - mobile
+                    required:
+                    - iris
+                  - type: object
+                    properties:
+                      child:
+                        type: object
+                        properties:
+                          dayOfBirth:
+                            type: string
+                            example: "{{day Of Birth}}"
+                          monthOfBirth:
+                            type: string
+                            example: "{{month Of Birth}}"
+                          yearOfBirth:
+                            type: string
+                            example: "{{year Of Birth}}"
+                          gender:
+                            type: string
+                            example: "{{Gender}}"
+                          password:
+                            type: string
+                            example: ""
+                          name:
+                            type: string
+                            example: "{{Name}}"
+                          profilePhoto:
+                            type: string
+                            example: ""
+                          parentConsent:
+                            type: string
+                            example: "true"
+                        required:
+                        - dayOfBirth
+                        - monthOfBirth
+                        - yearOfBirth
+                        - gender
+                        - name
+                        - parentConsent
+                    required:
+                    - child
+                consent:
+                  type: object
+                  properties:
+                    code:
+                      type: string
+                      example: "abha-enrollment"
+                    version:
+                      type: string
+                      example: "1.4"
+              required:
+              - authData
+              - consent
+            examples:
+              Create ABHA by verifying OTP:
+                value:
+                  authData:
+                    authMethods:
+                    - otp
+                    otp:
+                      txnId: '{{txnId}}'
+                      otpValue: '{{encrypted otp}}'
+                      mobile: '{{mobile number}}'
+                  consent:
+                    code: abha-enrollment
+                    version: '1.4'
+              DemoAuth API:
+                value:
+                  authData:
+                    authMethods:
+                    - demo_auth
+                    demo_auth:
+                      aadhaarNumber: '{{encrypted aadhaar number}}'
+                      districtCode: '{{District code}}'
+                      stateCode: '{{State code}}'
+                      dateOfBirth: '{{DOB}}'
+                      gender: '{{Gender}}'
+                      name: '{{Full name}}'
+                      mobile: '{{Mobile number}}'
+                      profilePhoto: '{{Base64 plain String}}'
+                      pinCode: '110092'
+                      address: 'House No.1234 Anand Vihar, Delhi'
+                  consent:
+                    code: abha-enrollment
+                    version: '1.4'
+              Create ABHA via Biometrics- Aadhaar Bio (Fingerprint):
+                value:
+                  authData:
+                    authMethods:
+                    - bio
+                    bio:
+                      aadhaar: '{{encrypted aadhaar number}}'
+                      fingerPrintAuthPid: '{{fingerPrintAuthPid}}'
+                      mobile: '{{mobile number}}'
+                  consent:
+                    code: abha-enrollment
+                    version: '1.4'
+              Create ABHA via Biometrics- Aadhaar Faceauth:
+                value:
+                  authData:
+                    authMethods:
+                    - face_auth
+                    face:
+                      txnId: "881f2bf5-7377-4067-b50e-1e6ff100b3cc"
+                      aadhaar: '{{encrypted aadhaar number}}'
+                      mobile: '{{mobile number}}'
+                  consent:
+                    code: abha-enrollment
+                    version: '1.4'
+              Create ABHA via Biometrics- Aadhaar IRIS:
+                value:
+                  authData:
+                    authMethods:
+                    - iris
+                    iris:
+                      aadhaar: '{{encrypted aadhaar number}}'
+                      pid: '{{PID}}'
+                      mobile: '{{mobile number}}'
+                  consent:
+                    code: abha-enrollment
+                    version: '1.4'
+              CHILD ABHA-Create CHILD ABHA:
+                value:
+                  authData:
+                    authMethods:
+                    - child
+                    child:
+                      dayOfBirth: '{{day Of Birth}}'
+                      monthOfBirth: '{{month Of Birth}}'
+                      yearOfBirth: '{{year Of Birth}}'
+                      gender: '{{Gender}}'
+                      password: ''
+                      name: '{{Name}}'
+                      profilePhoto: ''
+                      parentConsent: 'true'
+                  consent:
+                    code: abha-enrollment
+                    version: '1.4'
+
+        description: "<b>Below is the Request Body description:</b><br><br>  <ol> <li> <p><strong>CHILD ABHA - Create CHILD ABHA</strong></p> <ul> <li><strong>Description:</strong> This API endpoint is used to create a CHILD ABHA number for a minor using their demographic details. The CHILD ABHA number helps in uniquely identifying minors and linking their health records across multiple systems:</li> <li><strong>dayOfBirth:</strong> The day of the userâ€™s birth. <ul> <li><strong>Type:</strong> String</li> <li><strong>Example:</strong> <code>14</code></li> </ul> </li> <li><strong>monthOfBirth:</strong> The month of the userâ€™s birth. <ul> <li><strong>Type:</strong> String</li> <li><strong>Example:</strong> <code>1</code></li> </ul> </li> <li><strong>yearOfBirth:</strong> The year of the userâ€™s birth. <ul> <li><strong>Type:</strong> String</li> <li><strong>Example:</strong> <code>2000</code></li> </ul> </li> <li><strong>name:</strong> The userâ€™s name. <ul> <li><strong>Type:</strong> String</li> <li><strong>Example:</strong> <code>John</code></li> </ul> </li> <li><strong>gender:</strong> The userâ€™s gender. <ul> <li><strong>Type:</strong> String</li> <li><strong>Example:</strong> <code>M</code></li> </ul> </li> <li><strong>name:</strong> The userâ€™s last name. <ul><li><strong>Type:</strong> String</li> <li><strong>Example:</strong> <code>Doe John</code></li> </ul> </li>  <li><strong>stateCode:</strong> The code of the userâ€™s state. <ul> <li><strong>Type:</strong> String</li> <li><strong>Example:</strong> <code>27</code></li> </ul> </li> <li><strong>parentConsent:</strong> Consent of the parent should be true <ul> <li><strong>Type:</strong> String</li> <li><strong>Example:</strong> <code>true</code></li> </ul> </li> </ul> </li> </ul> </li> </ul> </li> <li> <p><strong>Demo Auth API</strong></p> <ul> <li><strong>Description:</strong> This API endpoint is used for the demo authentication of an individual using their Aadhaar number. It verifies the demographic details against the Aadhaar database and generates an ABHA number if the details match.</li> <li><strong>dateOfBirth:</strong> The day of the userâ€™s birth. <ul> <li><strong>Type:</strong> String</li> <li><strong>Example:</strong> <code>18-06-1995</code></li> </ul> </li> <li><strong>districtCode:</strong> The code of the userâ€™s district. <ul> <li><strong>Type:</strong> String</li> <li><strong>Example:</strong> <code>486</code></li> </ul> </li> <li><strong>stateCode:</strong> The code of the userâ€™s state. <ul> <li><strong>Type:</strong> String</li> <li><strong>Example:</strong> <code>1</code></li> </ul> </li> <li><strong>name:</strong> The userâ€™s name. <ul> <li><strong>Type:</strong> String</li> <li><strong>Example:</strong> <code>John Doe</code></li> </ul> </li> <li><strong>gender:</strong> The userâ€™s gender. <ul> <li><strong>Type:</strong> String</li> <li><strong>Example:</strong> <code>M</code></li> </ul> </li> <li><strong>mobile:</strong> The userâ€™s mobile number. <ul> <li><strong>Type:</strong> String</li> <li><strong>Example:</strong> <code>******1234</code></li> </ul> </li> </ul> </li> <li> <p><strong>Create ABHA by Verifying OTP</strong></p> <ul> <li><strong>Description:</strong> This API endpoint is used to create an ABHA (Ayushman Bharat Health Account) number by verifying an OTP sent to the userâ€™s registered mobile number.</li> </ul> </li> <li> <p><strong>Create ABHA Via Biometrics</strong></p> <ul> <li><strong>Description:</strong> This API endpoint is used to create an ABHA (Ayushman Bharat Health Account) number by using users biometrics. In this flow user will be using Aadhaar authentication and biometrics verification(FingerPrint, Face and Iris). </li> </ul> </li> </ol>"
+
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: TIMESTAMP
+        in: header
+        required: true
+        schema:
+          type: string
+        example: '{{$isoTimestamp}}'
+      - name: REQUEST-ID
+        in: header
+        required: true
+        schema:
+          type: string
+        example: '{{$guid}}'
+      - name: Benefit-Name
+        in: header
+        schema:
+          type: string
+        description: '**Applicable for user who is enrolling via Benefit Program.**'
+        example: '{{Benefit Name}}'
+      - name: X-token
+        in: header
+        schema:
+          type: string
+        description: '**Applicable for child abha creation. X-token of Parent user, user can get X-token after login to the system**'
+        example: 'Bearer {{X-token}}'
+      responses:
+        '200':
+          description: 'The 200 response code indicates a successful request. In this context, it refers to the successful generation and delivery of an OTP (One-Time Password) for various services.<br><br> <strong>Types of OTP Responses:</strong> <ol> <li><strong>Create ABHA by Verifying OTP - Positive Flow:</strong> his API endpoint is used to create an ABHA (Ayushman Bharat Health Account) number by verifying an OTP sent to the userâ€™s registered mobile number. The ABHA number uniquely identifies individuals and helps in authenticating them and linking their health records across multiple systems.</li> </ol> <ol start ="2"> <li><strong>CHILD ABHA - Positive Flow:</strong> This API endpoint is used to create a CHILD ABHA number for a minor using their demographic details. The CHILD ABHA number helps in uniquely identifying minors and linking their health records across multiple systems.</li> </ol> <ol start="3"> <li><strong>CHILD ABHA - Account Already Exists.</strong> This error occurs when an attempt is made to create a CHILD ABHA number for a minor who already has an existing ABHA number.</li> </ol> <ol start ="4"> <li><strong>DemoAuth API - In Case of Existing ABHA Numbe:</strong> This API endpoint is used for the demo authentication of an individual using their Aadhaar number. It verifies the demographic details against the Aadhaar database and generates an ABHA number if the details match. If an ABHA number already exists, it will return the existing ABHA number</li> </ol> <ol start ="5"> <li><strong>DemoAuth API - New ABHA Creation :</strong> This API endpoint is used for the demo authentication of an individual using their Aadhaar number. It verifies the demographic details against the Aadhaar database and generates a new ABHA number if the details match and no existing ABHA number is found.</li> </ol>'
+
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - type: object
+                  properties:
+                    message:
+                      type: string
+                      example: "This account already exist,Account created successfully"
+                    tokens:
+                      type: object
+                      properties:
+                        token:
+                          type: string
+                        expiresIn:
+                          type: integer
+<truncated 631584 bytes>
+
+NOTE: The output was truncated because it was too long. Use a more targeted query or a smaller range to get the information you need.

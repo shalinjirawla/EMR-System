@@ -1,0 +1,77 @@
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h4><i class="fa fa-id-card"></i> ABHA Dashboard</h4>
+    </div>
+    <div class="card-body text-center">
+        <div *ngIf="isLoading">
+            <i class="fa fa-spinner fa-spin fa-3x"></i>
+            <p>Loading ABHA Credentials...</p>
+        </div>
+        
+        <div *ngIf="!isLoading && (cardDataUrl || qrCodeUrl)" class="row">
+            <div class="col-md-4">
+                <h5>ABHA QR Code</h5>
+                <img *ngIf="qrCodeUrl" [src]="qrCodeUrl" alt="ABHA QR Code" class="img-fluid border p-2" style="max-width: 200px;" />
+            </div>
+            
+            <div class="col-md-8">
+                <h5>ABHA Card</h5>
+                <div *ngIf="cardDataUrl" class="border p-2 mb-3">
+                    <ng-container *ngIf="rawCardBase64 && rawCardBase64.startsWith('JVBERi0'); else cardAsImg">
+                        <object [data]="cardDataUrl" type="application/pdf" width="100%" height="400px">
+                            <p>Your browser does not support PDFs. <a [href]="cardDataUrl">Download the PDF</a>.</p>
+                        </object>
+                    </ng-container>
+                    <ng-template #cardAsImg>
+                        <img [src]="cardDataUrl" alt="ABHA Card" class="img-fluid" />
+                    </ng-template>
+                </div>
+                <button class="btn btn-success btn-lg mb-2 mr-2" (click)="downloadCard()" *ngIf="rawCardBase64">
+                    <i class="fa fa-download"></i> Download ABHA Card
+                </button>
+                <button class="btn btn-primary btn-lg mb-2" (click)="requestHIUConsent()">
+                    <i class="fa fa-cloud-download"></i> Fetch External Health Records (HIU)
+                </button>
+            </div>
+        </div>
+
+        <div *ngIf="!isLoading && !cardDataUrl && !qrCodeUrl" class="alert alert-warning">
+            Could not fetch ABHA credentials. Make sure you are logged in.
+        </div>
+
+        <hr />
+        
+        <div class="row text-left mt-4" *ngIf="patientId">
+            <div class="col-md-12">
+                <h4><i class="fa fa-notes-medical"></i> External Health Records (Decrypted)</h4>
+                <div class="alert alert-info">
+                    <i class="fa fa-info-circle"></i> Once the patient grants consent on their ABHA app, the system will automatically fetch, decrypt, and save the data. Click the button below to view it.
+                </div>
+                <div class="mb-3">
+                    <button class="btn btn-info" (click)="loadExternalRecords()">
+                        <i class="fa fa-refresh"></i> Load Saved Records
+                    </button>
+                </div>
+
+                <div *ngIf="externalRecords.length > 0">
+                    <div class="card mb-3" *ngFor="let record of externalRecords">
+                        <div class="card-header bg-light">
+                            <strong><i class="fa fa-file-text-o"></i> Transaction:</strong> {{record.transactionId}}
+                            <span class="float-right text-muted"><i class="fa fa-clock-o"></i> {{record.creationTime | date:'medium'}}</span>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title text-success">{{record.extractedSummary}}</h5>
+                            <pre class="bg-dark text-white p-3 rounded" style="max-height: 400px; overflow-y: auto;">
+{{ record.parsedPayload | json }}
+                            </pre>
+                        </div>
+                    </div>
+                </div>
+                <div *ngIf="externalRecords.length === 0" class="text-muted">
+                    <p>No external health records fetched yet. Click "Load Saved Records" to check.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

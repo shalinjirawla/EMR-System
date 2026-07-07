@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
-import { AppointmentServiceProxy, CreateUpdatePrescriptionItemDto, LabReportsTypeServiceProxy, PharmacistInventoryDtoPagedResultDto, PharmacistInventoryServiceProxy, PrescriptionItemDto, PrescriptionServiceProxy, PatientDropDownDto, EmergencyProcedureServiceProxy, EmergencyProcedureDto, CreateUpdateSelectedEmergencyProceduresDto, MedicineFormMasterServiceProxy, MedicineMasterServiceProxy, MedicineSearchInputDto } from '@shared/service-proxies/service-proxies';
+import { AppointmentServiceProxy, CreateUpdatePrescriptionItemDto, LabReportsTypeServiceProxy, PrescriptionItemDto, PrescriptionServiceProxy, PatientDropDownDto, EmergencyProcedureServiceProxy, EmergencyProcedureDto, CreateUpdateSelectedEmergencyProceduresDto, MedicineFormMasterServiceProxy, MedicineMasterServiceProxy, MedicineSearchInputDto } from '@shared/service-proxies/service-proxies';
 import { AbpModalHeaderComponent } from '../../../shared/components/modal/abp-modal-header.component';
 import { AbpModalFooterComponent } from '../../../shared/components/modal/abp-modal-footer.component';
 import { AppComponentBase } from '../../../shared/app-component-base';
@@ -34,7 +34,7 @@ import { TooltipModule } from 'primeng/tooltip';
   ],
   templateUrl: './create-prescriptions.component.html',
   styleUrls: ['./create-prescriptions.component.css'],
-  providers: [DoctorServiceProxy, EmergencyProcedureServiceProxy, MedicineMasterServiceProxy, MedicineFormMasterServiceProxy, PatientServiceProxy, PharmacistInventoryServiceProxy, LabReportsTypeServiceProxy, AppointmentServiceProxy, AppSessionService, PrescriptionServiceProxy]
+  providers: [DoctorServiceProxy, EmergencyProcedureServiceProxy, MedicineMasterServiceProxy, MedicineFormMasterServiceProxy, PatientServiceProxy, LabReportsTypeServiceProxy, AppointmentServiceProxy, AppSessionService, PrescriptionServiceProxy]
 })
 export class CreatePrescriptionsComponent extends AppComponentBase implements OnInit {
   @ViewChild('prescriptionForm', { static: true }) prescriptionForm: NgForm;
@@ -105,7 +105,6 @@ export class CreatePrescriptionsComponent extends AppComponentBase implements On
     private _sessionService: AppSessionService,
     private _prescriptionService: PrescriptionServiceProxy,
     private _labService: LabReportsTypeServiceProxy,
-    private _pharmacistInventoryService: PharmacistInventoryServiceProxy,
     private permissionChecker: PermissionCheckerService,
     private _modalService: BsModalService,
     private _medicineMasterService: MedicineMasterServiceProxy

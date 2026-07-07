@@ -1,5 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { AbpModalHeaderComponent } from '@shared/components/modal/abp-modal-header.component';
+import { ChangeDetectorRef, Component, OnInit, Inject } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { ButtonModule } from 'primeng/button';
 import { TabsModule } from 'primeng/tabs';
@@ -7,16 +6,20 @@ import { StepperModule } from 'primeng/stepper';
 import { TableModule } from 'primeng/table';
 import { AvatarModule } from 'primeng/avatar';
 import { ProgressBarModule } from 'primeng/progressbar';
-import { AppointmentStatus, PatientDetailsAndMedicalHistoryDto, PatientPrescriptionsHistoryDto, PatientServiceProxy } from '@shared/service-proxies/service-proxies';
-import { CommonModule } from '@node_modules/@angular/common';
-import { FormsModule } from '@node_modules/@angular/forms';
+import { AppointmentStatus, PatientDetailsAndMedicalHistoryDto, PatientServiceProxy } from '@shared/service-proxies/service-proxies';
 import { ChipModule } from 'primeng/chip';
-import { groupBy } from 'lodash';
 import { TagModule } from 'primeng/tag';
+import { AbhaCreationComponent } from './abha-creation/abha-creation.component';
+import { AbhaLoginComponent } from './abha-login/abha-login.component';
+import { AbhaDashboardComponent } from './abha-dashboard/abha-dashboard.component';
+import { AbpModalHeaderComponent } from "../../../shared/components/modal/abp-modal-header.component";
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+
 @Component({
   selector: 'app-patient-profile',
-  imports: [AbpModalHeaderComponent,TagModule, TableModule, ProgressBarModule, ChipModule
-    , ButtonModule, TabsModule, StepperModule, AvatarModule, CommonModule, FormsModule],
+  imports: [TagModule, TableModule, ProgressBarModule, ChipModule,
+    ButtonModule, TabsModule, StepperModule, AvatarModule, CommonModule, FormsModule, AbhaLoginComponent, AbhaDashboardComponent, AbpModalHeaderComponent],
   templateUrl: './patient-profile.component.html',
   styleUrl: './patient-profile.component.css',
   providers: [PatientServiceProxy]
@@ -31,7 +34,23 @@ export class PatientProfileComponent implements OnInit {
     { label: 'Completed', value: AppointmentStatus._3 },
     { label: 'Cancelled', value: AppointmentStatus._4 },
   ];
-  constructor(public bsModalRef: BsModalRef, private _patientService: PatientServiceProxy,
+
+  abhaXToken: string = '';
+
+  onAbhaLinked(result: any) {
+    console.log('ABHA successfully linked:', result);
+    this.GetPatientDetailsAndMedicalHistory();
+  }
+
+  onAbhaLoggedIn(result: any) {
+    console.log('ABHA login result:', result);
+    if (result && result.xToken) {
+      this.abhaXToken = result.xToken;
+    }
+    this.GetPatientDetailsAndMedicalHistory();
+  }
+
+  constructor(public bsModalRef: BsModalRef, @Inject(PatientServiceProxy) private _patientService: PatientServiceProxy,
     private ref: ChangeDetectorRef
   ) {
   }

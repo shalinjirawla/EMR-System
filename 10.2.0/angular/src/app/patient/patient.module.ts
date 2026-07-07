@@ -5,14 +5,25 @@ import { PatientRoutingModule } from './patient-routing.module';
 import { PatientComponent } from './patient.component';
 
 
+import { AbhaCreationComponent } from './patient-profile/abha-creation/abha-creation.component';
+import { FormsModule } from '@angular/forms';
+import { AbhaLoginComponent } from './patient-profile/abha-login/abha-login.component';
+
+import { AbhaDashboardComponent } from './patient-profile/abha-dashboard/abha-dashboard.component';
+
 @NgModule({
     imports: [
         SharedModule,
         PatientRoutingModule,
         CommonModule,
-        PatientComponent
-       
-      
+        PatientComponent,
+        FormsModule,
+        AbhaCreationComponent,
+        AbhaLoginComponent,
+        AbhaDashboardComponent
     ],
+    declarations: [
+
+    ]
 })
-export class PatientModule {}
+export class PatientModule { }

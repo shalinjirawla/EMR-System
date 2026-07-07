@@ -4,7 +4,6 @@ import { SharedModule } from 'primeng/api';
 import { NurseRoutingModule } from './nurse-routing.module';
 import { NurseComponent } from './nurse.component';
 import { AssignedPatientsComponent } from './assigned-patients/assigned-patients.component';
-import { OrderMedicineComponent } from './order-medicine/order-medicine.component';
 import { VitalsNotesComponent } from './vitals-notes/vitals-notes.component';
 
 
@@ -15,10 +14,9 @@ import { VitalsNotesComponent } from './vitals-notes/vitals-notes.component';
         CommonModule,
         NurseComponent,
         AssignedPatientsComponent,
-        OrderMedicineComponent,
         VitalsNotesComponent
-       
-      
+
+
     ],
 })
-export class NurseModule {}
+export class NurseModule { }

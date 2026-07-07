@@ -1,4 +1,4 @@
-﻿using Abp.Domain.Entities;
+using Abp.Domain.Entities;
 using Abp.Domain.Entities.Auditing;
 using EMRSystem.Appointments;
 using EMRSystem.Authorization.Users;
@@ -24,6 +24,7 @@ namespace EMRSystem.Doctors
         public string Qualification { get; set; }
         public int YearsOfExperience { get; set; }
         public string RegistrationNumber { get; set; }
+        public string HprId { get; set; } // ABDM Healthcare Professional Registry ID
         public DateTime? DateOfBirth { get; set; }
         public long AbpUserId { get; set; }
         public long? DepartmentId { get; set; }

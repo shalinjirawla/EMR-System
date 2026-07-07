@@ -1,4 +1,4 @@
-﻿using Abp.Application.Services.Dto;
+using Abp.Application.Services.Dto;
 using EMRSystem.Invoices;
 using System;
 using System.Collections.Generic;
@@ -35,5 +35,9 @@ namespace EMRSystem.Patients.Dto
         public PatientVitalsDetailsDto patientVitalsDetails { get; set; }
         public List<PatientAppointmentHistoryDto> patientAppointmentHistory { get; set; }
         public List<PatientPrescriptionsHistoryDto> patientPrescriptionsHistory { get; set; }
+        
+        public bool IsAbhaLinked { get; set; }
+        public string AbhaQrCodeBase64 { get; set; }
+        public string AbhaCardBase64 { get; set; }
     }
 }

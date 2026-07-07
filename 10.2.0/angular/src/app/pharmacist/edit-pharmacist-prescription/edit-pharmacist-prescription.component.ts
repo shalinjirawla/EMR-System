@@ -10,7 +10,6 @@ import {
   MedicineMasterServiceProxy,
   PatientServiceProxy,
   PaymentMethod,
-  PharmacistInventoryServiceProxy,
   PharmacistPrescriptionItemWithUnitPriceDto,
   PharmacistPrescriptionsServiceProxy,
   PrescriptionItemsServiceProxy,
@@ -64,7 +63,7 @@ interface MedicineBatch {
   templateUrl: './edit-pharmacist-prescription.component.html',
   styleUrl: './edit-pharmacist-prescription.component.css',
   providers: [PrescriptionItemsServiceProxy, MedicineMasterServiceProxy, MedicineFormMasterServiceProxy,
-    PharmacistInventoryServiceProxy, MessageService, PrescriptionServiceProxy, PharmacistPrescriptionsServiceProxy]
+    MessageService, PrescriptionServiceProxy, PharmacistPrescriptionsServiceProxy]
 })
 export class EditPharmacistPrescriptionComponent extends AppComponentBase implements OnInit {
   @ViewChild('createPharmacistPrescriptionForm', { static: true }) createPharmacistPrescriptionForm: NgForm;
@@ -127,7 +126,6 @@ export class EditPharmacistPrescriptionComponent extends AppComponentBase implem
     public bsModalRef: BsModalRef,
     private cdRef: ChangeDetectorRef,
     private PrescriptionItemsService: PrescriptionItemsServiceProxy,
-    private _pharmacistInventoryService: PharmacistInventoryServiceProxy,
     private prescriptionService: PrescriptionServiceProxy,
     private pharmacistPrescriptionService: PharmacistPrescriptionsServiceProxy,
     private _medicineFormService: MedicineFormMasterServiceProxy,
@@ -231,27 +229,7 @@ export class EditPharmacistPrescriptionComponent extends AppComponentBase implem
         if (done) done();
       },
       error: (err) => {
-        this._pharmacistInventoryService.get(medicineMasterId).subscribe({
-          next: (mres: any) => {
-            const pseudo = [{
-              id: -medicineMasterId,
-              batchNo: 'N/A',
-              expiryDate: null,
-              quantity: mres.stock || 0,
-              sellingPrice: mres.sellingPrice || 0,
-              isExpire: false,
-              daysToExpire: Number.MAX_SAFE_INTEGER
-            }];
-            this.medicineBatches[medicineMasterId] = pseudo;
-            this.medicineStocks[medicineMasterId] = mres.stock || 0;
-            if (done) done();
-          },
-          error: () => {
-            this.medicineBatches[medicineMasterId] = [];
-            this.medicineStocks[medicineMasterId] = 0;
-            if (done) done();
-          }
-        });
+
       }
     });
   }
@@ -758,51 +736,8 @@ export class EditPharmacistPrescriptionComponent extends AppComponentBase implem
     this.cdRef.detectChanges();
   }
 
-  loadMedicines(afterLoadedCallback?: () => void) {
-    this._pharmacistInventoryService.getAll(
-      undefined, undefined, undefined, undefined, undefined, true, undefined, undefined
-    ).subscribe({
-      next: (res) => {
-        if (res.items && res.items.length > 0) {
-          const selectedIds = this.selectedPrescriptionItem?.map(itm => itm.medicineId) || [];
-          this.medicineOptions = res.items.map(item => ({
-            label: item.medicineName,
-            value: item.id,
-            name: item.medicineName,
-            disabled: selectedIds.includes(item.id)
-          }));
-
-          // Pre-fetch batches for all medicines
-          res.items.forEach(medicine => {
-            const units = medicine.unit ? medicine.unit.split(',').map((u: string) => u.trim()) : [];
-            this.medicineDosageOptions[medicine.medicineName] = units;
-            this.selectedMedicineUnits[medicine.medicineName] = units.length ? units[0] : '';
-
-            // Fetch batches for this medicine
-            this.fetchBatchesForMedicine(medicine.id);
-          });
-        }
-        if (afterLoadedCallback) afterLoadedCallback();
-      },
-      error: (err) => {
-        this.notify.error('Could not load medicines');
-        if (afterLoadedCallback) afterLoadedCallback();
-      }
-    });
-  }
 
 
-  GetPriceOfMedicine(_medicineId: number) {
-    this._pharmacistInventoryService.get(_medicineId).subscribe({
-      next: (res) => {
-        if (this.newPrescriptionItem) {
-          this.newPrescriptionItem.unitPrice = res.sellingPrice;
-        }
-        this.medicineStocks[_medicineId] = res.stock || 0;
-      },
-      error: () => { }
-    });
-  }
 
   getPrescriptionTotal(): number {
     if (!this.selectedPrescriptionItem || !this.selectedPrescriptionItem.length) return 0;

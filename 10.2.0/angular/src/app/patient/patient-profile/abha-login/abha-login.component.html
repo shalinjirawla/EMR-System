@@ -1,0 +1,47 @@
+<div class="card">
+    <div class="card-header">
+        <h4>Link Existing ABHA Profile</h4>
+    </div>
+    <div class="card-body">
+        <div *ngIf="step === 1">
+            <div class="form-group">
+                <label>ABHA Number or Aadhaar Number</label>
+                <input type="text" class="form-control" [(ngModel)]="loginId" placeholder="e.g. 91-xxxx-xxxx-xxxx or 123456789012">
+            </div>
+            <button class="btn btn-primary mt-2" (click)="requestOtp()" [disabled]="isLoading">
+                <i class="fa fa-spinner fa-spin" *ngIf="isLoading"></i> Request OTP
+            </button>
+        </div>
+
+        <div *ngIf="step === 2">
+            <div class="alert alert-info">An OTP has been sent to your registered mobile number.</div>
+            <div class="form-group">
+                <label>Enter OTP</label>
+                <input type="text" class="form-control" [(ngModel)]="otp" placeholder="Enter 6-digit OTP" maxlength="6">
+            </div>
+            <button class="btn btn-primary mt-2" (click)="verifyOtp()" [disabled]="isLoading">
+                <i class="fa fa-spinner fa-spin" *ngIf="isLoading"></i> Verify OTP
+            </button>
+        </div>
+
+        <div *ngIf="step === 3">
+            <div *ngIf="isLoading" class="text-center">
+                <i class="fa fa-spinner fa-spin fa-2x"></i>
+                <p>Fetching and linking profile...</p>
+            </div>
+            <div *ngIf="!isLoading && linkedProfile">
+                <h5>Profile Successfully Linked</h5>
+                <div class="mb-3 p-3 border bg-light">
+                    <p><strong>Name:</strong> {{linkedProfile.name}}</p>
+                    <p><strong>ABHA Number:</strong> {{linkedProfile.abhaNumber}}</p>
+                    <p><strong>ABHA Address:</strong> {{linkedProfile.abhaAddress}}</p>
+                </div>
+                <button class="btn btn-success" (click)="step = 4">Done</button>
+            </div>
+        </div>
+        
+        <div *ngIf="step === 4">
+            <div class="alert alert-success">The EMR Patient record is now synchronized with their ABHA account.</div>
+        </div>
+    </div>
+</div>

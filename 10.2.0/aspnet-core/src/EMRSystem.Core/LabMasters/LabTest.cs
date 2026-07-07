@@ -1,4 +1,4 @@
-﻿using Abp.Domain.Entities;
+using Abp.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -14,6 +14,7 @@ namespace EMRSystem.LabMasters
     {
         public int TenantId { get; set; }
         public string Name { get; set; }
+        public string LoincCode { get; set; } // ABDM LOINC Code for FHIR mapping
         public long? MeasureUnitId { get; set; }
         public virtual EMRSystem.LabMasters.MeasureUnit MeasureUnit { get; set; }
         public virtual ICollection<LabReportTypeItem> LabReportTypeItems { get; set; }

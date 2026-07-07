@@ -1,8 +1,9 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClientJsonpModule } from '@angular/common/http';
+import { HttpClientJsonpModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { HttpClientModule } from '@angular/common/http';
+import { AbhaErrorInterceptor } from '@shared/interceptors/abha-error.interceptor';
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { CollapseModule } from 'ngx-bootstrap/collapse';
@@ -50,6 +51,12 @@ import { SidebarMenuComponent } from './layout/sidebar-menu.component';
         SidebarUserPanelComponent,
         SidebarMenuComponent,
     ],
-    providers: [],
+    providers: [
+        {
+            provide: HTTP_INTERCEPTORS,
+            useClass: AbhaErrorInterceptor,
+            multi: true
+        }
+    ],
 })
 export class AppModule {}

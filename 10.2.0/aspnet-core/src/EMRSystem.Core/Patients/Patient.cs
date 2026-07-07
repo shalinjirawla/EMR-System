@@ -1,4 +1,4 @@
-﻿using Abp.Domain.Entities;
+using Abp.Domain.Entities;
 using Abp.Domain.Entities.Auditing;
 using EMRSystem.Appointments;
 using EMRSystem.Authorization.Users;
@@ -56,6 +56,7 @@ namespace EMRSystem.Patients
         public virtual ICollection<EMRSystem.EmergencyChargeEntries.EmergencyChargeEntry> EmergencyChargeEntries { get; set; }
         public virtual ICollection<PharmacistPrescriptions> PharmacistPrescriptions { get; set; }
         public virtual ICollection<EMRSystem.PatientDischarge.PatientDischarge> _PatientDischarge { get; set; }
+        public virtual ICollection<EMRSystem.Abdm.Abha.PatientAbhaDetails> AbhaDetails { get; set; }
 
 
         //public DateTime? AdmissionDate { get; set; }
