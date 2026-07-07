@@ -1,0 +1,62 @@
+<div class="card">
+    <div class="card-header">
+        <h4>Create ABHA via Aadhaar</h4>
+    </div>
+    <div class="card-body">
+        <div *ngIf="step === 1">
+            <div class="form-group">
+                <label>Aadhaar Number</label>
+                <input type="text" class="form-control" [(ngModel)]="aadhaarNumber" placeholder="Enter 12-digit Aadhaar"
+                    maxlength="12">
+            </div>
+            <button class="btn btn-primary mt-2" (click)="requestOtp()" [disabled]="isLoading">
+                <i class="fa fa-spinner fa-spin" *ngIf="isLoading"></i> Request OTP
+            </button>
+        </div>
+
+        <div *ngIf="step === 2">
+            <div class="alert alert-info">An OTP has been sent to your Aadhaar-linked mobile number.</div>
+            <div class="form-group">
+                <label>Enter OTP</label>
+                <input type="text" class="form-control" [(ngModel)]="otp" placeholder="Enter 6-digit OTP" maxlength="6">
+            </div>
+            <div class="form-group mt-2">
+                <label>Mobile Number (for ABHA)</label>
+                <input type="text" class="form-control" [(ngModel)]="mobileNumber"
+                    placeholder="Enter 10-digit Mobile Number" maxlength="10">
+            </div>
+            <button class="btn btn-primary mt-2" (click)="verifyOtp()" [disabled]="isLoading">
+                <i class="fa fa-spinner fa-spin" *ngIf="isLoading"></i> Verify OTP & Enrol
+            </button>
+        </div>
+
+        <div *ngIf="step === 3">
+            <h5>Profile Verified</h5>
+            <div class="mb-3 p-3 border bg-light">
+                <p><strong>Name:</strong> {{profile?.name}}</p>
+                <p><strong>Gender:</strong> {{profile?.gender}}</p>
+                <p><strong>Birth Year:</strong> {{profile?.yearOfBirth}}</p>
+            </div>
+
+            <div class="form-group">
+                <label>Select Suggested ABHA Address</label>
+                <select class="form-control" [(ngModel)]="selectedAddress">
+                    <option value="">-- Select Suggestion --</option>
+                    <option *ngFor="let s of suggestions" [value]="s">{{s}}</option>
+                </select>
+            </div>
+            <div class="form-group mt-2">
+                <label>Or Create Custom ABHA Address</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" [(ngModel)]="customAddress" placeholder="Enter custom name">
+                    <div class="input-group-append">
+                        <span class="input-group-text">sbx</span>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-success mt-3" (click)="createAbha()" [disabled]="isLoading">
+                <i class="fa fa-spinner fa-spin" *ngIf="isLoading"></i> Create ABHA
+            </button>
+        </div>
+    </div>
+</div>

@@ -5,7 +5,7 @@ import { AbpModalHeaderComponent } from "../../../shared/components/modal/abp-mo
 import { AbpModalFooterComponent } from "../../../shared/components/modal/abp-modal-footer.component";
 import {
   CollectionStatus, CreateUpdatePharmacistPrescriptionsDto,
-  MedicineMasterServiceProxy, PatientServiceProxy, PaymentMethod, PharmacistInventoryServiceProxy,
+  MedicineMasterServiceProxy, PatientServiceProxy, PaymentMethod,
   PharmacistPrescriptionItemWithUnitPriceDto, PharmacistPrescriptionsServiceProxy,
   PrescriptionServiceProxy,
 } from '@shared/service-proxies/service-proxies';
@@ -44,7 +44,7 @@ interface LocalPharmacistItem extends Partial<PharmacistPrescriptionItemWithUnit
   ],
   templateUrl: './create-pharmacist-prescription.component.html',
   styleUrl: './create-pharmacist-prescription.component.css',
-  providers: [PatientServiceProxy, MedicineMasterServiceProxy, PharmacistInventoryServiceProxy, MessageService, PrescriptionServiceProxy, PharmacistPrescriptionsServiceProxy]
+  providers: [PatientServiceProxy, MedicineMasterServiceProxy, MessageService, PrescriptionServiceProxy, PharmacistPrescriptionsServiceProxy]
 })
 export class CreatePharmacistPrescriptionComponent extends AppComponentBase implements OnInit {
   @ViewChild('createPharmacistPrescriptionForm', { static: true }) createPharmacistPrescriptionForm: NgForm;
@@ -84,7 +84,6 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
     private prescriptionService: PrescriptionServiceProxy,
     private pharmacistPrescriptionService: PharmacistPrescriptionsServiceProxy,
     private messageService: MessageService,
-    private _pharmacistInventoryService: PharmacistInventoryServiceProxy,
     private _medicineMasterService: MedicineMasterServiceProxy
   ) {
     super(injector);
@@ -163,27 +162,6 @@ export class CreatePharmacistPrescriptionComponent extends AppComponentBase impl
         if (done) done();
       },
       error: (err) => {
-        this._pharmacistInventoryService.get(medicineMasterId).subscribe({
-          next: (mres: any) => {
-            const pseudo = [{
-              id: -medicineMasterId,
-              batchNo: 'N/A',
-              expiryDate: null,
-              quantity: mres.stock || 0,
-              sellingPrice: mres.sellingPrice || 0,
-              isExpire: false,
-              daysToExpire: Number.MAX_SAFE_INTEGER
-            }];
-            this.medicineBatches[medicineMasterId] = pseudo;
-            this.medicineStocks[medicineMasterId] = mres.stock || 0;
-            if (done) done();
-          },
-          error: () => {
-            this.medicineBatches[medicineMasterId] = [];
-            this.medicineStocks[medicineMasterId] = 0;
-            if (done) done();
-          }
-        });
       }
     });
   }

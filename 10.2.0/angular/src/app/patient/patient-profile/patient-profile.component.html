@@ -1,128 +1,166 @@
 <div>
     <abp-modal-header title="Patient Details" (onCloseClick)="bsModalRef.hide()">
     </abp-modal-header>
-    <div class="modal-body" *ngIf="patientDetailsAndMedicalHistory">
-        <div class="card p-3">
-            <div class="Patient-details text-center">
-                <img src="https://i.pravatar.cc/100" class="rounded-circle" />
-                <h2 class="font-patient-name">{{patientDetailsAndMedicalHistory.fullName}}</h2>
-                <p class="text-muted-foreground">{{calculateAgeDisplay(patientDetailsAndMedicalHistory.dateOfBirth)}} •
-                    {{patientDetailsAndMedicalHistory.gender}}</p>
-                <div class="d-flex justify-content-center align-items-center">
-                    <p class="patient-status pl-2 pr-2" *ngIf="patientDetailsAndMedicalHistory.isAdmitted">Active</p>
-                    <p class="patient-blood-group ml-2 pl-2 pr-2">{{patientDetailsAndMedicalHistory.bloodGroup}}</p>
+    <div class="modal-body p-0" style="background-color: #f4f7fb; overflow-x: hidden;" *ngIf="patientDetailsAndMedicalHistory">
+        <div class="profile-hero text-center text-white">
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <div class="profile-avatar-wrapper mb-3">
+                    <img src="https://ui-avatars.com/api/?name={{patientDetailsAndMedicalHistory.fullName}}&background=random&size=128&color=fff&bold=true" class="rounded-circle profile-img" />
+                </div>
+                <h2 class="fw-bold mb-2">{{patientDetailsAndMedicalHistory.fullName}}</h2>
+                <p class="mb-3 opacity-75 d-flex justify-content-center align-items-center gap-2" style="font-size: 1.05rem;">
+                    <span><i class="fa fa-birthday-cake"></i> {{calculateAgeDisplay($any(patientDetailsAndMedicalHistory).dateOfBirth?.toDate())}}</span>
+                    <span>&bull;</span>
+                    <span><i class="fa fa-venus-mars"></i> {{patientDetailsAndMedicalHistory.gender}}</span>
+                </p>
+                <div class="d-flex justify-content-center align-items-center gap-3">
+                    <span class="premium-hero-badge success-badge" *ngIf="$any(patientDetailsAndMedicalHistory).isAdmitted">
+                        <i class="fa fa-check-circle"></i> Active
+                    </span>
+                    <span class="premium-hero-badge danger-badge">
+                        <i class="fa fa-tint"></i> {{patientDetailsAndMedicalHistory.bloodGroup}}
+                    </span>
                 </div>
             </div>
-            <div class="Patient-info">
-                <div class="row mt-3">
-                    <div class="col-md-6">
-                        <div class="card p-3">
-                            <table class="table">
-                                <thead>
-                                    <tr class="text-center">
-                                        <th colspan="2">
-                                            Personal Information
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tr>
-                                    <th>Date of Birth</th>
-                                    <td> {{patientDetailsAndMedicalHistory.dateOfBirth | date}}</td>
-                                </tr>
-                                <tr>
-                                    <th>Phone</th>
-                                    <td>{{patientDetailsAndMedicalHistory.phoneNumber}}</td>
-                                </tr>
-                                <tr>
-                                    <th>Email</th>
-                                    <td>{{patientDetailsAndMedicalHistory.emailAddress}}</td>
-                                </tr>
-                                <tr>
-                                    <th>Address</th>
-                                    <td>{{patientDetailsAndMedicalHistory.address}}</td>
-                                </tr>
-                            </table>
+        </div>
+
+        <div class="profile-content-wrapper container-fluid px-4 pb-4">
+            <!-- 4 Cards -->
+            <div class="row g-4 mb-4">
+                <!-- Card 1 -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="super-card h-100">
+                        <div class="card-icon-header">
+                            <div class="icon-box primary">
+                                <i class="fa fa-user"></i>
+                            </div>
+                            <h5>Personal Info</h5>
                         </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card p-3">
-                            <table class="table">
-                                <thead>
-                                    <tr class="text-center">
-                                        <th colspan="2">
-                                            Medical Information
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tr>
-                                    <th>Blood Type</th>
-                                    <td>{{patientDetailsAndMedicalHistory.bloodGroup}}</td>
-                                </tr>
-                                <tr>
-                                    <th>Conditions</th>
-                                    <td>Hypertension, Type 2 Diabetes</td>
-                                </tr>
-                                <tr>
-                                    <th>Primary Nurse</th>
-                                    <td>{{patientDetailsAndMedicalHistory.assignedNurseName}}</td>
-                                </tr>
-                                <tr>
-                                    <th>Primary Doctor</th>
-                                    <td>{{patientDetailsAndMedicalHistory.assignedDoctorName}}</td>
-                                </tr>
-                            </table>
+                        <div class="data-grid">
+                            <div class="data-item">
+                                <span class="data-label">DOB</span>
+                                <span class="data-value">{{$any(patientDetailsAndMedicalHistory).dateOfBirth?.toDate() | date}}</span>
+                            </div>
+                            <div class="data-item">
+                                <span class="data-label">Phone</span>
+                                <span class="data-value">{{patientDetailsAndMedicalHistory.phoneNumber || 'N/A'}}</span>
+                            </div>
+                            <div class="data-item">
+                                <span class="data-label">Email</span>
+                                <span class="data-value text-truncate" [title]="patientDetailsAndMedicalHistory.emailAddress">{{patientDetailsAndMedicalHistory.emailAddress || 'N/A'}}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="row mt-3">
-                    <div class="col-md-6">
-                        <div class="card p-3">
-                            <table class="table">
-                                <thead>
-                                    <tr class="text-center">
-                                        <th colspan="2">
-                                            Insurance Information
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tr>
-                                    <th>Provider</th>
-                                    <td>{{patientDetailsAndMedicalHistory.insuranceProvider}}</td>
-                                </tr>
-                                <tr>
-                                    <th>Policy Number</th>
-                                    <td>{{patientDetailsAndMedicalHistory.insurancePolicyNumber}}</td>
-                                </tr>
-                            </table>
+                
+                <!-- Card 2 -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="super-card h-100">
+                        <div class="card-icon-header">
+                            <div class="icon-box danger">
+                                <i class="fa fa-stethoscope"></i>
+                            </div>
+                            <h5>Medical Info</h5>
+                        </div>
+                        <div class="data-grid">
+                            <div class="data-item">
+                                <span class="data-label">Blood Type</span>
+                                <span class="data-value">{{patientDetailsAndMedicalHistory.bloodGroup || 'N/A'}}</span>
+                            </div>
+                            <div class="data-item">
+                                <span class="data-label">Conditions</span>
+                                <span class="data-value text-truncate" title="Hypertension, Type 2 Diabetes">Hypertension, Type 2...</span>
+                            </div>
+                            <div class="data-item">
+                                <span class="data-label">Primary Doctor</span>
+                                <span class="data-value">{{patientDetailsAndMedicalHistory.assignedDoctorName || 'N/A'}}</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="card p-3">
-                            <table class="table">
-                                <thead>
-                                    <tr class="text-center">
-                                        <th colspan="2">
-                                            Emergency Contact
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <td>{{patientDetailsAndMedicalHistory.emergencyContactName}}</td>
-                                </tr>
-                                <tr>
-                                    <th>Relationship</th>
-                                    <td>Wife</td>
-                                </tr>
-                                <tr>
-                                    <th>Phone</th>
-                                    <td>{{patientDetailsAndMedicalHistory.emergencyContactNumber}}</td>
-                                </tr>
-                            </table>
+                </div>
+                
+                <!-- Card 3 -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="super-card h-100">
+                        <div class="card-icon-header">
+                            <div class="icon-box success">
+                                <i class="fa fa-shield-alt"></i>
+                            </div>
+                            <h5>Insurance</h5>
+                        </div>
+                        <div class="data-grid">
+                            <div class="data-item">
+                                <span class="data-label">Provider</span>
+                                <span class="data-value">{{$any(patientDetailsAndMedicalHistory).insuranceProvider || 'N/A'}}</span>
+                            </div>
+                            <div class="data-item">
+                                <span class="data-label">Policy No</span>
+                                <span class="data-value">{{$any(patientDetailsAndMedicalHistory).insurancePolicyNumber || 'N/A'}}</span>
+                            </div>
+                            <div class="data-item">
+                                <span class="data-label">Status</span>
+                                <span class="data-value text-success"><i class="fa fa-check-circle"></i> Active</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Card 4 -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="super-card h-100">
+                        <div class="card-icon-header">
+                            <div class="icon-box warning">
+                                <i class="fa fa-phone-alt"></i>
+                            </div>
+                            <h5>Emergency</h5>
+                        </div>
+                        <div class="data-grid">
+                            <div class="data-item">
+                                <span class="data-label">Name</span>
+                                <span class="data-value">{{patientDetailsAndMedicalHistory.emergencyContactName || 'N/A'}}</span>
+                            </div>
+                            <div class="data-item">
+                                <span class="data-label">Relation</span>
+                                <span class="data-value">Wife</span>
+                            </div>
+                            <div class="data-item">
+                                <span class="data-label">Phone</span>
+                                <span class="data-value">{{patientDetailsAndMedicalHistory.emergencyContactNumber || 'N/A'}}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+            <!-- ABHA Integration Section -->
+            <div class="row mt-4 mb-2">
+                <div class="col-12">
+                    <h4 class="text-primary"><i class="fa fa-id-card"></i> Ayushman Bharat Health Account (ABHA)</h4>
+                    <hr>
+                </div>
+            </div>
+            
+            <div class="row mb-4" *ngIf="!abhaXToken && !patientDetailsAndMedicalHistory?.isAbhaLinked">
+                <div class="col-md-8 offset-md-2">
+                    <app-abha-login 
+                        [patientId]="id" 
+                        (profileLinked)="onAbhaLoggedIn($event)">
+                    </app-abha-login>
+                </div>
+            </div>
+
+            <div class="row mb-4" *ngIf="abhaXToken || patientDetailsAndMedicalHistory?.isAbhaLinked">
+                <div class="col-12">
+                    <app-abha-dashboard 
+                        [xToken]="abhaXToken" 
+                        [patientId]="id"
+                        [patientName]="patientDetailsAndMedicalHistory?.fullName"
+                        [savedQrCodeBase64]="patientDetailsAndMedicalHistory?.abhaQrCodeBase64"
+                        [savedCardBase64]="patientDetailsAndMedicalHistory?.abhaCardBase64">
+                    </app-abha-dashboard>
+                </div>
+            </div>
+
             <div class="patient-history mt-3">
                 <p-tabs value="0" scrollable>
                     <p-tablist>
@@ -159,9 +197,9 @@
                                         <h6><b>Blood Pressure</b></h6>
                                         <div class="mt-3">
                                             <p class="m-0">
-                                                {{patientDetailsAndMedicalHistory.patientVitalsDetails.bloodPressure}}
+                                                {{patientDetailsAndMedicalHistory.patientVitalsDetails?.bloodPressure || 'N/A'}}
                                             </p>
-                                            <small>{{patientDetailsAndMedicalHistory.patientVitalsDetails.dateRecorded
+                                            <small>{{$any(patientDetailsAndMedicalHistory.patientVitalsDetails)?.dateRecorded?.toDate()
                                                 |date}}</small>
                                             <p-progressbar />
                                             <span>Slightly elevated</span>
@@ -173,8 +211,8 @@
                                         <h6><b>Heart Rate</b></h6>
                                         <div class="mt-3">
                                             <p class="m-0">
-                                                {{patientDetailsAndMedicalHistory.patientVitalsDetails.heartRate}}</p>
-                                            <small>{{patientDetailsAndMedicalHistory.patientVitalsDetails.dateRecorded
+                                                {{patientDetailsAndMedicalHistory.patientVitalsDetails?.heartRate || 'N/A'}}</p>
+                                            <small>{{$any(patientDetailsAndMedicalHistory.patientVitalsDetails)?.dateRecorded?.toDate()
                                                 |date}}</small>
                                             <p-progressbar />
                                             <span>Above normal</span>
@@ -186,8 +224,8 @@
                                         <h6><b>Weight</b></h6>
                                         <div class="mt-3">
                                             <p class="m-0">
-                                                {{patientDetailsAndMedicalHistory.patientVitalsDetails.weight}} kg</p>
-                                            <small>{{patientDetailsAndMedicalHistory.patientVitalsDetails.dateRecorded
+                                                {{patientDetailsAndMedicalHistory.patientVitalsDetails?.weight || 'N/A'}}</p>
+                                            <small>{{$any(patientDetailsAndMedicalHistory.patientVitalsDetails)?.dateRecorded?.toDate()
                                                 |date}}</small>
                                             <p-progressbar />
                                             <span>Stable</span>
@@ -216,7 +254,7 @@
                                         *ngFor="let itm of patientDetailsAndMedicalHistory.patientAppointmentHistory">
                                         <tr>
                                             <td>
-                                                <p class="m-0">{{itm.appointmentDate |date}}</p>
+                                                <p class="m-0">{{$any(itm).appointmentDate?.toDate() |date}}</p>
                                                 <p class="m-0">{{itm.startTime}}</p>
                                             </td>
                                             <td>

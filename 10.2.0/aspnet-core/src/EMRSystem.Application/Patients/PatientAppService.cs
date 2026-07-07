@@ -1,4 +1,4 @@
-﻿using Abp.Application.Services;
+using Abp.Application.Services;
 using Abp.Application.Services.Dto;
 using Abp.Authorization;
 using Abp.Collections.Extensions;
@@ -231,11 +231,20 @@ namespace EMRSystem.Patients
                 .Include(x => x.Vitals)
                 .Include(x => x.Appointments)
                     .ThenInclude(x => x.Doctor)
-                //.Include(x => x.Appointments)
-                //    .ThenInclude(x => x.Nurse)
+                .Include(x => x.AbhaDetails)
                 .FirstOrDefaultAsync(x => x.Id == patientId);
 
-            return ObjectMapper.Map<PatientDetailsAndMedicalHistoryDto>(data);
+            var dto = ObjectMapper.Map<PatientDetailsAndMedicalHistoryDto>(data);
+            
+            var abhaDetail = data?.AbhaDetails?.FirstOrDefault();
+            if (abhaDetail != null)
+            {
+                dto.IsAbhaLinked = true;
+                dto.AbhaQrCodeBase64 = abhaDetail.QrCodeBase64;
+                dto.AbhaCardBase64 = abhaDetail.CardBase64;
+            }
+            
+            return dto;
         }
 
 

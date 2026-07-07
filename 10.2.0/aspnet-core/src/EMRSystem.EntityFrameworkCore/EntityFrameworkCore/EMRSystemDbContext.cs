@@ -1,4 +1,4 @@
-﻿using Abp.Zero.EntityFrameworkCore;
+using Abp.Zero.EntityFrameworkCore;
 using EMRSystem.Admission;
 using EMRSystem.Appointments;
 using EMRSystem.Authorization.Roles;
@@ -26,8 +26,10 @@ using EMRSystem.Room;
 using EMRSystem.RoomMaster;
 using EMRSystem.Visits;
 using EMRSystem.Vitals;
+using EMRSystem.Abdm.Abha;
+using EMRSystem.Abdm.Consent;
+using EMRSystem.Abdm.HealthInformation;
 using Microsoft.EntityFrameworkCore;    // NEW
-
 
 namespace EMRSystem.EntityFrameworkCore;
 
@@ -97,8 +99,11 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
     public DbSet<InsuranceClaim> InsuranceClaims { get; set; }
     public DbSet<EMRSystem.BirthRecord.BirthRecord> BirthRecords { get; set; }
     public DbSet<EMRSystem.DeathRecord.DeathRecord> DeathRecords { get; set; }
-
-
+    public DbSet<PatientAbhaDetails> PatientAbhaDetails { get; set; }
+    
+    public DbSet<AbdmConsentRequest> AbdmConsentRequests { get; set; }
+    public DbSet<AbdmHealthInformationTask> AbdmHealthInformationTasks { get; set; }
+    public DbSet<AbdmExternalHealthRecord> AbdmExternalHealthRecords { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -175,6 +180,12 @@ public class EMRSystemDbContext : AbpZeroDbContext<Tenant, Role, User, EMRSystem
                 .WithMany(e => e.Patients)
                 .HasForeignKey(s => s.AbpUserId)
                 .OnDelete(DeleteBehavior.NoAction); // or NoAction
+
+        modelBuilder.Entity<PatientAbhaDetails>()
+                .HasOne(s => s.Patient)
+                .WithMany(p => p.AbhaDetails)
+                .HasForeignKey(s => s.PatientId)
+                .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<EMRSystem.DoctorMaster.DoctorMaster>()
                 .HasOne(dm => dm.Doctor)

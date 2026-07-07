@@ -114,13 +114,13 @@
           <tbody>
             <tr *ngFor="let item of invoice.items; let i = index">
               <td class="font-weight-600">{{item.description}}</td>
-              <td class="text-muted small">{{item.entryDate | date:'dd/MM/yyyy'}}</td>
+              <td class="text-muted small">{{$any(item).entryDate?.toDate() | date:'dd/MM/yyyy'}}</td>
               <td class="text-right">₹{{item.unitPrice | number:'1.2-2'}}</td>
               <td class="text-right"><span class="badge badge-pill badge-light border">{{item.quantity}}</span></td>
               <td class="text-right font-weight-bold text-dark">₹{{item.unitPrice * item.quantity | number:'1.2-2'}}
               </td>
               <td class="text-center">
-                <button *ngIf="item.isRemovable" type="button" pButton icon="pi pi-trash"
+                <button *ngIf="$any(item).isRemovable" type="button" pButton icon="pi pi-trash"
                   class="p-button-rounded p-button-danger p-button-text p-button-sm" (click)="removeItem(i)"
                   pTooltip="Remove Item">
                 </button>

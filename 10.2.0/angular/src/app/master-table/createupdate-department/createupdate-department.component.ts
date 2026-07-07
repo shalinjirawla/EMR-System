@@ -63,11 +63,14 @@ export class CreateupdateDepartmentComponent extends AppComponentBase implements
   }
 
   get isFormValid(): boolean {
+    const isDepartmentTypeValid = this.department.departmentType !== undefined && this.department.departmentType !== null;
+    
     if (this.id) {
-      return this.departmentForm?.form.valid && !!this.department.departmentName;
+      return isDepartmentTypeValid && !!this.department.departmentName?.trim();
     } else {
       return (
-        this.departmentForm?.form.valid &&
+        isDepartmentTypeValid &&
+        this.selectedDepartmentNames &&
         this.selectedDepartmentNames.length > 0
       );
     }

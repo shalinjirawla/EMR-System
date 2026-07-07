@@ -6,7 +6,7 @@ import { PagedListingComponentBase } from 'shared/paged-listing-component-base';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { LazyLoadEvent, PrimeTemplate } from 'primeng/api';
 import { finalize } from 'rxjs/operators';
-import { CollectionStatus, MedicineOrderDto, MedicineOrderServiceProxy, NurseDto, NurseServiceProxy, PharmacistPrescriptionItemWithUnitPriceDto, PharmacistPrescriptionsDto, PharmacistPrescriptionsDtoPagedResultDto, PharmacistPrescriptionsServiceProxy, PrescriptionDtoPagedResultDto, PrescriptionServiceProxy } from '@shared/service-proxies/service-proxies';
+import { CollectionStatus, NurseDto, NurseServiceProxy, PharmacistPrescriptionItemWithUnitPriceDto, PharmacistPrescriptionsDto, PharmacistPrescriptionsDtoPagedResultDto, PharmacistPrescriptionsServiceProxy, PrescriptionDtoPagedResultDto, PrescriptionServiceProxy } from '@shared/service-proxies/service-proxies';
 import { NgIf, DatePipe, CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -41,7 +41,6 @@ export class PharmacistPrescriptionsComponent extends PagedListingComponentBase<
     @ViewChild('dataTable', { static: true }) dataTable: Table;
     @ViewChild('paginator', { static: true }) paginator: Paginator;
     visible: boolean = false;
-    medicineorder: MedicineOrderDto[] = [];
     keyword = '';
     isActive: boolean | null;
     selectedRecordForView!: PharmacistPrescriptionsDto;
@@ -75,30 +74,30 @@ export class PharmacistPrescriptionsComponent extends PagedListingComponentBase<
             { label: 'Pharmacist-prescription' },
         ];
     }
-  getPrescriptionMenu(record: PharmacistPrescriptionsDto): MenuItem[] {
-    return [
-        {
-            label: 'Edit',
-            icon: 'pi pi-pencil',
-            visible: record.collectionStatus === CollectionStatus._0,
-            command: () => this.createUpdate(record.id),
-        },
-        {
-            label: 'View',
-            icon: 'pi pi-eye',
-            visible: record.collectionStatus === CollectionStatus._1,
-            command: () => this.ViewPharmacistPrescriptions(record.prescriptionId, record.id),
-        },
-        {
-            label: 'Mark as PickedUp',
-            icon: 'pi pi-check',
-            visible: record.collectionStatus === CollectionStatus._0 && record.grandTotal > 0,
-            command: () => this.openPickupDialog(record.id),
-        },
-    ];
-}
+    getPrescriptionMenu(record: PharmacistPrescriptionsDto): MenuItem[] {
+        return [
+            {
+                label: 'Edit',
+                icon: 'pi pi-pencil',
+                visible: record.collectionStatus === CollectionStatus._0,
+                command: () => this.createUpdate(record.id),
+            },
+            {
+                label: 'View',
+                icon: 'pi pi-eye',
+                visible: record.collectionStatus === CollectionStatus._1,
+                command: () => this.ViewPharmacistPrescriptions(record.prescriptionId, record.id),
+            },
+            {
+                label: 'Mark as PickedUp',
+                icon: 'pi pi-check',
+                visible: record.collectionStatus === CollectionStatus._0 && record.grandTotal > 0,
+                command: () => this.openPickupDialog(record.id),
+            },
+        ];
+    }
 
-onRowMenuClick(event: any, record: PharmacistPrescriptionsDto, rowMenu: any): void {
+    onRowMenuClick(event: any, record: PharmacistPrescriptionsDto, rowMenu: any): void {
         this.selectedRecord = record;
         this.pharmacistMenu = this.getPrescriptionMenu(record);
         rowMenu.toggle(event);
